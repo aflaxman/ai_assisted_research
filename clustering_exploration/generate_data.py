@@ -1,5 +1,16 @@
 """
-Generate synthetic time series data for testing CRLI and VaDER clustering methods
+Synthetic Time Series Data Generation for Clustering Evaluation
+
+This script creates synthetic time series datasets with known cluster labels
+to evaluate the performance of CRLI and VaDER clustering methods.
+
+The synthetic data includes:
+- Univariate time series: Single-dimensional signals with 3 distinct patterns
+- Multivariate time series: 3-dimensional signals with feature correlations
+
+Each dataset has 300 samples divided equally among 3 clusters with
+characteristic temporal patterns that should be distinguishable by
+the clustering algorithms.
 """
 
 import numpy as np
@@ -16,7 +27,29 @@ os.makedirs('figures', exist_ok=True)
 
 
 def generate_red_noise(n_steps, mean=0, std=1.0, correlation=0.5):
-    """Generate red (correlated) noise."""
+    """
+    Generate red (correlated) noise using an AR(1) process.
+
+    Red noise, also known as Brownian noise, has temporal correlation where
+    each value depends on the previous value. This creates smoother, more
+    realistic noise compared to white (uncorrelated) noise.
+
+    Parameters
+    ----------
+    n_steps : int
+        Number of time steps to generate
+    mean : float, default=0
+        Mean of the noise process
+    std : float, default=1.0
+        Standard deviation of the noise
+    correlation : float, default=0.5
+        Temporal correlation coefficient (0 = white noise, 1 = random walk)
+
+    Returns
+    -------
+    noise : numpy.ndarray
+        Array of shape (n_steps,) containing correlated noise
+    """
     noise = np.zeros(n_steps)
     noise[0] = np.random.normal(mean, std)
     for i in range(1, n_steps):
@@ -28,10 +61,27 @@ def generate_univariate_data(n_samples=300, n_steps=100, n_clusters=3):
     """
     Generate univariate time series data with clear cluster patterns.
 
-    Each cluster has different characteristics:
-    - Cluster 0: Linear upward trend with low noise
-    - Cluster 1: Sinusoidal pattern with medium noise
-    - Cluster 2: Linear downward trend with high noise
+    Creates three types of time series patterns that should be distinguishable
+    by clustering algorithms:
+    - Cluster 0: Linear upward trend with low noise (smooth increase)
+    - Cluster 1: Sinusoidal pattern with medium noise (oscillations)
+    - Cluster 2: Linear downward trend with high noise (noisy decrease)
+
+    Parameters
+    ----------
+    n_samples : int, default=300
+        Total number of time series to generate (split equally among clusters)
+    n_steps : int, default=100
+        Length of each time series
+    n_clusters : int, default=3
+        Number of clusters (must be 3 for the defined patterns)
+
+    Returns
+    -------
+    data : numpy.ndarray
+        Array of shape (n_samples, n_steps, 1) containing time series
+    labels : numpy.ndarray
+        Array of shape (n_samples,) containing cluster labels (0, 1, or 2)
     """
     print(f"\nGenerating {n_samples} univariate time series with {n_steps} steps...")
 
@@ -82,10 +132,33 @@ def generate_multivariate_data(n_samples=300, n_steps=100, n_features=3, n_clust
     """
     Generate multivariate time series data with clear cluster patterns.
 
-    Each cluster has different characteristics across features:
-    - Cluster 0: Feature correlations with upward trends
-    - Cluster 1: Sinusoidal patterns with phase shifts
-    - Cluster 2: Downward trends with anti-correlation
+    Creates three types of multivariate patterns where the relationships
+    between features define each cluster:
+    - Cluster 0: All features trend upward together (positive correlation)
+    - Cluster 1: Features oscillate with phase shifts (periodic patterns)
+    - Cluster 2: Features have opposite trends (anti-correlation)
+
+    These patterns test whether clustering methods can identify relationships
+    between multiple dimensions, which is a key challenge in multivariate
+    time series clustering.
+
+    Parameters
+    ----------
+    n_samples : int, default=300
+        Total number of time series to generate (split equally among clusters)
+    n_steps : int, default=100
+        Length of each time series
+    n_features : int, default=3
+        Number of features (dimensions) per time step
+    n_clusters : int, default=3
+        Number of clusters (must be 3 for the defined patterns)
+
+    Returns
+    -------
+    data : numpy.ndarray
+        Array of shape (n_samples, n_steps, n_features) containing time series
+    labels : numpy.ndarray
+        Array of shape (n_samples,) containing cluster labels (0, 1, or 2)
     """
     print(f"\nGenerating {n_samples} multivariate time series with {n_steps} steps and {n_features} features...")
 
@@ -144,7 +217,25 @@ def generate_multivariate_data(n_samples=300, n_steps=100, n_features=3, n_clust
 
 
 def visualize_univariate_samples(data, labels, n_samples_per_cluster=5):
-    """Visualize sample time series from each cluster (univariate)."""
+    """
+    Visualize sample time series from each cluster (univariate).
+
+    Creates a multi-panel plot showing representative examples from each
+    cluster to illustrate the characteristic patterns that define each group.
+
+    Parameters
+    ----------
+    data : numpy.ndarray
+        Time series data of shape (n_samples, n_steps, 1)
+    labels : numpy.ndarray
+        Cluster labels of shape (n_samples,)
+    n_samples_per_cluster : int, default=5
+        Number of random samples to show per cluster
+
+    Saves
+    -----
+    figures/univariate_samples.png : PNG image file
+    """
     print("\nVisualizing univariate samples...")
 
     n_clusters = len(np.unique(labels))
@@ -177,7 +268,25 @@ def visualize_univariate_samples(data, labels, n_samples_per_cluster=5):
 
 
 def visualize_multivariate_samples(data, labels, n_samples_per_cluster=3):
-    """Visualize sample time series from each cluster (multivariate)."""
+    """
+    Visualize sample time series from each cluster (multivariate).
+
+    Creates a grid plot where rows represent clusters and columns represent
+    features, showing how all features evolve together within each cluster.
+
+    Parameters
+    ----------
+    data : numpy.ndarray
+        Time series data of shape (n_samples, n_steps, n_features)
+    labels : numpy.ndarray
+        Cluster labels of shape (n_samples,)
+    n_samples_per_cluster : int, default=3
+        Number of random samples to show per cluster
+
+    Saves
+    -----
+    figures/multivariate_samples.png : PNG image file
+    """
     print("\nVisualizing multivariate samples...")
 
     n_clusters = len(np.unique(labels))

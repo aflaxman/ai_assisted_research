@@ -1,5 +1,19 @@
 """
-Test CRLI and VaDER clustering methods on synthetic time series data
+CRLI vs VaDER Clustering Evaluation
+
+This script evaluates and compares two deep learning time series clustering
+methods from the PyPOTS library:
+
+1. CRLI: GAN-based clustering with k-means guidance
+2. VaDER: VAE-based clustering with variational inference
+
+The evaluation includes:
+- Training both methods on univariate and multivariate time series
+- Computing clustering accuracy metrics (ARI, NMI)
+- Measuring training time
+- Visualizing results using t-SNE projections
+
+Results are saved to figures/ directory and logged to console.
 """
 
 import numpy as np
@@ -21,7 +35,24 @@ warnings.filterwarnings('ignore')
 np.random.seed(42)
 
 def load_data(data_type='univariate'):
-    """Load the generated synthetic data."""
+    """
+    Load and preprocess synthetic time series data for clustering.
+
+    Loads the .npz data files created by generate_data.py and applies
+    z-score normalization, which is essential for neural network stability.
+
+    Parameters
+    ----------
+    data_type : str, default='univariate'
+        Type of data to load: 'univariate' or 'multivariate'
+
+    Returns
+    -------
+    X : numpy.ndarray
+        Normalized time series data
+    y_true : numpy.ndarray
+        Ground truth cluster labels
+    """
     if data_type == 'univariate':
         data = np.load('data_univariate.npz')
     else:
@@ -53,7 +84,29 @@ def prepare_pypots_data(X):
 
 
 def compute_metrics(y_true, y_pred, X_embedded=None):
-    """Compute clustering evaluation metrics."""
+    """
+    Compute clustering evaluation metrics.
+
+    Calculates two primary metrics for clustering quality:
+    - ARI (Adjusted Rand Index): Measures similarity between predicted and
+      true clusters, adjusted for chance. Range: [-1, 1], higher is better.
+    - NMI (Normalized Mutual Information): Measures shared information
+      between predicted and true clusters. Range: [0, 1], higher is better.
+
+    Parameters
+    ----------
+    y_true : numpy.ndarray
+        Ground truth cluster labels
+    y_pred : numpy.ndarray
+        Predicted cluster labels
+    X_embedded : numpy.ndarray, optional
+        Embedded feature vectors (not used in current implementation)
+
+    Returns
+    -------
+    metrics : dict
+        Dictionary containing 'ARI' and 'NMI' scores
+    """
     metrics = {}
 
     # Adjusted Rand Index (1.0 is perfect, 0.0 is random)
