@@ -11,14 +11,20 @@ SETUP INSTRUCTIONS
 ==================
 
 # From the mpld3_notes directory:
-cd /path/to/mpld3_notes
+cd /home/abie/ai_assisted_research/mpld3_notes
 source mpld3-dev/.venv/bin/activate
 
 # First, test WITHOUT the PR (should show broken behavior):
+# Using specific commit SHAs so this works even after PR is merged
 cd mpld3-dev/mplexporter
-git checkout master
+git fetch origin
+git checkout 967e0a4   # master before PR #68
+cd ../mpld3
+git fetch origin
+git checkout 3aad00b   # main as of 2024-12-07
 cd ..
 uv pip install --no-build-isolation -e ./mplexporter
+uv pip install --no-build-isolation -e ./mpld3
 cd ..
 python -P test_pr68_logscale_fix.py
 
