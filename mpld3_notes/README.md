@@ -65,12 +65,12 @@ cd ..
 
 ## Verification
 
-**Important**: You must run Python from the `mpld3-dev` directory, NOT from inside the `mpld3/` or `mplexporter/` subdirectories. The repo source trees will shadow the installed packages and cause import errors.
+**Important**: You must run Python from **outside** the `mpld3-dev` directory (e.g., from `mpld3_notes/`). The `mpld3-dev/` directory contains the cloned `mpld3/` repo, which shadows the installed package due to Python adding the current directory to `sys.path`.
 
 ```bash
-# IMPORTANT: cd to mpld3-dev first!
-cd /path/to/mpld3-dev
-source .venv/bin/activate
+# IMPORTANT: run from OUTSIDE mpld3-dev (the parent directory)
+cd /path/to/mpld3_notes
+source mpld3-dev/.venv/bin/activate
 python -c "
 import matplotlib
 matplotlib.use('Agg')
@@ -90,18 +90,18 @@ print(f'Generated HTML length: {len(html)} characters')
 ## Running Tests
 
 ```bash
-# From mpld3-dev directory
-source .venv/bin/activate
+# From mpld3_notes directory (parent of mpld3-dev)
+source mpld3-dev/.venv/bin/activate
 
 # Run mpld3 tests
-cd mpld3
+cd mpld3-dev/mpld3
 pytest mpld3/tests/ -v
-cd ..
+cd ../..
 
 # Run mplexporter tests
-cd mplexporter
+cd mpld3-dev/mplexporter
 pytest -v
-cd ..
+cd ../..
 ```
 
 ## Testing GitHub Pull Requests
@@ -109,12 +109,12 @@ cd ..
 ### Testing a Single PR (mpld3 or mplexporter)
 
 ```bash
-# Start fresh or use existing environment
-cd mpld3-dev
-source .venv/bin/activate
+# Start from mpld3_notes directory
+cd /path/to/mpld3_notes
+source mpld3-dev/.venv/bin/activate
 
 # For an mpld3 PR:
-cd mpld3
+cd mpld3-dev/mpld3
 git fetch origin pull/<PR_NUMBER>/head:pr-<PR_NUMBER>
 git checkout pr-<PR_NUMBER>
 cd ..
@@ -123,12 +123,12 @@ cd ..
 uv pip install --no-build-isolation -e ./mpld3
 
 # Run tests
-cd mpld3 && pytest mpld3/tests/ -v && cd ..
+cd mpld3 && pytest mpld3/tests/ -v && cd ../..
 ```
 
 ```bash
 # For an mplexporter PR:
-cd mplexporter
+cd mpld3-dev/mplexporter
 git fetch origin pull/<PR_NUMBER>/head:pr-<PR_NUMBER>
 git checkout pr-<PR_NUMBER>
 cd ..
@@ -137,7 +137,7 @@ cd ..
 uv pip install --no-build-isolation -e ./mplexporter
 
 # Run tests
-cd mplexporter && pytest -v && cd ..
+cd mplexporter && pytest -v && cd ../..
 ```
 
 ### Testing Related PRs Together
@@ -145,11 +145,12 @@ cd mplexporter && pytest -v && cd ..
 Sometimes PRs in mpld3 and mplexporter need to be tested together (e.g., when mpld3 changes depend on mplexporter changes):
 
 ```bash
-cd mpld3-dev
-source .venv/bin/activate
+# Start from mpld3_notes directory
+cd /path/to/mpld3_notes
+source mpld3-dev/.venv/bin/activate
 
 # Checkout mplexporter PR first (mpld3 depends on it)
-cd mplexporter
+cd mpld3-dev/mplexporter
 git fetch origin pull/<MPLEXPORTER_PR>/head:pr-<MPLEXPORTER_PR>
 git checkout pr-<MPLEXPORTER_PR>
 cd ..
@@ -166,18 +167,19 @@ uv pip install --no-build-isolation -e ./mpld3
 
 # Run both test suites
 cd mplexporter && pytest -v && cd ..
-cd mpld3 && pytest mpld3/tests/ -v && cd ..
+cd mpld3 && pytest mpld3/tests/ -v && cd ../..
 ```
 
 ### Returning to Main Branch
 
 ```bash
-cd mpld3 && git checkout main && cd ..
+cd mpld3-dev/mpld3 && git checkout main && cd ..
 cd mplexporter && git checkout master && cd ..
 
 # Reinstall clean versions
 uv pip install --no-build-isolation -e ./mplexporter
 uv pip install --no-build-isolation -e ./mpld3
+cd ..
 ```
 
 ### Using gh CLI (Alternative)
@@ -186,10 +188,11 @@ If you have the GitHub CLI installed:
 
 ```bash
 # Checkout PR directly
-cd mpld3
+cd mpld3-dev/mpld3
 gh pr checkout <PR_NUMBER>
 cd ..
 uv pip install --no-build-isolation -e ./mpld3
+cd ..
 ```
 
 ## Building mpld3 JavaScript
@@ -206,10 +209,11 @@ npm run watch
 
 ## Troubleshooting
 
-### Import Errors / Module Not Found
-- Ensure the virtual environment is activated
-- Run Python from the `mpld3-dev` directory, not from inside `mpld3/` or `mplexporter/` subdirectories
-- The repo directories contain source trees that can shadow the installed packages
+### Import Errors / `AttributeError: module 'mpld3' has no attribute 'fig_to_html'`
+- **Most common cause**: Running Python from inside `mpld3-dev/` directory
+- Python adds the current directory (`''`) to `sys.path` first, so the `mpld3/` repo directory shadows the installed package
+- **Solution**: Run from `mpld3_notes/` (parent of `mpld3-dev/`), not from inside it
+- Ensure the virtual environment is activated: `source mpld3-dev/.venv/bin/activate`
 
 ### Build Errors During Install
 Make sure to install build dependencies first:
