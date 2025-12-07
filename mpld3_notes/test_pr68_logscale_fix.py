@@ -150,8 +150,13 @@ def main():
     fig = create_test_figure()
 
     # Generate HTML
+    # Use released JS version since dev version isn't on CDN
     print("Exporting to HTML with mpld3...")
-    html = mpld3.fig_to_html(fig)
+    html = mpld3.fig_to_html(
+        fig,
+        d3_url="https://d3js.org/d3.v5.min.js",
+        mpld3_url="https://mpld3.github.io/js/mpld3.v0.5.12.min.js"
+    )
 
     # Save to the mpld3_notes directory
     output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_pr68_output.html')
