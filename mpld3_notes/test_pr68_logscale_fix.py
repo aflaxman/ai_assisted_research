@@ -155,14 +155,42 @@ def main():
     print("Creating test figure...")
     fig = create_test_figure()
 
-    # Generate HTML
-    # Use released JS version since dev version isn't on CDN
+    # Generate HTML using local dev JS files (not CDN)
+    # This ensures we test with the actual dev code, not released versions
     print("Exporting to HTML with mpld3...")
-    html = mpld3.fig_to_html(
-        fig,
-        d3_url="https://d3js.org/d3.v5.min.js",
-        mpld3_url="https://mpld3.github.io/js/mpld3.v0.5.12.min.js"
-    )
+
+    # Find the local JS files
+    mpld3_dir = os.path.dirname(mpld3.__file__)
+    d3_js_path = os.path.join(mpld3_dir, 'js', 'd3.v5.min.js')
+    mpld3_js_path = os.path.join(mpld3_dir, 'js', 'mpld3.v0.5.13-dev.js')
+
+    # Read the JS files and embed inline
+    with open(d3_js_path, 'r') as f:
+        d3_js = f.read()
+    with open(mpld3_js_path, 'r') as f:
+        mpld3_js = f.read()
+
+    # Generate HTML without library includes, then inject our own
+    html = mpld3.fig_to_html(fig, include_libraries=False)
+
+    # Wrap with inline JS
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>PR #68 Test: Log-scale scatter/fill_between</title>
+    <script>
+    {d3_js}
+    </script>
+    <script>
+    {mpld3_js}
+    </script>
+</head>
+<body>
+{html}
+</body>
+</html>
+"""
 
     # Save to the mpld3_notes directory
     output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_pr68_output.html')
