@@ -52,7 +52,7 @@ uv pip install --no-build-isolation -e ./mplexporter
 uv pip install --no-build-isolation -e ./mpld3
 
 # Install testing and development tools
-uv pip install pytest jinja2
+uv pip install pytest jinja2 pandas
 ```
 
 ### 5. Install JavaScript Dependencies (optional, for JS development)
