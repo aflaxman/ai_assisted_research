@@ -1,2 +1,5 @@
 # Development environment (cloned repos and venv)
 mpld3-dev/
+
+# Generated test output files
+*.html
