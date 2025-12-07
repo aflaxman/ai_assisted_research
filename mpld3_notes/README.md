@@ -65,10 +65,11 @@ cd ..
 
 ## Verification
 
-**Important**: Run Python from outside the repo directories to avoid import conflicts with the source trees.
+**Important**: You must run Python from the `mpld3-dev` directory, NOT from inside the `mpld3/` or `mplexporter/` subdirectories. The repo source trees will shadow the installed packages and cause import errors.
 
 ```bash
-# From the mpld3-dev directory (not inside mpld3/ or mplexporter/)
+# IMPORTANT: cd to mpld3-dev first!
+cd /path/to/mpld3-dev
 source .venv/bin/activate
 python -c "
 import matplotlib
