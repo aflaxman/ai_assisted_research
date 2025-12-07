@@ -153,26 +153,50 @@ def main():
     print("Exporting to HTML with mpld3...")
     html = mpld3.fig_to_html(fig)
 
-    # Save to temp file and open in browser
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False) as f:
+    # Save to the mpld3_notes directory
+    output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_pr68_output.html')
+    with open(output_path, 'w') as f:
         f.write(html)
-        temp_path = f.name
 
-    print(f"Saved to: {temp_path}")
+    print(f"Saved to: {output_path}")
     print()
-    print("Opening in browser...")
     print("TEST: Try zooming and panning on each subplot.")
     print("  - WITHOUT the fix: scatter points/fill regions may not follow correctly")
     print("  - WITH the fix: all elements should zoom and pan together")
     print()
 
-    webbrowser.open(f'file://{temp_path}')
+    # Try to open in browser (with WSL support)
+    opened = False
 
-    # Also save a copy in the mpld3_notes directory
-    output_path = os.path.join(os.path.dirname(__file__), 'test_pr68_output.html')
-    with open(output_path, 'w') as f:
-        f.write(html)
-    print(f"Also saved to: {output_path}")
+    # Check if running on WSL
+    is_wsl = 'microsoft' in os.uname().release.lower() if hasattr(os, 'uname') else False
+
+    if is_wsl:
+        # On WSL, use explorer.exe to open in Windows browser
+        import subprocess
+        # Convert Linux path to Windows path
+        try:
+            result = subprocess.run(
+                ['wslpath', '-w', output_path],
+                capture_output=True, text=True
+            )
+            win_path = result.stdout.strip()
+            subprocess.run(['explorer.exe', win_path], check=False)
+            print(f"Opened in Windows browser via explorer.exe")
+            opened = True
+        except Exception as e:
+            print(f"Could not open via WSL: {e}")
+
+    if not opened:
+        try:
+            webbrowser.open(f'file://{output_path}')
+            print("Opened in browser")
+            opened = True
+        except Exception as e:
+            print(f"Could not open browser: {e}")
+
+    if not opened:
+        print(f"\nManually open this file in your browser:\n  {output_path}")
 
     plt.close(fig)
 
