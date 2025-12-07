@@ -11,27 +11,49 @@ Fixes issue #296: https://github.com/mpld3/mpld3/issues/296
 SETUP INSTRUCTIONS
 ==================
 
+IMPORTANT: This fix requires BOTH:
+  - mpld3 PR #536: https://github.com/mpld3/mpld3/pull/536
+  - mplexporter PR #70: https://github.com/mpld3/mplexporter/pull/70
+
+Since mpld3 bundles mplexporter, you must apply PR #70 to the bundled copy.
+
 # From the mpld3_notes directory:
 cd /home/abie/ai_assisted_research/mpld3_notes
 source mpld3-dev/.venv/bin/activate
 
-# First, test WITHOUT the PR (should show missing figure text):
+# First, test WITHOUT the PRs (should show missing figure text):
 cd mpld3-dev/mpld3
 git fetch origin
 git checkout 3aad00b   # main as of 2024-12-07, before PR #536
+git checkout -- mpld3/mplexporter/  # restore bundled mplexporter
 cd ../..
 python -P test_pr536_figure_text.py
 
-# Then, apply the PR and test again (should show figure text):
+# Then, apply BOTH PRs:
+# 1. Apply mpld3 PR #536
 cd mpld3-dev/mpld3
 git fetch origin pull/536/head:pr-536
 git checkout pr-536
-cd ../..
+cd ..
+
+# 2. Apply mplexporter PR #70 to the BUNDLED mplexporter
+cd mplexporter
+git fetch origin pull/70/head:pr-70
+git checkout pr-70
+cd ..
+cp mplexporter/mplexporter/exporter.py mpld3/mpld3/mplexporter/exporter.py
+cp mplexporter/mplexporter/renderers/base.py mpld3/mpld3/mplexporter/renderers/base.py
+cp mplexporter/mplexporter/renderers/fake_renderer.py mpld3/mpld3/mplexporter/renderers/fake_renderer.py
+cp mplexporter/mplexporter/utils.py mpld3/mpld3/mplexporter/utils.py
+cd ..
+
+# Test with both PRs applied:
 python -P test_pr536_figure_text.py
 
 # To return to main:
 cd mpld3-dev/mpld3
 git checkout main
+git checkout -- mpld3/mplexporter/
 cd ../..
 
 EXPECTED BEHAVIOR
