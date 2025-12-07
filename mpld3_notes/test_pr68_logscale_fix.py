@@ -10,38 +10,36 @@ respond properly to zooming and panning in the exported visualization.
 SETUP INSTRUCTIONS
 ==================
 
+IMPORTANT: mpld3 has a BUNDLED copy of mplexporter at mpld3/mpld3/mplexporter/.
+The standalone mplexporter package is NOT used by mpld3!
+To test PR #68, you must patch mpld3's bundled copy.
+
 # From the mpld3_notes directory:
 cd /home/abie/ai_assisted_research/mpld3_notes
 source mpld3-dev/.venv/bin/activate
 
 # First, test WITHOUT the PR (should show broken behavior):
-# Using specific commit SHAs so this works even after PR is merged
-cd mpld3-dev/mplexporter
-git fetch origin
-git checkout 967e0a4   # master before PR #68
-cd ../mpld3
+# Reset mpld3's bundled mplexporter to original state
+cd mpld3-dev/mpld3
 git fetch origin
 git checkout 3aad00b   # main as of 2024-12-07
-cd ..
-uv pip install --no-build-isolation -e ./mplexporter
-uv pip install --no-build-isolation -e ./mpld3
-cd ..
+git checkout -- mpld3/mplexporter/  # restore bundled mplexporter
+cd ../..
 python -P test_pr68_logscale_fix.py
 
-# Then, apply the PR and test again (should show fixed behavior):
+# Then, apply the PR fix to mpld3's BUNDLED mplexporter:
 cd mpld3-dev/mplexporter
 git fetch origin pull/68/head:pr-68
 git checkout pr-68
 cd ..
-uv pip install --no-build-isolation -e ./mplexporter
+# Copy the fixed exporter.py to mpld3's bundled mplexporter:
+cp mplexporter/mplexporter/exporter.py mpld3/mpld3/mplexporter/exporter.py
 cd ..
 python -P test_pr68_logscale_fix.py
 
 # Alternative using gh CLI (if authenticated):
-# cd mpld3-dev/mplexporter
-# gh pr checkout 68
-# cd ..
-# uv pip install --no-build-isolation -e ./mplexporter
+# cd mpld3-dev/mplexporter && gh pr checkout 68 && cd ..
+# cp mplexporter/mplexporter/exporter.py mpld3/mpld3/mplexporter/exporter.py
 
 EXPECTED BEHAVIOR
 =================
@@ -122,33 +120,35 @@ def main():
     print("Testing mplexporter PR #68: Log-scale scatter/fill_between fix")
     print("=" * 60)
 
+    # Show both standalone and bundled mplexporter locations
     try:
-        import mplexporter
-        exporter_path = os.path.dirname(mplexporter.__file__)
-        print(f"mplexporter location: {exporter_path}")
+        import mplexporter as standalone_mplexporter
+        print(f"standalone mplexporter: {os.path.dirname(standalone_mplexporter.__file__)}")
     except ImportError:
-        print("ERROR: mplexporter not installed")
+        print("standalone mplexporter: not installed")
+
+    try:
+        from mpld3 import mplexporter as bundled_mplexporter
+        bundled_path = os.path.dirname(bundled_mplexporter.__file__)
+        print(f"bundled mplexporter (USED BY mpld3): {bundled_path}")
+    except ImportError:
+        print("ERROR: mpld3 bundled mplexporter not found")
         return
 
     print(f"mpld3 version: {mpld3.__version__}")
     print(f"matplotlib version: {matplotlib.__version__}")
     print()
 
-    # Check which branch mplexporter is on
-    mplexporter_git_dir = os.path.join(os.path.dirname(exporter_path), '.git')
-    if os.path.exists(mplexporter_git_dir):
-        import subprocess
-        result = subprocess.run(
-            ['git', 'branch', '--show-current'],
-            cwd=os.path.dirname(exporter_path),
-            capture_output=True, text=True
-        )
-        branch = result.stdout.strip() or "(detached HEAD)"
-        print(f"mplexporter git branch: {branch}")
-        if branch == "master":
-            print("WARNING: On master branch - this is BEFORE the fix")
-        elif "68" in branch or "pr-68" in branch:
-            print("INFO: On PR branch - this should have the fix")
+    # Check if bundled mplexporter has the PR fix applied
+    # by looking for the _collections_prepare_points function
+    bundled_exporter_path = os.path.join(bundled_path, 'exporter.py')
+    with open(bundled_exporter_path, 'r') as f:
+        bundled_code = f.read()
+
+    if '_collections_prepare_points' in bundled_code:
+        print("STATUS: PR #68 fix IS applied to bundled mplexporter")
+    else:
+        print("STATUS: PR #68 fix is NOT applied to bundled mplexporter")
     print()
 
     # Create and export figure
