@@ -87,15 +87,15 @@ def create_test_figure():
     fig, axes = plt.subplots(1, 2, figsize=(12, 6))
 
     # Add figure-level suptitle (THIS IS WHAT PR #536 FIXES)
-    fig.suptitle('Figure Suptitle - Should Appear With PR #536',
+    fig.suptitle('DARK BLUE: Figure Suptitle - Should Appear With PR #536',
                  fontsize=16, fontweight='bold', color='darkblue')
 
     # Add figure-level text annotations (ALSO FIXED BY PR #536)
-    fig.text(0.5, 0.02, 'Figure-level text at bottom (fig.text)',
+    fig.text(0.5, 0.02, 'DARK GREEN: Figure-level text at bottom (fig.text)',
              ha='center', fontsize=10, style='italic', color='darkgreen')
-    fig.text(0.02, 0.5, 'Left side fig.text',
+    fig.text(0.02, 0.5, 'DARK RED: Left side fig.text',
              va='center', rotation=90, fontsize=10, color='darkred')
-    fig.text(0.98, 0.5, 'Right side fig.text',
+    fig.text(0.98, 0.5, 'PURPLE: Right side fig.text',
              va='center', rotation=-90, fontsize=10, color='purple')
 
     # Left subplot - line plot

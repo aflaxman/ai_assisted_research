@@ -30,11 +30,14 @@ uv venv --python 3.11
 source .venv/bin/activate
 ```
 
-### 3. Clone mpld3
+### 3. Clone Repositories
 
 ```bash
 git clone https://github.com/mpld3/mpld3.git
+git clone https://github.com/mpld3/mplexporter.git
 ```
+
+**Note:** mpld3 bundles its own copy of mplexporter at `mpld3/mpld3/mplexporter/`. The standalone mplexporter clone is needed when testing mplexporter PRs - you'll copy files from it to the bundled location.
 
 ### 4. Install Dependencies
 
@@ -114,14 +117,11 @@ cd mpld3 && python -P -m pytest mpld3/tests/ -v && cd ..
 
 ### Testing an mplexporter PR
 
-**Important:** mpld3 uses a **bundled copy** of mplexporter at `mpld3/mpld3/mplexporter/`. The standalone mplexporter package is NOT used by mpld3. To test mplexporter PRs, you must patch mpld3's bundled copy.
+**Important:** mpld3 uses a **bundled copy** of mplexporter at `mpld3/mpld3/mplexporter/`. The standalone mplexporter package is NOT used by mpld3. To test mplexporter PRs, you must copy files from the standalone clone to mpld3's bundled copy.
 
 ```bash
 cd /home/abie/ai_assisted_research/mpld3_notes/mpld3-dev
 source .venv/bin/activate
-
-# Clone standalone mplexporter (only needed for mplexporter PRs)
-git clone https://github.com/mpld3/mplexporter.git
 
 # Fetch and checkout the PR
 cd mplexporter
@@ -131,7 +131,7 @@ cd ..
 
 # Copy the changed files to mpld3's bundled mplexporter
 cp mplexporter/mplexporter/exporter.py mpld3/mpld3/mplexporter/exporter.py
-# (copy other changed files as needed)
+# (copy other changed files as needed, e.g., renderers/base.py, utils.py)
 
 # Test
 cd mpld3 && python -P -m pytest mpld3/tests/ -v && cd ..
