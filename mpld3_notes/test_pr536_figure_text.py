@@ -50,11 +50,15 @@ cd ..
 # Test with both PRs applied:
 python -P test_pr536_figure_text.py
 
-# To return to main:
-cd mpld3-dev/mpld3
-git checkout main
+# To return to master:
+cd /home/abie/ai_assisted_research/mpld3_notes/mpld3-dev
+cd mpld3
+git checkout master
 git checkout -- mpld3/mplexporter/
 cd ../..
+cd mplexporter
+git checkout master
+cd ..
 
 EXPECTED BEHAVIOR
 =================

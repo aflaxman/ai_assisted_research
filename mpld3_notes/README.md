@@ -140,6 +140,7 @@ cd mpld3 && python -P -m pytest mpld3/tests/ -v && cd ..
 ### Restoring mpld3's Bundled mplexporter
 
 ```bash
+cd /home/abie/ai_assisted_research/mpld3_notes/mpld3-dev
 cd mpld3
 git checkout -- mpld3/mplexporter/
 cd ..
