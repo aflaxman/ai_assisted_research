@@ -51,14 +51,11 @@ cd ..
 python -P test_pr536_figure_text.py
 
 # To return to master:
-cd /home/abie/ai_assisted_research/mpld3_notes/mpld3-dev
-cd mpld3
+cd /home/abie/ai_assisted_research/mpld3_notes/mpld3-dev/mpld3
 git checkout master
-git checkout -- mpld3/mplexporter/
-cd ../..
-cd mplexporter
+git checkout -- mpld3/mplexporter/ 2>/dev/null || true  # restore bundled copy if modified
+cd ../mplexporter
 git checkout master
-cd ..
 
 EXPECTED BEHAVIOR
 =================
