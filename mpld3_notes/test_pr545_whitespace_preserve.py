@@ -226,6 +226,10 @@ def main():
             padding: 2px 5px;
             border-radius: 3px;
         }}
+        /* Force monospace font for all mpld3 text elements */
+        .mpld3-text {{
+            font-family: "Courier New", Courier, monospace !important;
+        }}
     </style>
 </head>
 <body>
