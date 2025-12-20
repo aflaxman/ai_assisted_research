@@ -1,0 +1,21 @@
+[project]
+name = "minimal-anthrax-sim"
+version = "0.1.0"
+description = "Investigate a system of differential equations with JAX + diffrax."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "jax>=0.4.25",
+  "diffrax>=0.5.0",
+  "matplotlib>=3.8",
+  "pandas>=2.2",
+  "jupyter>=1.0",
+  "ipykernel>=6.29",
+]
+
+[tool.uv]
+# Allow uv to manage a local venv in .venv by default.
+managed = true
+
+[tool.jupyter]
+# Placeholder for potential notebook metadata.
