@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Research News Tracker</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        h1 small {
+            font-weight: 400;
+            opacity: 0.8;
+            font-size: 0.9rem;
+            display: block;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: #48bb78;
+            border-color: #48bb78;
+        }
+
+        .btn-primary:hover {
+            background: #38a169;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+            border-color: #e53e3e;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c5282;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .important-section {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+        }
+
+        .important-section h2 {
+            color: #92400e;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .important-section .article-mini {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .important-section .article-mini:last-child {
+            margin-bottom: 0;
+        }
+
+        .important-section .article-title {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .important-section .article-title a {
+            color: #1a365d;
+            text-decoration: none;
+        }
+
+        .important-section .article-title a:hover {
+            text-decoration: underline;
+        }
+
+        .important-section .relevance-badge {
+            background: #dc2626;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: #2c5282;
+        }
+
+        .filter-btn.active {
+            background: #2c5282;
+            color: white;
+            border-color: #2c5282;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #2c5282;
+        }
+
+        .articles-list {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .article {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+
+        .article:last-child {
+            border-bottom: none;
+        }
+
+        .article:hover {
+            background: #f9fafb;
+        }
+
+        .article.read {
+            opacity: 0.6;
+        }
+
+        .article-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 8px;
+        }
+
+        .article-title-main {
+            flex: 1;
+        }
+
+        .article-title-main a {
+            color: #1a365d;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .article-title-main a:hover {
+            text-decoration: underline;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .article-source {
+            background: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        .article-category {
+            text-transform: capitalize;
+        }
+
+        .article-category.research {
+            color: #2563eb;
+        }
+
+        .article-category.policy {
+            color: #7c3aed;
+        }
+
+        .article-category.news {
+            color: #059669;
+        }
+
+        .article-summary {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .article-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .article-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            color: #888;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+
+        .article-actions button:hover {
+            color: #2c5282;
+        }
+
+        .article-actions button.starred {
+            color: #f59e0b;
+        }
+
+        .relevance-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .relevance-high {
+            background: #dc2626;
+        }
+
+        .relevance-medium {
+            background: #f59e0b;
+        }
+
+        .relevance-low {
+            background: #10b981;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            border-radius: 4px;
+            height: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: #48bb78;
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .feed-status {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .info-box {
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #2c5282;
+        }
+
+        .info-box a {
+            color: #2b6cb0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            header .container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .stats-bar {
+                justify-content: center;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>
+                Drug Research News Tracker
+                <small>Opioid Simulation & Policy Updates</small>
+            </h1>
+            <div class="header-actions">
+                <button class="btn" onclick="markAllRead()">Mark All Read</button>
+                <button class="btn btn-danger" onclick="clearData()">Clear Data</button>
+                <button class="btn btn-primary" id="refresh-btn" onclick="refreshFeeds()">
+                    <span id="refresh-text">Refresh Feeds</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="info-box" id="info-box">
+            <strong>Client-side app:</strong> Data is stored in your browser's localStorage.
+            Click "Refresh Feeds" to fetch the latest articles. Some feeds may be unavailable due to CORS restrictions.
+        </div>
+
+        <div class="stats-bar" id="stats-bar">
+            <div class="stat">
+                <div class="stat-value" id="stat-total">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-unread">0</div>
+                <div class="stat-label">Unread</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-starred">0</div>
+                <div class="stat-label">Saved</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-important">0</div>
+                <div class="stat-label">High Relevance</div>
+            </div>
+        </div>
+
+        <div id="fetch-progress" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="feed-status" id="feed-status">Fetching feeds...</div>
+        </div>
+
+        <div class="important-section" id="important-section" style="display: none;">
+            <h2>
+                <span>&#9888;</span> Don't Miss - High Relevance Articles
+            </h2>
+            <div id="important-articles"></div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group" id="category-filters">
+                <button class="filter-btn active" data-category="all">All</button>
+                <button class="filter-btn" data-category="research">Research</button>
+                <button class="filter-btn" data-category="policy">Policy</button>
+            </div>
+            <div class="filter-group" id="status-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="unread">Unread</button>
+                <button class="filter-btn" data-filter="starred">Saved</button>
+            </div>
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search articles...">
+            </div>
+        </div>
+
+        <div class="articles-list" id="articles-list">
+            <div class="empty-state">Click "Refresh Feeds" to fetch articles, or wait for auto-refresh...</div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const KEYWORDS = {
+            high: [
+                "simulation", "computational model", "agent-based model", "microsimulation",
+                "system dynamics", "mathematical model", "predictive model", "markov model",
+                "monte carlo", "discrete event simulation"
+            ],
+            medium: [
+                "opioid", "opioids", "fentanyl", "heroin", "methadone", "buprenorphine",
+                "naloxone", "narcan", "overdose", "substance use disorder", "opioid use disorder",
+                "OUD", "medication-assisted treatment", "MAT", "harm reduction", "drug policy"
+            ],
+            low: [
+                "addiction", "substance abuse", "drug use", "public health", "epidemiology",
+                "health policy", "treatment", "prevention", "intervention"
+            ]
+        };
+
+        // CORS proxy options (try multiple in case one fails)
+        const CORS_PROXIES = [
+            url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+            url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+        ];
+
+        const FEEDS = [
+            {
+                name: "PubMed - Opioid Modeling",
+                // PubMed RSS for opioid + simulation/modeling search
+                url: "https://pubmed.ncbi.nlm.nih.gov/rss/search/1xGZdgH1O4aXVfnALwYs0Cfvg5iL9R6K0xEHglFJVILVY3nUiB/?limit=20&utm_campaign=pubmed-2&fc=20231201000000",
+                category: "research"
+            },
+            {
+                name: "arXiv - Quantitative Biology",
+                url: "https://rss.arxiv.org/rss/q-bio",
+                category: "research"
+            },
+            {
+                name: "CDC MMWR",
+                url: "https://tools.cdc.gov/api/v2/resources/media/rss/mmwr.rss",
+                category: "policy"
+            },
+            {
+                name: "NIH News",
+                url: "https://www.nih.gov/news-events/news-releases/feed",
+                category: "policy"
+            },
+            {
+                name: "NIDA News",
+                url: "https://nida.nih.gov/news-events/news-releases/rss",
+                category: "policy"
+            }
+        ];
+
+        // State
+        let articles = [];
+        let currentCategory = 'all';
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        // LocalStorage keys
+        const STORAGE_KEY = 'drug_research_tracker_articles';
+        const READ_KEY = 'drug_research_tracker_read';
+        const STARRED_KEY = 'drug_research_tracker_starred';
+        const HIDDEN_KEY = 'drug_research_tracker_hidden';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromStorage();
+            renderArticles();
+            updateStats();
+            setupEventListeners();
+
+            // Auto-refresh if no articles or data is old
+            const lastFetch = localStorage.getItem('drug_research_tracker_last_fetch');
+            const hourAgo = Date.now() - (60 * 60 * 1000);
+            if (articles.length === 0 || !lastFetch || parseInt(lastFetch) < hourAgo) {
+                setTimeout(() => refreshFeeds(), 1000);
+            }
+        });
+
+        function setupEventListeners() {
+            document.querySelectorAll('#category-filters .filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('#category-filters .filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCategory = btn.dataset.category;
+                    renderArticles();
+                });
+            });
+
+            document.querySelectorAll('#status-filters .filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('#status-filters .filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderArticles();
+                });
+            });
+
+            let searchTimeout;
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentSearch = e.target.value.toLowerCase();
+                    renderArticles();
+                }, 300);
+            });
+        }
+
+        function loadFromStorage() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    articles = JSON.parse(stored);
+                }
+            } catch (e) {
+                console.error('Error loading from storage:', e);
+                articles = [];
+            }
+        }
+
+        function saveToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(articles));
+            } catch (e) {
+                console.error('Error saving to storage:', e);
+            }
+        }
+
+        function getReadSet() {
+            try {
+                return new Set(JSON.parse(localStorage.getItem(READ_KEY) || '[]'));
+            } catch { return new Set(); }
+        }
+
+        function getStarredSet() {
+            try {
+                return new Set(JSON.parse(localStorage.getItem(STARRED_KEY) || '[]'));
+            } catch { return new Set(); }
+        }
+
+        function getHiddenSet() {
+            try {
+                return new Set(JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'));
+            } catch { return new Set(); }
+        }
+
+        function saveReadSet(set) {
+            localStorage.setItem(READ_KEY, JSON.stringify([...set]));
+        }
+
+        function saveStarredSet(set) {
+            localStorage.setItem(STARRED_KEY, JSON.stringify([...set]));
+        }
+
+        function saveHiddenSet(set) {
+            localStorage.setItem(HIDDEN_KEY, JSON.stringify([...set]));
+        }
+
+        function calculateRelevance(title, summary) {
+            const text = `${title} ${summary}`.toLowerCase();
+            let score = 0;
+
+            const highMatches = KEYWORDS.high.filter(kw => text.includes(kw.toLowerCase())).length;
+            const mediumMatches = KEYWORDS.medium.filter(kw => text.includes(kw.toLowerCase())).length;
+            const lowMatches = KEYWORDS.low.filter(kw => text.includes(kw.toLowerCase())).length;
+
+            if (highMatches > 0 && mediumMatches > 0) {
+                score = 100 + (highMatches * 10) + (mediumMatches * 5);
+            } else if (highMatches > 0) {
+                score = 50 + (highMatches * 5) + (lowMatches * 2);
+            } else if (mediumMatches > 0) {
+                score = 30 + (mediumMatches * 3) + (lowMatches * 2);
+            } else {
+                score = lowMatches * 2;
+            }
+
+            return Math.min(score, 200);
+        }
+
+        function generateId(link, title) {
+            // Simple hash function
+            const str = link + title;
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash).toString(16);
+        }
+
+        function parseRSS(xmlText, feedConfig) {
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(xmlText, 'text/xml');
+            const items = xml.querySelectorAll('item');
+            const newArticles = [];
+
+            items.forEach(item => {
+                const title = item.querySelector('title')?.textContent || 'No title';
+                const link = item.querySelector('link')?.textContent || '';
+                let summary = item.querySelector('description')?.textContent || '';
+                const pubDate = item.querySelector('pubDate')?.textContent ||
+                               item.querySelector('dc\\:date')?.textContent || '';
+
+                // Clean HTML from summary
+                summary = summary.replace(/<[^>]+>/g, '').substring(0, 500);
+
+                const relevance = calculateRelevance(title, summary);
+
+                // Only include if has some relevance
+                if (relevance > 0) {
+                    newArticles.push({
+                        id: generateId(link, title),
+                        title,
+                        link,
+                        summary,
+                        source: feedConfig.name,
+                        category: feedConfig.category,
+                        published: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),
+                        relevance
+                    });
+                }
+            });
+
+            return newArticles;
+        }
+
+        async function fetchWithProxy(url) {
+            for (const proxyFn of CORS_PROXIES) {
+                try {
+                    const proxyUrl = proxyFn(url);
+                    const response = await fetch(proxyUrl, {
+                        timeout: 10000,
+                        headers: { 'Accept': 'application/rss+xml, application/xml, text/xml' }
+                    });
+                    if (response.ok) {
+                        return await response.text();
+                    }
+                } catch (e) {
+                    console.warn(`Proxy failed for ${url}:`, e.message);
+                }
+            }
+            throw new Error('All proxies failed');
+        }
+
+        async function refreshFeeds() {
+            const btn = document.getElementById('refresh-btn');
+            const text = document.getElementById('refresh-text');
+            const progress = document.getElementById('fetch-progress');
+            const progressFill = document.getElementById('progress-fill');
+            const feedStatus = document.getElementById('feed-status');
+
+            btn.disabled = true;
+            text.textContent = 'Fetching...';
+            progress.style.display = 'block';
+
+            const existingIds = new Set(articles.map(a => a.id));
+            let newCount = 0;
+            let completed = 0;
+
+            for (const feed of FEEDS) {
+                feedStatus.textContent = `Fetching ${feed.name}...`;
+                progressFill.style.width = `${(completed / FEEDS.length) * 100}%`;
+
+                try {
+                    const xmlText = await fetchWithProxy(feed.url);
+                    const newArticles = parseRSS(xmlText, feed);
+
+                    newArticles.forEach(article => {
+                        if (!existingIds.has(article.id)) {
+                            articles.push(article);
+                            existingIds.add(article.id);
+                            newCount++;
+                        }
+                    });
+                } catch (e) {
+                    console.error(`Failed to fetch ${feed.name}:`, e);
+                    feedStatus.textContent = `Failed: ${feed.name}`;
+                }
+
+                completed++;
+            }
+
+            // Sort by relevance then date
+            articles.sort((a, b) => {
+                if (b.relevance !== a.relevance) return b.relevance - a.relevance;
+                return new Date(b.published) - new Date(a.published);
+            });
+
+            // Keep only last 500 articles
+            if (articles.length > 500) {
+                articles = articles.slice(0, 500);
+            }
+
+            saveToStorage();
+            localStorage.setItem('drug_research_tracker_last_fetch', Date.now().toString());
+
+            progressFill.style.width = '100%';
+            feedStatus.textContent = `Done! Found ${newCount} new articles.`;
+
+            setTimeout(() => {
+                progress.style.display = 'none';
+                btn.disabled = false;
+                text.textContent = 'Refresh Feeds';
+            }, 2000);
+
+            renderArticles();
+            updateStats();
+        }
+
+        function updateStats() {
+            const readSet = getReadSet();
+            const starredSet = getStarredSet();
+            const hiddenSet = getHiddenSet();
+
+            const visible = articles.filter(a => !hiddenSet.has(a.id));
+            const unread = visible.filter(a => !readSet.has(a.id));
+            const starred = visible.filter(a => starredSet.has(a.id));
+            const important = visible.filter(a => a.relevance >= 100 && !readSet.has(a.id));
+
+            document.getElementById('stat-total').textContent = visible.length;
+            document.getElementById('stat-unread').textContent = unread.length;
+            document.getElementById('stat-starred').textContent = starred.length;
+            document.getElementById('stat-important').textContent = important.length;
+
+            // Update important section
+            const importantSection = document.getElementById('important-section');
+            const importantArticles = document.getElementById('important-articles');
+
+            if (important.length > 0) {
+                importantSection.style.display = 'block';
+                importantArticles.innerHTML = important.slice(0, 5).map(article => `
+                    <div class="article-mini">
+                        <div class="article-title">
+                            <a href="${article.link}" target="_blank" onclick="markAsRead('${article.id}')">${article.title}</a>
+                        </div>
+                        <span class="relevance-badge">${article.relevance}</span>
+                    </div>
+                `).join('');
+            } else {
+                importantSection.style.display = 'none';
+            }
+        }
+
+        function renderArticles() {
+            const list = document.getElementById('articles-list');
+            const readSet = getReadSet();
+            const starredSet = getStarredSet();
+            const hiddenSet = getHiddenSet();
+
+            let filtered = articles.filter(a => !hiddenSet.has(a.id));
+
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(a => a.category === currentCategory);
+            }
+
+            if (currentFilter === 'unread') {
+                filtered = filtered.filter(a => !readSet.has(a.id));
+            } else if (currentFilter === 'starred') {
+                filtered = filtered.filter(a => starredSet.has(a.id));
+            }
+
+            if (currentSearch) {
+                filtered = filtered.filter(a =>
+                    a.title.toLowerCase().includes(currentSearch) ||
+                    a.summary.toLowerCase().includes(currentSearch)
+                );
+            }
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="empty-state">No articles found. Try refreshing feeds or adjusting filters.</div>';
+                return;
+            }
+
+            list.innerHTML = filtered.slice(0, 100).map(article => {
+                const isRead = readSet.has(article.id);
+                const isStarred = starredSet.has(article.id);
+                const relevanceClass = article.relevance >= 100 ? 'high' :
+                                      article.relevance >= 50 ? 'medium' : 'low';
+                const date = new Date(article.published).toLocaleDateString();
+
+                return `
+                    <div class="article ${isRead ? 'read' : ''}" data-id="${article.id}">
+                        <div class="article-header">
+                            <div class="article-title-main">
+                                <span class="relevance-indicator relevance-${relevanceClass}"></span>
+                                <a href="${article.link}" target="_blank" onclick="markAsRead('${article.id}')">${article.title}</a>
+                            </div>
+                        </div>
+                        <div class="article-meta">
+                            <span class="article-source">${article.source}</span>
+                            <span class="article-category ${article.category}">${article.category}</span>
+                            <span class="article-date">${date}</span>
+                            <span class="article-relevance">Relevance: ${article.relevance}</span>
+                        </div>
+                        <div class="article-summary">${article.summary || 'No summary available'}</div>
+                        <div class="article-actions">
+                            <button onclick="toggleStar('${article.id}')" class="${isStarred ? 'starred' : ''}">
+                                ${isStarred ? '★ Saved' : '☆ Save'}
+                            </button>
+                            <button onclick="toggleRead('${article.id}')">
+                                ${isRead ? '○ Mark Unread' : '● Mark Read'}
+                            </button>
+                            <button onclick="hideArticle('${article.id}')">✕ Hide</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function markAsRead(id) {
+            const readSet = getReadSet();
+            readSet.add(id);
+            saveReadSet(readSet);
+            updateStats();
+            // Don't re-render to avoid scroll jump when clicking link
+        }
+
+        function toggleRead(id) {
+            const readSet = getReadSet();
+            if (readSet.has(id)) {
+                readSet.delete(id);
+            } else {
+                readSet.add(id);
+            }
+            saveReadSet(readSet);
+            renderArticles();
+            updateStats();
+        }
+
+        function toggleStar(id) {
+            const starredSet = getStarredSet();
+            if (starredSet.has(id)) {
+                starredSet.delete(id);
+            } else {
+                starredSet.add(id);
+            }
+            saveStarredSet(starredSet);
+            renderArticles();
+            updateStats();
+        }
+
+        function hideArticle(id) {
+            const hiddenSet = getHiddenSet();
+            hiddenSet.add(id);
+            saveHiddenSet(hiddenSet);
+            renderArticles();
+            updateStats();
+        }
+
+        function markAllRead() {
+            if (!confirm('Mark all visible articles as read?')) return;
+
+            const readSet = getReadSet();
+            const hiddenSet = getHiddenSet();
+
+            articles.forEach(a => {
+                if (!hiddenSet.has(a.id)) {
+                    if (currentCategory === 'all' || a.category === currentCategory) {
+                        readSet.add(a.id);
+                    }
+                }
+            });
+
+            saveReadSet(readSet);
+            renderArticles();
+            updateStats();
+        }
+
+        function clearData() {
+            if (!confirm('Clear all articles and reading history? This cannot be undone.')) return;
+
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(READ_KEY);
+            localStorage.removeItem(STARRED_KEY);
+            localStorage.removeItem(HIDDEN_KEY);
+            localStorage.removeItem('drug_research_tracker_last_fetch');
+
+            articles = [];
+            renderArticles();
+            updateStats();
+        }
+    </script>
+</body>
+</html>
