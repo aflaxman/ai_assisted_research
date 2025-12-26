@@ -2,3 +2,11 @@
 *.png
 *.svg
 simulation_results.json
+benchmark_results.json
+
+# Singularity image (build from .def file)
+*.sif
+
+# Python cache
+__pycache__/
+*.pyc
