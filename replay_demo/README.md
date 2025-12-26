@@ -33,6 +33,33 @@ pip install --user numpy numba matplotlib
 python seir_cuda_simulation.py --n-sims 1000
 ```
 
+## Local Development (WSL/Laptop)
+
+Use `uv` for fast, isolated Python environment setup:
+
+```bash
+cd replay_demo
+
+# Create virtual environment and install dependencies
+uv venv
+source .venv/bin/activate
+uv pip install numpy numba matplotlib
+
+# Run the pure Python demo
+python seir_contact_simulation.py
+
+# Run tests (CPU-only without CUDA)
+python test_seir_cuda.py
+
+# Run benchmark (CPU mode)
+python seir_cuda_simulation.py --device cpu --n-sims 500
+
+# Generate visualization
+python visualize_results.py
+```
+
+To deactivate when done: `deactivate`
+
 ## Files
 
 | File | Description |
