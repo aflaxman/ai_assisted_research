@@ -367,24 +367,100 @@
             color: #888;
         }
 
+        .loading-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #2c5282;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1a365d;
+            margin-bottom: 10px;
+        }
+
+        .loading-subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
         .progress-bar {
             background: #e2e8f0;
-            border-radius: 4px;
-            height: 8px;
-            margin: 10px 0;
+            border-radius: 8px;
+            height: 12px;
+            margin: 15px auto;
+            max-width: 400px;
             overflow: hidden;
         }
 
         .progress-bar-fill {
-            background: #48bb78;
+            background: linear-gradient(90deg, #48bb78, #38a169);
             height: 100%;
-            transition: width 0.3s;
+            transition: width 0.3s ease-out;
+            border-radius: 8px;
         }
 
         .feed-status {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #2c5282;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+
+        .feed-list {
+            margin-top: 15px;
+            text-align: left;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .feed-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .feed-item-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        .feed-item.pending .feed-item-icon::before { content: "○"; color: #aaa; }
+        .feed-item.loading .feed-item-icon::before { content: "◐"; color: #2c5282; animation: pulse 0.5s infinite; }
+        .feed-item.success .feed-item-icon::before { content: "✓"; color: #48bb78; }
+        .feed-item.error .feed-item-icon::before { content: "✗"; color: #e53e3e; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .feed-item-count {
+            margin-left: auto;
+            color: #48bb78;
+            font-weight: 500;
         }
 
         .info-box {
@@ -444,8 +520,8 @@
 
     <div class="container">
         <div class="info-box" id="info-box">
-            <strong>Client-side app:</strong> Data is stored in your browser's localStorage.
-            Click "Refresh Feeds" to fetch the latest articles. Some feeds may be unavailable due to CORS restrictions.
+            <strong>Client-side app:</strong> Articles are fetched from PubMed, arXiv, CDC, NIH, and NIDA.
+            Data is stored in your browser. Feeds refresh automatically on first visit.
         </div>
 
         <div class="stats-bar" id="stats-bar">
@@ -467,11 +543,15 @@
             </div>
         </div>
 
-        <div id="fetch-progress" style="display: none;">
+        <div id="loading-container" class="loading-container" style="display: none;">
+            <div class="loading-spinner"></div>
+            <div class="loading-title">Fetching Research Feeds</div>
+            <div class="loading-subtitle">Searching for opioid simulation and policy articles...</div>
             <div class="progress-bar">
                 <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
             </div>
-            <div class="feed-status" id="feed-status">Fetching feeds...</div>
+            <div class="feed-status" id="feed-status">Starting...</div>
+            <div class="feed-list" id="feed-list"></div>
         </div>
 
         <div class="important-section" id="important-section" style="display: none;">
@@ -498,7 +578,7 @@
         </div>
 
         <div class="articles-list" id="articles-list">
-            <div class="empty-state">Click "Refresh Feeds" to fetch articles, or wait for auto-refresh...</div>
+            <div class="empty-state">Loading will begin automatically...</div>
         </div>
     </div>
 
@@ -713,19 +793,17 @@
 
                 const relevance = calculateRelevance(title, summary);
 
-                // Only include if has some relevance
-                if (relevance > 0) {
-                    newArticles.push({
-                        id: generateId(link, title),
-                        title,
-                        link,
-                        summary,
-                        source: feedConfig.name,
-                        category: feedConfig.category,
-                        published: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),
-                        relevance
-                    });
-                }
+                // Include all articles from curated feeds (relevance used for sorting/highlighting)
+                newArticles.push({
+                    id: generateId(link, title),
+                    title,
+                    link,
+                    summary,
+                    source: feedConfig.name,
+                    category: feedConfig.category,
+                    published: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),
+                    relevance
+                });
             });
 
             return newArticles;
@@ -752,22 +830,40 @@
         async function refreshFeeds() {
             const btn = document.getElementById('refresh-btn');
             const text = document.getElementById('refresh-text');
-            const progress = document.getElementById('fetch-progress');
+            const loadingContainer = document.getElementById('loading-container');
             const progressFill = document.getElementById('progress-fill');
             const feedStatus = document.getElementById('feed-status');
+            const feedList = document.getElementById('feed-list');
+            const articlesList = document.getElementById('articles-list');
 
             btn.disabled = true;
             text.textContent = 'Fetching...';
-            progress.style.display = 'block';
+            loadingContainer.style.display = 'block';
+            articlesList.style.display = 'none';
+            progressFill.style.width = '0%';
+
+            // Build feed status list
+            feedList.innerHTML = FEEDS.map((feed, i) => `
+                <div class="feed-item pending" id="feed-item-${i}">
+                    <span class="feed-item-icon"></span>
+                    <span class="feed-item-name">${feed.name}</span>
+                    <span class="feed-item-count" id="feed-count-${i}"></span>
+                </div>
+            `).join('');
 
             const existingIds = new Set(articles.map(a => a.id));
-            let newCount = 0;
+            let totalNewCount = 0;
             let completed = 0;
 
-            for (const feed of FEEDS) {
-                feedStatus.textContent = `Fetching ${feed.name}...`;
-                progressFill.style.width = `${(completed / FEEDS.length) * 100}%`;
+            for (let i = 0; i < FEEDS.length; i++) {
+                const feed = FEEDS[i];
+                const feedItem = document.getElementById(`feed-item-${i}`);
+                const feedCount = document.getElementById(`feed-count-${i}`);
 
+                feedItem.className = 'feed-item loading';
+                feedStatus.textContent = `Fetching ${feed.name}...`;
+
+                let feedNewCount = 0;
                 try {
                     const xmlText = await fetchWithProxy(feed.url);
                     const newArticles = parseRSS(xmlText, feed);
@@ -776,15 +872,21 @@
                         if (!existingIds.has(article.id)) {
                             articles.push(article);
                             existingIds.add(article.id);
-                            newCount++;
+                            feedNewCount++;
+                            totalNewCount++;
                         }
                     });
+
+                    feedItem.className = 'feed-item success';
+                    feedCount.textContent = feedNewCount > 0 ? `+${feedNewCount}` : `${newArticles.length} total`;
                 } catch (e) {
                     console.error(`Failed to fetch ${feed.name}:`, e);
-                    feedStatus.textContent = `Failed: ${feed.name}`;
+                    feedItem.className = 'feed-item error';
+                    feedCount.textContent = 'failed';
                 }
 
                 completed++;
+                progressFill.style.width = `${(completed / FEEDS.length) * 100}%`;
             }
 
             // Sort by relevance then date
@@ -801,17 +903,18 @@
             saveToStorage();
             localStorage.setItem('drug_research_tracker_last_fetch', Date.now().toString());
 
-            progressFill.style.width = '100%';
-            feedStatus.textContent = `Done! Found ${newCount} new articles.`;
+            feedStatus.textContent = totalNewCount > 0
+                ? `Done! Found ${totalNewCount} new articles.`
+                : `Done! ${articles.length} articles loaded.`;
 
             setTimeout(() => {
-                progress.style.display = 'none';
+                loadingContainer.style.display = 'none';
+                articlesList.style.display = 'block';
                 btn.disabled = false;
                 text.textContent = 'Refresh Feeds';
-            }, 2000);
-
-            renderArticles();
-            updateStats();
+                renderArticles();
+                updateStats();
+            }, 1500);
         }
 
         function updateStats() {
