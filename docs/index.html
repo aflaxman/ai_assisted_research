@@ -303,6 +303,10 @@
             color: #059669;
         }
 
+        .article-category.social {
+            color: #0085ff;
+        }
+
         .article-summary {
             font-size: 0.9rem;
             color: #555;
@@ -463,6 +467,78 @@
             font-weight: 500;
         }
 
+        .pubmed-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #1a365d;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .pubmed-link:hover {
+            background: #2c5282;
+            color: white;
+        }
+
+        .bluesky-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #0085ff;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .bluesky-link:hover {
+            background: #0066cc;
+            color: white;
+        }
+
+        .engagement-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .engagement-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .engagement-stat.likes { color: #e53e3e; }
+        .engagement-stat.reposts { color: #38a169; }
+        .engagement-stat.replies { color: #3182ce; }
+
+        .social-badge {
+            background: #0085ff;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .article-links {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
         .info-box {
             background: #ebf8ff;
             border: 1px solid #90cdf4;
@@ -520,8 +596,8 @@
 
     <div class="container">
         <div class="info-box" id="info-box">
-            <strong>Powered by PubMed:</strong> Searches NCBI's PubMed database for recent research on opioid simulation,
-            drug policy modeling, and harm reduction. Data stored in your browser.
+            <strong>Powered by PubMed + Bluesky:</strong> Searches PubMed for research articles and Bluesky for social discussions.
+            Filter by "Social" to see posts with the most engagement (buzz). Data stored in your browser.
         </div>
 
         <div class="stats-bar" id="stats-bar">
@@ -566,6 +642,7 @@
                 <button class="filter-btn active" data-category="all">All</button>
                 <button class="filter-btn" data-category="research">Research</button>
                 <button class="filter-btn" data-category="policy">Policy</button>
+                <button class="filter-btn" data-category="social">Social</button>
             </div>
             <div class="filter-group" id="status-filters">
                 <button class="filter-btn active" data-filter="all">All</button>
@@ -632,6 +709,24 @@
                 category: "policy"
             }
         ];
+
+        // Bluesky search queries for social discussions
+        const BLUESKY_SEARCHES = [
+            {
+                name: "Opioid Research Discussion",
+                query: "opioid research"
+            },
+            {
+                name: "Drug Policy Discussion",
+                query: "drug policy fentanyl"
+            },
+            {
+                name: "Overdose Prevention",
+                query: "overdose naloxone"
+            }
+        ];
+
+        const BLUESKY_API = 'https://public.api.bsky.app/xrpc';
 
         // State
         let articles = [];
@@ -847,6 +942,79 @@
             return new Date().toISOString();
         }
 
+        async function searchBluesky(query) {
+            const url = `${BLUESKY_API}/app.bsky.feed.searchPosts?q=${encodeURIComponent(query)}&limit=25&sort=top`;
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error(`Bluesky search failed: ${response.status}`);
+            }
+
+            return await response.json();
+        }
+
+        function parseBlueskyResults(data, searchName) {
+            const newArticles = [];
+
+            if (!data.posts || !Array.isArray(data.posts)) {
+                return newArticles;
+            }
+
+            data.posts.forEach(post => {
+                const record = post.record || {};
+                const author = post.author || {};
+                const text = record.text || '';
+                const createdAt = record.createdAt || '';
+
+                // Build Bluesky post URL
+                const postUri = post.uri || '';
+                const uriParts = postUri.split('/');
+                const postId = uriParts[uriParts.length - 1];
+                const handle = author.handle || '';
+                const link = handle && postId
+                    ? `https://bsky.app/profile/${handle}/post/${postId}`
+                    : '';
+
+                // Get engagement metrics
+                const likes = post.likeCount || 0;
+                const reposts = post.repostCount || 0;
+                const replies = post.replyCount || 0;
+
+                // Calculate buzz score (engagement-weighted)
+                const buzzScore = (likes * 2) + (reposts * 3) + replies;
+
+                // Skip low-engagement posts
+                if (buzzScore < 1) return;
+
+                const displayName = author.displayName || handle;
+                const summary = `@${handle} • ${likes} likes • ${reposts} reposts`;
+
+                newArticles.push({
+                    id: `bsky_${postId}_${handle}`,
+                    title: text.substring(0, 200) + (text.length > 200 ? '...' : ''),
+                    link,
+                    summary,
+                    source: `Bluesky: ${searchName}`,
+                    category: 'social',
+                    published: createdAt ? new Date(createdAt).toISOString() : new Date().toISOString(),
+                    relevance: Math.min(buzzScore, 200),
+                    // Extra fields for social posts
+                    isBluesky: true,
+                    authorHandle: handle,
+                    authorName: displayName,
+                    likes,
+                    reposts,
+                    replies,
+                    fullText: text
+                });
+            });
+
+            // Sort by buzz/engagement
+            newArticles.sort((a, b) => b.relevance - a.relevance);
+
+            return newArticles;
+        }
+
         async function refreshFeeds() {
             const btn = document.getElementById('refresh-btn');
             const text = document.getElementById('refresh-text');
@@ -862,11 +1030,16 @@
             articlesList.style.display = 'none';
             progressFill.style.width = '0%';
 
-            // Build search status list
-            feedList.innerHTML = PUBMED_SEARCHES.map((search, i) => `
+            // Build search status list (PubMed + Bluesky)
+            const allSearches = [
+                ...PUBMED_SEARCHES.map(s => ({ ...s, type: 'pubmed' })),
+                ...BLUESKY_SEARCHES.map(s => ({ ...s, type: 'bluesky', category: 'social' }))
+            ];
+
+            feedList.innerHTML = allSearches.map((search, i) => `
                 <div class="feed-item pending" id="feed-item-${i}">
                     <span class="feed-item-icon"></span>
-                    <span class="feed-item-name">${search.name}</span>
+                    <span class="feed-item-name">${search.type === 'bluesky' ? '🦋 ' : '📚 '}${search.name}</span>
                     <span class="feed-item-count" id="feed-count-${i}"></span>
                 </div>
             `).join('');
@@ -875,18 +1048,26 @@
             let totalNewCount = 0;
             let completed = 0;
 
-            for (let i = 0; i < PUBMED_SEARCHES.length; i++) {
-                const search = PUBMED_SEARCHES[i];
+            for (let i = 0; i < allSearches.length; i++) {
+                const search = allSearches[i];
                 const feedItem = document.getElementById(`feed-item-${i}`);
                 const feedCount = document.getElementById(`feed-count-${i}`);
 
                 feedItem.className = 'feed-item loading';
-                feedStatus.textContent = `Searching PubMed: ${search.name}...`;
+                const sourceLabel = search.type === 'bluesky' ? 'Bluesky' : 'PubMed';
+                feedStatus.textContent = `Searching ${sourceLabel}: ${search.name}...`;
 
                 let feedNewCount = 0;
                 try {
-                    const data = await searchPubMed(search.query);
-                    const newArticles = parsePubMedResults(data, search);
+                    let newArticles = [];
+
+                    if (search.type === 'pubmed') {
+                        const data = await searchPubMed(search.query);
+                        newArticles = parsePubMedResults(data, search);
+                    } else if (search.type === 'bluesky') {
+                        const data = await searchBluesky(search.query);
+                        newArticles = parseBlueskyResults(data, search.name);
+                    }
 
                     newArticles.forEach(article => {
                         if (!existingIds.has(article.id)) {
@@ -906,11 +1087,11 @@
                 }
 
                 completed++;
-                progressFill.style.width = `${(completed / PUBMED_SEARCHES.length) * 100}%`;
+                progressFill.style.width = `${(completed / allSearches.length) * 100}%`;
 
-                // Small delay between API calls to be nice to PubMed
-                if (i < PUBMED_SEARCHES.length - 1) {
-                    await new Promise(r => setTimeout(r, 350));
+                // Small delay between API calls
+                if (i < allSearches.length - 1) {
+                    await new Promise(r => setTimeout(r, 300));
                 }
             }
 
@@ -1015,6 +1196,32 @@
                                       article.relevance >= 50 ? 'medium' : 'low';
                 const date = new Date(article.published).toLocaleDateString();
 
+                // Build links section
+                let linksHtml = '<div class="article-links">';
+                if (article.isBluesky) {
+                    linksHtml += `<a href="${article.link}" target="_blank" class="bluesky-link" onclick="markAsRead('${article.id}')">🦋 View on Bluesky</a>`;
+                } else if (article.link.includes('pubmed.ncbi.nlm.nih.gov')) {
+                    linksHtml += `<a href="${article.link}" target="_blank" class="pubmed-link" onclick="markAsRead('${article.id}')">📚 View on PubMed</a>`;
+                }
+                linksHtml += '</div>';
+
+                // Build engagement stats for Bluesky posts
+                let engagementHtml = '';
+                if (article.isBluesky) {
+                    engagementHtml = `
+                        <div class="engagement-stats">
+                            <span class="engagement-stat likes">♥ ${article.likes} likes</span>
+                            <span class="engagement-stat reposts">🔁 ${article.reposts} reposts</span>
+                            <span class="engagement-stat replies">💬 ${article.replies} replies</span>
+                        </div>
+                    `;
+                }
+
+                // Category badge
+                const categoryBadge = article.isBluesky
+                    ? '<span class="social-badge">Social</span>'
+                    : '';
+
                 return `
                     <div class="article ${isRead ? 'read' : ''}" data-id="${article.id}">
                         <div class="article-header">
@@ -1024,12 +1231,15 @@
                             </div>
                         </div>
                         <div class="article-meta">
+                            ${categoryBadge}
                             <span class="article-source">${article.source}</span>
                             <span class="article-category ${article.category}">${article.category}</span>
                             <span class="article-date">${date}</span>
-                            <span class="article-relevance">Relevance: ${article.relevance}</span>
+                            ${!article.isBluesky ? `<span class="article-relevance">Relevance: ${article.relevance}</span>` : ''}
                         </div>
                         <div class="article-summary">${article.summary || 'No summary available'}</div>
+                        ${engagementHtml}
+                        ${linksHtml}
                         <div class="article-actions">
                             <button onclick="toggleStar('${article.id}')" class="${isStarred ? 'starred' : ''}">
                                 ${isStarred ? '★ Saved' : '☆ Save'}
