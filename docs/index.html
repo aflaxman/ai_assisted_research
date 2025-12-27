@@ -246,7 +246,38 @@
         }
 
         .article.read {
-            opacity: 0.6;
+            opacity: 0.7;
+        }
+
+        .article.read.collapsed {
+            padding: 10px 20px;
+        }
+
+        .article.read.collapsed .article-summary,
+        .article.read.collapsed .article-links,
+        .article.read.collapsed .article-actions,
+        .article.read.collapsed .engagement-stats,
+        .article.read.collapsed .article-abstract,
+        .article.read.collapsed .article-figures {
+            display: none;
+        }
+
+        .article.read.collapsed .article-meta {
+            margin-bottom: 0;
+        }
+
+        .collapse-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 0.8rem;
+            padding: 2px 6px;
+            margin-left: auto;
+        }
+
+        .collapse-toggle:hover {
+            color: #2c5282;
         }
 
         .article-header {
@@ -537,6 +568,80 @@
             gap: 8px;
             margin-top: 8px;
             flex-wrap: wrap;
+        }
+
+        .article-abstract {
+            margin-top: 10px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #444;
+            line-height: 1.5;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .article-abstract-toggle {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .article-abstract-toggle:hover {
+            text-decoration: underline;
+        }
+
+        .pmc-figures-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #059669;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .pmc-figures-link:hover {
+            background: #047857;
+            color: white;
+        }
+
+        .pmc-badge {
+            background: #059669;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .expand-read-toggle {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            padding: 8px 16px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .expand-read-toggle:hover {
+            background: #e5e7eb;
         }
 
         .category-stats {
@@ -837,6 +942,11 @@
             </div>
         </div>
 
+        <button class="expand-read-toggle" id="collapse-read-toggle" onclick="toggleCollapseRead()">
+            <span id="collapse-icon">▼</span>
+            <span id="collapse-text">Collapse read articles</span>
+        </button>
+
         <div class="articles-list" id="articles-list">
             <div class="empty-state">Loading will begin automatically...</div>
         </div>
@@ -918,12 +1028,12 @@
         let currentSearch = '';
         let currentTimeFilter = 'all';
         let currentSort = 'date-desc';
+        let collapseRead = false;
 
         // LocalStorage keys
         const STORAGE_KEY = 'drug_research_tracker_articles';
         const READ_KEY = 'drug_research_tracker_read';
         const STARRED_KEY = 'drug_research_tracker_starred';
-        const HIDDEN_KEY = 'drug_research_tracker_hidden';
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -1017,12 +1127,6 @@
             } catch { return new Set(); }
         }
 
-        function getHiddenSet() {
-            try {
-                return new Set(JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'));
-            } catch { return new Set(); }
-        }
-
         function saveReadSet(set) {
             localStorage.setItem(READ_KEY, JSON.stringify([...set]));
         }
@@ -1031,8 +1135,11 @@
             localStorage.setItem(STARRED_KEY, JSON.stringify([...set]));
         }
 
-        function saveHiddenSet(set) {
-            localStorage.setItem(HIDDEN_KEY, JSON.stringify([...set]));
+        function toggleCollapseRead() {
+            collapseRead = !collapseRead;
+            document.getElementById('collapse-icon').textContent = collapseRead ? '▶' : '▼';
+            document.getElementById('collapse-text').textContent = collapseRead ? 'Expand read articles' : 'Collapse read articles';
+            renderArticles();
         }
 
         function calculateRelevance(title, summary) {
@@ -1093,7 +1200,83 @@
             }
 
             const summaryData = await summaryResponse.json();
-            return { ids, summaries: summaryData.result };
+
+            // Fetch abstracts (in XML format, then parse)
+            let abstracts = {};
+            try {
+                const abstractUrl = `${PUBMED_BASE}/efetch.fcgi?db=pubmed&id=${ids.join(',')}&rettype=abstract&retmode=xml`;
+                const abstractResponse = await fetch(abstractUrl);
+                if (abstractResponse.ok) {
+                    const xmlText = await abstractResponse.text();
+                    abstracts = parseAbstractsFromXml(xmlText);
+                }
+            } catch (e) {
+                console.warn('Failed to fetch abstracts:', e.message);
+            }
+
+            // Link to PMC for open access articles
+            let pmcLinks = {};
+            try {
+                const linkUrl = `${PUBMED_BASE}/elink.fcgi?dbfrom=pubmed&db=pmc&id=${ids.join(',')}&retmode=json`;
+                const linkResponse = await fetch(linkUrl);
+                if (linkResponse.ok) {
+                    const linkData = await linkResponse.json();
+                    pmcLinks = parsePmcLinks(linkData);
+                }
+            } catch (e) {
+                console.warn('Failed to get PMC links:', e.message);
+            }
+
+            return { ids, summaries: summaryData.result, abstracts, pmcLinks };
+        }
+
+        function parseAbstractsFromXml(xmlText) {
+            const abstracts = {};
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(xmlText, 'text/xml');
+                const articles = doc.querySelectorAll('PubmedArticle');
+
+                articles.forEach(article => {
+                    const pmidEl = article.querySelector('PMID');
+                    const abstractEl = article.querySelector('AbstractText');
+
+                    if (pmidEl && abstractEl) {
+                        const pmid = pmidEl.textContent;
+                        // Handle multiple AbstractText elements (structured abstracts)
+                        const abstractTexts = article.querySelectorAll('AbstractText');
+                        let fullAbstract = '';
+                        abstractTexts.forEach(at => {
+                            const label = at.getAttribute('Label');
+                            if (label) {
+                                fullAbstract += `<strong>${label}:</strong> `;
+                            }
+                            fullAbstract += at.textContent + ' ';
+                        });
+                        abstracts[pmid] = fullAbstract.trim();
+                    }
+                });
+            } catch (e) {
+                console.warn('Error parsing abstracts XML:', e);
+            }
+            return abstracts;
+        }
+
+        function parsePmcLinks(linkData) {
+            const pmcLinks = {};
+            try {
+                const linksets = linkData.linksets || [];
+                linksets.forEach(linkset => {
+                    const pmid = linkset.ids?.[0];
+                    const pmcIds = linkset.linksetdbs?.find(db => db.dbto === 'pmc')?.links || [];
+                    if (pmid && pmcIds.length > 0) {
+                        pmcLinks[pmid] = `PMC${pmcIds[0]}`;
+                    }
+                });
+            } catch (e) {
+                console.warn('Error parsing PMC links:', e);
+            }
+            return pmcLinks;
         }
 
         function parsePubMedResults(data, searchConfig) {
@@ -1102,6 +1285,9 @@
             if (!data.ids || !data.summaries) {
                 return newArticles;
             }
+
+            const abstracts = data.abstracts || {};
+            const pmcLinks = data.pmcLinks || {};
 
             data.ids.forEach(id => {
                 const article = data.summaries[id];
@@ -1113,14 +1299,19 @@
                 const source = article.source || '';
                 const pubDate = article.pubdate || '';
                 const summary = authors ? `${authors}. ${source}. ${pubDate}` : `${source}. ${pubDate}`;
+                const abstract = abstracts[id] || null;
+                const pmcId = pmcLinks[id] || null;
 
-                const relevance = calculateRelevance(title, summary);
+                const relevance = calculateRelevance(title, abstract || summary);
 
                 newArticles.push({
                     id: `pubmed_${id}`,
+                    pubmedId: id,
                     title,
                     link,
                     summary,
+                    abstract,
+                    pmcId,
                     source: searchConfig.name,
                     category: searchConfig.category,
                     published: parsePubMedDate(pubDate),
@@ -1381,14 +1572,12 @@
         function updateStats() {
             const readSet = getReadSet();
             const starredSet = getStarredSet();
-            const hiddenSet = getHiddenSet();
 
-            const visible = articles.filter(a => !hiddenSet.has(a.id));
-            const unread = visible.filter(a => !readSet.has(a.id));
-            const starred = visible.filter(a => starredSet.has(a.id));
-            const important = visible.filter(a => a.relevance >= 100 && !readSet.has(a.id));
+            const unread = articles.filter(a => !readSet.has(a.id));
+            const starred = articles.filter(a => starredSet.has(a.id));
+            const important = articles.filter(a => a.relevance >= 100 && !readSet.has(a.id));
 
-            document.getElementById('stat-total').textContent = visible.length;
+            document.getElementById('stat-total').textContent = articles.length;
             document.getElementById('stat-unread').textContent = unread.length;
             document.getElementById('stat-starred').textContent = starred.length;
             document.getElementById('stat-important').textContent = important.length;
@@ -1475,9 +1664,8 @@
             const list = document.getElementById('articles-list');
             const readSet = getReadSet();
             const starredSet = getStarredSet();
-            const hiddenSet = getHiddenSet();
 
-            let filtered = articles.filter(a => !hiddenSet.has(a.id));
+            let filtered = [...articles];
 
             if (currentCategory !== 'all') {
                 filtered = filtered.filter(a => a.category === currentCategory);
@@ -1550,15 +1738,6 @@
                     recencyBadge = '<span class="recency-badge older">Older</span>';
                 }
 
-                // Build links section
-                let linksHtml = '<div class="article-links">';
-                if (article.isBluesky) {
-                    linksHtml += `<a href="${article.link}" target="_blank" class="bluesky-link" onclick="markAsRead('${article.id}')">🦋 View on Bluesky</a>`;
-                } else if (article.link.includes('pubmed.ncbi.nlm.nih.gov')) {
-                    linksHtml += `<a href="${article.link}" target="_blank" class="pubmed-link" onclick="markAsRead('${article.id}')">📚 View on PubMed</a>`;
-                }
-                linksHtml += '</div>';
-
                 // Build engagement stats for Bluesky posts
                 let engagementHtml = '';
                 if (article.isBluesky) {
@@ -1576,16 +1755,33 @@
                     ? '<span class="social-badge">Social</span>'
                     : '';
 
+                // Build abstract section
+                let abstractHtml = '';
+                if (article.abstract && !article.isBluesky) {
+                    abstractHtml = `<div class="article-abstract">${article.abstract}</div>`;
+                }
+
+                // PMC badge and figures link if available
+                const pmcBadge = article.pmcId ? `<span class="pmc-badge">Open Access</span>` : '';
+                const pmcFiguresLink = article.pmcId
+                    ? `<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/${article.pmcId}/#figures" target="_blank" class="pmc-figures-link">📊 View Figures (PMC)</a>`
+                    : '';
+
+                // Collapsed class for read articles
+                const collapsedClass = isRead && collapseRead ? 'collapsed' : '';
+
                 return `
-                    <div class="article ${isRead ? 'read' : ''}" data-id="${article.id}">
+                    <div class="article ${isRead ? 'read' : ''} ${collapsedClass}" data-id="${article.id}">
                         <div class="article-header">
                             <div class="article-title-main">
                                 <span class="relevance-indicator relevance-${relevanceClass}"></span>
                                 <a href="${article.link}" target="_blank" onclick="markAsRead('${article.id}')">${article.title}</a>
                             </div>
+                            ${isRead && collapseRead ? `<button class="collapse-toggle" onclick="expandArticle('${article.id}')">▶ Expand</button>` : ''}
                         </div>
                         <div class="article-meta">
                             ${categoryBadge}
+                            ${pmcBadge}
                             <span class="article-source">${article.source}</span>
                             <span class="article-category ${article.category}">${article.category}</span>
                             <span class="article-date">${date}</span>
@@ -1593,8 +1789,15 @@
                             ${!article.isBluesky ? `<span class="article-relevance">Relevance: ${article.relevance}</span>` : ''}
                         </div>
                         <div class="article-summary">${article.summary || 'No summary available'}</div>
+                        ${abstractHtml}
                         ${engagementHtml}
-                        ${linksHtml}
+                        <div class="article-links">
+                            ${article.isBluesky
+                                ? `<a href="${article.link}" target="_blank" class="bluesky-link" onclick="markAsRead('${article.id}')">🦋 View on Bluesky</a>`
+                                : `<a href="${article.link}" target="_blank" class="pubmed-link" onclick="markAsRead('${article.id}')">📚 View on PubMed</a>`
+                            }
+                            ${pmcFiguresLink}
+                        </div>
                         <div class="article-actions">
                             <button onclick="toggleStar('${article.id}')" class="${isStarred ? 'starred' : ''}">
                                 ${isStarred ? '★ Saved' : '☆ Save'}
@@ -1602,7 +1805,6 @@
                             <button onclick="toggleRead('${article.id}')">
                                 ${isRead ? '○ Mark Unread' : '● Mark Read'}
                             </button>
-                            <button onclick="hideArticle('${article.id}')">✕ Hide</button>
                         </div>
                     </div>
                 `;
@@ -1641,25 +1843,22 @@
             updateStats();
         }
 
-        function hideArticle(id) {
-            const hiddenSet = getHiddenSet();
-            hiddenSet.add(id);
-            saveHiddenSet(hiddenSet);
-            renderArticles();
-            updateStats();
+        function expandArticle(id) {
+            // Temporarily expand a single collapsed article
+            const articleEl = document.querySelector(`.article[data-id="${id}"]`);
+            if (articleEl) {
+                articleEl.classList.remove('collapsed');
+            }
         }
 
         function markAllRead() {
             if (!confirm('Mark all visible articles as read?')) return;
 
             const readSet = getReadSet();
-            const hiddenSet = getHiddenSet();
 
             articles.forEach(a => {
-                if (!hiddenSet.has(a.id)) {
-                    if (currentCategory === 'all' || a.category === currentCategory) {
-                        readSet.add(a.id);
-                    }
+                if (currentCategory === 'all' || a.category === currentCategory) {
+                    readSet.add(a.id);
                 }
             });
 
@@ -1674,7 +1873,6 @@
             localStorage.removeItem(STORAGE_KEY);
             localStorage.removeItem(READ_KEY);
             localStorage.removeItem(STARRED_KEY);
-            localStorage.removeItem(HIDDEN_KEY);
             localStorage.removeItem('drug_research_tracker_last_fetch');
 
             articles = [];
