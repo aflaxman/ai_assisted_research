@@ -839,8 +839,8 @@
 
     <div class="container">
         <div class="info-box" id="info-box">
-            <strong>Powered by PubMed + Bluesky:</strong> Searches PubMed for research articles and Bluesky for social discussions (via CORS proxy).
-            Filter by "Social" to see posts with buzz. Data stored in your browser.
+            <strong>Powered by PubMed:</strong> Searches PubMed for research articles with abstracts and PMC figure links.
+            <span style="color: #718096; font-size: 0.85rem;">(Bluesky social search is experimental and may be unavailable due to CORS restrictions.)</span>
         </div>
 
         <div class="stats-bar" id="stats-bar">
@@ -1336,25 +1336,22 @@
 
         async function searchBluesky(query) {
             // Bluesky API doesn't support CORS, so we use a proxy
+            // Note: Public CORS proxies are unreliable - this feature is experimental
             const blueskyUrl = `${BLUESKY_API}/app.bsky.feed.searchPosts?q=${encodeURIComponent(query)}&limit=25&sort=top`;
 
-            // Try multiple CORS proxies with different encoding methods
+            // Try multiple CORS proxies - many are rate-limited or blocked
             const proxies = [
                 {
                     name: 'corsproxy.io',
                     getUrl: url => `https://corsproxy.io/?${encodeURIComponent(url)}`
                 },
                 {
-                    name: 'allorigins',
-                    getUrl: url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
-                },
-                {
-                    name: 'cors-anywhere-alt',
-                    getUrl: url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
-                },
-                {
-                    name: 'corsproxy.org',
-                    getUrl: url => `https://corsproxy.org/?${encodeURIComponent(url)}`
+                    name: 'allorigins-json',
+                    getUrl: url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+                    parseResponse: async (resp) => {
+                        const wrapper = await resp.json();
+                        return JSON.parse(wrapper.contents);
+                    }
                 }
             ];
 
@@ -1365,7 +1362,7 @@
                     console.log(`Trying Bluesky via ${proxy.name}...`);
 
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 10000);
+                    const timeoutId = setTimeout(() => controller.abort(), 8000);
 
                     const response = await fetch(proxyUrl, {
                         signal: controller.signal,
@@ -1377,8 +1374,18 @@
                     clearTimeout(timeoutId);
 
                     if (response.ok) {
-                        const text = await response.text();
-                        const data = JSON.parse(text);
+                        let data;
+                        if (proxy.parseResponse) {
+                            data = await proxy.parseResponse(response);
+                        } else {
+                            const text = await response.text();
+                            // Check if response looks like JSON (not HTML error page)
+                            if (text.startsWith('<')) {
+                                console.warn(`${proxy.name} returned HTML instead of JSON`);
+                                continue;
+                            }
+                            data = JSON.parse(text);
+                        }
                         console.log(`Bluesky via ${proxy.name} succeeded!`);
                         return data;
                     } else {
@@ -1394,7 +1401,9 @@
                 }
             }
 
-            throw new Error(lastError?.message || 'All proxies failed for Bluesky');
+            // Return empty result instead of throwing - makes the feature gracefully degrade
+            console.warn('Bluesky search unavailable (CORS proxy issues)');
+            return { posts: [] };
         }
 
         function parseBlueskyResults(data, searchName) {
