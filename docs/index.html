@@ -539,6 +539,144 @@
             flex-wrap: wrap;
         }
 
+        .category-stats {
+            display: flex;
+            gap: 15px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .category-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .category-stat-label {
+            color: #666;
+        }
+
+        .category-stat-count {
+            background: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .category-stat-count.research { background: #dbeafe; color: #2563eb; }
+        .category-stat-count.policy { background: #ede9fe; color: #7c3aed; }
+        .category-stat-count.social { background: #dbeafe; color: #0085ff; }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .sort-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: #2c5282;
+        }
+
+        .time-filter-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        .recency-badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .recency-badge.today { background: #fef3c7; color: #92400e; }
+        .recency-badge.week { background: #d1fae5; color: #065f46; }
+        .recency-badge.month { background: #e0e7ff; color: #3730a3; }
+        .recency-badge.older { background: #f3f4f6; color: #6b7280; }
+
+        .trends-section {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+
+        .trends-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1a365d;
+            margin-bottom: 10px;
+        }
+
+        .trends-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .trend-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trend-label {
+            width: 80px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .trend-bar-container {
+            flex: 1;
+            height: 20px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .trend-bar {
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .trend-bar.unread { background: #3b82f6; }
+        .trend-bar.read { background: #d1d5db; }
+
+        .trend-count {
+            width: 60px;
+            font-size: 0.75rem;
+            color: #666;
+            text-align: right;
+        }
+
         .info-box {
             background: #ebf8ff;
             border: 1px solid #90cdf4;
@@ -637,6 +775,51 @@
             <div id="important-articles"></div>
         </div>
 
+        <!-- Category Stats & Trends -->
+        <div class="category-stats" id="category-stats">
+            <span class="filter-label">Unread by category:</span>
+            <div class="category-stat">
+                <span class="category-stat-label">Research</span>
+                <span class="category-stat-count research" id="cat-research">0</span>
+            </div>
+            <div class="category-stat">
+                <span class="category-stat-label">Policy</span>
+                <span class="category-stat-count policy" id="cat-policy">0</span>
+            </div>
+            <div class="category-stat">
+                <span class="category-stat-label">Social</span>
+                <span class="category-stat-count social" id="cat-social">0</span>
+            </div>
+        </div>
+
+        <div class="trends-section" id="trends-section">
+            <div class="trends-title">Publication Recency (unread articles)</div>
+            <div class="trends-bars" id="trends-bars">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-row">
+                <span class="filter-label">Time:</span>
+                <div class="time-filter-group" id="time-filters">
+                    <button class="filter-btn active" data-time="all">All Time</button>
+                    <button class="filter-btn" data-time="7">Last 7 days</button>
+                    <button class="filter-btn" data-time="30">Last 30 days</button>
+                    <button class="filter-btn" data-time="90">Last 90 days</button>
+                </div>
+            </div>
+            <div class="filter-row">
+                <span class="filter-label">Sort:</span>
+                <select class="sort-select" id="sort-select">
+                    <option value="date-desc">Newest First</option>
+                    <option value="date-asc">Oldest First</option>
+                    <option value="relevance">Highest Relevance</option>
+                    <option value="engagement">Most Engagement</option>
+                </select>
+            </div>
+        </div>
+
         <div class="filters">
             <div class="filter-group" id="category-filters">
                 <button class="filter-btn active" data-category="all">All</button>
@@ -733,6 +916,8 @@
         let currentCategory = 'all';
         let currentFilter = 'all';
         let currentSearch = '';
+        let currentTimeFilter = 'all';
+        let currentSort = 'date-desc';
 
         // LocalStorage keys
         const STORAGE_KEY = 'drug_research_tracker_articles';
@@ -781,6 +966,22 @@
                     currentSearch = e.target.value.toLowerCase();
                     renderArticles();
                 }, 300);
+            });
+
+            // Time filters
+            document.querySelectorAll('#time-filters .filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('#time-filters .filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentTimeFilter = btn.dataset.time;
+                    renderArticles();
+                });
+            });
+
+            // Sort select
+            document.getElementById('sort-select').addEventListener('change', (e) => {
+                currentSort = e.target.value;
+                renderArticles();
             });
         }
 
@@ -946,25 +1147,59 @@
             // Bluesky API doesn't support CORS, so we use a proxy
             const blueskyUrl = `${BLUESKY_API}/app.bsky.feed.searchPosts?q=${encodeURIComponent(query)}&limit=25&sort=top`;
 
-            // Try multiple CORS proxies
+            // Try multiple CORS proxies with different encoding methods
             const proxies = [
-                url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-                url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+                {
+                    name: 'corsproxy.io',
+                    getUrl: url => `https://corsproxy.io/?${encodeURIComponent(url)}`
+                },
+                {
+                    name: 'allorigins',
+                    getUrl: url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+                },
+                {
+                    name: 'cors-anywhere-alt',
+                    getUrl: url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+                },
+                {
+                    name: 'corsproxy.org',
+                    getUrl: url => `https://corsproxy.org/?${encodeURIComponent(url)}`
+                }
             ];
 
             let lastError = null;
-            for (const proxyFn of proxies) {
+            for (const proxy of proxies) {
                 try {
-                    const proxyUrl = proxyFn(blueskyUrl);
-                    const response = await fetch(proxyUrl);
+                    const proxyUrl = proxy.getUrl(blueskyUrl);
+                    console.log(`Trying Bluesky via ${proxy.name}...`);
+
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+                    const response = await fetch(proxyUrl, {
+                        signal: controller.signal,
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    clearTimeout(timeoutId);
 
                     if (response.ok) {
                         const text = await response.text();
-                        return JSON.parse(text);
+                        const data = JSON.parse(text);
+                        console.log(`Bluesky via ${proxy.name} succeeded!`);
+                        return data;
+                    } else {
+                        console.warn(`${proxy.name} returned status ${response.status}`);
                     }
                 } catch (e) {
                     lastError = e;
-                    console.warn('Proxy failed for Bluesky:', e.message);
+                    if (e.name === 'AbortError') {
+                        console.warn(`${proxy.name} timed out`);
+                    } else {
+                        console.warn(`${proxy.name} failed:`, e.message);
+                    }
                 }
             }
 
@@ -1158,6 +1393,65 @@
             document.getElementById('stat-starred').textContent = starred.length;
             document.getElementById('stat-important').textContent = important.length;
 
+            // Update category stats
+            const researchUnread = unread.filter(a => a.category === 'research').length;
+            const policyUnread = unread.filter(a => a.category === 'policy').length;
+            const socialUnread = unread.filter(a => a.category === 'social').length;
+
+            document.getElementById('cat-research').textContent = researchUnread;
+            document.getElementById('cat-policy').textContent = policyUnread;
+            document.getElementById('cat-social').textContent = socialUnread;
+
+            // Update trends section (publication recency for unread)
+            const now = new Date();
+            const dayAgo = new Date(now - 24 * 60 * 60 * 1000);
+            const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+            const monthAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+
+            const todayCount = unread.filter(a => new Date(a.published) >= dayAgo).length;
+            const weekCount = unread.filter(a => {
+                const d = new Date(a.published);
+                return d >= weekAgo && d < dayAgo;
+            }).length;
+            const monthCount = unread.filter(a => {
+                const d = new Date(a.published);
+                return d >= monthAgo && d < weekAgo;
+            }).length;
+            const olderCount = unread.filter(a => new Date(a.published) < monthAgo).length;
+
+            const maxCount = Math.max(todayCount, weekCount, monthCount, olderCount, 1);
+
+            document.getElementById('trends-bars').innerHTML = `
+                <div class="trend-row">
+                    <span class="trend-label">Today</span>
+                    <div class="trend-bar-container">
+                        <div class="trend-bar unread" style="width: ${(todayCount / maxCount) * 100}%"></div>
+                    </div>
+                    <span class="trend-count">${todayCount} unread</span>
+                </div>
+                <div class="trend-row">
+                    <span class="trend-label">This week</span>
+                    <div class="trend-bar-container">
+                        <div class="trend-bar unread" style="width: ${(weekCount / maxCount) * 100}%"></div>
+                    </div>
+                    <span class="trend-count">${weekCount} unread</span>
+                </div>
+                <div class="trend-row">
+                    <span class="trend-label">This month</span>
+                    <div class="trend-bar-container">
+                        <div class="trend-bar unread" style="width: ${(monthCount / maxCount) * 100}%"></div>
+                    </div>
+                    <span class="trend-count">${monthCount} unread</span>
+                </div>
+                <div class="trend-row">
+                    <span class="trend-label">Older</span>
+                    <div class="trend-bar-container">
+                        <div class="trend-bar unread" style="width: ${(olderCount / maxCount) * 100}%"></div>
+                    </div>
+                    <span class="trend-count">${olderCount} unread</span>
+                </div>
+            `;
+
             // Update important section
             const importantSection = document.getElementById('important-section');
             const importantArticles = document.getElementById('important-articles');
@@ -1202,10 +1496,39 @@
                 );
             }
 
+            // Time filtering
+            if (currentTimeFilter !== 'all') {
+                const days = parseInt(currentTimeFilter);
+                const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+                filtered = filtered.filter(a => new Date(a.published) >= cutoff);
+            }
+
+            // Sorting
+            filtered.sort((a, b) => {
+                switch (currentSort) {
+                    case 'date-asc':
+                        return new Date(a.published) - new Date(b.published);
+                    case 'relevance':
+                        return b.relevance - a.relevance;
+                    case 'engagement':
+                        const engA = (a.likes || 0) * 2 + (a.reposts || 0) * 3 + (a.replies || 0);
+                        const engB = (b.likes || 0) * 2 + (b.reposts || 0) * 3 + (b.replies || 0);
+                        return engB - engA;
+                    case 'date-desc':
+                    default:
+                        return new Date(b.published) - new Date(a.published);
+                }
+            });
+
             if (filtered.length === 0) {
                 list.innerHTML = '<div class="empty-state">No articles found. Try refreshing feeds or adjusting filters.</div>';
                 return;
             }
+
+            const now = new Date();
+            const dayAgo = new Date(now - 24 * 60 * 60 * 1000);
+            const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+            const monthAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
 
             list.innerHTML = filtered.slice(0, 100).map(article => {
                 const isRead = readSet.has(article.id);
@@ -1213,6 +1536,19 @@
                 const relevanceClass = article.relevance >= 100 ? 'high' :
                                       article.relevance >= 50 ? 'medium' : 'low';
                 const date = new Date(article.published).toLocaleDateString();
+                const pubDate = new Date(article.published);
+
+                // Determine recency badge
+                let recencyBadge = '';
+                if (pubDate >= dayAgo) {
+                    recencyBadge = '<span class="recency-badge today">Today</span>';
+                } else if (pubDate >= weekAgo) {
+                    recencyBadge = '<span class="recency-badge week">This week</span>';
+                } else if (pubDate >= monthAgo) {
+                    recencyBadge = '<span class="recency-badge month">This month</span>';
+                } else {
+                    recencyBadge = '<span class="recency-badge older">Older</span>';
+                }
 
                 // Build links section
                 let linksHtml = '<div class="article-links">';
@@ -1253,6 +1589,7 @@
                             <span class="article-source">${article.source}</span>
                             <span class="article-category ${article.category}">${article.category}</span>
                             <span class="article-date">${date}</span>
+                            ${recencyBadge}
                             ${!article.isBluesky ? `<span class="article-relevance">Relevance: ${article.relevance}</span>` : ''}
                         </div>
                         <div class="article-summary">${article.summary || 'No summary available'}</div>
