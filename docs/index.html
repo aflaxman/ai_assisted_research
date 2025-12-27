@@ -596,8 +596,8 @@
 
     <div class="container">
         <div class="info-box" id="info-box">
-            <strong>Powered by PubMed + Bluesky:</strong> Searches PubMed for research articles and Bluesky for social discussions.
-            Filter by "Social" to see posts with the most engagement (buzz). Data stored in your browser.
+            <strong>Powered by PubMed + Bluesky:</strong> Searches PubMed for research articles and Bluesky for social discussions (via CORS proxy).
+            Filter by "Social" to see posts with buzz. Data stored in your browser.
         </div>
 
         <div class="stats-bar" id="stats-bar">
@@ -943,14 +943,32 @@
         }
 
         async function searchBluesky(query) {
-            const url = `${BLUESKY_API}/app.bsky.feed.searchPosts?q=${encodeURIComponent(query)}&limit=25&sort=top`;
-            const response = await fetch(url);
+            // Bluesky API doesn't support CORS, so we use a proxy
+            const blueskyUrl = `${BLUESKY_API}/app.bsky.feed.searchPosts?q=${encodeURIComponent(query)}&limit=25&sort=top`;
 
-            if (!response.ok) {
-                throw new Error(`Bluesky search failed: ${response.status}`);
+            // Try multiple CORS proxies
+            const proxies = [
+                url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+                url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+            ];
+
+            let lastError = null;
+            for (const proxyFn of proxies) {
+                try {
+                    const proxyUrl = proxyFn(blueskyUrl);
+                    const response = await fetch(proxyUrl);
+
+                    if (response.ok) {
+                        const text = await response.text();
+                        return JSON.parse(text);
+                    }
+                } catch (e) {
+                    lastError = e;
+                    console.warn('Proxy failed for Bluesky:', e.message);
+                }
             }
 
-            return await response.json();
+            throw new Error(lastError?.message || 'All proxies failed for Bluesky');
         }
 
         function parseBlueskyResults(data, searchName) {
