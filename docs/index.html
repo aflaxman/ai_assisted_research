@@ -520,8 +520,8 @@
 
     <div class="container">
         <div class="info-box" id="info-box">
-            <strong>Client-side app:</strong> Articles are fetched from PubMed, arXiv, CDC, NIH, and NIDA.
-            Data is stored in your browser. Feeds refresh automatically on first visit.
+            <strong>Powered by PubMed:</strong> Searches NCBI's PubMed database for recent research on opioid simulation,
+            drug policy modeling, and harm reduction. Data stored in your browser.
         </div>
 
         <div class="stats-bar" id="stats-bar">
@@ -545,8 +545,8 @@
 
         <div id="loading-container" class="loading-container" style="display: none;">
             <div class="loading-spinner"></div>
-            <div class="loading-title">Fetching Research Feeds</div>
-            <div class="loading-subtitle">Searching for opioid simulation and policy articles...</div>
+            <div class="loading-title">Searching PubMed</div>
+            <div class="loading-subtitle">Finding recent research on opioid simulation and drug policy...</div>
             <div class="progress-bar">
                 <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
             </div>
@@ -601,37 +601,34 @@
             ]
         };
 
-        // CORS proxy options (try multiple in case one fails)
-        const CORS_PROXIES = [
-            url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-            url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-        ];
+        // PubMed eutils API (CORS enabled, reliable)
+        const PUBMED_BASE = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
 
-        const FEEDS = [
+        // PubMed search queries for different topics
+        const PUBMED_SEARCHES = [
             {
-                name: "PubMed - Opioid Modeling",
-                // PubMed RSS for opioid + simulation/modeling search
-                url: "https://pubmed.ncbi.nlm.nih.gov/rss/search/1xGZdgH1O4aXVfnALwYs0Cfvg5iL9R6K0xEHglFJVILVY3nUiB/?limit=20&utm_campaign=pubmed-2&fc=20231201000000",
+                name: "Opioid Simulation Models",
+                query: "(opioid OR fentanyl) AND (simulation OR mathematical model OR computational model)",
                 category: "research"
             },
             {
-                name: "arXiv - Quantitative Biology",
-                url: "https://rss.arxiv.org/rss/q-bio",
+                name: "Drug Policy Modeling",
+                query: "(drug policy OR opioid policy) AND (model OR simulation OR cost-effectiveness)",
                 category: "research"
             },
             {
-                name: "CDC MMWR",
-                url: "https://tools.cdc.gov/api/v2/resources/media/rss/mmwr.rss",
-                category: "policy"
+                name: "Overdose Prevention",
+                query: "(overdose OR naloxone) AND (prediction OR model OR intervention)",
+                category: "research"
             },
             {
-                name: "NIH News",
-                url: "https://www.nih.gov/news-events/news-releases/feed",
-                category: "policy"
+                name: "Substance Use Treatment",
+                query: "(substance use disorder OR opioid use disorder) AND (treatment OR buprenorphine OR methadone)",
+                category: "research"
             },
             {
-                name: "NIDA News",
-                url: "https://nida.nih.gov/news-events/news-releases/rss",
+                name: "Harm Reduction Research",
+                query: "(harm reduction) AND (opioid OR drug use OR injection)",
                 category: "policy"
             }
         ];
@@ -775,33 +772,62 @@
             return Math.abs(hash).toString(16);
         }
 
-        function parseRSS(xmlText, feedConfig) {
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(xmlText, 'text/xml');
-            const items = xml.querySelectorAll('item');
+        async function searchPubMed(query) {
+            // Search for article IDs
+            const searchUrl = `${PUBMED_BASE}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=20&retmode=json&sort=date`;
+            const searchResponse = await fetch(searchUrl);
+
+            if (!searchResponse.ok) {
+                throw new Error(`Search failed: ${searchResponse.status}`);
+            }
+
+            const searchData = await searchResponse.json();
+            const ids = searchData.esearchresult?.idlist || [];
+
+            if (ids.length === 0) {
+                return [];
+            }
+
+            // Get article summaries
+            const summaryUrl = `${PUBMED_BASE}/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`;
+            const summaryResponse = await fetch(summaryUrl);
+
+            if (!summaryResponse.ok) {
+                throw new Error(`Summary failed: ${summaryResponse.status}`);
+            }
+
+            const summaryData = await summaryResponse.json();
+            return { ids, summaries: summaryData.result };
+        }
+
+        function parsePubMedResults(data, searchConfig) {
             const newArticles = [];
 
-            items.forEach(item => {
-                const title = item.querySelector('title')?.textContent || 'No title';
-                const link = item.querySelector('link')?.textContent || '';
-                let summary = item.querySelector('description')?.textContent || '';
-                const pubDate = item.querySelector('pubDate')?.textContent ||
-                               item.querySelector('dc\\:date')?.textContent || '';
+            if (!data.ids || !data.summaries) {
+                return newArticles;
+            }
 
-                // Clean HTML from summary
-                summary = summary.replace(/<[^>]+>/g, '').substring(0, 500);
+            data.ids.forEach(id => {
+                const article = data.summaries[id];
+                if (!article || article.error) return;
+
+                const title = article.title || 'No title';
+                const link = `https://pubmed.ncbi.nlm.nih.gov/${id}/`;
+                const authors = (article.authors || []).slice(0, 3).map(a => a.name).join(', ');
+                const source = article.source || '';
+                const pubDate = article.pubdate || '';
+                const summary = authors ? `${authors}. ${source}. ${pubDate}` : `${source}. ${pubDate}`;
 
                 const relevance = calculateRelevance(title, summary);
 
-                // Include all articles from curated feeds (relevance used for sorting/highlighting)
                 newArticles.push({
-                    id: generateId(link, title),
+                    id: `pubmed_${id}`,
                     title,
                     link,
                     summary,
-                    source: feedConfig.name,
-                    category: feedConfig.category,
-                    published: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),
+                    source: searchConfig.name,
+                    category: searchConfig.category,
+                    published: parsePubMedDate(pubDate),
                     relevance
                 });
             });
@@ -809,22 +835,16 @@
             return newArticles;
         }
 
-        async function fetchWithProxy(url) {
-            for (const proxyFn of CORS_PROXIES) {
-                try {
-                    const proxyUrl = proxyFn(url);
-                    const response = await fetch(proxyUrl, {
-                        timeout: 10000,
-                        headers: { 'Accept': 'application/rss+xml, application/xml, text/xml' }
-                    });
-                    if (response.ok) {
-                        return await response.text();
-                    }
-                } catch (e) {
-                    console.warn(`Proxy failed for ${url}:`, e.message);
+        function parsePubMedDate(dateStr) {
+            if (!dateStr) return new Date().toISOString();
+            try {
+                // PubMed dates like "2025 Dec 24" or "2025 Dec"
+                const date = new Date(dateStr);
+                if (!isNaN(date.getTime())) {
+                    return date.toISOString();
                 }
-            }
-            throw new Error('All proxies failed');
+            } catch (e) {}
+            return new Date().toISOString();
         }
 
         async function refreshFeeds() {
@@ -842,11 +862,11 @@
             articlesList.style.display = 'none';
             progressFill.style.width = '0%';
 
-            // Build feed status list
-            feedList.innerHTML = FEEDS.map((feed, i) => `
+            // Build search status list
+            feedList.innerHTML = PUBMED_SEARCHES.map((search, i) => `
                 <div class="feed-item pending" id="feed-item-${i}">
                     <span class="feed-item-icon"></span>
-                    <span class="feed-item-name">${feed.name}</span>
+                    <span class="feed-item-name">${search.name}</span>
                     <span class="feed-item-count" id="feed-count-${i}"></span>
                 </div>
             `).join('');
@@ -855,18 +875,18 @@
             let totalNewCount = 0;
             let completed = 0;
 
-            for (let i = 0; i < FEEDS.length; i++) {
-                const feed = FEEDS[i];
+            for (let i = 0; i < PUBMED_SEARCHES.length; i++) {
+                const search = PUBMED_SEARCHES[i];
                 const feedItem = document.getElementById(`feed-item-${i}`);
                 const feedCount = document.getElementById(`feed-count-${i}`);
 
                 feedItem.className = 'feed-item loading';
-                feedStatus.textContent = `Fetching ${feed.name}...`;
+                feedStatus.textContent = `Searching PubMed: ${search.name}...`;
 
                 let feedNewCount = 0;
                 try {
-                    const xmlText = await fetchWithProxy(feed.url);
-                    const newArticles = parseRSS(xmlText, feed);
+                    const data = await searchPubMed(search.query);
+                    const newArticles = parsePubMedResults(data, search);
 
                     newArticles.forEach(article => {
                         if (!existingIds.has(article.id)) {
@@ -878,21 +898,28 @@
                     });
 
                     feedItem.className = 'feed-item success';
-                    feedCount.textContent = feedNewCount > 0 ? `+${feedNewCount}` : `${newArticles.length} total`;
+                    feedCount.textContent = feedNewCount > 0 ? `+${feedNewCount}` : `${newArticles.length} found`;
                 } catch (e) {
-                    console.error(`Failed to fetch ${feed.name}:`, e);
+                    console.error(`Failed to search ${search.name}:`, e);
                     feedItem.className = 'feed-item error';
                     feedCount.textContent = 'failed';
                 }
 
                 completed++;
-                progressFill.style.width = `${(completed / FEEDS.length) * 100}%`;
+                progressFill.style.width = `${(completed / PUBMED_SEARCHES.length) * 100}%`;
+
+                // Small delay between API calls to be nice to PubMed
+                if (i < PUBMED_SEARCHES.length - 1) {
+                    await new Promise(r => setTimeout(r, 350));
+                }
             }
 
-            // Sort by relevance then date
+            // Sort by date (newest first), then by relevance
             articles.sort((a, b) => {
-                if (b.relevance !== a.relevance) return b.relevance - a.relevance;
-                return new Date(b.published) - new Date(a.published);
+                const dateA = new Date(a.published);
+                const dateB = new Date(b.published);
+                if (dateB - dateA !== 0) return dateB - dateA;
+                return b.relevance - a.relevance;
             });
 
             // Keep only last 500 articles
