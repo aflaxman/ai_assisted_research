@@ -2,36 +2,24 @@
 
 A GPU-accelerated implementation of SEIR (Susceptible-Exposed-Infectious-Recovered) disease modeling on temporal contact networks, inspired by the [Replay framework](https://github.com/HarrisonGreenlee/Replay).
 
-## Quick Start (IHME Cluster)
-
-### Option 1: Using Singularity Container (Recommended)
+## Quick Start (IHME GPU Machine)
 
 ```bash
+# SSH to the GPU machine
+ssh gpu-machine
+
 # 1. Build the container (one-time setup)
 cd /path/to/replay_demo
 singularity build seir_cuda.sif seir_cuda.def
 
-# 2. Run benchmark on GPU node
-srun --partition=gpu --gres=gpu:1 --time=00:30:00 \
-    singularity exec --nv seir_cuda.sif python3 /app/seir_cuda_simulation.py --n-sims 10000
+# 2. Run benchmark (CPU vs GPU comparison)
+singularity exec --nv seir_cuda.sif python3 /app/seir_cuda_simulation.py --n-sims 10000
 
 # 3. Run tests
 singularity exec --nv seir_cuda.sif python3 /app/test_seir_cuda.py
 ```
 
-### Option 2: Direct Python (if CUDA already configured)
-
-```bash
-# Load modules (adjust for your cluster)
-module load cuda/12.2
-module load python/3.11
-
-# Install dependencies
-pip install --user numpy numba matplotlib
-
-# Run
-python seir_cuda_simulation.py --n-sims 1000
-```
+The `--nv` flag enables GPU access inside the container.
 
 ## Local Development (WSL/Laptop)
 
@@ -89,33 +77,6 @@ python seir_cuda_simulation.py --n-nodes 200 --n-days 60 --n-sims 5000
 python test_seir_cuda.py -v
 ```
 
-## SLURM Job Script
-
-Create `run_seir_gpu.sh`:
-
-```bash
-#!/bin/bash
-#SBATCH --job-name=seir_cuda
-#SBATCH --partition=gpu
-#SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=16G
-#SBATCH --time=01:00:00
-#SBATCH --output=seir_%j.out
-
-# Using Singularity
-singularity exec --nv seir_cuda.sif python3 /app/seir_cuda_simulation.py \
-    --n-sims 50000 \
-    --n-nodes 100 \
-    --output results_${SLURM_JOB_ID}.json
-
-# Or direct Python (if modules available)
-# module load cuda/12.2 python/3.11
-# python seir_cuda_simulation.py --n-sims 50000
-```
-
-Submit with: `sbatch run_seir_gpu.sh`
-
 ## Expected Speedup
 
 Typical performance on a V100 GPU:
@@ -138,8 +99,8 @@ Typical performance on a V100 GPU:
 ## Troubleshooting
 
 ### "CUDA not available"
-- Ensure you're on a GPU node: `srun --partition=gpu --gres=gpu:1 ...`
-- Check CUDA is loaded: `nvidia-smi`
+- Ensure you're on the GPU machine (not a CPU-only node)
+- Check GPU is accessible: `nvidia-smi`
 - For Singularity: use `--nv` flag
 
 ### Container build fails
