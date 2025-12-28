@@ -768,6 +768,7 @@
                 <small>Opioid Simulation & Policy Updates</small>
             </h1>
             <div class="header-actions">
+                <button class="btn" id="undo-btn" onclick="undoLastAction()" disabled>Undo</button>
                 <button class="btn" onclick="markAllRead()">Mark All Read</button>
                 <button class="btn btn-danger" onclick="clearData()">Clear Data</button>
                 <button class="btn btn-primary" id="refresh-btn" onclick="refreshFeeds()">
@@ -787,8 +788,9 @@
             <strong>Keyboard shortcuts:</strong>
             <kbd>j</kbd> next article,
             <kbd>k</kbd> previous article,
-            <kbd>x</kbd> mark read,
-            <kbd>s</kbd> save (also marks read)
+            <kbd>y</kbd> mark read,
+            <kbd>s</kbd> save (also marks read),
+            <kbd>z</kbd> undo
         </div>
 
         <div class="stats-bar" id="stats-bar">
@@ -972,6 +974,7 @@
         let currentTimeFilter = '7';
         let currentSort = 'date-desc';
         let selectedArticleIndex = -1;
+        let actionHistory = []; // Stack of {type, id, previousState} for undo
 
         // LocalStorage keys
         const STORAGE_KEY = 'drug_research_tracker_articles';
@@ -1070,7 +1073,7 @@
                             highlightSelectedArticle();
                         }
                         break;
-                    case 'x': // Mark read
+                    case 'y': // Mark read
                         e.preventDefault();
                         if (selectedArticleIndex >= 0 && selectedArticleIndex <= maxIndex) {
                             const id = articleEls[selectedArticleIndex].dataset.id;
@@ -1083,6 +1086,10 @@
                             const id = articleEls[selectedArticleIndex].dataset.id;
                             toggleStar(id);
                         }
+                        break;
+                    case 'z': // Undo
+                        e.preventDefault();
+                        undoLastAction();
                         break;
                 }
             });
@@ -1732,7 +1739,7 @@
                                 ${isStarred ? '★ Saved' : '☆ Save'} <kbd>s</kbd>
                             </button>
                             <button onclick="toggleRead('${article.id}')">
-                                ${isRead ? '○ Mark Unread' : '● Mark Read'} <kbd>x</kbd>
+                                ${isRead ? '○ Mark Unread' : '● Mark Read'} <kbd>y</kbd>
                             </button>
                         </div>
                         ${abstractHtml}
@@ -1757,7 +1764,17 @@
 
         function toggleRead(id) {
             const readSet = getReadSet();
-            if (readSet.has(id)) {
+            const wasRead = readSet.has(id);
+
+            // Record action for undo
+            actionHistory.push({
+                type: 'read',
+                id: id,
+                wasRead: wasRead
+            });
+            updateUndoButton();
+
+            if (wasRead) {
                 readSet.delete(id);
             } else {
                 readSet.add(id);
@@ -1770,8 +1787,19 @@
         function toggleStar(id) {
             const starredSet = getStarredSet();
             const readSet = getReadSet();
+            const wasStarred = starredSet.has(id);
+            const wasRead = readSet.has(id);
 
-            if (starredSet.has(id)) {
+            // Record action for undo
+            actionHistory.push({
+                type: 'star',
+                id: id,
+                wasStarred: wasStarred,
+                wasRead: wasRead
+            });
+            updateUndoButton();
+
+            if (wasStarred) {
                 starredSet.delete(id);
             } else {
                 starredSet.add(id);
@@ -1782,6 +1810,56 @@
             saveStarredSet(starredSet);
             renderArticles();
             updateStats();
+        }
+
+        function undoLastAction() {
+            if (actionHistory.length === 0) return;
+
+            const action = actionHistory.pop();
+            updateUndoButton();
+
+            if (action.type === 'read') {
+                // Restore previous read state
+                const readSet = getReadSet();
+                if (action.wasRead) {
+                    readSet.add(action.id);
+                } else {
+                    readSet.delete(action.id);
+                }
+                saveReadSet(readSet);
+            } else if (action.type === 'star') {
+                // Restore previous star and read state
+                const starredSet = getStarredSet();
+                const readSet = getReadSet();
+
+                if (action.wasStarred) {
+                    starredSet.add(action.id);
+                } else {
+                    starredSet.delete(action.id);
+                }
+
+                if (action.wasRead) {
+                    readSet.add(action.id);
+                } else {
+                    readSet.delete(action.id);
+                }
+
+                saveStarredSet(starredSet);
+                saveReadSet(readSet);
+            }
+
+            renderArticles();
+            updateStats();
+        }
+
+        function updateUndoButton() {
+            const btn = document.getElementById('undo-btn');
+            if (btn) {
+                btn.disabled = actionHistory.length === 0;
+                btn.textContent = actionHistory.length > 0
+                    ? `Undo (${actionHistory.length})`
+                    : 'Undo';
+            }
         }
 
         function markAllRead() {
