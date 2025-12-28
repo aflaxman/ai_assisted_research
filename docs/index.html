@@ -245,39 +245,13 @@
             background: #f9fafb;
         }
 
+        .article.selected {
+            background: #ebf8ff;
+            border-left: 3px solid #3182ce;
+        }
+
         .article.read {
             opacity: 0.7;
-        }
-
-        .article.read.collapsed {
-            padding: 10px 20px;
-        }
-
-        .article.read.collapsed .article-summary,
-        .article.read.collapsed .article-links,
-        .article.read.collapsed .article-actions,
-        .article.read.collapsed .engagement-stats,
-        .article.read.collapsed .article-abstract,
-        .article.read.collapsed .article-figures {
-            display: none;
-        }
-
-        .article.read.collapsed .article-meta {
-            margin-bottom: 0;
-        }
-
-        .collapse-toggle {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #666;
-            font-size: 0.8rem;
-            padding: 2px 6px;
-            margin-left: auto;
-        }
-
-        .collapse-toggle:hover {
-            color: #2c5282;
         }
 
         .article-header {
@@ -347,6 +321,7 @@
         .article-actions {
             display: flex;
             gap: 10px;
+            margin-bottom: 10px;
         }
 
         .article-actions button {
@@ -581,42 +556,6 @@
             border-left: 3px solid #3b82f6;
         }
 
-        .article-abstract-toggle {
-            background: none;
-            border: none;
-            color: #3b82f6;
-            cursor: pointer;
-            font-size: 0.8rem;
-            padding: 4px 8px;
-            margin-top: 8px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .article-abstract-toggle:hover {
-            text-decoration: underline;
-        }
-
-        .pmc-figures-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: #059669;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            text-decoration: none;
-            transition: background 0.2s;
-        }
-
-        .pmc-figures-link:hover {
-            background: #047857;
-            color: white;
-        }
-
         .pmc-badge {
             background: #059669;
             color: white;
@@ -624,24 +563,6 @@
             border-radius: 3px;
             font-size: 0.7rem;
             font-weight: 500;
-        }
-
-        .expand-read-toggle {
-            background: #f3f4f6;
-            border: 1px solid #e5e7eb;
-            padding: 8px 16px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .expand-read-toggle:hover {
-            background: #e5e7eb;
         }
 
         .category-stats {
@@ -796,6 +717,25 @@
             color: #2b6cb0;
         }
 
+        .keyboard-hint {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        .keyboard-hint kbd {
+            background: #edf2f7;
+            border: 1px solid #cbd5e0;
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 0.85em;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -839,8 +779,16 @@
 
     <div class="container">
         <div class="info-box" id="info-box">
-            <strong>Powered by PubMed:</strong> Searches PubMed for research articles with abstracts and PMC figure links.
-            <span style="color: #718096; font-size: 0.85rem;">(Bluesky social search is experimental and may be unavailable due to CORS restrictions.)</span>
+            <strong>Powered by PubMed:</strong> Searches PubMed for research articles with abstracts.
+            <strong>Relevance scoring:</strong> Articles score higher (100+) when they contain BOTH simulation terms (e.g., "simulation", "mathematical model", "agent-based") AND opioid terms (e.g., "opioid", "fentanyl", "overdose").
+        </div>
+
+        <div class="keyboard-hint">
+            <strong>Keyboard shortcuts:</strong>
+            <kbd>j</kbd> next article,
+            <kbd>k</kbd> previous article,
+            <kbd>x</kbd> mark read,
+            <kbd>s</kbd> save (also marks read)
         </div>
 
         <div class="stats-bar" id="stats-bar">
@@ -908,8 +856,8 @@
             <div class="filter-row">
                 <span class="filter-label">Time:</span>
                 <div class="time-filter-group" id="time-filters">
-                    <button class="filter-btn active" data-time="all">All Time</button>
-                    <button class="filter-btn" data-time="7">Last 7 days</button>
+                    <button class="filter-btn" data-time="all">All Time</button>
+                    <button class="filter-btn active" data-time="7">Last 7 days</button>
                     <button class="filter-btn" data-time="30">Last 30 days</button>
                     <button class="filter-btn" data-time="90">Last 90 days</button>
                 </div>
@@ -933,19 +881,14 @@
                 <button class="filter-btn" data-category="social">Social</button>
             </div>
             <div class="filter-group" id="status-filters">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="unread">Unread</button>
+                <button class="filter-btn" data-filter="all">All</button>
+                <button class="filter-btn active" data-filter="unread">Unread</button>
                 <button class="filter-btn" data-filter="starred">Saved</button>
             </div>
             <div class="search-box">
                 <input type="text" id="search-input" placeholder="Search articles...">
             </div>
         </div>
-
-        <button class="expand-read-toggle" id="collapse-read-toggle" onclick="toggleCollapseRead()">
-            <span id="collapse-icon">▼</span>
-            <span id="collapse-text">Collapse read articles</span>
-        </button>
 
         <div class="articles-list" id="articles-list">
             <div class="empty-state">Loading will begin automatically...</div>
@@ -971,7 +914,7 @@
             ]
         };
 
-        // PubMed eutils API (CORS enabled, reliable)
+        // PubMed eutils API (CORS enabled for esearch, esummary, efetch - but NOT elink)
         const PUBMED_BASE = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
 
         // PubMed search queries for different topics
@@ -1024,11 +967,11 @@
         // State
         let articles = [];
         let currentCategory = 'all';
-        let currentFilter = 'all';
+        let currentFilter = 'unread';
         let currentSearch = '';
-        let currentTimeFilter = 'all';
+        let currentTimeFilter = '7';
         let currentSort = 'date-desc';
-        let collapseRead = false;
+        let selectedArticleIndex = -1;
 
         // LocalStorage keys
         const STORAGE_KEY = 'drug_research_tracker_articles';
@@ -1041,6 +984,7 @@
             renderArticles();
             updateStats();
             setupEventListeners();
+            setupKeyboardShortcuts();
 
             // Auto-refresh if no articles or data is old
             const lastFetch = localStorage.getItem('drug_research_tracker_last_fetch');
@@ -1056,6 +1000,7 @@
                     document.querySelectorAll('#category-filters .filter-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     currentCategory = btn.dataset.category;
+                    selectedArticleIndex = -1;
                     renderArticles();
                 });
             });
@@ -1065,6 +1010,7 @@
                     document.querySelectorAll('#status-filters .filter-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     currentFilter = btn.dataset.filter;
+                    selectedArticleIndex = -1;
                     renderArticles();
                 });
             });
@@ -1074,6 +1020,7 @@
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
                     currentSearch = e.target.value.toLowerCase();
+                    selectedArticleIndex = -1;
                     renderArticles();
                 }, 300);
             });
@@ -1084,6 +1031,7 @@
                     document.querySelectorAll('#time-filters .filter-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     currentTimeFilter = btn.dataset.time;
+                    selectedArticleIndex = -1;
                     renderArticles();
                 });
             });
@@ -1091,8 +1039,65 @@
             // Sort select
             document.getElementById('sort-select').addEventListener('change', (e) => {
                 currentSort = e.target.value;
+                selectedArticleIndex = -1;
                 renderArticles();
             });
+        }
+
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Ignore if user is typing in an input
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+                const articleEls = document.querySelectorAll('.article[data-id]');
+                const maxIndex = articleEls.length - 1;
+
+                switch (e.key.toLowerCase()) {
+                    case 'j': // Next article
+                        e.preventDefault();
+                        if (selectedArticleIndex < maxIndex) {
+                            selectedArticleIndex++;
+                            highlightSelectedArticle();
+                        }
+                        break;
+                    case 'k': // Previous article
+                        e.preventDefault();
+                        if (selectedArticleIndex > 0) {
+                            selectedArticleIndex--;
+                            highlightSelectedArticle();
+                        } else if (selectedArticleIndex === -1 && maxIndex >= 0) {
+                            selectedArticleIndex = 0;
+                            highlightSelectedArticle();
+                        }
+                        break;
+                    case 'x': // Mark read
+                        e.preventDefault();
+                        if (selectedArticleIndex >= 0 && selectedArticleIndex <= maxIndex) {
+                            const id = articleEls[selectedArticleIndex].dataset.id;
+                            toggleRead(id);
+                        }
+                        break;
+                    case 's': // Save (and mark read)
+                        e.preventDefault();
+                        if (selectedArticleIndex >= 0 && selectedArticleIndex <= maxIndex) {
+                            const id = articleEls[selectedArticleIndex].dataset.id;
+                            toggleStar(id);
+                        }
+                        break;
+                }
+            });
+        }
+
+        function highlightSelectedArticle() {
+            const articleEls = document.querySelectorAll('.article[data-id]');
+            articleEls.forEach((el, i) => {
+                el.classList.toggle('selected', i === selectedArticleIndex);
+            });
+
+            // Scroll into view
+            if (selectedArticleIndex >= 0 && articleEls[selectedArticleIndex]) {
+                articleEls[selectedArticleIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
         function loadFromStorage() {
@@ -1135,13 +1140,6 @@
             localStorage.setItem(STARRED_KEY, JSON.stringify([...set]));
         }
 
-        function toggleCollapseRead() {
-            collapseRead = !collapseRead;
-            document.getElementById('collapse-icon').textContent = collapseRead ? '▶' : '▼';
-            document.getElementById('collapse-text').textContent = collapseRead ? 'Expand read articles' : 'Collapse read articles';
-            renderArticles();
-        }
-
         function calculateRelevance(title, summary) {
             const text = `${title} ${summary}`.toLowerCase();
             let score = 0;
@@ -1150,6 +1148,7 @@
             const mediumMatches = KEYWORDS.medium.filter(kw => text.includes(kw.toLowerCase())).length;
             const lowMatches = KEYWORDS.low.filter(kw => text.includes(kw.toLowerCase())).length;
 
+            // High relevance: simulation term + opioid term together
             if (highMatches > 0 && mediumMatches > 0) {
                 score = 100 + (highMatches * 10) + (mediumMatches * 5);
             } else if (highMatches > 0) {
@@ -1164,7 +1163,6 @@
         }
 
         function generateId(link, title) {
-            // Simple hash function
             const str = link + title;
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
@@ -1214,20 +1212,10 @@
                 console.warn('Failed to fetch abstracts:', e.message);
             }
 
-            // Link to PMC for open access articles
-            let pmcLinks = {};
-            try {
-                const linkUrl = `${PUBMED_BASE}/elink.fcgi?dbfrom=pubmed&db=pmc&id=${ids.join(',')}&retmode=json`;
-                const linkResponse = await fetch(linkUrl);
-                if (linkResponse.ok) {
-                    const linkData = await linkResponse.json();
-                    pmcLinks = parsePmcLinks(linkData);
-                }
-            } catch (e) {
-                console.warn('Failed to get PMC links:', e.message);
-            }
+            // NOTE: elink.fcgi does NOT support CORS, so we skip PMC linking
+            // PMC links would require a backend proxy
 
-            return { ids, summaries: summaryData.result, abstracts, pmcLinks };
+            return { ids, summaries: summaryData.result, abstracts };
         }
 
         function parseAbstractsFromXml(xmlText) {
@@ -1262,23 +1250,6 @@
             return abstracts;
         }
 
-        function parsePmcLinks(linkData) {
-            const pmcLinks = {};
-            try {
-                const linksets = linkData.linksets || [];
-                linksets.forEach(linkset => {
-                    const pmid = linkset.ids?.[0];
-                    const pmcIds = linkset.linksetdbs?.find(db => db.dbto === 'pmc')?.links || [];
-                    if (pmid && pmcIds.length > 0) {
-                        pmcLinks[pmid] = `PMC${pmcIds[0]}`;
-                    }
-                });
-            } catch (e) {
-                console.warn('Error parsing PMC links:', e);
-            }
-            return pmcLinks;
-        }
-
         function parsePubMedResults(data, searchConfig) {
             const newArticles = [];
 
@@ -1287,7 +1258,6 @@
             }
 
             const abstracts = data.abstracts || {};
-            const pmcLinks = data.pmcLinks || {};
 
             data.ids.forEach(id => {
                 const article = data.summaries[id];
@@ -1300,7 +1270,6 @@
                 const pubDate = article.pubdate || '';
                 const summary = authors ? `${authors}. ${source}. ${pubDate}` : `${source}. ${pubDate}`;
                 const abstract = abstracts[id] || null;
-                const pmcId = pmcLinks[id] || null;
 
                 const relevance = calculateRelevance(title, abstract || summary);
 
@@ -1311,7 +1280,6 @@
                     link,
                     summary,
                     abstract,
-                    pmcId,
                     source: searchConfig.name,
                     category: searchConfig.category,
                     published: parsePubMedDate(pubDate),
@@ -1325,7 +1293,6 @@
         function parsePubMedDate(dateStr) {
             if (!dateStr) return new Date().toISOString();
             try {
-                // PubMed dates like "2025 Dec 24" or "2025 Dec"
                 const date = new Date(dateStr);
                 if (!isNaN(date.getTime())) {
                     return date.toISOString();
@@ -1335,11 +1302,8 @@
         }
 
         async function searchBluesky(query) {
-            // Bluesky API doesn't support CORS, so we use a proxy
-            // Note: Public CORS proxies are unreliable - this feature is experimental
             const blueskyUrl = `${BLUESKY_API}/app.bsky.feed.searchPosts?q=${encodeURIComponent(query)}&limit=25&sort=top`;
 
-            // Try multiple CORS proxies - many are rate-limited or blocked
             const proxies = [
                 {
                     name: 'corsproxy.io',
@@ -1366,9 +1330,7 @@
 
                     const response = await fetch(proxyUrl, {
                         signal: controller.signal,
-                        headers: {
-                            'Accept': 'application/json'
-                        }
+                        headers: { 'Accept': 'application/json' }
                     });
 
                     clearTimeout(timeoutId);
@@ -1379,7 +1341,6 @@
                             data = await proxy.parseResponse(response);
                         } else {
                             const text = await response.text();
-                            // Check if response looks like JSON (not HTML error page)
                             if (text.startsWith('<')) {
                                 console.warn(`${proxy.name} returned HTML instead of JSON`);
                                 continue;
@@ -1401,7 +1362,6 @@
                 }
             }
 
-            // Return empty result instead of throwing - makes the feature gracefully degrade
             console.warn('Bluesky search unavailable (CORS proxy issues)');
             return { posts: [] };
         }
@@ -1419,7 +1379,6 @@
                 const text = record.text || '';
                 const createdAt = record.createdAt || '';
 
-                // Build Bluesky post URL
                 const postUri = post.uri || '';
                 const uriParts = postUri.split('/');
                 const postId = uriParts[uriParts.length - 1];
@@ -1428,18 +1387,13 @@
                     ? `https://bsky.app/profile/${handle}/post/${postId}`
                     : '';
 
-                // Get engagement metrics
                 const likes = post.likeCount || 0;
                 const reposts = post.repostCount || 0;
                 const replies = post.replyCount || 0;
-
-                // Calculate buzz score (engagement-weighted)
                 const buzzScore = (likes * 2) + (reposts * 3) + replies;
 
-                // Skip low-engagement posts
                 if (buzzScore < 1) return;
 
-                const displayName = author.displayName || handle;
                 const summary = `@${handle} • ${likes} likes • ${reposts} reposts`;
 
                 newArticles.push({
@@ -1451,10 +1405,9 @@
                     category: 'social',
                     published: createdAt ? new Date(createdAt).toISOString() : new Date().toISOString(),
                     relevance: Math.min(buzzScore, 200),
-                    // Extra fields for social posts
                     isBluesky: true,
                     authorHandle: handle,
-                    authorName: displayName,
+                    authorName: author.displayName || handle,
                     likes,
                     reposts,
                     replies,
@@ -1462,9 +1415,7 @@
                 });
             });
 
-            // Sort by buzz/engagement
             newArticles.sort((a, b) => b.relevance - a.relevance);
-
             return newArticles;
         }
 
@@ -1483,7 +1434,6 @@
             articlesList.style.display = 'none';
             progressFill.style.width = '0%';
 
-            // Build search status list (PubMed + Bluesky)
             const allSearches = [
                 ...PUBMED_SEARCHES.map(s => ({ ...s, type: 'pubmed' })),
                 ...BLUESKY_SEARCHES.map(s => ({ ...s, type: 'bluesky', category: 'social' }))
@@ -1542,13 +1492,11 @@
                 completed++;
                 progressFill.style.width = `${(completed / allSearches.length) * 100}%`;
 
-                // Small delay between API calls
                 if (i < allSearches.length - 1) {
                     await new Promise(r => setTimeout(r, 300));
                 }
             }
 
-            // Sort by date (newest first), then by relevance
             articles.sort((a, b) => {
                 const dateA = new Date(a.published);
                 const dateB = new Date(b.published);
@@ -1556,7 +1504,6 @@
                 return b.relevance - a.relevance;
             });
 
-            // Keep only last 500 articles
             if (articles.length > 500) {
                 articles = articles.slice(0, 500);
             }
@@ -1573,6 +1520,7 @@
                 articlesList.style.display = 'block';
                 btn.disabled = false;
                 text.textContent = 'Refresh Feeds';
+                selectedArticleIndex = -1;
                 renderArticles();
                 updateStats();
             }, 1500);
@@ -1591,7 +1539,6 @@
             document.getElementById('stat-starred').textContent = starred.length;
             document.getElementById('stat-important').textContent = important.length;
 
-            // Update category stats
             const researchUnread = unread.filter(a => a.category === 'research').length;
             const policyUnread = unread.filter(a => a.category === 'policy').length;
             const socialUnread = unread.filter(a => a.category === 'social').length;
@@ -1600,7 +1547,6 @@
             document.getElementById('cat-policy').textContent = policyUnread;
             document.getElementById('cat-social').textContent = socialUnread;
 
-            // Update trends section (publication recency for unread)
             const now = new Date();
             const dayAgo = new Date(now - 24 * 60 * 60 * 1000);
             const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
@@ -1650,7 +1596,6 @@
                 </div>
             `;
 
-            // Update important section
             const importantSection = document.getElementById('important-section');
             const importantArticles = document.getElementById('important-articles');
 
@@ -1693,14 +1638,12 @@
                 );
             }
 
-            // Time filtering
             if (currentTimeFilter !== 'all') {
                 const days = parseInt(currentTimeFilter);
                 const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
                 filtered = filtered.filter(a => new Date(a.published) >= cutoff);
             }
 
-            // Sorting
             filtered.sort((a, b) => {
                 switch (currentSort) {
                     case 'date-asc':
@@ -1727,15 +1670,15 @@
             const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
             const monthAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
 
-            list.innerHTML = filtered.slice(0, 100).map(article => {
+            list.innerHTML = filtered.slice(0, 100).map((article, index) => {
                 const isRead = readSet.has(article.id);
                 const isStarred = starredSet.has(article.id);
+                const isSelected = index === selectedArticleIndex;
                 const relevanceClass = article.relevance >= 100 ? 'high' :
                                       article.relevance >= 50 ? 'medium' : 'low';
                 const date = new Date(article.published).toLocaleDateString();
                 const pubDate = new Date(article.published);
 
-                // Determine recency badge
                 let recencyBadge = '';
                 if (pubDate >= dayAgo) {
                     recencyBadge = '<span class="recency-badge today">Today</span>';
@@ -1747,7 +1690,6 @@
                     recencyBadge = '<span class="recency-badge older">Older</span>';
                 }
 
-                // Build engagement stats for Bluesky posts
                 let engagementHtml = '';
                 if (article.isBluesky) {
                     engagementHtml = `
@@ -1759,38 +1701,25 @@
                     `;
                 }
 
-                // Category badge
                 const categoryBadge = article.isBluesky
                     ? '<span class="social-badge">Social</span>'
                     : '';
 
-                // Build abstract section
                 let abstractHtml = '';
                 if (article.abstract && !article.isBluesky) {
                     abstractHtml = `<div class="article-abstract">${article.abstract}</div>`;
                 }
 
-                // PMC badge and figures link if available
-                const pmcBadge = article.pmcId ? `<span class="pmc-badge">Open Access</span>` : '';
-                const pmcFiguresLink = article.pmcId
-                    ? `<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/${article.pmcId}/#figures" target="_blank" class="pmc-figures-link">📊 View Figures (PMC)</a>`
-                    : '';
-
-                // Collapsed class for read articles
-                const collapsedClass = isRead && collapseRead ? 'collapsed' : '';
-
                 return `
-                    <div class="article ${isRead ? 'read' : ''} ${collapsedClass}" data-id="${article.id}">
+                    <div class="article ${isRead ? 'read' : ''} ${isSelected ? 'selected' : ''}" data-id="${article.id}">
                         <div class="article-header">
                             <div class="article-title-main">
                                 <span class="relevance-indicator relevance-${relevanceClass}"></span>
                                 <a href="${article.link}" target="_blank" onclick="markAsRead('${article.id}')">${article.title}</a>
                             </div>
-                            ${isRead && collapseRead ? `<button class="collapse-toggle" onclick="expandArticle('${article.id}')">▶ Expand</button>` : ''}
                         </div>
                         <div class="article-meta">
                             ${categoryBadge}
-                            ${pmcBadge}
                             <span class="article-source">${article.source}</span>
                             <span class="article-category ${article.category}">${article.category}</span>
                             <span class="article-date">${date}</span>
@@ -1798,6 +1727,14 @@
                             ${!article.isBluesky ? `<span class="article-relevance">Relevance: ${article.relevance}</span>` : ''}
                         </div>
                         <div class="article-summary">${article.summary || 'No summary available'}</div>
+                        <div class="article-actions">
+                            <button onclick="toggleStar('${article.id}')" class="${isStarred ? 'starred' : ''}">
+                                ${isStarred ? '★ Saved' : '☆ Save'} <kbd>s</kbd>
+                            </button>
+                            <button onclick="toggleRead('${article.id}')">
+                                ${isRead ? '○ Mark Unread' : '● Mark Read'} <kbd>x</kbd>
+                            </button>
+                        </div>
                         ${abstractHtml}
                         ${engagementHtml}
                         <div class="article-links">
@@ -1805,15 +1742,6 @@
                                 ? `<a href="${article.link}" target="_blank" class="bluesky-link" onclick="markAsRead('${article.id}')">🦋 View on Bluesky</a>`
                                 : `<a href="${article.link}" target="_blank" class="pubmed-link" onclick="markAsRead('${article.id}')">📚 View on PubMed</a>`
                             }
-                            ${pmcFiguresLink}
-                        </div>
-                        <div class="article-actions">
-                            <button onclick="toggleStar('${article.id}')" class="${isStarred ? 'starred' : ''}">
-                                ${isStarred ? '★ Saved' : '☆ Save'}
-                            </button>
-                            <button onclick="toggleRead('${article.id}')">
-                                ${isRead ? '○ Mark Unread' : '● Mark Read'}
-                            </button>
                         </div>
                     </div>
                 `;
@@ -1825,7 +1753,6 @@
             readSet.add(id);
             saveReadSet(readSet);
             updateStats();
-            // Don't re-render to avoid scroll jump when clicking link
         }
 
         function toggleRead(id) {
@@ -1842,22 +1769,19 @@
 
         function toggleStar(id) {
             const starredSet = getStarredSet();
+            const readSet = getReadSet();
+
             if (starredSet.has(id)) {
                 starredSet.delete(id);
             } else {
                 starredSet.add(id);
+                // Also mark as read when saving
+                readSet.add(id);
+                saveReadSet(readSet);
             }
             saveStarredSet(starredSet);
             renderArticles();
             updateStats();
-        }
-
-        function expandArticle(id) {
-            // Temporarily expand a single collapsed article
-            const articleEl = document.querySelector(`.article[data-id="${id}"]`);
-            if (articleEl) {
-                articleEl.classList.remove('collapsed');
-            }
         }
 
         function markAllRead() {
