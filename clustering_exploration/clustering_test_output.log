@@ -1,0 +1,115 @@
+[34m
+████████╗██╗███╗   ███╗███████╗    ███████╗███████╗██████╗ ██╗███████╗███████╗    █████╗ ██╗
+╚══██╔══╝██║████╗ ████║██╔════╝    ██╔════╝██╔════╝██╔══██╗██║██╔════╝██╔════╝   ██╔══██╗██║
+   ██║   ██║██╔████╔██║█████╗█████╗███████╗█████╗  ██████╔╝██║█████╗  ███████╗   ███████║██║
+   ██║   ██║██║╚██╔╝██║██╔══╝╚════╝╚════██║██╔══╝  ██╔══██╗██║██╔══╝  ╚════██║   ██╔══██║██║
+   ██║   ██║██║ ╚═╝ ██║███████╗    ███████║███████╗██║  ██║██║███████╗███████║██╗██║  ██║██║
+   ╚═╝   ╚═╝╚═╝     ╚═╝╚══════╝    ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═╝╚═╝  ╚═╝╚═╝
+ai4ts v0.0.3 - building AI for unified time-series analysis, https://time-series.ai [0m
+
+============================================================
+CLUSTERING METHODS COMPARISON
+============================================================
+
+############################################################
+# UNIVARIATE DATA
+############################################################
+
+Loaded univariate data:
+  Shape: (300, 100, 1)
+  True clusters: 3
+  Cluster distribution: [100 100 100]
+  Data range: [-2.57, 3.35]
+
+============================================================
+Testing CRLI on univariate data
+============================================================
+
+Initializing CRLI model...
+2025-11-13 05:43:05 [WARNING]: ‼️ saving_path not given. Model files and tensorboard file will not be saved.
+Training CRLI (epochs=30)...
+Training completed in 395.92 seconds
+
+Metrics:
+  ARI: 0.5179
+  NMI: 0.5679
+  Silhouette: N/A
+  Davies-Bouldin: N/A
+
+============================================================
+Testing VaDER on univariate data
+============================================================
+
+Initializing VaDER model...
+2025-11-13 05:49:41 [WARNING]: ‼️ saving_path not given. Model files and tensorboard file will not be saved.
+Training VaDER (pretrain=10, epochs=30)...
+Training completed in 56.80 seconds
+
+Metrics:
+  ARI: 0.3515
+  NMI: 0.4922
+  Silhouette: N/A
+  Davies-Bouldin: N/A
+
+Visualizing univariate results...
+  Computing t-SNE embedding...
+  Saved: figures/univariate_clustering_results.png
+
+############################################################
+# MULTIVARIATE DATA
+############################################################
+
+Loaded multivariate data:
+  Shape: (300, 100, 3)
+  True clusters: 3
+  Cluster distribution: [100 100 100]
+  Data range: [-3.13, 1.27]
+
+============================================================
+Testing CRLI on multivariate data
+============================================================
+
+Initializing CRLI model...
+2025-11-13 05:50:39 [WARNING]: ‼️ saving_path not given. Model files and tensorboard file will not be saved.
+Training CRLI (epochs=30)...
+Training completed in 424.34 seconds
+
+Metrics:
+  ARI: 1.0000
+  NMI: 1.0000
+  Silhouette: N/A
+  Davies-Bouldin: N/A
+
+============================================================
+Testing VaDER on multivariate data
+============================================================
+
+Initializing VaDER model...
+2025-11-13 05:57:44 [WARNING]: ‼️ saving_path not given. Model files and tensorboard file will not be saved.
+Training VaDER (pretrain=10, epochs=30)...
+Training completed in 88.27 seconds
+
+Metrics:
+  ARI: 0.1271
+  NMI: 0.2834
+  Silhouette: N/A
+  Davies-Bouldin: N/A
+
+Visualizing multivariate results...
+  Computing t-SNE embedding...
+  Saved: figures/multivariate_clustering_results.png
+
+============================================================
+SUMMARY COMPARISON
+============================================================
+
+Method          Data Type       ARI          NMI          Time (s)    
+------------------------------------------------------------
+CRLI            univariate      0.5179       0.5679       395.92      
+VaDER           univariate      0.3515       0.4922       56.80       
+CRLI            multivariate    1.0000       1.0000       424.34      
+VaDER           multivariate    0.1271       0.2834       88.27       
+
+============================================================
+TESTS COMPLETE!
+============================================================
