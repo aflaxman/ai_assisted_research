@@ -28,9 +28,29 @@ The model tracks:
 4.  **Spore Decay**:
     -   Environmental spores decay slowly over time.
 
+## Setting up the Environment (Conda)
+
+To run this simulation, you need a Python environment with `laser-generic` installed. Here is how to set it up using Conda:
+
+1.  **Create a new Conda environment:**
+    ```bash
+    conda create -n laser_env python=3.10
+    ```
+
+2.  **Activate the environment:**
+    ```bash
+    conda activate laser_env
+    ```
+
+3.  **Install dependencies:**
+    Since `laser-generic` is available via PyPI, use pip to install it:
+    ```bash
+    pip install laser-generic
+    ```
+
 ## Running the Simulation
 
-Ensure you have `laser-generic` installed.
+Once your environment is set up and activated:
 
 ```bash
 python laser_environmental_outbreak/run_sim.py
