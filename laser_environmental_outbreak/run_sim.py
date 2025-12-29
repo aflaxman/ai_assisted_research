@@ -6,7 +6,7 @@ from laser.core.distributions import poisson
 from laser.generic.model import Model
 from laser.generic.components import Susceptible
 from laser.core.utils import grid
-from laser_environmental_outbreak.components import (
+from components import (
     EnvironmentalTransmission,
     InfectionToCarcass,
     CarcassDynamics,
@@ -36,9 +36,8 @@ def run_simulation(scavenging_rate=0.0):
 
     # Initialize counts
     scenario["S"] = scenario["population"]
-    scenario["I"] = 0
-    scenario["C"] = 0  # Added Carcass count to ensure it's tracked
-    scenario["R"] = 0
+    # Note: I, C, and R are initialized as vector properties by the components
+    # to track their time-series, so we do not set them in the scenario frame here.
 
     # 3. Build Model
     model = Model(scenario, params)
@@ -91,10 +90,10 @@ def plot_population_dynamics(model, title="Simulation Results"):
     plt.title(title)
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(f"laser_environmental_outbreak/{title.replace(' ', '_')}.png")
+    plt.savefig(f"{title.replace(' ', '_')}.png")
     plt.close()
 
-    print(f"Plot saved to laser_environmental_outbreak/{title.replace(' ', '_')}.png")
+    print(f"Plot saved to {title.replace(' ', '_')}.png")
 
 def plot_spore_comparison(models_dict, title="Comparative Spore Dynamics"):
     """Overlays spore count for each scenario."""
@@ -112,10 +111,10 @@ def plot_spore_comparison(models_dict, title="Comparative Spore Dynamics"):
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig(f"laser_environmental_outbreak/{title.replace(' ', '_')}.png")
+    plt.savefig(f"{title.replace(' ', '_')}.png")
     plt.close()
 
-    print(f"Plot saved to laser_environmental_outbreak/{title.replace(' ', '_')}.png")
+    print(f"Plot saved to {title.replace(' ', '_')}.png")
 
 def plot_spatial_comparison(models_dict, title="Spatial Spore Distribution (Final Day)"):
     """Spatial heatmaps side-by-side."""
@@ -148,10 +147,10 @@ def plot_spatial_comparison(models_dict, title="Spatial Spore Distribution (Fina
 
     plt.suptitle(title)
     # plt.tight_layout() # Suptitle sometimes conflicts with tight_layout
-    plt.savefig(f"laser_environmental_outbreak/{title.replace(' ', '_')}.png")
+    plt.savefig(f"{title.replace(' ', '_')}.png")
     plt.close()
 
-    print(f"Plot saved to laser_environmental_outbreak/{title.replace(' ', '_')}.png")
+    print(f"Plot saved to {title.replace(' ', '_')}.png")
 
 
 def main():

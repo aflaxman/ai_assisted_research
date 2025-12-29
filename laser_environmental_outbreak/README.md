@@ -50,10 +50,11 @@ To run this simulation, you need a Python environment with `laser-generic` insta
 
 ## Running the Simulation
 
-Once your environment is set up and activated:
+Once your environment is set up and activated, navigate to the directory and run the script:
 
 ```bash
-python laser_environmental_outbreak/run_sim.py
+cd laser_environmental_outbreak
+python run_sim.py
 ```
 
 This will generate three plots:
