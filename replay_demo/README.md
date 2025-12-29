@@ -115,11 +115,20 @@ ldconfig path = /usr/sbin/ldconfig
 ```
 
 **Workaround (without admin):**
-Contact your system administrator to add the ldconfig path, or request they check:
+Use the provided workaround scripts that manually bind NVIDIA libraries:
+
 ```bash
-grep -i ldconfig /opt/singularity/etc/singularity/singularity.conf
-cat /opt/singularity/etc/singularity/nvliblist.conf
+# Quick CUDA test (runs 10 simulations)
+./test_cuda_simple.sh
+
+# Run full benchmark with GPU workaround
+./run_gpu_workaround.sh --n-sims 10000
+
+# Flexible wrapper for any command
+./singularity_with_gpu.sh seir_cuda.sif python3 -c "from numba import cuda; print(cuda.is_available())"
 ```
+
+These scripts manually bind all NVIDIA libraries from `nvliblist.conf`, bypassing the ldconfig requirement.
 
 **Verification:**
 ```bash
