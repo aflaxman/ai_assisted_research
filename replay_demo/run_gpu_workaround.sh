@@ -62,39 +62,94 @@ SEARCH_PATHS=(
 
 # Build bind arguments for libraries
 BIND_ARGS=""
+BOUND_LIBS=()
 echo "Searching for NVIDIA libraries..."
 for lib in "${NVIDIA_LIBS[@]}"; do
     for search_path in "${SEARCH_PATHS[@]}"; do
         # Look for the library and all versioned variants (e.g., libcuda.so.1)
+        # Bind ALL versions, not just the first match
+        found_any=0
         for lib_file in "$search_path/$lib"*; do
-            if [ -f "$lib_file" ]; then
+            # Skip if it's a symbolic link - we want the real file
+            if [ -f "$lib_file" ] && [ ! -L "$lib_file" ]; then
                 BIND_ARGS="$BIND_ARGS --bind $lib_file"
-                echo "  Found: $lib_file"
-                break 2  # Move to next library once found
+                BOUND_LIBS+=("$lib_file")
+                echo "  Found (real): $lib_file"
+                found_any=1
             fi
         done
+
+        # If we found real files, also check for symlinks pointing to them
+        if [ $found_any -eq 1 ]; then
+            for lib_file in "$search_path/$lib"*; do
+                if [ -L "$lib_file" ]; then
+                    BIND_ARGS="$BIND_ARGS --bind $lib_file"
+                    BOUND_LIBS+=("$lib_file")
+                    echo "  Found (link): $lib_file"
+                fi
+            done
+            break  # Move to next library
+        fi
     done
 done
 
 # Add NVIDIA device bindings
 echo "Adding NVIDIA device bindings..."
-for device in /dev/nvidia* /dev/nvidiactl /dev/nvidia-uvm /dev/nvidia-uvm-tools /dev/nvidia-modeset; do
-    if [ -e "$device" ]; then
+BOUND_DEVICES=()
+
+# Process devices, avoiding duplicates
+for device in /dev/nvidia[0-9]* /dev/nvidiactl /dev/nvidia-uvm /dev/nvidia-uvm-tools /dev/nvidia-modeset /dev/nvidia-nvswitchctl; do
+    if [ -e "$device" ] && [[ ! " ${BOUND_DEVICES[@]} " =~ " ${device} " ]]; then
         BIND_ARGS="$BIND_ARGS --bind $device"
+        BOUND_DEVICES+=("$device")
         echo "  Binding: $device"
     fi
 done
 
-# Also bind nvidia-caps directory if it exists
-if [ -d /dev/nvidia-caps ]; then
+# Bind nvidia-caps directory if it exists
+if [ -d /dev/nvidia-caps ] && [[ ! " ${BOUND_DEVICES[@]} " =~ " /dev/nvidia-caps " ]]; then
     BIND_ARGS="$BIND_ARGS --bind /dev/nvidia-caps"
+    BOUND_DEVICES+=("/dev/nvidia-caps")
     echo "  Binding: /dev/nvidia-caps"
 fi
 
 echo ""
-echo "Running container with manual NVIDIA bindings..."
-echo "Command: singularity exec $BIND_ARGS seir_cuda.sif python3 /app/seir_cuda_simulation.py $@"
+echo "Summary: Bound ${#BOUND_LIBS[@]} libraries and ${#BOUND_DEVICES[@]} devices"
 echo ""
 
-# Run the container
-singularity exec $BIND_ARGS seir_cuda.sif python3 /app/seir_cuda_simulation.py "$@"
+# Check if user wants diagnostics
+if [[ "$1" == "--debug" ]]; then
+    echo "=== DEBUG MODE ==="
+    echo "Running CUDA diagnostics in container..."
+    singularity exec $BIND_ARGS seir_cuda.sif python3 << 'PYEOF'
+import os
+import sys
+
+print("\n=== Library Check ===")
+for lib in ['libcuda.so.1', 'libnvidia-ml.so.1']:
+    for path in ['/usr/lib/x86_64-linux-gnu', '/usr/local/cuda/lib64']:
+        full_path = os.path.join(path, lib)
+        exists = os.path.exists(full_path)
+        print(f"{full_path}: {'EXISTS' if exists else 'MISSING'}")
+
+print("\n=== Device Check ===")
+for i in range(8):
+    dev = f'/dev/nvidia{i}'
+    print(f"{dev}: {'EXISTS' if os.path.exists(dev) else 'MISSING'}")
+
+print("\n=== CUDA Check ===")
+try:
+    from numba import cuda
+    print(f"CUDA available: {cuda.is_available()}")
+    if not cuda.is_available():
+        try:
+            cuda.detect()
+        except Exception as e:
+            print(f"Error: {e}")
+except Exception as e:
+    print(f"Failed to import CUDA: {e}")
+PYEOF
+else
+    # Run the simulation
+    singularity exec $BIND_ARGS seir_cuda.sif python3 /app/seir_cuda_simulation.py "$@"
+fi
