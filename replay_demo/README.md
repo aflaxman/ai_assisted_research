@@ -98,14 +98,48 @@ Typical performance on a V100 GPU:
 
 ## Troubleshooting
 
-### "CUDA not available"
-- Ensure you're on the GPU machine (not a CPU-only node)
-- Check GPU is accessible: `nvidia-smi`
-- For Singularity: use `--nv` flag
+### "CUDA not available" or `CUDA_ERROR_NO_DEVICE`
+
+**Symptoms:**
+```
+WARNING: Could not find any nv libraries on this host!
+CUDA available: False
+```
+
+**Cause:** Singularity's `--nv` flag requires `ldconfig path` to be set in `singularity.conf`
+
+**Fix (requires admin):**
+Add this line to `/opt/singularity/etc/singularity/singularity.conf`:
+```
+ldconfig path = /usr/sbin/ldconfig
+```
+
+**Workaround (without admin):**
+Use the provided workaround scripts that manually bind NVIDIA libraries:
+
+```bash
+# Quick CUDA test (runs 10 simulations)
+./test_cuda_simple.sh
+
+# Run full benchmark with GPU workaround
+./run_gpu_workaround.sh --n-sims 10000
+
+# Flexible wrapper for any command
+./singularity_with_gpu.sh seir_cuda.sif python3 -c "from numba import cuda; print(cuda.is_available())"
+```
+
+These scripts manually bind all NVIDIA libraries from `nvliblist.conf`, bypassing the ldconfig requirement.
+
+**Verification:**
+```bash
+# Should show GPU name, not "CUDA available: False"
+singularity exec --nv seir_cuda.sif python3 -c "from numba import cuda; print(cuda.is_available())"
+```
 
 ### Container build fails
 - Build on a node with internet access
 - Or pull base image first: `singularity pull docker://nvidia/cuda:12.2.0-runtime-ubuntu22.04`
+- For remote build: `singularity build --remote seir_cuda.sif seir_cuda.def`
 
 ### Out of memory
 - Reduce `--n-nodes` (each node uses local GPU memory)
