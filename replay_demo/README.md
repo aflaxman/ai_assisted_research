@@ -114,27 +114,44 @@ Add this line to `/opt/singularity/etc/singularity/singularity.conf`:
 ldconfig path = /usr/sbin/ldconfig
 ```
 
-**Workaround (without admin):**
-Use the provided workaround scripts that manually bind NVIDIA libraries:
+**Workaround Attempts:**
+
+If you see "underlay required more than 50 bind mounts" warnings after ldconfig is configured, this indicates Singularity's overlay filesystem limits. See `ADMIN_OVERLAY_FIX.md` for admin configuration needed.
+
+Workaround scripts to try:
 
 ```bash
-# Quick CUDA test (runs 10 simulations)
-./test_cuda_simple.sh
+# Custom library path approach (avoids overlay)
+./run_gpu_custom_path.sh --n-sims 1000
 
-# Run full benchmark with GPU workaround
-./run_gpu_workaround.sh --n-sims 10000
+# Manual binding of all NVIDIA libraries
+./run_gpu_workaround.sh --n-sims 1000
 
-# Flexible wrapper for any command
-./singularity_with_gpu.sh seir_cuda.sif python3 -c "from numba import cuda; print(cuda.is_available())"
+# Test different flag combinations
+./test_nv_variations.sh
 ```
 
-These scripts manually bind all NVIDIA libraries from `nvliblist.conf`, bypassing the ldconfig requirement.
+Note: Manual workarounds have limited success due to Singularity overlay limits. Admin configuration change required for full fix.
 
 **Verification:**
 ```bash
 # Should show GPU name, not "CUDA available: False"
 singularity exec --nv seir_cuda.sif python3 -c "from numba import cuda; print(cuda.is_available())"
 ```
+
+### "underlay required more than 50 bind mounts"
+
+**Symptoms:**
+```
+WARNING: underlay of /usr/bin/nvidia-smi required more than 50 (409) bind mounts
+CUDA available: False
+```
+
+**Cause:** Singularity's overlay filesystem has limits on bind mounts. When `--nv` binds NVIDIA libraries, it exceeds the default limit.
+
+**Fix (requires admin):** See `ADMIN_OVERLAY_FIX.md` for configuration details. Admin needs to increase overlay limits in `singularity.conf`.
+
+**Alternative:** Use the minimal container `seir_cuda_minimal.sif` which has fewer filesystem conflicts.
 
 ### Container build fails
 - Build on a node with internet access
