@@ -10,7 +10,8 @@ ssh gpu-machine
 
 # 1. Build the container (one-time setup)
 cd /path/to/replay_demo
-singularity build seir_cuda.sif seir_cuda.def
+singularity remote login
+singularity build --remote seir_cuda.sif seir_cuda.def
 
 # 2. Run benchmark (CPU vs GPU comparison)
 singularity exec --nv seir_cuda.sif python3 /app/seir_cuda_simulation.py --n-sims 10000
