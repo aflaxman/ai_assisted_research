@@ -1,9 +1,8 @@
 
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from laser.core import PropertySet
-from laser.core.distributions import poisson, constant_int
+from laser.core.distributions import poisson
 from laser.generic.model import Model
 from laser.generic.components import Susceptible
 from laser.core.utils import grid
@@ -12,8 +11,6 @@ from laser_environmental_outbreak.components import (
     InfectionToCarcass,
     CarcassDynamics,
     SporeEnvironment,
-    STATE_CARCASS,
-    STATE_REMOVED
 )
 
 def run_simulation(scavenging_rate=0.0):
@@ -40,7 +37,8 @@ def run_simulation(scavenging_rate=0.0):
     # Initialize counts
     scenario["S"] = scenario["population"]
     scenario["I"] = 0
-    scenario["R"] = 0 # Not used but good to clear
+    scenario["C"] = 0  # Added Carcass count to ensure it's tracked
+    scenario["R"] = 0
 
     # 3. Build Model
     model = Model(scenario, params)
@@ -75,47 +73,106 @@ def run_simulation(scavenging_rate=0.0):
 
     return model
 
-def plot_results(model, title="Simulation Results"):
+def plot_population_dynamics(model, title="Simulation Results"):
+    """Plots only Infected and Carcass numbers."""
     # Extract total counts
     time = np.arange(model.params.nticks + 1)
-    S = model.nodes.S.sum(axis=1)
     I = model.nodes.I.sum(axis=1)
     C = model.nodes.C.sum(axis=1)
-    Spores = model.nodes.spores.sum(axis=1)
 
     fig, ax1 = plt.subplots(figsize=(10, 6))
 
-    ax1.plot(time, S, label="Susceptible", color='blue')
     ax1.plot(time, I, label="Infected", color='red')
     ax1.plot(time, C, label="Carcass", color='black')
     ax1.set_xlabel("Time (days)")
     ax1.set_ylabel("Population")
     ax1.legend(loc="upper left")
 
-    ax2 = ax1.twinx()
-    ax2.plot(time, Spores, label="Total Env. Spores", color='green', linestyle='--')
-    ax2.set_ylabel("Spores")
-    ax2.legend(loc="upper right")
-
     plt.title(title)
+    plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.savefig(f"laser_environmental_outbreak/{title.replace(' ', '_')}.png")
     plt.close()
 
     print(f"Plot saved to laser_environmental_outbreak/{title.replace(' ', '_')}.png")
 
+def plot_spore_comparison(models_dict, title="Comparative Spore Dynamics"):
+    """Overlays spore count for each scenario."""
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    for name, model in models_dict.items():
+        time = np.arange(model.params.nticks + 1)
+        Spores = model.nodes.spores.sum(axis=1)
+        ax.plot(time, Spores, label=name)
+
+    ax.set_xlabel("Time (days)")
+    ax.set_ylabel("Total Environmental Spores")
+    ax.set_title(title)
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(f"laser_environmental_outbreak/{title.replace(' ', '_')}.png")
+    plt.close()
+
+    print(f"Plot saved to laser_environmental_outbreak/{title.replace(' ', '_')}.png")
+
+def plot_spatial_comparison(models_dict, title="Spatial Spore Distribution (Final Day)"):
+    """Spatial heatmaps side-by-side."""
+    n_scenarios = len(models_dict)
+    fig, axes = plt.subplots(1, n_scenarios, figsize=(5 * n_scenarios, 5), sharey=True)
+
+    # Assume grid is 10x10 as in run_simulation
+    M, N = 10, 10
+
+    if n_scenarios == 1:
+        axes = [axes]
+
+    # Find global max for consistent colorbar
+    max_spores = 0
+    for model in models_dict.values():
+        max_spores = max(max_spores, model.nodes.spores[-1].max())
+
+    for ax, (name, model) in zip(axes, models_dict.items()):
+        # Get final spore state
+        final_spores = model.nodes.spores[-1]
+        grid_spores = final_spores.reshape((M, N))
+
+        im = ax.imshow(grid_spores, cmap='YlGn', vmin=0, vmax=max_spores, interpolation='nearest')
+        ax.set_title(name)
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+    cbar = fig.colorbar(im, ax=axes, fraction=0.03, pad=0.04)
+    cbar.set_label("Spore Concentration")
+
+    plt.suptitle(title)
+    # plt.tight_layout() # Suptitle sometimes conflicts with tight_layout
+    plt.savefig(f"laser_environmental_outbreak/{title.replace(' ', '_')}.png")
+    plt.close()
+
+    print(f"Plot saved to laser_environmental_outbreak/{title.replace(' ', '_')}.png")
+
+
 def main():
+    models = {}
+
     print("Running Baseline (Scavenging = 0.0)...")
-    model_base = run_simulation(scavenging_rate=0.0)
-    plot_results(model_base, "Baseline Anthrax Outbreak (No Scavenging)")
+    models["Baseline (0.0)"] = run_simulation(scavenging_rate=0.0)
+    plot_population_dynamics(models["Baseline (0.0)"], "Baseline Anthrax Outbreak (No Scavenging)")
 
     print("Running with Scavenging (Rate = 0.2)...")
-    model_scav = run_simulation(scavenging_rate=0.2)
-    plot_results(model_scav, "Anthrax Outbreak with High Scavenging")
+    models["Scavenging (0.2)"] = run_simulation(scavenging_rate=0.2)
+    plot_population_dynamics(models["Scavenging (0.2)"], "Anthrax Outbreak with High Scavenging")
 
     print("Running with Scavenging (Rate = 0.5)...")
-    model_scav_high = run_simulation(scavenging_rate=0.5)
-    plot_results(model_scav_high, "Anthrax Outbreak with Very High Scavenging")
+    models["Scavenging (0.5)"] = run_simulation(scavenging_rate=0.5)
+    plot_population_dynamics(models["Scavenging (0.5)"], "Anthrax Outbreak with Very High Scavenging")
+
+    # Comparative plots
+    print("Generating comparative plots...")
+    plot_spore_comparison(models)
+    plot_spatial_comparison(models)
 
 if __name__ == "__main__":
     main()

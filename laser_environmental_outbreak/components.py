@@ -1,10 +1,8 @@
 
 import numpy as np
 import numba as nb
-import matplotlib.pyplot as plt
 from laser.generic.shared import State
 from laser.generic.components import TransmissionSI, nb_timer_update_timer_set
-from laser.generic.utils import validate
 
 # Define custom states
 STATE_CARCASS = 4
@@ -45,10 +43,16 @@ class EnvironmentalTransmission:
         self.infdurdist = infdurdist
         self.infdurmin = infdurmin
 
-        self.model.nodes.add_vector_property("I", model.params.nticks + 1, dtype=np.int32)
-        self.model.nodes.add_vector_property("newly_infected", model.params.nticks + 1, dtype=np.int32)
+        if not hasattr(self.model.nodes, 'I'):
+            self.model.nodes.add_vector_property("I", model.params.nticks + 1, dtype=np.int32)
+        if not hasattr(self.model.nodes, 'newly_infected'):
+            self.model.nodes.add_vector_property("newly_infected", model.params.nticks + 1, dtype=np.int32)
         if not hasattr(self.model.nodes, 'spores'):
              self.model.nodes.add_vector_property("spores", model.params.nticks + 1, dtype=np.float32)
+
+        # Ensure people have itimer
+        if not hasattr(self.model.people, 'itimer'):
+            self.model.people.add_scalar_property("itimer", dtype=np.uint16)
 
     def step(self, tick):
         spores = self.model.nodes.spores[tick]
@@ -77,6 +81,9 @@ class EnvironmentalTransmission:
 
         newly_infected_by_node = newly_infected_by_node.sum(axis=0).astype(self.model.nodes.S.dtype)
 
+        # Propagate I count (assuming it tracks prevalence)
+        self.model.nodes.I[tick + 1] = self.model.nodes.I[tick]
+
         # Update counts
         self.model.nodes.S[tick + 1] -= newly_infected_by_node
         self.model.nodes.I[tick + 1] += newly_infected_by_node
@@ -92,10 +99,15 @@ class InfectionToCarcass:
         self.decomp_dist = decomp_dist
         self.decomp_min = decomp_min
 
-        self.model.people.add_scalar_property("itimer", dtype=np.uint16)
-        self.model.people.add_scalar_property("ctimer", dtype=np.uint16)
-        self.model.nodes.add_vector_property("C", model.params.nticks + 1, dtype=np.int32)
-        self.model.nodes.add_vector_property("newly_carcass", model.params.nticks + 1, dtype=np.int32)
+        if not hasattr(self.model.people, 'itimer'):
+            self.model.people.add_scalar_property("itimer", dtype=np.uint16)
+        if not hasattr(self.model.people, 'ctimer'):
+            self.model.people.add_scalar_property("ctimer", dtype=np.uint16)
+
+        if not hasattr(self.model.nodes, 'C'):
+            self.model.nodes.add_vector_property("C", model.params.nticks + 1, dtype=np.int32)
+        if not hasattr(self.model.nodes, 'newly_carcass'):
+            self.model.nodes.add_vector_property("newly_carcass", model.params.nticks + 1, dtype=np.int32)
 
     def step(self, tick):
         newly_carcass_by_node = np.zeros((nb.get_num_threads(), self.model.nodes.count), dtype=np.int32)
@@ -117,6 +129,9 @@ class InfectionToCarcass:
         )
 
         newly_carcass_by_node = newly_carcass_by_node.sum(axis=0).astype(self.model.nodes.S.dtype)
+
+        # Propagate C count
+        self.model.nodes.C[tick + 1] = self.model.nodes.C[tick]
 
         self.model.nodes.I[tick + 1] -= newly_carcass_by_node
         self.model.nodes.C[tick + 1] += newly_carcass_by_node
@@ -153,8 +168,10 @@ class CarcassDynamics:
         self.scavenging_rate = scavenging_rate
         self.spores_per_carcass = spores_per_carcass
 
-        self.model.nodes.add_vector_property("newly_removed", model.params.nticks + 1, dtype=np.int32)
-        self.model.nodes.add_vector_property("newly_scavenged", model.params.nticks + 1, dtype=np.int32)
+        if not hasattr(self.model.nodes, 'newly_removed'):
+            self.model.nodes.add_vector_property("newly_removed", model.params.nticks + 1, dtype=np.int32)
+        if not hasattr(self.model.nodes, 'newly_scavenged'):
+            self.model.nodes.add_vector_property("newly_scavenged", model.params.nticks + 1, dtype=np.int32)
 
         if not hasattr(self.model.nodes, 'daily_spores'):
              self.model.nodes.add_vector_property("daily_spores", model.params.nticks + 1, dtype=np.float32)
