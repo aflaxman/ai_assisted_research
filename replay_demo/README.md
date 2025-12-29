@@ -98,14 +98,39 @@ Typical performance on a V100 GPU:
 
 ## Troubleshooting
 
-### "CUDA not available"
-- Ensure you're on the GPU machine (not a CPU-only node)
-- Check GPU is accessible: `nvidia-smi`
-- For Singularity: use `--nv` flag
+### "CUDA not available" or `CUDA_ERROR_NO_DEVICE`
+
+**Symptoms:**
+```
+WARNING: Could not find any nv libraries on this host!
+CUDA available: False
+```
+
+**Cause:** Singularity's `--nv` flag requires `ldconfig path` to be set in `singularity.conf`
+
+**Fix (requires admin):**
+Add this line to `/opt/singularity/etc/singularity/singularity.conf`:
+```
+ldconfig path = /usr/sbin/ldconfig
+```
+
+**Workaround (without admin):**
+Contact your system administrator to add the ldconfig path, or request they check:
+```bash
+grep -i ldconfig /opt/singularity/etc/singularity/singularity.conf
+cat /opt/singularity/etc/singularity/nvliblist.conf
+```
+
+**Verification:**
+```bash
+# Should show GPU name, not "CUDA available: False"
+singularity exec --nv seir_cuda.sif python3 -c "from numba import cuda; print(cuda.is_available())"
+```
 
 ### Container build fails
 - Build on a node with internet access
 - Or pull base image first: `singularity pull docker://nvidia/cuda:12.2.0-runtime-ubuntu22.04`
+- For remote build: `singularity build --remote seir_cuda.sif seir_cuda.def`
 
 ### Out of memory
 - Reduce `--n-nodes` (each node uses local GPU memory)
