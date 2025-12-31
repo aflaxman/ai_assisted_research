@@ -118,60 +118,6 @@
             text-transform: uppercase;
         }
 
-        .important-section {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 15px 20px;
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 20px;
-        }
-
-        .important-section h2 {
-            color: #92400e;
-            font-size: 1rem;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .important-section .article-mini {
-            background: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .important-section .article-mini:last-child {
-            margin-bottom: 0;
-        }
-
-        .important-section .article-title {
-            flex: 1;
-            font-size: 0.9rem;
-        }
-
-        .important-section .article-title a {
-            color: #1a365d;
-            text-decoration: none;
-        }
-
-        .important-section .article-title a:hover {
-            text-decoration: underline;
-        }
-
-        .important-section .relevance-badge {
-            background: #dc2626;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
 
         .filters {
             display: flex;
@@ -345,25 +291,6 @@
             color: #f59e0b;
         }
 
-        .relevance-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-        }
-
-        .relevance-high {
-            background: #dc2626;
-        }
-
-        .relevance-medium {
-            background: #f59e0b;
-        }
-
-        .relevance-low {
-            background: #10b981;
-        }
 
         .loading {
             text-align: center;
@@ -781,7 +708,6 @@
     <div class="container">
         <div class="info-box" id="info-box">
             <strong>Powered by PubMed:</strong> Searches PubMed for research articles with abstracts.
-            <strong>Relevance scoring:</strong> Articles score higher (100+) when they contain BOTH simulation terms (e.g., "simulation", "mathematical model", "agent-based") AND opioid terms (e.g., "opioid", "fentanyl", "overdose").
             <br><br>
             <strong>PubMed search queries:</strong><br>
             <code>(opioid OR fentanyl) AND (simulation OR mathematical model OR computational model)</code><br>
@@ -813,10 +739,6 @@
                 <div class="stat-value" id="stat-starred">0</div>
                 <div class="stat-label">Saved</div>
             </div>
-            <div class="stat">
-                <div class="stat-value" id="stat-important">0</div>
-                <div class="stat-label">High Relevance</div>
-            </div>
         </div>
 
         <div id="loading-container" class="loading-container" style="display: none;">
@@ -828,13 +750,6 @@
             </div>
             <div class="feed-status" id="feed-status">Starting...</div>
             <div class="feed-list" id="feed-list"></div>
-        </div>
-
-        <div class="important-section" id="important-section" style="display: none;">
-            <h2>
-                <span>&#9888;</span> Don't Miss - High Relevance Articles
-            </h2>
-            <div id="important-articles"></div>
         </div>
 
         <!-- Category Stats & Trends -->
@@ -876,7 +791,6 @@
                 <select class="sort-select" id="sort-select">
                     <option value="date-desc">Newest First</option>
                     <option value="date-asc">Oldest First</option>
-                    <option value="relevance">Highest Relevance</option>
                     <option value="engagement">Most Engagement</option>
                 </select>
             </div>
@@ -1546,12 +1460,10 @@
 
             const unread = articles.filter(a => !readSet.has(a.id));
             const starred = articles.filter(a => starredSet.has(a.id));
-            const important = articles.filter(a => a.relevance >= 100 && !readSet.has(a.id));
 
             document.getElementById('stat-total').textContent = articles.length;
             document.getElementById('stat-unread').textContent = unread.length;
             document.getElementById('stat-starred').textContent = starred.length;
-            document.getElementById('stat-important').textContent = important.length;
 
             const researchUnread = unread.filter(a => a.category === 'research').length;
             const policyUnread = unread.filter(a => a.category === 'policy').length;
@@ -1609,23 +1521,6 @@
                     <span class="trend-count">${olderCount} unread</span>
                 </div>
             `;
-
-            const importantSection = document.getElementById('important-section');
-            const importantArticles = document.getElementById('important-articles');
-
-            if (important.length > 0) {
-                importantSection.style.display = 'block';
-                importantArticles.innerHTML = important.slice(0, 5).map(article => `
-                    <div class="article-mini">
-                        <div class="article-title">
-                            <a href="${article.link}" target="_blank" onclick="markAsRead('${article.id}')">${article.title}</a>
-                        </div>
-                        <span class="relevance-badge">${article.relevance}</span>
-                    </div>
-                `).join('');
-            } else {
-                importantSection.style.display = 'none';
-            }
         }
 
         function renderArticles() {
@@ -1662,8 +1557,6 @@
                 switch (currentSort) {
                     case 'date-asc':
                         return new Date(a.published) - new Date(b.published);
-                    case 'relevance':
-                        return b.relevance - a.relevance;
                     case 'engagement':
                         const engA = (a.likes || 0) * 2 + (a.reposts || 0) * 3 + (a.replies || 0);
                         const engB = (b.likes || 0) * 2 + (b.reposts || 0) * 3 + (b.replies || 0);
@@ -1688,8 +1581,6 @@
                 const isRead = readSet.has(article.id);
                 const isStarred = starredSet.has(article.id);
                 const isSelected = index === selectedArticleIndex;
-                const relevanceClass = article.relevance >= 100 ? 'high' :
-                                      article.relevance >= 50 ? 'medium' : 'low';
                 const date = new Date(article.published).toLocaleDateString();
                 const pubDate = new Date(article.published);
 
@@ -1728,7 +1619,6 @@
                     <div class="article ${isRead ? 'read' : ''} ${isSelected ? 'selected' : ''}" data-id="${article.id}">
                         <div class="article-header">
                             <div class="article-title-main">
-                                <span class="relevance-indicator relevance-${relevanceClass}"></span>
                                 <a href="${article.link}" target="_blank" onclick="markAsRead('${article.id}')">${article.title}</a>
                             </div>
                         </div>
@@ -1738,7 +1628,6 @@
                             <span class="article-category ${article.category}">${article.category}</span>
                             <span class="article-date">${date}</span>
                             ${recencyBadge}
-                            ${!article.isBluesky ? `<span class="article-relevance">Relevance: ${article.relevance}</span>` : ''}
                         </div>
                         <div class="article-summary">${article.summary || 'No summary available'}</div>
                         <div class="article-actions">
