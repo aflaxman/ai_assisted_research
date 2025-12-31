@@ -795,7 +795,7 @@
             <strong>Keyboard shortcuts:</strong>
             <kbd>j</kbd> next article,
             <kbd>k</kbd> previous article,
-            <kbd>y</kbd> mark read,
+            <kbd>x</kbd> mark read,
             <kbd>s</kbd> save (also marks read),
             <kbd>z</kbd> undo
         </div>
@@ -1080,7 +1080,7 @@
                             highlightSelectedArticle();
                         }
                         break;
-                    case 'y': // Mark read
+                    case 'x': // Mark read
                         e.preventDefault();
                         if (selectedArticleIndex >= 0 && selectedArticleIndex <= maxIndex) {
                             const id = articleEls[selectedArticleIndex].dataset.id;
@@ -1746,7 +1746,7 @@
                                 ${isStarred ? '★ Saved' : '☆ Save'} <kbd>s</kbd>
                             </button>
                             <button onclick="toggleRead('${article.id}')">
-                                ${isRead ? '○ Mark Unread' : '● Mark Read'} <kbd>y</kbd>
+                                ${isRead ? '○ Mark Unread' : '● Mark Read'} <kbd>x</kbd>
                             </button>
                         </div>
                         ${abstractHtml}
@@ -1886,7 +1886,15 @@
         }
 
         function clearData() {
-            if (!confirm('Clear all articles and reading history? This cannot be undone.')) return;
+            // First confirmation
+            if (!confirm('⚠️ WARNING: This will delete ALL articles and reading history.\n\nThis action CANNOT be undone.\n\nAre you sure you want to continue?')) {
+                return;
+            }
+
+            // Second confirmation
+            if (!confirm('Are you absolutely certain? All data will be permanently deleted.')) {
+                return;
+            }
 
             localStorage.removeItem(STORAGE_KEY);
             localStorage.removeItem(READ_KEY);
