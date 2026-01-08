@@ -18,8 +18,9 @@ We ask: "What's the evidence ratio for bug vs. no-bug?" ✅
 ## Files
 
 - `random_walk.py` - The spatial simulation (buggy version included!)
-- `test_random_walk.py` - Demonstrates fuzzy checker validation
+- `test_random_walk.py` - Demonstrates fuzzy checker validation (DRY refactored!)
 - `fuzzy_checker.py` - Standalone copy of the checker for this tutorial
+- `demo.py` - Interactive visualization showing the bug
 
 ## The Bug
 
