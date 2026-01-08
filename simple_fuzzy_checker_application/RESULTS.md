@@ -171,11 +171,11 @@ Benefits:
 
 - `README.md` - Overview and setup instructions
 - `RESULTS.md` - This file! Summary of findings
-- `fuzzy_checker.py` - Standalone copy of Zeb's FuzzyChecker
 - `random_walk.py` - Simulation code (both buggy and correct versions)
 - `test_random_walk.py` - Comprehensive test suite with fuzzy checking
 - `demo.py` - Interactive visualization of the bug
-- `requirements.txt` - Python dependencies
+- `requirements.txt` - Python dependencies (uses vivarium_testing_utils directly)
+- `REFACTORING.md` - Documentation of DRY improvements
 
 ## Running the Code
 

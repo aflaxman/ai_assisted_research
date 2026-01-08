@@ -19,8 +19,10 @@ We ask: "What's the evidence ratio for bug vs. no-bug?" ✅
 
 - `random_walk.py` - The spatial simulation (buggy version included!)
 - `test_random_walk.py` - Demonstrates fuzzy checker validation (DRY refactored!)
-- `fuzzy_checker.py` - Standalone copy of the checker for this tutorial
 - `demo.py` - Interactive visualization showing the bug
+- `requirements.txt` - Just `vivarium_testing_utils` and `pytest`!
+
+**Note**: We import `FuzzyChecker` directly from `vivarium_testing_utils` rather than copying the code. This keeps the tutorial lean and ensures you're using the latest version with all improvements.
 
 ## The Bug
 
@@ -39,11 +41,14 @@ This creates directional bias—the walker can't move down. Traditional tests mi
 ## Running the Tests
 
 ```bash
-# Install dependencies
-uv pip install scipy pytest
+# Install dependencies (vivarium_testing_utils brings in scipy, numpy, pandas, etc.)
+pip install -r requirements.txt
 
 # Run tests (watch the fuzzy checker catch the bug!)
 pytest test_random_walk.py -v
+
+# Or just the correct version tests
+pytest test_random_walk.py -k "correct" -v
 ```
 
 ## Key Insights

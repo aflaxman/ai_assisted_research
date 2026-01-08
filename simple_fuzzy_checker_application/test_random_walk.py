@@ -55,7 +55,7 @@ from typing import Literal
 
 import pytest
 
-from fuzzy_checker import FuzzyChecker
+from vivarium_testing_utils import FuzzyChecker
 from random_walk import fill_grid, Grid
 
 
