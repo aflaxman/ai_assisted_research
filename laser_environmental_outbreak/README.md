@@ -11,8 +11,12 @@ The model tracks:
 
 ## Files
 
-- `components.py`: Custom LASER components for environmental transmission, carcass decomposition, and spore dynamics.
-- `run_sim.py`: Script to run the simulation, varying the scavenging rate, and plotting results.
+- **`run_sim.py`**: Main simulation script that sets up scenarios, runs simulations with different scavenging rates, and generates comparison plots. **Start here** to understand how the simulation works!
+- **`components.py`**: Custom LASER components for environmental transmission, carcass decomposition, and spore dynamics. Each component is well-documented to guide novice readers.
+- **`utils.py`**: Reusable helper functions that eliminate code duplication (DRY principle) while keeping the code easy to understand. Includes helpers for:
+  - Property initialization
+  - Thread-safe parallel computing
+  - Plot saving and formatting
 
 ## Model Dynamics
 
@@ -70,3 +74,41 @@ The script runs three scenarios:
 - **Very High Scavenging**: Scavenging rate = 0.5 per day.
 
 The results demonstrate how scavenging can effectively control an environmental outbreak by preventing spore release.
+
+## Code Design: DRY (Don't Repeat Yourself) Principles
+
+This codebase has been refactored to follow best practices while remaining accessible to novice readers:
+
+### Eliminated Redundancy
+
+**Before refactoring**, similar patterns were repeated throughout the code:
+```python
+# Repeated in every component initialization:
+if not hasattr(self.model.nodes, 'spores'):
+    self.model.nodes.add_vector_property("spores", model.params.nticks + 1, dtype=np.float32)
+if not hasattr(self.model.nodes, 'daily_spores'):
+    self.model.nodes.add_vector_property("daily_spores", model.params.nticks + 1, dtype=np.float32)
+```
+
+**After refactoring**, we use clear helper functions:
+```python
+# Simple, reusable helpers:
+ensure_vector_property(model, 'nodes', 'spores', np.float32)
+ensure_vector_property(model, 'nodes', 'daily_spores', np.float32)
+```
+
+### Key Improvements
+
+1. **Property Initialization**: `ensure_vector_property()` and `ensure_scalar_property()` replace repetitive if/hasattr checks
+2. **Thread-Safe Computing**: `create_thread_safe_array()` and `aggregate_thread_results()` standardize parallel computing patterns
+3. **State Propagation**: `propagate_state_counts()` handles the common pattern of carrying forward counts between time steps
+4. **Plotting**: `save_and_close_plot()` standardizes how plots are saved and closed
+
+### Benefits
+
+- **Less code duplication**: Changes only need to be made in one place
+- **Easier to understand**: Descriptive function names explain what the code does
+- **Well-documented**: Each helper function includes docstrings with examples
+- **Novice-friendly**: Comments and documentation guide readers through complex concepts like parallel computing
+
+The refactoring makes the code both **more maintainable for experts** and **more accessible for learners**!
