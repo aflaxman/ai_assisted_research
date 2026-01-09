@@ -2,11 +2,8 @@
 Fuzzy Checker Tutorial: Testing Stochastic Simulations
 =======================================================
 
-This test suite demonstrates how to use Bayesian hypothesis testing (via FuzzyChecker)
+This test suite demonstrates Bayesian hypothesis testing (via FuzzyChecker)
 to validate statistical properties of random simulations.
-
-Key Innovation: We test the ACTUAL implementation from random_walk.py, not a
-reimplementation. This is how real automated tests work!
 
 The Pattern
 -----------
@@ -14,7 +11,7 @@ The Pattern
 2. Aggregate the direction_counts returned from each run
 3. Use fuzzy_assert_proportion() to validate statistical properties
 
-No p-hacking. No arbitrary thresholds. Just rigorous Bayesian reasoning.
+No p-hacking. No arbitrary thresholds. Rigorous Bayesian reasoning.
 """
 
 import random
@@ -63,30 +60,24 @@ def fuzzy_checker(output_directory):
 
 def test_correct_version_directional_balance(fuzzy_checker):
     """
-    PATTERN EXAMPLE: Validate that all four directions occur with equal probability.
+    Validate that all four directions occur with equal probability.
 
-    This test demonstrates the authentic testing pattern:
-    1. Use the ACTUAL fill_grid() function from random_walk.py
-    2. Run it many times with CORRECT_MOVES
-    3. Aggregate the direction counts
-    4. Validate with fuzzy_assert_proportion()
+    Pattern:
+    1. Run fill_grid() many times with CORRECT_MOVES
+    2. Aggregate the direction counts
+    3. Validate with fuzzy_assert_proportion()
 
-    The key observation code lives in random_walk.py (lines 80-89), not here!
-    We're testing the real implementation, not reimplementing it.
+    The observation code is in random_walk.py (lines 80-89).
     """
     grid = Grid(size=11)
     num_runs = 1000
-    total_counts = Counter()  # Aggregate counts across all runs
+    total_counts = Counter()
 
-    # Run many simulations using the ACTUAL implementation
     for i in range(num_runs):
         random.seed(2000 + i)
         grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-        # Call the real fill_grid function with correct moves
         _, direction_counts = fill_grid(grid, CORRECT_MOVES)
-
-        # Aggregate the counts
         total_counts.update(direction_counts)
 
     total_moves = sum(total_counts.values())
@@ -104,17 +95,12 @@ def test_correct_version_directional_balance(fuzzy_checker):
             name=f"correct_{direction}_moves_proportion",
         )
 
-    # If we get here, all directions passed! The walk is unbiased. ✓
-
 
 def test_correct_version_horizontal_symmetry(fuzzy_checker):
     """
     Validate that left/right moves are balanced.
 
-    Among horizontal moves (left + right), we expect about 50% to go left
-    and 50% to go right.
-
-    Again, we use the ACTUAL fill_grid() function, not a reimplementation.
+    Among horizontal moves (left + right), expect about 50% left, 50% right.
     """
     grid = Grid(size=11)
     num_runs = 1000
@@ -146,9 +132,6 @@ def test_correct_version_horizontal_symmetry(fuzzy_checker):
 def test_correct_version_vertical_symmetry(fuzzy_checker):
     """
     Validate that up/down moves are balanced.
-
-    Same pattern: use the real fill_grid(), aggregate counts, validate with
-    fuzzy_assert_proportion().
     """
     grid = Grid(size=11)
     num_runs = 1000
@@ -184,18 +167,13 @@ def test_correct_version_vertical_symmetry(fuzzy_checker):
 
 def test_buggy_version_catches_directional_bias(fuzzy_checker):
     """
-    Demonstrate that fuzzy checking CATCHES the bug!
+    Demonstrate fuzzy checking catching the bug.
 
-    The BUGGY_MOVES = [[-1, 0], [1, 0], [0, -1], [0, -1]] has:
+    BUGGY_MOVES = [[-1, 0], [1, 0], [0, -1], [0, -1]] has:
     - Left:  25% ✓
     - Right: 25% ✓
-    - Up:    50% ✗ TWICE AS LIKELY!
-    - Down:   0% ✗ NEVER HAPPENS!
-
-    We pass BUGGY_MOVES to fill_grid() and watch the Bayes factors explode!
-
-    Try it:
-        pytest test_random_walk.py::test_buggy_version_catches_directional_bias -v
+    - Up:    50% ✗
+    - Down:   0% ✗
 
     Expected output:
         AssertionError: buggy_up_moves_proportion value 0.504 is significantly
@@ -205,7 +183,6 @@ def test_buggy_version_catches_directional_bias(fuzzy_checker):
     num_runs = 1000
     total_counts = Counter()
 
-    # Use the ACTUAL fill_grid() with BUGGY_MOVES
     for i in range(num_runs):
         random.seed(5000 + i)
         grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]

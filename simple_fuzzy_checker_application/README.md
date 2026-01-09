@@ -87,38 +87,21 @@ uv pip install -r requirements.txt
 # Test that everything works
 python -c "from vivarium_testing_utils import FuzzyChecker; print('✓ FuzzyChecker imported successfully')"
 
-# Run the demo visualization
-python random_walk.py demo --size 11 --runs 200
+# Run a single simulation
+python random_walk.py --seed 42 --size 11
 ```
 
-You should see output like:
-```
-✓ CORRECT VERSION - Unbiased Random Walk
-  left: 25.6% ████████████
- right: 24.6% ████████████
-    up: 24.6% ████████████
-  down: 25.2% ████████████
-
-✗ BUGGY VERSION - Directional Bias!
-  left: 25.9% ████████████
- right: 25.0% ████████████
-    up: 49.0% ████████████████████████
-  down:  0.0% [empty]
-
-🔍 THE SMOKING GUN:
-Down moves in correct version: 1,482
-Down moves in buggy version:   0
-```
+You should see output showing the step count and direction counts for a single random walk.
 
 ---
 
 ## The Fuzzy Checking Pattern
 
-Following Greg Wilson's testing pattern, we separate the simulation code (`random_walk.py`) from the test code (`test_random_walk.py`). The key insight: **observation code lives in the implementation, tests just aggregate and validate**.
+We separate simulation code (`random_walk.py`) from test code (`test_random_walk.py`). Observation code lives in the implementation; tests aggregate and validate.
 
 ### 1. Write Your Simulation (in `random_walk.py`)
 
-The `fill_grid(grid, moves)` function does the simulation AND observes what happens:
+The `fill_grid(grid, moves)` function simulates and observes:
 
 ```python
 def fill_grid(grid, moves):
@@ -137,7 +120,7 @@ def fill_grid(grid, moves):
         x += m[0]
         y += m[1]
 
-        # OBSERVE: Track which direction we moved
+        # Track which direction we moved
         if m == [-1, 0]:
             direction_counts["left"] += 1
         elif m == [1, 0]:
@@ -152,48 +135,42 @@ def fill_grid(grid, moves):
 
 See [`random_walk.py` lines 46-91](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/random_walk.py#L46-L91) for the complete implementation.
 
-### 2. Test By Calling Your Actual Implementation
-
-In your tests, import and USE the real functions:
+### 2. Test by Calling Your Implementation
 
 ```python
 from random_walk import Grid, fill_grid, CORRECT_MOVES
 
 grid = Grid(size=11)
 num_runs = 1000
-total_counts = Counter()  # Aggregate across runs
+total_counts = Counter()
 
 for i in range(num_runs):
     random.seed(2000 + i)
     grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-    # Call the ACTUAL fill_grid function
     _, direction_counts = fill_grid(grid, CORRECT_MOVES)
-
-    # Aggregate the counts
     total_counts.update(direction_counts)
 
 total_moves = sum(total_counts.values())
 ```
 
-This is **authentic testing** - we test the real implementation, not a reimplementation!
-
 ### 3. Assert with Bayes Factors
-Use `fuzzy_assert_proportion()` to validate:
+
 ```python
 fuzzy_checker.fuzzy_assert_proportion(
-    observed_numerator=direction_counts["left"],  # Count of events
-    observed_denominator=total_moves,             # Total opportunities
-    target_proportion=(0.23, 0.27),               # Expected range: 25% ± 2%
-    name="left_moves_proportion"                  # For diagnostics
+    observed_numerator=direction_counts["left"],
+    observed_denominator=total_moves,
+    target_proportion=(0.23, 0.27),  # 25% ± 2%
+    name="left_moves_proportion"
 )
 ```
 
-### 4. Let Bayesian Inference Decide
-- If the observed proportion matches the target → Bayes factor is low → Test PASSES
-- If there's a systematic bias → Bayes factor is high → Test FAILS with evidence quantification
+### 4. Bayesian Inference Decides
 
-**That's the complete pattern!** Write your simulation with observation code, call it many times in tests, aggregate and validate. No manual threshold tweaking. No p-value interpretation. Just rigorous reasoning.
+- Observed matches target → Low Bayes factor → PASS
+- Systematic bias → High Bayes factor → FAIL with evidence quantification
+
+No manual threshold tweaking. No p-value interpretation.
 
 ---
 
@@ -277,11 +254,9 @@ That's not just "statistically significant"—it's **astronomically decisive** e
 
 ## A Complete Example: Directional Balance Test
 
-Let's walk through a complete test from [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L64-L107). This demonstrates the authentic testing pattern - we use the ACTUAL `fill_grid()` function from `random_walk.py`!
+Let's walk through a complete test from [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L64-L107).
 
-The test has three clear steps:
-
-**Step 1: Run many simulations using the real implementation** (lines 77-90)
+**Step 1: Run many simulations** (lines 77-90)
 ```python
 from random_walk import Grid, fill_grid, CORRECT_MOVES
 
@@ -292,14 +267,11 @@ for i in range(num_runs):
     random.seed(2000 + i)
     grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-    # Call the ACTUAL fill_grid function
     _, direction_counts = fill_grid(grid, CORRECT_MOVES)
-
-    # Aggregate the counts
     total_counts.update(direction_counts)
 ```
 
-The observation code lives in [`random_walk.py` lines 80-89](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/random_walk.py#L80-L89) - not duplicated in the test!
+The observation code is in [`random_walk.py` lines 80-89](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/random_walk.py#L80-L89).
 
 **Step 2: Check each direction with fuzzy assertion** (lines 99-105)
 ```python
@@ -314,7 +286,7 @@ for direction in ["left", "right", "up", "down"]:
 
 **Step 3: If we get here, all passed!** The walk is unbiased. ✓
 
-See the [complete test code](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L64-L107) for the full implementation.
+See the [complete test code](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L64-L107).
 
 ---
 
@@ -405,26 +377,24 @@ Great for investigating warnings or tuning validation strategies.
 ## Key Files in This Tutorial
 
 ### [`random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/random_walk.py)
-The complete simulation code with:
-- `fill_grid(grid)` - Correct unbiased random walk
-- `fill_grid_buggy(grid)` - Buggy version with directional bias
+The simulation implementation:
 - `Grid` class - Simple 2D grid for tracking visits
-- `run_demo()` - Visual demonstration of the bug
-- Command-line interface for both simulation and demo
+- `fill_grid(grid, moves)` - Random walk that returns (steps, direction_counts)
+- `CORRECT_MOVES` and `BUGGY_MOVES` constants
+- Command-line interface for running single simulations
 
-Run the demo:
+Run a simulation:
 ```bash
-python random_walk.py demo --size 11 --runs 200
+python random_walk.py --seed 42 --size 11
 ```
 
 ### [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py)
-Comprehensive test suite demonstrating fuzzy checking patterns:
-- Observation code fully exposed in each test
-- Four test functions showing different statistical validations
-- Extensive educational comments explaining each step
-- **Start here to understand the pattern!**
+Comprehensive test suite with:
+- Four test functions validating different statistical properties
+- Examples of using `fuzzy_assert_proportion()`
+- Comments explaining each step
 
-The tests show the complete pattern from observation → counting → fuzzy assertion.
+The tests demonstrate: observation → aggregation → fuzzy assertion.
 
 ---
 
@@ -558,6 +528,22 @@ See the [Vivarium research docs](https://vivarium-research.readthedocs.io/en/lat
 
 ---
 
+## A Challenge: Can You Find the Bug Without Observing Directions?
+
+The tests above track individual direction counts. But what if we didn't instrument our code that way? **Can you detect the directional bias using only the grid visit counts?**
+
+This is Greg Wilson's original challenge: find a statistical property of the grid itself that differs between correct and buggy versions.
+
+Some ideas to explore:
+- Does the distribution of visits differ between quadrants?
+- Are edge cells visited at different rates?
+- Does the center-to-edge gradient change?
+- What about the variance in visit counts?
+
+Try implementing a test that catches the bug without looking at `direction_counts`. It's harder than it seems!
+
+---
+
 ## Exercises: Deepen Your Understanding
 
 Ready to experiment? Try these exercises to build intuition about fuzzy checking:
@@ -619,7 +605,17 @@ Testing stochastic simulations doesn't have to rely on arbitrary thresholds or m
 
 The `vivarium_testing_utils` package makes this approach accessible with a simple, clean API. Whether you're testing random walks, agent-based models, or Monte Carlo simulations, fuzzy checking helps you validate statistical properties with confidence.
 
-**Try it on your own simulations and discover bugs you didn't know existed!**
+---
+
+## What About More Complex Simulations?
+
+This tutorial used a simple random walk where tracking direction counts was straightforward. But what about more complex spatial processes?
+
+Greg Wilson's blog post includes another example: **[invasion percolation](https://third-bit.com/2025/04/20/a-testing-question/#invasion-percolation)**, where a "filled" region grows by randomly selecting neighboring cells to fill next. The grid patterns are much more complex than a random walk.
+
+**How would you test that?** What statistical properties would you validate? How would you instrument the code to observe the right quantities?
+
+These are open questions. If you have ideas or try implementing fuzzy tests for invasion percolation, I'd love to hear about it! Open an issue or discussion in [this repository](https://github.com/aflaxman/ai_assisted_research/issues).
 
 ---
 
