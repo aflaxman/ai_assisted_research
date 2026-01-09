@@ -1,4 +1,4 @@
-# Testing Stochastic Simulations with Bayesian Fuzzy Checking
+# Testing Stochastic Simulations: Bayesian Fuzzy Checking in Python
 
 *A hands-on guide to catching subtle bugs in spatial simulations using rigorous statistical methods*
 
