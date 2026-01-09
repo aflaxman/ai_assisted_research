@@ -19,7 +19,7 @@ assert 40 <= result <= 44  # ❌ Arbitrary!
 
 This tutorial, inspired by [Greg Wilson's testing challenge](https://third-bit.com/2025/04/20/a-testing-question/), demonstrates a rigorous solution: **Bayesian fuzzy checking** using the [`FuzzyChecker`](https://github.com/ihmeuw/vivarium_testing_utils/blob/main/src/vivarium_testing_utils/fuzzy_checker.py) from [vivarium_testing_utils](https://github.com/ihmeuw/vivarium_testing_utils).
 
-## The Answer: Bayesian Hypothesis Testing
+## An Answer: Bayesian Hypothesis Testing
 
 Instead of asking "is this close enough?" (with arbitrary thresholds), we ask:
 
