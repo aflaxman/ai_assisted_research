@@ -2,7 +2,7 @@
 
 *A hands-on guide to catching subtle bugs in spatial simulations using rigorous statistical methods*
 
-## The Problem: How Do You Test Randomness?
+## The Problem: How Do You Test Randomized Algorithms?
 
 Imagine you're writing a spatial simulation—a random walk on a grid, an agent-based model, or a Monte Carlo simulation. You run your code and it produces output. Then you run it again and get *different* output. That's expected! It's random. But here's the challenge:
 
