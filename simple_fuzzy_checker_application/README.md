@@ -114,7 +114,7 @@ Down moves in buggy version:   0
 
 ## The Fuzzy Checking Pattern
 
-Every statistical validation follows the same simple pattern:
+A typical fuzzy check of a randomized computation follows this simple pattern:
 
 ### 1. Run Many Simulations
 Gather statistics by running your simulation hundreds or thousands of times:
