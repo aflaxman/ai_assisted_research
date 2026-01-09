@@ -30,7 +30,6 @@ This is done through **Bayes factors**:
 - Bayes factor < 0.1 = "substantial" evidence of correctness → Test PASSES
 - Bayes factor between 0.1 and 100 = "inconclusive" → WARNING (need more data)
 
-No p-hacking. No arbitrary cutoffs. Just rigorous inference.
 
 ---
 
