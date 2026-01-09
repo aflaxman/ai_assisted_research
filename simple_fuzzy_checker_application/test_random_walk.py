@@ -58,72 +58,81 @@ def fuzzy_checker(output_directory):
 # =============================================================================
 
 
-def test_correct_version_directional_balance(fuzzy_checker):
+def test_correct_version_exit_edges(fuzzy_checker):
     """
-    Validate that all four directions occur with equal probability.
+    Validate that walks exit at each edge with equal probability.
 
-    Pattern:
-    1. Run fill_grid() many times with CORRECT_MOVES
-    2. Aggregate the direction counts
-    3. Validate with fuzzy_assert_proportion()
-
-    The observation code is in random_walk.py (lines 80-89).
+    For an unbiased random walk, we expect about 25% of walks to exit at each edge:
+    - x == 0 (left edge)
+    - x == size-1 (right edge)
+    - y == 0 (top edge)
+    - y == size-1 (bottom edge)
     """
     grid = Grid(size=11)
     num_runs = 1000
-    total_counts = Counter()
+    size_1 = grid.size - 1
+    edge_counts = Counter()
 
     for i in range(num_runs):
         random.seed(2000 + i)
         grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-        _, direction_counts = fill_grid(grid, CORRECT_MOVES)
-        total_counts.update(direction_counts)
+        _, final_x, final_y = fill_grid(grid, CORRECT_MOVES)
 
-    total_moves = sum(total_counts.values())
+        # Classify which edge the walk exited at
+        if final_x == 0:
+            edge_counts["left"] += 1
+        elif final_x == size_1:
+            edge_counts["right"] += 1
+        elif final_y == 0:
+            edge_counts["top"] += 1
+        else:  # final_y == size_1
+            edge_counts["bottom"] += 1
 
-    print(f"\nCorrect version - Total moves: {total_moves}")
-    print(f"Direction breakdown: {dict(total_counts)}")
-    print(f"Proportions: {[f'{k}: {v/total_moves:.3f}' for k, v in total_counts.items()]}")
+    print(f"\nCorrect version - Exit edge counts: {dict(edge_counts)}")
+    print(f"Proportions: {[(k, f'{v/num_runs:.3f}') for k, v in edge_counts.items()]}")
 
-    # Validate each direction is close to 0.25
-    for direction in ["left", "right", "up", "down"]:
+    # Validate each edge is ~25%
+    for edge in ["left", "right", "top", "bottom"]:
         fuzzy_checker.fuzzy_assert_proportion(
-            observed_numerator=total_counts[direction],
-            observed_denominator=total_moves,
+            observed_numerator=edge_counts[edge],
+            observed_denominator=num_runs,
             target_proportion=(0.23, 0.27),  # 25% ± 2%
-            name=f"correct_{direction}_moves_proportion",
+            name=f"correct_{edge}_exit_proportion",
         )
 
 
 def test_correct_version_horizontal_symmetry(fuzzy_checker):
     """
-    Validate that left/right moves are balanced.
+    Validate that left/right exits are balanced.
 
-    Among horizontal moves (left + right), expect about 50% left, 50% right.
+    Among walks that exit horizontally (left or right edge), expect about 50% on each side.
     """
     grid = Grid(size=11)
     num_runs = 1000
-    total_counts = Counter()
+    size_1 = grid.size - 1
+    edge_counts = Counter()
 
     for i in range(num_runs):
         random.seed(3000 + i)
         grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-        _, direction_counts = fill_grid(grid, CORRECT_MOVES)
-        total_counts.update(direction_counts)
+        _, final_x, final_y = fill_grid(grid, CORRECT_MOVES)
 
-    # Focus on horizontal moves only
-    horizontal_moves = total_counts["left"] + total_counts["right"]
+        if final_x == 0:
+            edge_counts["left"] += 1
+        elif final_x == size_1:
+            edge_counts["right"] += 1
 
-    print(f"\nCorrect version - Horizontal moves: {horizontal_moves}")
-    print(f"Left: {total_counts['left']} ({total_counts['left']/horizontal_moves:.3f})")
-    print(f"Right: {total_counts['right']} ({total_counts['right']/horizontal_moves:.3f})")
+    horizontal_exits = edge_counts["left"] + edge_counts["right"]
 
-    # Among horizontal moves, left should be ~50%
+    print(f"\nCorrect version - Horizontal exits: {horizontal_exits}")
+    print(f"Left: {edge_counts['left']} ({edge_counts['left']/horizontal_exits:.3f})")
+    print(f"Right: {edge_counts['right']} ({edge_counts['right']/horizontal_exits:.3f})")
+
     fuzzy_checker.fuzzy_assert_proportion(
-        observed_numerator=total_counts["left"],
-        observed_denominator=horizontal_moves,
+        observed_numerator=edge_counts["left"],
+        observed_denominator=horizontal_exits,
         target_proportion=(0.48, 0.52),  # 50% ± 2%
         name="correct_left_right_symmetry",
     )
@@ -131,32 +140,37 @@ def test_correct_version_horizontal_symmetry(fuzzy_checker):
 
 def test_correct_version_vertical_symmetry(fuzzy_checker):
     """
-    Validate that up/down moves are balanced.
+    Validate that top/bottom exits are balanced.
+
+    Among walks that exit vertically (top or bottom edge), expect about 50% on each side.
     """
     grid = Grid(size=11)
     num_runs = 1000
-    total_counts = Counter()
+    size_1 = grid.size - 1
+    edge_counts = Counter()
 
     for i in range(num_runs):
         random.seed(4000 + i)
         grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-        _, direction_counts = fill_grid(grid, CORRECT_MOVES)
-        total_counts.update(direction_counts)
+        _, final_x, final_y = fill_grid(grid, CORRECT_MOVES)
 
-    # Focus on vertical moves only
-    vertical_moves = total_counts["up"] + total_counts["down"]
+        if final_y == 0:
+            edge_counts["top"] += 1
+        elif final_y == size_1:
+            edge_counts["bottom"] += 1
 
-    print(f"\nCorrect version - Vertical moves: {vertical_moves}")
-    print(f"Up: {total_counts['up']} ({total_counts['up']/vertical_moves:.3f})")
-    print(f"Down: {total_counts['down']} ({total_counts['down']/vertical_moves:.3f})")
+    vertical_exits = edge_counts["top"] + edge_counts["bottom"]
 
-    # Among vertical moves, up should be ~50%
+    print(f"\nCorrect version - Vertical exits: {vertical_exits}")
+    print(f"Top: {edge_counts['top']} ({edge_counts['top']/vertical_exits:.3f})")
+    print(f"Bottom: {edge_counts['bottom']} ({edge_counts['bottom']/vertical_exits:.3f})")
+
     fuzzy_checker.fuzzy_assert_proportion(
-        observed_numerator=total_counts["up"],
-        observed_denominator=vertical_moves,
+        observed_numerator=edge_counts["top"],
+        observed_denominator=vertical_exits,
         target_proportion=(0.48, 0.52),  # 50% ± 2%
-        name="correct_up_down_symmetry",
+        name="correct_top_bottom_symmetry",
     )
 
 
@@ -165,60 +179,48 @@ def test_correct_version_vertical_symmetry(fuzzy_checker):
 # =============================================================================
 
 
-def test_buggy_version_catches_directional_bias(fuzzy_checker):
+def test_buggy_version_catches_exit_bias(fuzzy_checker):
     """
     Demonstrate fuzzy checking catching the bug.
 
-    BUGGY_MOVES = [[-1, 0], [1, 0], [0, -1], [0, -1]] has:
-    - Left:  25% ✓
-    - Right: 25% ✓
-    - Up:    50% ✗
-    - Down:   0% ✗
+    BUGGY_MOVES = [[-1, 0], [1, 0], [0, -1], [0, -1]] can move up twice but never down.
+    Expected exit proportions:
+    - Left edge:   ~25% ✓
+    - Right edge:  ~25% ✓
+    - Top edge:    ~50% ✗ (should be ~25%)
+    - Bottom edge:  ~0% ✗ (should be ~25%)
 
-    Expected output:
-        AssertionError: buggy_up_moves_proportion value 0.504 is significantly
-        greater than expected, bayes factor = 6.90011e+87
+    Expected: Test fails on top edge with large Bayes factor
     """
     grid = Grid(size=11)
     num_runs = 1000
-    total_counts = Counter()
+    size_1 = grid.size - 1
+    edge_counts = Counter()
 
     for i in range(num_runs):
         random.seed(5000 + i)
         grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-        _, direction_counts = fill_grid(grid, BUGGY_MOVES)
-        total_counts.update(direction_counts)
+        _, final_x, final_y = fill_grid(grid, BUGGY_MOVES)
 
-    total_moves = sum(total_counts.values())
+        if final_x == 0:
+            edge_counts["left"] += 1
+        elif final_x == size_1:
+            edge_counts["right"] += 1
+        elif final_y == 0:
+            edge_counts["top"] += 1
+        else:  # final_y == size_1
+            edge_counts["bottom"] += 1
 
-    print(f"\nBuggy version - Total moves: {total_moves}")
-    print(f"Direction breakdown: {dict(total_counts)}")
-    print(f"Proportions: {[f'{k}: {v/total_moves:.3f}' for k, v in total_counts.items()]}")
+    print(f"\nBuggy version - Exit edge counts: {dict(edge_counts)}")
+    print(f"Proportions: {[(k, f'{v/num_runs:.3f}') for k, v in edge_counts.items()]}")
 
-    # Left and right should still pass (they're each ~25%)
-    for direction in ["left", "right"]:
-        fuzzy_checker.fuzzy_assert_proportion(
-            observed_numerator=total_counts[direction],
-            observed_denominator=total_moves,
-            target_proportion=(0.23, 0.27),
-            name=f"buggy_{direction}_moves_proportion",
-        )
-
-    # Up should FAIL (it's ~50%, we expect ~25%)
+    # Check if x == 0 happens the expected 25% of the time
     fuzzy_checker.fuzzy_assert_proportion(
-        observed_numerator=total_counts["up"],
-        observed_denominator=total_moves,
+        observed_numerator=edge_counts["left"],
+        observed_denominator=num_runs,
         target_proportion=(0.23, 0.27),
-        name="buggy_up_moves_proportion",
-    )
-
-    # Down should FAIL SPECTACULARLY (it's 0%, we expect ~25%)
-    fuzzy_checker.fuzzy_assert_proportion(
-        observed_numerator=total_counts.get("down", 0),
-        observed_denominator=total_moves,
-        target_proportion=(0.23, 0.27),
-        name="buggy_down_moves_proportion",
+        name="buggy_left_exit_proportion",
     )
 
 
@@ -233,11 +235,10 @@ if __name__ == "__main__":
 
     Try these experiments:
     1. Run all tests and see which pass/fail
-    2. Look at random_walk.py lines 80-89 to see the observation code
-    3. Modify BUGGY_MOVES to create subtler bugs
-    4. Check the CSV diagnostics in the output directory
+    2. Modify BUGGY_MOVES to create subtler bugs
+    3. Check the CSV diagnostics in the output directory
     """
     print("Run with pytest to execute the test suite:")
     print("  pytest test_random_walk.py -v")
     print("\nTo see fuzzy checker catch the bug:")
-    print("  pytest test_random_walk.py::test_buggy_version_catches_directional_bias -v")
+    print("  pytest test_random_walk.py::test_buggy_version_catches_exit_bias -v")

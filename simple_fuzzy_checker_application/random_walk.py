@@ -51,40 +51,23 @@ def fill_grid(grid, moves):
         moves: List of [dx, dy] moves, e.g., [[-1, 0], [1, 0], [0, -1], [0, 1]]
 
     Returns:
-        tuple: (num_steps, direction_counts) where:
+        tuple: (num_steps, final_x, final_y) where:
             - num_steps: Number of steps taken before reaching boundary
-            - direction_counts: Counter with keys 'left', 'right', 'up', 'down'
+            - final_x, final_y: Final position on the edge
     """
     center = grid.size // 2
     size_1 = grid.size - 1
     x, y = center, center
     num = 0
 
-    # Track which direction each move went
-    direction_counts = Counter()
-
-    # Walk until we hit an edge
     while (x != 0) and (y != 0) and (x != size_1) and (y != size_1):
         grid[x, y] += 1
         num += 1
-
-        # Pick random direction
         m = random.choice(moves)
         x += m[0]
         y += m[1]
 
-        # OBSERVE: Track which direction we moved
-        # This is the key observation code that tests will use!
-        if m == [-1, 0]:
-            direction_counts["left"] += 1
-        elif m == [1, 0]:
-            direction_counts["right"] += 1
-        elif m == [0, -1]:
-            direction_counts["up"] += 1
-        elif m == [0, 1]:
-            direction_counts["down"] += 1
-
-    return num, direction_counts
+    return num, x, y
 
 
 # Standard move sets for testing
@@ -115,11 +98,23 @@ def main():
     grid = Grid(args.size)
 
     moves = BUGGY_MOVES if args.buggy else CORRECT_MOVES
-    steps, direction_counts = fill_grid(grid, moves)
+    steps, final_x, final_y = fill_grid(grid, moves)
 
     version = "BUGGY" if args.buggy else "CORRECT"
     print(f"{version} VERSION: Took {steps} steps")
-    print(f"Direction counts: {dict(direction_counts)}")
+    print(f"Final position: ({final_x}, {final_y})")
+
+    # Determine which edge was hit
+    size_1 = args.size - 1
+    if final_x == 0:
+        edge = "left edge (x=0)"
+    elif final_x == size_1:
+        edge = f"right edge (x={size_1})"
+    elif final_y == 0:
+        edge = "top edge (y=0)"
+    else:
+        edge = f"bottom edge (y={size_1})"
+    print(f"Exited at: {edge}")
     print(grid)
 
 

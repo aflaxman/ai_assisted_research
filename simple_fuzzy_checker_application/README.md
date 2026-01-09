@@ -91,77 +91,79 @@ python -c "from vivarium_testing_utils import FuzzyChecker; print('✓ FuzzyChec
 python random_walk.py --seed 42 --size 11
 ```
 
-You should see output showing the step count and direction counts for a single random walk.
+You should see output like:
+```
+CORRECT VERSION: Took 40 steps
+Final position: (0, 4)
+Exited at: left edge (x=0)
+```
 
 ---
 
 ## The Fuzzy Checking Pattern
 
-We separate simulation code (`random_walk.py`) from test code (`test_random_walk.py`). Observation code lives in the implementation; tests aggregate and validate.
+We separate simulation code (`random_walk.py`) from test code (`test_random_walk.py`). The simulation returns its natural output; tests aggregate and validate.
 
 ### 1. Write Your Simulation (in `random_walk.py`)
 
-The `fill_grid(grid, moves)` function simulates and observes:
+The `fill_grid(grid, moves)` function simulates a random walk and returns where it ended:
 
 ```python
 def fill_grid(grid, moves):
-    """Fill grid with random walk, tracking direction counts."""
+    """Fill grid with random walk starting from center."""
     center = grid.size // 2
     size_1 = grid.size - 1
     x, y = center, center
     num = 0
-    direction_counts = Counter()
 
     while (x != 0) and (y != 0) and (x != size_1) and (y != size_1):
         grid[x, y] += 1
         num += 1
-
         m = random.choice(moves)
         x += m[0]
         y += m[1]
 
-        # Track which direction we moved
-        if m == [-1, 0]:
-            direction_counts["left"] += 1
-        elif m == [1, 0]:
-            direction_counts["right"] += 1
-        elif m == [0, -1]:
-            direction_counts["up"] += 1
-        elif m == [0, 1]:
-            direction_counts["down"] += 1
-
-    return num, direction_counts
+    return num, x, y  # Steps taken and final position
 ```
 
-See [`random_walk.py` lines 46-91](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/random_walk.py#L46-L91) for the complete implementation.
+See [`random_walk.py` lines 45-70](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/random_walk.py#L45-L70) for the complete implementation.
 
 ### 2. Test by Calling Your Implementation
+
+For an unbiased walk, we expect about 25% of walks to exit at each edge. Run many simulations and count where they exit:
 
 ```python
 from random_walk import Grid, fill_grid, CORRECT_MOVES
 
 grid = Grid(size=11)
 num_runs = 1000
-total_counts = Counter()
+size_1 = grid.size - 1
+edge_counts = Counter()
 
 for i in range(num_runs):
     random.seed(2000 + i)
     grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-    _, direction_counts = fill_grid(grid, CORRECT_MOVES)
-    total_counts.update(direction_counts)
+    _, final_x, final_y = fill_grid(grid, CORRECT_MOVES)
 
-total_moves = sum(total_counts.values())
+    # Count which edge we exited at
+    if final_x == 0:
+        edge_counts["left"] += 1
+    elif final_x == size_1:
+        edge_counts["right"] += 1
+    # ...etc
 ```
 
 ### 3. Assert with Bayes Factors
 
+Check if `x == 0` (left edge exit) happens at the expected rate:
+
 ```python
 fuzzy_checker.fuzzy_assert_proportion(
-    observed_numerator=direction_counts["left"],
-    observed_denominator=total_moves,
+    observed_numerator=edge_counts["left"],
+    observed_denominator=num_runs,
     target_proportion=(0.23, 0.27),  # 25% ± 2%
-    name="left_moves_proportion"
+    name="left_exit_proportion"
 )
 ```
 
@@ -252,41 +254,50 @@ That's not just "statistically significant"—it's **astronomically decisive** e
 
 ---
 
-## A Complete Example: Directional Balance Test
+## A Complete Example: Exit Edge Test
 
-Let's walk through a complete test from [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L64-L107).
+Let's walk through a complete test from [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L61-L102).
 
-**Step 1: Run many simulations** (lines 77-90)
+**Step 1: Run many simulations and count exit locations**
 ```python
 from random_walk import Grid, fill_grid, CORRECT_MOVES
 
 grid = Grid(size=11)
-total_counts = Counter()
+num_runs = 1000
+size_1 = grid.size - 1
+edge_counts = Counter()
 
 for i in range(num_runs):
     random.seed(2000 + i)
     grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-    _, direction_counts = fill_grid(grid, CORRECT_MOVES)
-    total_counts.update(direction_counts)
+    _, final_x, final_y = fill_grid(grid, CORRECT_MOVES)
+
+    # Classify which edge the walk exited at
+    if final_x == 0:
+        edge_counts["left"] += 1
+    elif final_x == size_1:
+        edge_counts["right"] += 1
+    elif final_y == 0:
+        edge_counts["top"] += 1
+    else:  # final_y == size_1
+        edge_counts["bottom"] += 1
 ```
 
-The observation code is in [`random_walk.py` lines 80-89](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/random_walk.py#L80-L89).
-
-**Step 2: Check each direction with fuzzy assertion** (lines 99-105)
+**Step 2: Validate each edge is ~25%**
 ```python
-for direction in ["left", "right", "up", "down"]:
+for edge in ["left", "right", "top", "bottom"]:
     fuzzy_checker.fuzzy_assert_proportion(
-        observed_numerator=total_counts[direction],
-        observed_denominator=total_moves,
+        observed_numerator=edge_counts[edge],
+        observed_denominator=num_runs,
         target_proportion=(0.23, 0.27),  # 25% ± 2%
-        name=f"correct_{direction}_moves_proportion",
+        name=f"correct_{edge}_exit_proportion",
     )
 ```
 
-**Step 3: If we get here, all passed!** The walk is unbiased. ✓
+**Step 3: If we get here, all passed!** The walk exits uniformly at all edges. ✓
 
-See the [complete test code](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L64-L107).
+See the [complete test code](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L61-L102).
 
 ---
 
@@ -300,10 +311,10 @@ pytest test_random_walk.py -v
 
 Expected output:
 ```
-test_correct_version_directional_balance PASSED
+test_correct_version_exit_edges PASSED
 test_correct_version_horizontal_symmetry PASSED
 test_correct_version_vertical_symmetry PASSED
-test_buggy_version_catches_directional_bias FAILED  # ✓ Catches the bug!
+test_buggy_version_catches_exit_bias FAILED  # ✓ Catches the bug!
 
 3 passed, 1 failed
 ```
@@ -379,7 +390,7 @@ Great for investigating warnings or tuning validation strategies.
 ### [`random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/random_walk.py)
 The simulation implementation:
 - `Grid` class - Simple 2D grid for tracking visits
-- `fill_grid(grid, moves)` - Random walk that returns (steps, direction_counts)
+- `fill_grid(grid, moves)` - Random walk that returns (steps, final_x, final_y)
 - `CORRECT_MOVES` and `BUGGY_MOVES` constants
 - Command-line interface for running single simulations
 
@@ -391,10 +402,10 @@ python random_walk.py --seed 42 --size 11
 ### [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py)
 Comprehensive test suite with:
 - Four test functions validating different statistical properties
-- Examples of using `fuzzy_assert_proportion()`
-- Comments explaining each step
+- Examples of using `fuzzy_assert_proportion()` with exit locations
+- Tests check where walks exit rather than tracking internal moves
 
-The tests demonstrate: observation → aggregation → fuzzy assertion.
+Simple observation strategy: where did the walker end up?
 
 ---
 
@@ -528,9 +539,9 @@ See the [Vivarium research docs](https://vivarium-research.readthedocs.io/en/lat
 
 ---
 
-## A Challenge: Can You Find the Bug Without Observing Directions?
+## A Challenge: Can You Find the Bug With Even Simpler Observations?
 
-The tests above track individual direction counts. But what if we didn't instrument our code that way? **Can you detect the directional bias using only the grid visit counts?**
+The tests above observe exit locations. But **can you detect the bug using only the grid visit counts?**
 
 This is Greg Wilson's original challenge: find a statistical property of the grid itself that differs between correct and buggy versions.
 
@@ -539,8 +550,9 @@ Some ideas to explore:
 - Are edge cells visited at different rates?
 - Does the center-to-edge gradient change?
 - What about the variance in visit counts?
+- Can you detect the bias without even tracking final positions?
 
-Try implementing a test that catches the bug without looking at `direction_counts`. It's harder than it seems!
+Try implementing a test that catches the bug using only the `grid` object returned after the walk. It's harder than it seems!
 
 ---
 
