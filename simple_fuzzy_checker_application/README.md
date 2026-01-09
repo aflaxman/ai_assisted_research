@@ -184,7 +184,7 @@ target_proportion=0.25  # Expect exactly 25%
 target_proportion=(0.23, 0.27)  # Expect 25% ± 2%
 ```
 
-The interval form is more realistic for most simulations since theoretical values often have inherent uncertainty.
+The interval form is more common in my simulations where it is harder to derive expected values precisely.
 
 ### What Happens Under the Hood
 
