@@ -4,7 +4,7 @@
 
 ## The Problem: How Do You Test Randomized Algorithms?
 
-Imagine you're writing a spatial simulation—a random walk on a grid, an agent-based model, or a Monte Carlo simulation. You run your code and it produces output. Then you run it again and get *different* output. That's expected! It's random. But here's the challenge:
+Imagine you're using computer simulation in your research, like an agent-based model or a Monte Carlo simulation. You run your code and it produces output. Then you run it again and get *different* output. That's expected! It's random. But here's the challenge:
 
 **How do you know your "random" behavior is actually correct?**
 
