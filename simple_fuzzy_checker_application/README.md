@@ -120,7 +120,7 @@ A typical fuzzy check of a randomized computation follows this simple pattern:
 Gather statistics by running your simulation hundreds or thousands of times:
 ```python
 for i in range(1000):
-    random.seed(seed_start + i)
+    random.seed(seed_start + i)  # set random seed for reproducibility, but also change it for each replication
     result = run_simulation()
     # Track what happened
 ```
