@@ -187,12 +187,12 @@ from vivarium_testing_utils import FuzzyChecker
 
 checker = FuzzyChecker()
 
-# Example: Validate that ~25% of moves go left
+# Example: Validate that ~25% of walks exit at left edge
 checker.fuzzy_assert_proportion(
-    observed_numerator=1506,      # We saw 1506 left moves
-    observed_denominator=5892,    # Out of 5892 total moves
+    observed_numerator=254,       # 254 walks exited left
+    observed_denominator=1000,    # Out of 1000 total walks
     target_proportion=(0.23, 0.27),  # We expect 23%-27%
-    name="left_moves_proportion"
+    name="left_exit_proportion"
 )
 # If this passes, there's substantial evidence of no bug ✓
 ```
@@ -231,26 +231,28 @@ The interval form is more common in my simulations where it is harder to derive 
 
 ### Example Output When Bug is Caught
 
-From our [buggy test](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L279-L362):
+From our [buggy test](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L185-L227):
 
 ```python
-# Up moves: we observed ~50%, expected ~25%
+# Buggy version exits at left edge only 3% of the time (expected 25%)
 fuzzy_checker.fuzzy_assert_proportion(
-    observed_numerator=4884,  # 50.4% of moves
-    observed_denominator=9696,
+    observed_numerator=30,    # Only 30 left exits
+    observed_denominator=1000,  # Out of 1000 walks
     target_proportion=(0.23, 0.27),
-    name="buggy_up_moves_proportion",
+    name="buggy_left_exit_proportion",
 )
-# Result: AssertionError with Bayes factor = 6.9 × 10⁸⁷
+# Result: AssertionError with Bayes factor = 2.05 × 10⁵⁷
 ```
 
 The output:
 ```
-AssertionError: buggy_up_moves_proportion value 0.504 is significantly
-greater than expected, bayes factor = 6.90011e+87
+AssertionError: buggy_left_exit_proportion value 0.03 is significantly
+less than expected, bayes factor = 2.0516e+57
 ```
 
 That's not just "statistically significant"—it's **astronomically decisive** evidence of a bug!
+
+Why? The buggy version can move up twice but never down, so almost all walks (94.6%) exit at the top edge. This dramatically reduces exits at other edges.
 
 ---
 
@@ -330,10 +332,10 @@ All three should pass, demonstrating that the unbiased random walk passes statis
 ### See the Bug Get Caught
 
 ```bash
-pytest test_random_walk.py::test_buggy_version_catches_directional_bias -v
+pytest test_random_walk.py::test_buggy_version_catches_exit_bias -v
 ```
 
-Watch the Bayes factor explode to 10⁸⁷ when checking the "down moves" proportion!
+Watch the Bayes factor explode to 10⁵⁷ when checking left exit proportions!
 
 ---
 
@@ -358,14 +360,14 @@ The directional bias bug is hard to spot:
 - Individual runs seem fine ✓
 - But aggregate behavior is wrong! ✗
 
-Fuzzy checking catches it decisively with Bayes factor > 10⁸⁷.
+Fuzzy checking catches it decisively with Bayes factor > 10⁵⁷.
 
 ### 3. Multiple Properties for Robustness
 We test several statistical properties (see [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py)):
 
-- **Directional balance**: Each direction ≈ 25% ([lines 96-172](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L96-L172))
-- **Horizontal symmetry**: Left ≈ 50% of horizontal moves ([lines 175-224](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L175-L224))
-- **Vertical symmetry**: Up ≈ 50% of vertical moves ([lines 227-271](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L227-L271))
+- **Exit edge balance**: Each edge ≈ 25% ([lines 64-105](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L64-L105))
+- **Horizontal symmetry**: Left ≈ 50% of horizontal exits ([lines 108-141](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L108-L141))
+- **Vertical symmetry**: Top ≈ 50% of vertical exits ([lines 144-177](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L144-L177))
 
 Different bugs break different properties. Testing multiple properties catches more bugs.
 
