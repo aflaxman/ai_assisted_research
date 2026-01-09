@@ -88,7 +88,7 @@ uv pip install -r requirements.txt
 python -c "from vivarium_testing_utils import FuzzyChecker; print('✓ FuzzyChecker imported successfully')"
 
 # Run the demo visualization
-python demo.py --size 11 --runs 200
+python random_walk.py demo --size 11 --runs 200
 ```
 
 You should see output like:
@@ -116,34 +116,68 @@ Down moves in buggy version:   0
 
 A typical fuzzy check of a randomized computation follows this simple pattern:
 
-### 1. Run Many Simulations
-Gather statistics by running your simulation hundreds or thousands of times:
+### 1. Run Many Simulations & Count Events
+Gather statistics by running your simulation many times and observing what happens:
+
 ```python
-for i in range(1000):
-    random.seed(seed_start + i)  # set random seed for reproducibility, but also change it for each replication
-    result = run_simulation()
-    # Track what happened
+from collections import Counter
+import random
+from random_walk import Grid
+
+grid = Grid(size=11)
+num_runs = 1000
+direction_counts = Counter()  # Track counts for each direction
+
+# Run many simulations and observe what happens
+for i in range(num_runs):
+    random.seed(2000 + i)
+    grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
+
+    # Start at center
+    center = grid.size // 2
+    size_1 = grid.size - 1
+    x, y = center, center
+
+    # The CORRECT moves list
+    moves = [[-1, 0], [1, 0], [0, -1], [0, 1]]  # left, right, up, down
+
+    # Walk until we hit an edge
+    while (x != 0) and (y != 0) and (x != size_1) and (y != size_1):
+        grid[x, y] += 1
+
+        # Pick a random move
+        move = random.choice(moves)
+        x += move[0]
+        y += move[1]
+
+        # OBSERVE: Track which direction we moved
+        if move == [-1, 0]:
+            direction_counts["left"] += 1
+        elif move == [1, 0]:
+            direction_counts["right"] += 1
+        elif move == [0, -1]:
+            direction_counts["up"] += 1
+        elif move == [0, 1]:
+            direction_counts["down"] += 1
+
+total_moves = sum(direction_counts.values())
+# Now we have: left_moves, right_moves, up_moves, down_moves, and total_moves
 ```
 
-### 2. Count Events
-Identify the numerator (successes) and denominator (opportunities):
-```python
-left_moves = 245        # How many moves went left
-total_moves = 980       # Total moves in all directions
-```
+The key is the **OBSERVE** comment—this is where you track the statistical property you care about.
 
-### 3. Assert with Bayes Factors
+### 2. Assert with Bayes Factors
 Use `fuzzy_assert_proportion()` to validate:
 ```python
 fuzzy_checker.fuzzy_assert_proportion(
-    observed_numerator=left_moves,       # Count of events
-    observed_denominator=total_moves,    # Total opportunities
-    target_proportion=(0.23, 0.27),      # Expected range: 25% ± 2%
-    name="left_moves_proportion"         # For diagnostics
+    observed_numerator=direction_counts["left"],  # Count of events
+    observed_denominator=total_moves,             # Total opportunities
+    target_proportion=(0.23, 0.27),               # Expected range: 25% ± 2%
+    name="left_moves_proportion"                  # For diagnostics
 )
 ```
 
-### 4. Let Bayesian Inference Decide
+### 3. Let Bayesian Inference Decide
 - If the observed proportion matches the target → Bayes factor is low → Test PASSES
 - If there's a systematic bias → Bayes factor is high → Test FAILS with evidence quantification
 
@@ -206,7 +240,7 @@ The interval form is more common in my simulations where it is harder to derive 
 
 ### Example Output When Bug is Caught
 
-From our [buggy test](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L333-L391):
+From our [buggy test](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L279-L362):
 
 ```python
 # Up moves: we observed ~50%, expected ~25%
@@ -231,39 +265,47 @@ That's not just "statistically significant"—it's **astronomically decisive** e
 
 ## A Complete Example: Directional Balance Test
 
-Let's walk through a complete test from [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L225-L279):
+Let's walk through a complete test from [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L96-L172). This test shows the full observation code inline—no hidden helpers!
 
+The test has three clear steps:
+
+**Step 1: Run many simulations and observe** (lines 108-142)
 ```python
-def test_correct_version_directional_balance(fuzzy_checker):
-    """
-    Validate that all four directions occur with equal probability.
+direction_counts = Counter()
 
-    In an unbiased 2D random walk, each direction should occur ~25% of the time.
-    """
-    grid = Grid(size=11)
-    num_runs = 1000
+for i in range(num_runs):
+    random.seed(2000 + i)
+    # ... setup grid ...
 
-    # STEP 1: Gather statistics by running many simulations
-    counts = track_moves(grid, CORRECT_MOVES, num_runs, seed_start=2000)
-    total_moves = sum(counts.values())
+    moves = [[-1, 0], [1, 0], [0, -1], [0, 1]]  # left, right, up, down
 
-    print(f"Total moves: {total_moves}")
-    print(f"Direction breakdown: {dict(counts)}")
-    # Output: {'left': 1506, 'right': 1452, 'up': 1452, 'down': 1482}
+    while (x != 0) and (y != 0) and (x != size_1) and (y != size_1):
+        move = random.choice(moves)
+        x += move[0]
+        y += move[1]
 
-    # STEP 2: Check each direction using fuzzy checking
-    for direction in ["left", "right", "up", "down"]:
-        fuzzy_checker.fuzzy_assert_proportion(
-            observed_numerator=counts[direction],
-            observed_denominator=total_moves,
-            target_proportion=(0.23, 0.27),  # 25% ± 2%
-            name=f"correct_{direction}_moves_proportion",
-        )
-
-    # STEP 3: If we get here, all directions passed! The walk is unbiased. ✓
+        # OBSERVE: Track which direction we moved
+        if move == [-1, 0]:
+            direction_counts["left"] += 1
+        elif move == [1, 0]:
+            direction_counts["right"] += 1
+        # ... etc
 ```
 
-See the [full implementation](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L117-L169) of `track_moves()` for details on gathering statistics.
+**Step 2: Check each direction with fuzzy assertion** (lines 164-170)
+```python
+for direction in ["left", "right", "up", "down"]:
+    fuzzy_checker.fuzzy_assert_proportion(
+        observed_numerator=direction_counts[direction],
+        observed_denominator=total_moves,
+        target_proportion=(0.23, 0.27),  # 25% ± 2%
+        name=f"correct_{direction}_moves_proportion",
+    )
+```
+
+**Step 3: If we get here, all passed!** The walk is unbiased. ✓
+
+See the [complete test code](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L96-L172) for the full implementation with detailed comments.
 
 ---
 
@@ -278,10 +320,11 @@ pytest test_random_walk.py -v
 Expected output:
 ```
 test_correct_version_directional_balance PASSED
-test_correct_version_left_right_symmetry PASSED
-test_correct_version_up_down_symmetry PASSED
+test_correct_version_horizontal_symmetry PASSED
+test_correct_version_vertical_symmetry PASSED
 test_buggy_version_catches_directional_bias FAILED  # ✓ Catches the bug!
-test_walk_length_scaling PASSED
+
+3 passed, 1 failed
 ```
 
 ### Run Just Correct Version Tests
@@ -328,10 +371,9 @@ Fuzzy checking catches it decisively with Bayes factor > 10⁸⁷.
 ### 3. Multiple Properties for Robustness
 We test several statistical properties (see [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py)):
 
-- **Directional balance**: Each direction ≈ 25% ([lines 225-279](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L225-L279))
-- **Horizontal symmetry**: Left ≈ 50% of horizontal moves ([lines 282-307](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L282-L307))
-- **Vertical symmetry**: Up ≈ 50% of vertical moves ([lines 310-325](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L310-L325))
-- **Scaling relationship**: Steps ∝ (grid size)² ([lines 399-454](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L399-L454))
+- **Directional balance**: Each direction ≈ 25% ([lines 96-172](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L96-L172))
+- **Horizontal symmetry**: Left ≈ 50% of horizontal moves ([lines 175-224](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L175-L224))
+- **Vertical symmetry**: Up ≈ 50% of vertical moves ([lines 227-271](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L227-L271))
 
 Different bugs break different properties. Testing multiple properties catches more bugs.
 
@@ -354,31 +396,26 @@ Great for investigating warnings or tuning validation strategies.
 ## Key Files in This Tutorial
 
 ### [`random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/random_walk.py)
-The simulation code with both correct and buggy implementations:
+The complete simulation code with:
 - `fill_grid(grid)` - Correct unbiased random walk
 - `fill_grid_buggy(grid)` - Buggy version with directional bias
 - `Grid` class - Simple 2D grid for tracking visits
+- `run_demo()` - Visual demonstration of the bug
+- Command-line interface for both simulation and demo
+
+Run the demo:
+```bash
+python random_walk.py demo --size 11 --runs 200
+```
 
 ### [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py)
 Comprehensive test suite demonstrating fuzzy checking patterns:
-- DRY helpers: `track_moves()`, `check_symmetry()`, `categorize_move()`
-- Five test functions showing different statistical validations
+- Observation code fully exposed in each test
+- Four test functions showing different statistical validations
 - Extensive educational comments explaining each step
 - **Start here to understand the pattern!**
 
-### [`demo.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/demo.py)
-Interactive visualization showing the bug:
-```bash
-python demo.py --size 11 --runs 200
-```
-
-Generates ASCII bar charts comparing correct vs buggy versions. Great for visual learners!
-
-### [`RESULTS.md`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/RESULTS.md)
-Detailed findings, test outputs, and key takeaways from running the tutorial.
-
-### [`REFACTORING.md`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/REFACTORING.md)
-Documents the DRY improvements made to eliminate code duplication while maintaining educational clarity. Useful for tutorial authors.
+The tests show the complete pattern from observation → counting → fuzzy assertion.
 
 ---
 
@@ -509,6 +546,38 @@ You might wonder: "Why not just use a χ² test or t-test?"
 4. **Interpretable**: "Evidence ratio for bug vs no-bug" is intuitive
 
 See the [Vivarium research docs](https://vivarium-research.readthedocs.io/en/latest/model_design/vivarium_features/automated_v_and_v/index.html#fuzzy-checking) for more on the statistical methodology.
+
+---
+
+## Exercises: Deepen Your Understanding
+
+Ready to experiment? Try these exercises to build intuition about fuzzy checking:
+
+### 1. Adjust Sensitivity
+Change the target interval in `test_random_walk.py` from `(0.23, 0.27)` to `(0.20, 0.30)`.
+- Do the tests still catch the bug?
+- What happens to the Bayes factors?
+- What does this teach you about uncertainty intervals?
+
+### 2. Sample Size Exploration
+Reduce `num_runs` from 1000 to 100 in the directional balance test.
+- What happens to the Bayes factors?
+- Do tests become inconclusive?
+- How many runs do you need for decisive evidence?
+
+### 3. Create a Subtle Bug
+Modify the moves list to `[[-1, 0], [1, 0], [1, 0], [0, -1], [0, 1]]` (two right moves instead of two up moves).
+- Does fuzzy checking catch this subtler 33% vs 25% bias?
+- How does the Bayes factor compare to the up/down bug?
+- What does this reveal about detection power?
+
+### 4. Validate New Properties
+Write a new test that validates:
+- The center cell is visited most often
+- The walk forms a roughly circular distribution
+- The total path length scales as (grid size)²
+
+**Hint**: For the center cell test, compare `grid[center, center]` to the average of edge cells using `fuzzy_assert_proportion()`.
 
 ---
 

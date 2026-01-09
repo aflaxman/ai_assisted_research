@@ -14,7 +14,7 @@ How do you test stochastic code? Traditional assertions fail because:
 
 The Bug
 -------
-The original implementation has a directional bias bug (see fill_grid_buggy):
+The buggy implementation has a directional bias:
     moves = [[-1, 0], [1, 0], [0, -1], [0, -1]]  # OOPS! Two "up" moves
 
 This should be:
@@ -34,6 +34,7 @@ import argparse
 import csv
 import io
 import random
+from collections import Counter
 
 
 class Grid:
@@ -60,19 +61,6 @@ class Grid:
         output = io.StringIO()
         csv.writer(output).writerows(self.grid)
         return output.getvalue()
-
-
-def cmdline_args():
-    """Parse command-line arguments for standalone execution."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--seed", type=int, required=True, help="RNG seed")
-    parser.add_argument("--size", type=int, required=True, help="grid size")
-    parser.add_argument(
-        "--buggy",
-        action="store_true",
-        help="Use buggy version with directional bias",
-    )
-    return parser.parse_args()
 
 
 def fill_grid_buggy(grid):
@@ -161,17 +149,174 @@ def run_simulation(size, seed, buggy=False):
     return grid, num_steps
 
 
-if __name__ == "__main__":
-    # Allow standalone execution for manual exploration
-    args = cmdline_args()
-    random.seed(args.seed)
-    grid = Grid(args.size)
+# ==============================================================================
+# Demo Visualization
+# ==============================================================================
 
-    if args.buggy:
-        steps = fill_grid_buggy(grid)
-        print(f"BUGGY VERSION: Took {steps} steps")
+
+def visualize_direction_distribution(counts, total, title):
+    """Create a simple ASCII bar chart of direction proportions."""
+    print(f"\n{title}")
+    print("=" * 60)
+
+    for direction in ["left", "right", "up", "down"]:
+        count = counts.get(direction, 0)
+        proportion = count / total if total > 0 else 0
+        bar_length = int(proportion * 50)  # Scale to 50 chars max
+        bar = "█" * bar_length
+
+        print(f"{direction:>6}: {bar} {proportion:.1%} ({count:,} moves)")
+
+    print(f"Total moves: {total:,}\n")
+
+
+def run_demo(size, num_runs, seed_start=1000):
+    """
+    Run both versions and compare their directional distributions.
+
+    This demonstrates the bug visually by tracking which direction each
+    move went and displaying the results as ASCII bar charts.
+    """
+    print(f"\nRunning {num_runs} random walks on a {size}x{size} grid...\n")
+
+    # Track correct version
+    correct_counts = Counter()
+    grid = Grid(size)
+
+    for i in range(num_runs):
+        random.seed(seed_start + i)
+        grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
+
+        center = grid.size // 2
+        size_1 = grid.size - 1
+        x, y = center, center
+
+        moves = [[-1, 0], [1, 0], [0, -1], [0, 1]]  # Correct
+
+        while (x != 0) and (y != 0) and (x != size_1) and (y != size_1):
+            grid[x, y] += 1
+            move = random.choice(moves)
+            x += move[0]
+            y += move[1]
+
+            # Track which direction we moved
+            if move == [-1, 0]:
+                correct_counts["left"] += 1
+            elif move == [1, 0]:
+                correct_counts["right"] += 1
+            elif move == [0, -1]:
+                correct_counts["up"] += 1
+            elif move == [0, 1]:
+                correct_counts["down"] += 1
+
+    # Track buggy version
+    buggy_counts = Counter()
+
+    for i in range(num_runs):
+        random.seed(seed_start + i)  # Same seeds for fair comparison
+        grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
+
+        center = grid.size // 2
+        size_1 = grid.size - 1
+        x, y = center, center
+
+        moves = [[-1, 0], [1, 0], [0, -1], [0, -1]]  # BUGGY!
+
+        while (x != 0) and (y != 0) and (x != size_1) and (y != size_1):
+            grid[x, y] += 1
+            move = random.choice(moves)
+            x += move[0]
+            y += move[1]
+
+            # Track which direction we moved
+            if move == [-1, 0]:
+                buggy_counts["left"] += 1
+            elif move == [1, 0]:
+                buggy_counts["right"] += 1
+            elif move == [0, -1]:
+                buggy_counts["up"] += 1
+
+    # Display results
+    correct_total = sum(correct_counts.values())
+    buggy_total = sum(buggy_counts.values())
+
+    visualize_direction_distribution(
+        correct_counts, correct_total, "✓ CORRECT VERSION - Unbiased Random Walk"
+    )
+
+    visualize_direction_distribution(
+        buggy_counts, buggy_total, "✗ BUGGY VERSION - Directional Bias!"
+    )
+
+    # Highlight the smoking gun
+    print("🔍 THE SMOKING GUN:")
+    print("=" * 60)
+    print(f"Down moves in correct version: {correct_counts['down']:,}")
+    print(f"Down moves in buggy version:   {buggy_counts.get('down', 0):,}")
+    print(f"\nUp moves in correct version:   {correct_counts['up']:,}")
+    print(f"Up moves in buggy version:     {buggy_counts['up']:,}")
+    print("\nThe bug: walker can move up but NEVER down! 🐛")
+    print("=" * 60)
+
+
+# ==============================================================================
+# Command Line Interface
+# ==============================================================================
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Random walk simulation and visualization"
+    )
+
+    subparsers = parser.add_subparsers(dest="command", help="Command to run")
+
+    # Run a single simulation
+    run_parser = subparsers.add_parser("run", help="Run a single simulation")
+    run_parser.add_argument("--seed", type=int, required=True, help="RNG seed")
+    run_parser.add_argument("--size", type=int, required=True, help="grid size")
+    run_parser.add_argument(
+        "--buggy",
+        action="store_true",
+        help="Use buggy version with directional bias",
+    )
+
+    # Visualize the bug
+    demo_parser = subparsers.add_parser("demo", help="Visualize the bug")
+    demo_parser.add_argument(
+        "--size", type=int, default=11, help="Grid size (default: 11)"
+    )
+    demo_parser.add_argument(
+        "--runs", type=int, default=100, help="Number of walks (default: 100)"
+    )
+    demo_parser.add_argument(
+        "--seed", type=int, default=1000, help="Starting random seed (default: 1000)"
+    )
+
+    args = parser.parse_args()
+
+    if args.command == "run":
+        random.seed(args.seed)
+        grid = Grid(args.size)
+
+        if args.buggy:
+            steps = fill_grid_buggy(grid)
+            print(f"BUGGY VERSION: Took {steps} steps")
+        else:
+            steps = fill_grid(grid)
+            print(f"CORRECT VERSION: Took {steps} steps")
+
+        print(grid)
+
+    elif args.command == "demo":
+        run_demo(args.size, args.runs, args.seed)
+        print("\n💡 TIP: Run the fuzzy checker tests to see how Bayesian statistics")
+        print("   can catch this bug automatically:")
+        print("   pytest test_random_walk.py -v\n")
+
     else:
-        steps = fill_grid(grid)
-        print(f"CORRECT VERSION: Took {steps} steps")
+        parser.print_help()
 
-    print(grid)
+
+if __name__ == "__main__":
+    main()
