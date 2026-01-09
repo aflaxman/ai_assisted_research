@@ -1,6 +1,6 @@
 # Testing Stochastic Simulations: Bayesian Fuzzy Checking in Python
 
-*A hands-on guide to catching subtle bugs in spatial simulations using rigorous statistical methods*
+*A hands-on guide to catching simulations bugs with automated tests*
 
 ## The Problem: How Do You Test Randomized Algorithms?
 
