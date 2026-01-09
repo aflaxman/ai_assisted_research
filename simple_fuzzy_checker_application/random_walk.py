@@ -5,29 +5,9 @@ Random Walk Simulation on a 2D Grid
 This module demonstrates a classic spatial simulation: a random walker starting
 at the center of a grid and moving randomly until it reaches an edge.
 
-The Challenge
--------------
-How do you test stochastic code? Traditional assertions fail because:
-1. Random walks produce different output each time
-2. Statistical properties only emerge in aggregate
-3. Bugs often create subtle biases rather than obvious failures
-
-The Bug
--------
-The buggy implementation has a directional bias:
-    moves = [[-1, 0], [1, 0], [0, -1], [0, -1]]  # OOPS! Two "up" moves
-
-This should be:
-    moves = [[-1, 0], [1, 0], [0, -1], [0, 1]]   # left, right, up, down
-
-The walker can move left, right, and up (twice as likely), but never down.
-Traditional unit tests miss this because the code "works"—it runs without errors
-and produces plausible-looking output. Only statistical analysis reveals the bias.
-
-Fuzzy Checking to the Rescue
------------------------------
-See test_random_walk.py for how we use Bayesian hypothesis testing to catch
-this bug without arbitrary thresholds or p-value fishing.
+Following the pattern from Greg Wilson's blog post, we use a Grid class and
+a fill_grid function that takes moves as a parameter, making it easy to test
+with both correct and buggy move sets.
 """
 
 import argparse
@@ -63,90 +43,57 @@ class Grid:
         return output.getvalue()
 
 
-def fill_grid_buggy(grid):
+def fill_grid(grid, moves):
     """
-    Fill grid with a random walk starting from center (BUGGY VERSION).
+    Fill grid with a random walk starting from center.
 
-    This version has a subtle bug: the moves list contains [0, -1] twice,
-    meaning the walker can move up twice as often but never down. This creates
-    a directional bias that's hard to spot by eye but shows up in statistics.
-
-    Returns:
-        int: Number of steps taken before reaching boundary
-    """
-    # THE BUG: [0, -1] appears twice, [0, 1] is missing
-    moves = [[-1, 0], [1, 0], [0, -1], [0, -1]]  # left, right, up, up (!)
-
-    center = grid.size // 2
-    size_1 = grid.size - 1
-    x, y = center, center
-    num = 0
-
-    # Walk until we hit an edge (not including edges in the walk)
-    while (x != 0) and (y != 0) and (x != size_1) and (y != size_1):
-        grid[x, y] += 1  # Mark this cell as visited
-        num += 1
-        m = random.choice(moves)  # Pick random direction
-        x += m[0]
-        y += m[1]
-
-    return num
-
-
-def fill_grid(grid):
-    """
-    Fill grid with a random walk starting from center (CORRECT VERSION).
-
-    The walker starts at the center and takes random steps in one of four
-    directions (left, right, up, down) with equal probability. The walk
-    continues until it reaches a boundary cell.
-
-    This is an unbiased random walk—each direction has exactly 25% probability.
-
-    Returns:
-        int: Number of steps taken before reaching boundary
-    """
-    # CORRECT: All four orthogonal directions with equal probability
-    moves = [[-1, 0], [1, 0], [0, -1], [0, 1]]  # left, right, up, down
-
-    center = grid.size // 2
-    size_1 = grid.size - 1
-    x, y = center, center
-    num = 0
-
-    # Walk until we hit an edge (not including edges in the walk)
-    while (x != 0) and (y != 0) and (x != size_1) and (y != size_1):
-        grid[x, y] += 1  # Mark this cell as visited
-        num += 1
-        m = random.choice(moves)  # Pick random direction
-        x += m[0]
-        y += m[1]
-
-    return num
-
-
-def run_simulation(size, seed, buggy=False):
-    """
-    Run a single random walk simulation.
+    This function follows Greg Wilson's pattern - it takes the moves list
+    as a parameter so we can test with different move sets (correct or buggy).
 
     Args:
-        size: Grid size (size x size)
-        seed: Random seed for reproducibility
-        buggy: If True, use buggy version with directional bias
+        grid: Grid object to fill
+        moves: List of [dx, dy] moves, e.g., [[-1, 0], [1, 0], [0, -1], [0, 1]]
 
     Returns:
-        tuple: (grid, num_steps) where grid is the Grid object and
-               num_steps is the walk length
+        tuple: (num_steps, direction_counts) where:
+            - num_steps: Number of steps taken before reaching boundary
+            - direction_counts: Counter with keys 'left', 'right', 'up', 'down'
     """
-    random.seed(seed)
-    grid = Grid(size)
+    center = grid.size // 2
+    size_1 = grid.size - 1
+    x, y = center, center
+    num = 0
 
-    if buggy:
-        num_steps = fill_grid_buggy(grid)
-    else:
-        num_steps = fill_grid(grid)
+    # Track which direction each move went
+    direction_counts = Counter()
 
-    return grid, num_steps
+    # Walk until we hit an edge
+    while (x != 0) and (y != 0) and (x != size_1) and (y != size_1):
+        grid[x, y] += 1
+        num += 1
+
+        # Pick random direction
+        m = random.choice(moves)
+        x += m[0]
+        y += m[1]
+
+        # OBSERVE: Track which direction we moved
+        # This is the key observation code that tests will use!
+        if m == [-1, 0]:
+            direction_counts["left"] += 1
+        elif m == [1, 0]:
+            direction_counts["right"] += 1
+        elif m == [0, -1]:
+            direction_counts["up"] += 1
+        elif m == [0, 1]:
+            direction_counts["down"] += 1
+
+    return num, direction_counts
+
+
+# Standard move sets for testing
+CORRECT_MOVES = [[-1, 0], [1, 0], [0, -1], [0, 1]]  # left, right, up, down
+BUGGY_MOVES = [[-1, 0], [1, 0], [0, -1], [0, -1]]   # left, right, up, up (!)
 
 
 # ==============================================================================
@@ -172,89 +119,52 @@ def visualize_direction_distribution(counts, total, title):
 
 def run_demo(size, num_runs, seed_start=1000):
     """
-    Run both versions and compare their directional distributions.
+    Run both correct and buggy versions and compare their directional distributions.
 
-    This demonstrates the bug visually by tracking which direction each
-    move went and displaying the results as ASCII bar charts.
+    This demonstrates the bug visually by running many simulations with each
+    move set and displaying the results as ASCII bar charts.
     """
     print(f"\nRunning {num_runs} random walks on a {size}x{size} grid...\n")
 
     # Track correct version
-    correct_counts = Counter()
+    correct_total = Counter()
     grid = Grid(size)
 
     for i in range(num_runs):
         random.seed(seed_start + i)
         grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-        center = grid.size // 2
-        size_1 = grid.size - 1
-        x, y = center, center
-
-        moves = [[-1, 0], [1, 0], [0, -1], [0, 1]]  # Correct
-
-        while (x != 0) and (y != 0) and (x != size_1) and (y != size_1):
-            grid[x, y] += 1
-            move = random.choice(moves)
-            x += move[0]
-            y += move[1]
-
-            # Track which direction we moved
-            if move == [-1, 0]:
-                correct_counts["left"] += 1
-            elif move == [1, 0]:
-                correct_counts["right"] += 1
-            elif move == [0, -1]:
-                correct_counts["up"] += 1
-            elif move == [0, 1]:
-                correct_counts["down"] += 1
+        _, direction_counts = fill_grid(grid, CORRECT_MOVES)
+        correct_total.update(direction_counts)
 
     # Track buggy version
-    buggy_counts = Counter()
+    buggy_total = Counter()
 
     for i in range(num_runs):
         random.seed(seed_start + i)  # Same seeds for fair comparison
         grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-        center = grid.size // 2
-        size_1 = grid.size - 1
-        x, y = center, center
-
-        moves = [[-1, 0], [1, 0], [0, -1], [0, -1]]  # BUGGY!
-
-        while (x != 0) and (y != 0) and (x != size_1) and (y != size_1):
-            grid[x, y] += 1
-            move = random.choice(moves)
-            x += move[0]
-            y += move[1]
-
-            # Track which direction we moved
-            if move == [-1, 0]:
-                buggy_counts["left"] += 1
-            elif move == [1, 0]:
-                buggy_counts["right"] += 1
-            elif move == [0, -1]:
-                buggy_counts["up"] += 1
+        _, direction_counts = fill_grid(grid, BUGGY_MOVES)
+        buggy_total.update(direction_counts)
 
     # Display results
-    correct_total = sum(correct_counts.values())
-    buggy_total = sum(buggy_counts.values())
-
     visualize_direction_distribution(
-        correct_counts, correct_total, "✓ CORRECT VERSION - Unbiased Random Walk"
+        correct_total, sum(correct_total.values()),
+        "✓ CORRECT VERSION - Unbiased Random Walk"
     )
 
     visualize_direction_distribution(
-        buggy_counts, buggy_total, "✗ BUGGY VERSION - Directional Bias!"
+        buggy_total, sum(buggy_total.values()),
+        "✗ BUGGY VERSION - Directional Bias!"
     )
 
     # Highlight the smoking gun
     print("🔍 THE SMOKING GUN:")
     print("=" * 60)
-    print(f"Down moves in correct version: {correct_counts['down']:,}")
-    print(f"Down moves in buggy version:   {buggy_counts.get('down', 0):,}")
-    print(f"\nUp moves in correct version:   {correct_counts['up']:,}")
-    print(f"Up moves in buggy version:     {buggy_counts['up']:,}")
+    print(f"Down moves in correct version: {correct_total['down']:,}")
+    print(f"Down moves in buggy version:   {buggy_total.get('down', 0):,}")
+    print(f"\nUp moves in correct version:   {correct_total['up']:,}")
+    print(f"Up moves in buggy version:     {buggy_total['up']:,}")
     print("\nThe bug: walker can move up but NEVER down! 🐛")
     print("=" * 60)
 
@@ -299,13 +209,12 @@ def main():
         random.seed(args.seed)
         grid = Grid(args.size)
 
-        if args.buggy:
-            steps = fill_grid_buggy(grid)
-            print(f"BUGGY VERSION: Took {steps} steps")
-        else:
-            steps = fill_grid(grid)
-            print(f"CORRECT VERSION: Took {steps} steps")
+        moves = BUGGY_MOVES if args.buggy else CORRECT_MOVES
+        steps, direction_counts = fill_grid(grid, moves)
 
+        version = "BUGGY" if args.buggy else "CORRECT"
+        print(f"{version} VERSION: Took {steps} steps")
+        print(f"Direction counts: {dict(direction_counts)}")
         print(grid)
 
     elif args.command == "demo":
