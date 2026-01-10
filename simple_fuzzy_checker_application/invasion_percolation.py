@@ -46,14 +46,14 @@ class Grid:
         return output.getvalue()
 
 
-def fill_grid_percolation(grid, buggy=False):
+def fill_grid_percolation(grid, buggy=False, depth=10):
     """
     Fill grid using invasion percolation starting from center.
 
-    Algorithm:
-    1. Assign random value to each cell
+    Algorithm (following Greg Wilson's pseudocode):
+    1. Assign random integer (0 to depth) to each cell
     2. Mark center cell as filled
-    3. Find unfilled neighbors of filled cells
+    3. Scan grid to find unfilled neighbors of filled cells
     4. Select neighbor with minimum random value
     5. Mark it as filled
     6. Repeat until boundary is reached
@@ -65,14 +65,15 @@ def fill_grid_percolation(grid, buggy=False):
     Args:
         grid: Grid object to fill
         buggy: If True, use buggy tie-breaking (bias toward 0,0)
+        depth: Maximum random value (values are 0 to depth)
 
     Returns:
         tuple: (num_filled, final_x, final_y) where:
             - num_filled: Number of cells filled
             - final_x, final_y: Position of the boundary cell that was filled
     """
-    # Assign random values to all cells
-    values = [[random.random() for _ in range(grid.size)] for _ in range(grid.size)]
+    # Assign random integer values to all cells
+    values = [[random.randint(0, depth) for _ in range(grid.size)] for _ in range(grid.size)]
 
     center = grid.size // 2
     size_1 = grid.size - 1
