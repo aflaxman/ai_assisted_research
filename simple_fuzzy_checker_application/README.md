@@ -126,7 +126,7 @@ def fill_grid(grid, moves):
     return num, x, y  # Steps taken and final position
 ```
 
-See [`random_walk.py` lines 45-70](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/random_walk.py#L45-L70) for the complete implementation.
+See [`random_walk.py` lines 45-70](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/random_walk.py#L45-L70) for the complete implementation.
 
 ### 2. Test by Calling Your Implementation
 
@@ -178,7 +178,7 @@ No manual threshold tweaking. No p-value interpretation.
 
 ## The Core Method: `fuzzy_assert_proportion()`
 
-The heart of fuzzy checking is the [`fuzzy_assert_proportion()`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L272-L277) method. Here's how it works:
+The heart of fuzzy checking is the [`fuzzy_assert_proportion()`](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L272-L277) method. Here's how it works:
 
 ### Basic Usage
 
@@ -231,7 +231,7 @@ The interval form is more common in my simulations where it is harder to derive 
 
 ### Example Output When Bug is Caught
 
-From our [buggy test](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L185-L227):
+From our [buggy test](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L185-L227):
 
 ```python
 # Buggy version exits at left edge only 3% of the time (expected 25%)
@@ -258,7 +258,7 @@ Why? The buggy version can move up twice but never down, so almost all walks (94
 
 ## A Complete Example: Exit Edge Test
 
-Let's walk through a complete test from [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L61-L102).
+Let's walk through a complete test from [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L61-L102).
 
 **Step 1: Run many simulations and count exit locations**
 ```python
@@ -299,7 +299,7 @@ for edge in ["left", "right", "top", "bottom"]:
 
 **Step 3: If we get here, all passed!** The walk exits uniformly at all edges. ✓
 
-See the [complete test code](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L61-L102).
+See the [complete test code](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L61-L102).
 
 ---
 
@@ -363,11 +363,11 @@ The directional bias bug is hard to spot:
 Fuzzy checking catches it decisively with Bayes factor > 10⁵⁷.
 
 ### 3. Multiple Properties for Robustness
-We test several statistical properties (see [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py)):
+We test several statistical properties (see [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py)):
 
-- **Exit edge balance**: Each edge ≈ 25% ([lines 64-105](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L64-L105))
-- **Horizontal symmetry**: Left ≈ 50% of horizontal exits ([lines 108-141](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L108-L141))
-- **Vertical symmetry**: Top ≈ 50% of vertical exits ([lines 144-177](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py#L144-L177))
+- **Exit edge balance**: Each edge ≈ 25% ([lines 64-105](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L64-L105))
+- **Horizontal symmetry**: Left ≈ 50% of horizontal exits ([lines 108-141](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L108-L141))
+- **Vertical symmetry**: Top ≈ 50% of vertical exits ([lines 144-177](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L144-L177))
 
 Different bugs break different properties. Testing multiple properties catches more bugs.
 
@@ -389,7 +389,7 @@ Great for investigating warnings or tuning validation strategies.
 
 ## Key Files in This Tutorial
 
-### [`random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/random_walk.py)
+### [`random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/random_walk.py)
 The simulation implementation:
 - `Grid` class - Simple 2D grid for tracking visits
 - `fill_grid(grid, moves)` - Random walk that returns (steps, final_x, final_y)
@@ -401,7 +401,7 @@ Run a simulation:
 python random_walk.py --seed 42 --size 11
 ```
 
-### [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/test_random_walk.py)
+### [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py)
 Comprehensive test suite with:
 - Four test functions validating different statistical properties
 - Examples of using `fuzzy_assert_proportion()` with exit locations
