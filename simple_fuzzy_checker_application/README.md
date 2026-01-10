@@ -136,7 +136,7 @@ def fill_grid(grid, moves):
     return num, x, y  # Steps taken and final position
 ```
 
-See [`random_walk.py` lines 45-70](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/random_walk.py#L45-L70) for the complete implementation.
+See [`random_walk.py` lines 45-70](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/random_walk.py#L45-L70) for the complete implementation.
 
 ### 2. Test by Calling Your Implementation
 
@@ -237,7 +237,7 @@ That's **astronomically decisive** evidence of a bug. The buggy version can move
 
 ## Complete Test Example
 
-See [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L61-L102) for the full implementation following the pattern above.
+See [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/test_random_walk.py#L46-L88) for the full implementation following the pattern above.
 
 ---
 
@@ -283,11 +283,11 @@ Watch the Bayes factor explode to 10⁵⁷ when checking left exit proportions!
 The directional bias bug is hard to spot—code runs without errors, output looks reasonable, individual runs seem fine. But aggregate behavior is wrong. Fuzzy checking catches it decisively with Bayes factor > 10⁷⁹.
 
 ### 2. Multiple Properties for Robustness
-We test several statistical properties (see [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py)):
+We test several statistical properties (see [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/test_random_walk.py)):
 
-- **Exit edge balance**: Each edge ≈ 25% ([lines 64-105](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L64-L105))
-- **Horizontal symmetry**: Left ≈ 50% of horizontal exits ([lines 108-141](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L108-L141))
-- **Vertical symmetry**: Top ≈ 50% of vertical exits ([lines 144-177](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L144-L177))
+- **Exit edge balance**: Each edge ≈ 25% ([lines 46-88](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/test_random_walk.py#L46-L88))
+- **Horizontal symmetry**: Left ≈ 50% of horizontal exits ([lines 90-124](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/test_random_walk.py#L90-L124))
+- **Vertical symmetry**: Top ≈ 50% of vertical exits ([lines 126-160](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/test_random_walk.py#L126-L160))
 
 Different bugs break different properties. Testing multiple properties catches more bugs.
 
@@ -295,7 +295,7 @@ Different bugs break different properties. Testing multiple properties catches m
 
 ## Key Files in This Tutorial
 
-### [`random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/random_walk.py)
+### [`random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/random_walk.py)
 The simulation implementation:
 - `Grid` class - Simple 2D grid for tracking visits
 - `fill_grid(grid, moves)` - Random walk that returns (steps, final_x, final_y)
@@ -307,7 +307,7 @@ Run a simulation:
 python random_walk.py --seed 42 --size 11
 ```
 
-### [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py)
+### [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/test_random_walk.py)
 Comprehensive test suite with:
 - Four test functions validating different statistical properties
 - Examples of using `fuzzy_assert_proportion()` with exit locations
