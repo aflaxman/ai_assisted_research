@@ -82,7 +82,7 @@ def test_correct_version_exit_edges(fuzzy_checker):
         fuzzy_checker.fuzzy_assert_proportion(
             observed_numerator=edge_counts[edge],
             observed_denominator=num_runs,
-            target_proportion=(0.23, 0.27),  # 25% ± 2%
+            target_proportion=0.25,
             name=f"correct_{edge}_exit_proportion",
         )
 
@@ -118,7 +118,7 @@ def test_correct_version_horizontal_symmetry(fuzzy_checker):
     fuzzy_checker.fuzzy_assert_proportion(
         observed_numerator=edge_counts["left"],
         observed_denominator=horizontal_exits,
-        target_proportion=(0.48, 0.52),  # 50% ± 2%
+        target_proportion=0.5,
         name="correct_left_right_symmetry",
     )
 
@@ -154,7 +154,7 @@ def test_correct_version_vertical_symmetry(fuzzy_checker):
     fuzzy_checker.fuzzy_assert_proportion(
         observed_numerator=edge_counts["top"],
         observed_denominator=vertical_exits,
-        target_proportion=(0.48, 0.52),  # 50% ± 2%
+        target_proportion=0.5,
         name="correct_top_bottom_symmetry",
     )
 
@@ -204,7 +204,7 @@ def test_buggy_version_catches_exit_bias(fuzzy_checker):
     fuzzy_checker.fuzzy_assert_proportion(
         observed_numerator=edge_counts["left"],
         observed_denominator=num_runs,
-        target_proportion=(0.23, 0.27),
+        target_proportion=0.25,
         name="buggy_left_exit_proportion",
     )
 

@@ -2,6 +2,16 @@
 
 *A hands-on guide to catching simulations bugs with automated tests*
 
+## TL;DR
+
+**What you'll learn**: Write rigorous tests for randomized algorithms without arbitrary thresholds.
+
+**What you'll get**: A failing test that catches a subtle directional bias bug with Bayes factor = 10⁷⁹ (decisive evidence).
+
+**The approach**: Run simulations many times, count outcomes, validate proportions using Bayesian hypothesis testing. See [The Fuzzy Checking Pattern](#the-fuzzy-checking-pattern) to get started immediately.
+
+---
+
 ## The Problem: How Do You Test Randomized Algorithms?
 
 Imagine you're using computer simulation in your research, like an agent-based model or a Monte Carlo simulation. You run your code and it produces output. Then you run it again and get *different* output. That's expected! It's random. But here's the challenge:
@@ -156,31 +166,22 @@ for i in range(num_runs):
 
 ### 3. Assert with Bayes Factors
 
-Check if `x == 0` (left edge exit) happens at the expected rate:
-
 ```python
 fuzzy_checker.fuzzy_assert_proportion(
     observed_numerator=edge_counts["left"],
     observed_denominator=num_runs,
-    target_proportion=(0.23, 0.27),  # 25% ± 2%
+    target_proportion=0.25,
     name="left_exit_proportion"
 )
 ```
 
-### 4. Bayesian Inference Decides
-
-- Observed matches target → Low Bayes factor → PASS
-- Systematic bias → High Bayes factor → FAIL with evidence quantification
-
-No manual threshold tweaking. No p-value interpretation.
+See [The Core Method](#the-core-method-fuzzy_assert_proportion) for how Bayesian inference decides pass/fail.
 
 ---
 
 ## The Core Method: `fuzzy_assert_proportion()`
 
-The heart of fuzzy checking is the [`fuzzy_assert_proportion()`](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L272-L277) method. Here's how it works:
-
-### Basic Usage
+This method performs Bayesian hypothesis testing to validate that observed proportions match expectations:
 
 ```python
 from vivarium_testing_utils import FuzzyChecker
@@ -191,115 +192,52 @@ checker = FuzzyChecker()
 checker.fuzzy_assert_proportion(
     observed_numerator=254,       # 254 walks exited left
     observed_denominator=1000,    # Out of 1000 total walks
-    target_proportion=(0.23, 0.27),  # We expect 23%-27%
+    target_proportion=0.25,       # We expect 25%
     name="left_exit_proportion"
 )
-# If this passes, there's substantial evidence of no bug ✓
 ```
 
-### Target Proportion: Two Forms
-
-**Exact value** (no uncertainty):
-```python
-target_proportion=0.25  # Expect exactly 25%
-```
-
-**Uncertainty interval** (95% confidence range):
-```python
-target_proportion=(0.23, 0.27)  # Expect 25% ± 2%
-```
-
-The interval form is more common in my simulations where it is harder to derive expected values precisely.
-
-### What Happens Under the Hood
-
-`fuzzy_assert_proportion()` performs Bayesian hypothesis testing:
+### How It Works
 
 1. **Defines two distributions**:
-   - H₀ (no bug): Beta-binomial based on your target proportion
-   - H₁ (bug): Beta-binomial with broad prior (Jeffreys prior by default)
+   - H₀ (no bug): Based on your target proportion
+   - H₁ (bug): Broad prior (Jeffreys prior by default)
 
-2. **Calculates Bayes factor**:
-   ```
-   BF = P(observed data | bug exists) / P(observed data | no bug)
-   ```
+2. **Calculates Bayes factor**: `BF = P(data | bug) / P(data | no bug)`
 
 3. **Decides**:
    - BF > 100 → Decisive evidence of bug → `AssertionError` raised
    - BF < 0.1 → Substantial evidence of no bug → Test passes silently
-   - 0.1 ≤ BF ≤ 100 → Inconclusive → Warning logged (need more data)
+   - 0.1 ≤ BF ≤ 100 → Inconclusive → Warning (need more data)
 
-### Example Output When Bug is Caught
+### Target Proportions
 
-From our [buggy test](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L185-L227):
-
+Use exact expectations when you know theoretical values:
 ```python
-# Buggy version exits at left edge only 3% of the time (expected 25%)
-fuzzy_checker.fuzzy_assert_proportion(
-    observed_numerator=30,    # Only 30 left exits
-    observed_denominator=1000,  # Out of 1000 walks
-    target_proportion=(0.23, 0.27),
-    name="buggy_left_exit_proportion",
-)
-# Result: AssertionError with Bayes factor = 2.05 × 10⁵⁷
+target_proportion=0.25  # The Bayesian model handles uncertainty
 ```
 
-The output:
+Use intervals only for complex models where exact values are hard to derive:
+```python
+target_proportion=(0.23, 0.27)  # 95% confidence range
+```
+
+### Example: Catching the Bug
+
+The buggy random walk exits left only 3% of the time (expected 25%):
+
 ```
 AssertionError: buggy_left_exit_proportion value 0.03 is significantly
-less than expected, bayes factor = 2.0516e+57
+less than expected, bayes factor = 1.37e+79
 ```
 
-That's not just "statistically significant"—it's **astronomically decisive** evidence of a bug!
-
-Why? The buggy version can move up twice but never down, so almost all walks (94.6%) exit at the top edge. This dramatically reduces exits at other edges.
+That's **astronomically decisive** evidence of a bug. The buggy version can move up twice but never down, so 94.6% of walks exit at the top edge, dramatically reducing other exits.
 
 ---
 
-## A Complete Example: Exit Edge Test
+## Complete Test Example
 
-Let's walk through a complete test from [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L61-L102).
-
-**Step 1: Run many simulations and count exit locations**
-```python
-from random_walk import Grid, fill_grid, CORRECT_MOVES
-
-grid = Grid(size=11)
-num_runs = 1000
-size_1 = grid.size - 1
-edge_counts = Counter()
-
-for i in range(num_runs):
-    random.seed(2000 + i)
-    grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
-
-    _, final_x, final_y = fill_grid(grid, CORRECT_MOVES)
-
-    # Classify which edge the walk exited at
-    if final_x == 0:
-        edge_counts["left"] += 1
-    elif final_x == size_1:
-        edge_counts["right"] += 1
-    elif final_y == 0:
-        edge_counts["top"] += 1
-    else:  # final_y == size_1
-        edge_counts["bottom"] += 1
-```
-
-**Step 2: Validate each edge is ~25%**
-```python
-for edge in ["left", "right", "top", "bottom"]:
-    fuzzy_checker.fuzzy_assert_proportion(
-        observed_numerator=edge_counts[edge],
-        observed_denominator=num_runs,
-        target_proportion=(0.23, 0.27),  # 25% ± 2%
-        name=f"correct_{edge}_exit_proportion",
-    )
-```
-
-**Step 3: If we get here, all passed!** The walk exits uniformly at all edges. ✓
-
-See the [complete test code](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L61-L102).
+See [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L61-L102) for the full implementation following the pattern above.
 
 ---
 
@@ -341,28 +279,10 @@ Watch the Bayes factor explode to 10⁵⁷ when checking left exit proportions!
 
 ## What Makes This Approach Powerful
 
-### 1. No Arbitrary Thresholds
-Traditional approach:
-```python
-assert 0.20 <= proportion <= 0.30  # ❌ Why 0.20? Why 0.30?
-```
+### 1. Catches Subtle Bugs
+The directional bias bug is hard to spot—code runs without errors, output looks reasonable, individual runs seem fine. But aggregate behavior is wrong. Fuzzy checking catches it decisively with Bayes factor > 10⁷⁹.
 
-Fuzzy checking:
-```python
-target_proportion=(0.23, 0.27)  # ✓ Explicit uncertainty interval
-# Bayes factor quantifies evidence automatically
-```
-
-### 2. Catches Subtle Bugs
-The directional bias bug is hard to spot:
-- Code runs without errors ✓
-- Output looks reasonable ✓
-- Individual runs seem fine ✓
-- But aggregate behavior is wrong! ✗
-
-Fuzzy checking catches it decisively with Bayes factor > 10⁵⁷.
-
-### 3. Multiple Properties for Robustness
+### 2. Multiple Properties for Robustness
 We test several statistical properties (see [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py)):
 
 - **Exit edge balance**: Each edge ≈ 25% ([lines 64-105](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L64-L105))
@@ -370,20 +290,6 @@ We test several statistical properties (see [`test_random_walk.py`](https://gith
 - **Vertical symmetry**: Top ≈ 50% of vertical exits ([lines 144-177](https://github.com/aflaxman/ai_assisted_research/blob/303ae23ae46c01a3436fb929ab41abdcf38f0113/simple_fuzzy_checker_application/test_random_walk.py#L144-L177))
 
 Different bugs break different properties. Testing multiple properties catches more bugs.
-
-### 4. Diagnostic Output
-FuzzyChecker saves detailed CSV diagnostics:
-```python
-checker.save_diagnostic_output(output_directory)
-```
-
-Each test records:
-- Observed proportion
-- Target bounds
-- Bayes factor
-- Pass/fail decision
-
-Great for investigating warnings or tuning validation strategies.
 
 ---
 
@@ -456,7 +362,7 @@ def test_my_property(fuzzy_checker):
     fuzzy_checker.fuzzy_assert_proportion(
         observed_numerator=successes,
         observed_denominator=total,
-        target_proportion=(0.28, 0.32),  # Your expected range
+        target_proportion=0.30,  # Your expected proportion
         name="my_property_validation"
     )
 ```
@@ -469,13 +375,13 @@ def test_my_property(fuzzy_checker):
 
 If you get "inconclusive" warnings, increase your number of simulation runs.
 
-### Step 5: Express Uncertainty Appropriately
+### Step 5: Choose Target Proportions Appropriately
 
-- **Known exact values**: `target_proportion=0.5`
-- **Theoretical with uncertainty**: `target_proportion=(0.48, 0.52)`
+- **Known theoretical values**: `target_proportion=0.5` (use exact expectations)
+- **Complex models with uncertainty**: `target_proportion=(0.48, 0.52)` (use intervals)
 - **Empirical estimates**: Use wider intervals `(0.45, 0.55)`
 
-The uncertainty interval represents your 95% confidence about the true value if there's no bug.
+For simple simulations with known theoretical values, use exact expectations. The Bayesian model handles uncertainty naturally. Only use intervals when you genuinely can't derive an exact expected value.
 
 ---
 
@@ -489,7 +395,7 @@ By default, `fuzzy_assert_proportion()` uses a Jeffreys prior for the "bug" hypo
 fuzzy_checker.fuzzy_assert_proportion(
     observed_numerator=count,
     observed_denominator=total,
-    target_proportion=(0.23, 0.27),
+    target_proportion=0.25,
     bug_issue_beta_distribution_parameters=(1.0, 1.0),  # Uniform prior
     name="my_test"
 )
@@ -503,7 +409,7 @@ Adjust sensitivity vs specificity:
 fuzzy_checker.fuzzy_assert_proportion(
     observed_numerator=count,
     observed_denominator=total,
-    target_proportion=(0.23, 0.27),
+    target_proportion=0.25,
     fail_bayes_factor_cutoff=50.0,        # Lower = more sensitive
     inconclusive_bayes_factor_cutoff=0.2,  # Higher = fewer warnings
     name="my_test"
@@ -562,11 +468,11 @@ Try implementing a test that catches the bug using only the `grid` object return
 
 Ready to experiment? Try these exercises to build intuition about fuzzy checking:
 
-### 1. Adjust Sensitivity
-Change the target interval in `test_random_walk.py` from `(0.23, 0.27)` to `(0.20, 0.30)`.
+### 1. Explore Uncertainty Intervals
+Change the target proportion in `test_random_walk.py` from `0.25` to `(0.20, 0.30)`.
 - Do the tests still catch the bug?
 - What happens to the Bayes factors?
-- What does this teach you about uncertainty intervals?
+- What does this teach you about expressing uncertainty explicitly vs letting the Bayesian model handle it?
 
 ### 2. Sample Size Exploration
 Reduce `num_runs` from 1000 to 100 in the directional balance test.
