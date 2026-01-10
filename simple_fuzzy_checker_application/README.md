@@ -252,20 +252,18 @@ pytest test_random_walk.py -v
 Expected output:
 ```
 test_correct_version_exit_edges PASSED
-test_correct_version_horizontal_symmetry PASSED
-test_correct_version_vertical_symmetry PASSED
 test_buggy_version_catches_exit_bias FAILED  # ✓ Catches the bug!
 
-3 passed, 1 failed
+1 passed, 1 failed
 ```
 
-### Run Just Correct Version Tests
+### Run Just Correct Version Test
 
 ```bash
-pytest test_random_walk.py -k "correct" -v
+pytest test_random_walk.py::test_correct_version_exit_edges -v
 ```
 
-All three should pass, demonstrating that the unbiased random walk passes statistical validation.
+This should pass, demonstrating that the unbiased random walk passes statistical validation.
 
 ### See the Bug Get Caught
 
@@ -273,7 +271,7 @@ All three should pass, demonstrating that the unbiased random walk passes statis
 pytest test_random_walk.py::test_buggy_version_catches_exit_bias -v
 ```
 
-Watch the Bayes factor explode to 10⁵⁷ when checking left exit proportions!
+Watch the Bayes factor explode to 10⁷⁹ when checking left exit proportions!
 
 ---
 
@@ -282,14 +280,6 @@ Watch the Bayes factor explode to 10⁵⁷ when checking left exit proportions!
 ### 1. Catches Subtle Bugs
 The directional bias bug is hard to spot—code runs without errors, output looks reasonable, individual runs seem fine. But aggregate behavior is wrong. Fuzzy checking catches it decisively with Bayes factor > 10⁷⁹.
 
-### 2. Multiple Properties for Robustness
-We test several statistical properties (see [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/test_random_walk.py)):
-
-- **Exit edge balance**: Each edge ≈ 25% ([lines 46-88](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/test_random_walk.py#L46-L88))
-- **Horizontal symmetry**: Left ≈ 50% of horizontal exits ([lines 90-124](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/test_random_walk.py#L90-L124))
-- **Vertical symmetry**: Top ≈ 50% of vertical exits ([lines 126-160](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/test_random_walk.py#L126-L160))
-
-Different bugs break different properties. Testing multiple properties catches more bugs.
 
 ---
 
@@ -308,10 +298,10 @@ python random_walk.py --seed 42 --size 11
 ```
 
 ### [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/test_random_walk.py)
-Comprehensive test suite with:
-- Four test functions validating different statistical properties
+Test suite with:
+- One test for the correct version (validates exit edge proportions)
+- One test for the buggy version (demonstrates catching the bug)
 - Examples of using `fuzzy_assert_proportion()` with exit locations
-- Tests check where walks exit rather than tracking internal moves
 
 Simple observation strategy: where did the walker end up?
 
