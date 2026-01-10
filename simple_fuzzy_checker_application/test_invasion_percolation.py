@@ -26,23 +26,13 @@ from invasion_percolation import Grid, fill_grid_percolation
 
 
 @pytest.fixture(scope="session")
-def output_directory(tmp_path_factory):
-    """Create a temporary directory for diagnostic output."""
-    return tmp_path_factory.mktemp("fuzzy_checker_diagnostics")
-
-
-@pytest.fixture(scope="session")
-def fuzzy_checker(output_directory):
+def fuzzy_checker():
     """
     Create a FuzzyChecker instance that persists across all tests.
 
-    The session scope means this fixture is created once and shared by all
-    tests. At the end, it automatically saves diagnostics to CSV.
+    The session scope means this fixture is created once and shared by all tests.
     """
-    checker = FuzzyChecker()
-    yield checker
-    checker.save_diagnostic_output(output_directory)
-    print(f"\nFuzzyChecker diagnostics saved to: {output_directory}")
+    return FuzzyChecker()
 
 
 # =============================================================================
