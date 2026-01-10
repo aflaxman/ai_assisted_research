@@ -4,10 +4,11 @@ Testing Invasion Percolation with Fuzzy Checking
 
 This test suite demonstrates fuzzy checking applied to invasion percolation.
 
-Question: For an unbiased invasion percolation process, should we expect
-exits at each edge with equal probability (25% each)?
+The Bug: When multiple cells have the same minimum random value (ties),
+the buggy version always picks the first one encountered in the scan order
+(x from 0 to size, y from 0 to size), creating a bias toward (0,0).
 
-Let's find out!
+This means buggy version tends to exit more at the left and top edges!
 """
 
 import random
@@ -49,18 +50,12 @@ def fuzzy_checker(output_directory):
 # =============================================================================
 
 
-def test_percolation_exit_edges(fuzzy_checker):
+def test_correct_percolation_exit_edges(fuzzy_checker):
     """
-    Test if invasion percolation exits at each edge with equal probability.
+    Test if correct invasion percolation exits at each edge with equal probability.
 
-    For an unbiased invasion percolation, we might expect about 25% of
-    simulations to exit at each edge:
-    - x == 0 (left edge)
-    - x == size-1 (right edge)
-    - y == 0 (top edge)
-    - y == size-1 (bottom edge)
-
-    But is this actually true? Let's test and see!
+    For correct invasion percolation (random tie-breaking), we expect about
+    25% of simulations to exit at each edge.
     """
     grid = Grid(size=11)
     num_runs = 1000
@@ -71,7 +66,7 @@ def test_percolation_exit_edges(fuzzy_checker):
         random.seed(1000 + i)
         grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-        _, final_x, final_y = fill_grid_percolation(grid)
+        _, final_x, final_y = fill_grid_percolation(grid, buggy=False)
 
         # Classify which edge the percolation reached
         if final_x == 0:
@@ -83,7 +78,7 @@ def test_percolation_exit_edges(fuzzy_checker):
         else:  # final_y == size_1
             edge_counts["bottom"] += 1
 
-    print(f"\nInvasion percolation - Exit edge counts: {dict(edge_counts)}")
+    print(f"\nCorrect percolation - Exit edge counts: {dict(edge_counts)}")
     print(f"Proportions: {[(k, f'{v/num_runs:.3f}') for k, v in edge_counts.items()]}")
 
     # Test hypothesis: each edge should be ~25%
@@ -92,16 +87,16 @@ def test_percolation_exit_edges(fuzzy_checker):
             observed_numerator=edge_counts[edge],
             observed_denominator=num_runs,
             target_proportion=(0.23, 0.27),  # 25% ± 2%
-            name=f"percolation_{edge}_exit_proportion",
+            name=f"correct_percolation_{edge}_exit_proportion",
         )
 
 
-def test_percolation_horizontal_symmetry(fuzzy_checker):
+def test_correct_percolation_horizontal_symmetry(fuzzy_checker):
     """
-    Test if left/right exits are balanced.
+    Test if left/right exits are balanced for correct version.
 
     Among processes that exit horizontally (left or right edge),
-    do we expect about 50% on each side?
+    we expect about 50% on each side.
     """
     grid = Grid(size=11)
     num_runs = 1000
@@ -112,7 +107,7 @@ def test_percolation_horizontal_symmetry(fuzzy_checker):
         random.seed(2000 + i)
         grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-        _, final_x, final_y = fill_grid_percolation(grid)
+        _, final_x, final_y = fill_grid_percolation(grid, buggy=False)
 
         if final_x == 0:
             edge_counts["left"] += 1
@@ -121,7 +116,7 @@ def test_percolation_horizontal_symmetry(fuzzy_checker):
 
     horizontal_exits = edge_counts["left"] + edge_counts["right"]
 
-    print(f"\nInvasion percolation - Horizontal exits: {horizontal_exits}")
+    print(f"\nCorrect percolation - Horizontal exits: {horizontal_exits}")
     print(f"Left: {edge_counts['left']} ({edge_counts['left']/horizontal_exits:.3f})")
     print(f"Right: {edge_counts['right']} ({edge_counts['right']/horizontal_exits:.3f})")
 
@@ -129,16 +124,16 @@ def test_percolation_horizontal_symmetry(fuzzy_checker):
         observed_numerator=edge_counts["left"],
         observed_denominator=horizontal_exits,
         target_proportion=(0.48, 0.52),  # 50% ± 2%
-        name="percolation_left_right_symmetry",
+        name="correct_percolation_left_right_symmetry",
     )
 
 
-def test_percolation_vertical_symmetry(fuzzy_checker):
+def test_correct_percolation_vertical_symmetry(fuzzy_checker):
     """
-    Test if top/bottom exits are balanced.
+    Test if top/bottom exits are balanced for correct version.
 
     Among processes that exit vertically (top or bottom edge),
-    do we expect about 50% on each side?
+    we expect about 50% on each side.
     """
     grid = Grid(size=11)
     num_runs = 1000
@@ -149,7 +144,7 @@ def test_percolation_vertical_symmetry(fuzzy_checker):
         random.seed(3000 + i)
         grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
 
-        _, final_x, final_y = fill_grid_percolation(grid)
+        _, final_x, final_y = fill_grid_percolation(grid, buggy=False)
 
         if final_y == 0:
             edge_counts["top"] += 1
@@ -158,7 +153,7 @@ def test_percolation_vertical_symmetry(fuzzy_checker):
 
     vertical_exits = edge_counts["top"] + edge_counts["bottom"]
 
-    print(f"\nInvasion percolation - Vertical exits: {vertical_exits}")
+    print(f"\nCorrect percolation - Vertical exits: {vertical_exits}")
     print(f"Top: {edge_counts['top']} ({edge_counts['top']/vertical_exits:.3f})")
     print(f"Bottom: {edge_counts['bottom']} ({edge_counts['bottom']/vertical_exits:.3f})")
 
@@ -166,7 +161,57 @@ def test_percolation_vertical_symmetry(fuzzy_checker):
         observed_numerator=edge_counts["top"],
         observed_denominator=vertical_exits,
         target_proportion=(0.48, 0.52),  # 50% ± 2%
-        name="percolation_top_bottom_symmetry",
+        name="correct_percolation_top_bottom_symmetry",
+    )
+
+
+# =============================================================================
+# Tests for BUGGY Version (This should FAIL!)
+# =============================================================================
+
+
+def test_buggy_percolation_catches_bias(fuzzy_checker):
+    """
+    Demonstrate fuzzy checking catching the tie-breaking bug.
+
+    The buggy version biases toward (0,0) when there are ties, so we expect:
+    - Left edge (x=0): MORE than 25% ✗
+    - Right edge (x=size-1): LESS than 25% ✗
+    - Top edge (y=0): MORE than 25% ✗
+    - Bottom edge (y=size-1): LESS than 25% ✗
+
+    Expected: Test fails on left edge with large Bayes factor
+    """
+    grid = Grid(size=11)
+    num_runs = 1000
+    size_1 = grid.size - 1
+    edge_counts = Counter()
+
+    for i in range(num_runs):
+        random.seed(5000 + i)
+        grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
+
+        _, final_x, final_y = fill_grid_percolation(grid, buggy=True)
+
+        if final_x == 0:
+            edge_counts["left"] += 1
+        elif final_x == size_1:
+            edge_counts["right"] += 1
+        elif final_y == 0:
+            edge_counts["top"] += 1
+        else:  # final_y == size_1
+            edge_counts["bottom"] += 1
+
+    print(f"\nBuggy percolation - Exit edge counts: {dict(edge_counts)}")
+    print(f"Proportions: {[(k, f'{v/num_runs:.3f}') for k, v in edge_counts.items()]}")
+
+    # Check if left edge happens the expected 25% of the time
+    # (It should be HIGHER due to bias toward x=0)
+    fuzzy_checker.fuzzy_assert_proportion(
+        observed_numerator=edge_counts["left"],
+        observed_denominator=num_runs,
+        target_proportion=(0.23, 0.27),
+        name="buggy_percolation_left_exit_proportion",
     )
 
 

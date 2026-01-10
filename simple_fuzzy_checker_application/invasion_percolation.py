@@ -2,11 +2,16 @@
 Invasion Percolation Simulation on a 2D Grid
 =============================================
 
-A filled region starts at the center of a grid and grows by randomly
-selecting neighboring cells to fill next, until it reaches an edge.
+A filled region starts at the center of a grid and grows by selecting
+the neighboring cell with minimum random value to fill next, until it
+reaches an edge.
 
 Based on Greg Wilson's testing challenge:
 https://third-bit.com/2025/04/20/a-testing-question/#invasion-percolation
+
+The bug: when there are ties (multiple cells with same minimum value),
+the buggy version picks the first one encountered in the scan (x=0 to size,
+y=0 to size), creating a bias toward (0,0).
 """
 
 import argparse
@@ -41,63 +46,96 @@ class Grid:
         return output.getvalue()
 
 
-def fill_grid_percolation(grid):
+def fill_grid_percolation(grid, buggy=False):
     """
     Fill grid using invasion percolation starting from center.
 
-    The algorithm:
-    1. Start with center cell filled
-    2. Find all neighbors of filled cells (the perimeter)
-    3. Randomly select one neighbor to fill
-    4. Repeat until a boundary cell is filled
+    Algorithm:
+    1. Assign random value to each cell
+    2. Mark center cell as filled
+    3. Find unfilled neighbors of filled cells
+    4. Select neighbor with minimum random value
+    5. Mark it as filled
+    6. Repeat until boundary is reached
+
+    The bug: when multiple neighbors have the same minimum value,
+    buggy version picks first one in scan order (bias toward 0,0),
+    correct version randomly picks among ties.
+
+    Args:
+        grid: Grid object to fill
+        buggy: If True, use buggy tie-breaking (bias toward 0,0)
 
     Returns:
         tuple: (num_filled, final_x, final_y) where:
             - num_filled: Number of cells filled
             - final_x, final_y: Position of the boundary cell that was filled
     """
+    # Assign random values to all cells
+    values = [[random.random() for _ in range(grid.size)] for _ in range(grid.size)]
+
     center = grid.size // 2
     size_1 = grid.size - 1
 
-    # Start by filling the center
+    # Start by marking the center as filled
     grid[center, center] = 1
-    filled = {(center, center)}
     num_filled = 1
 
-    # Track the perimeter (unfilled neighbors of filled cells)
-    perimeter = set()
-
-    def add_neighbors(x, y):
-        """Add unfilled neighbors of (x, y) to perimeter."""
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            nx, ny = x + dx, y + dy
-            if 0 <= nx < grid.size and 0 <= ny < grid.size:
-                if (nx, ny) not in filled and (nx, ny) not in perimeter:
-                    perimeter.add((nx, ny))
-
-    # Initialize perimeter with neighbors of center
-    add_neighbors(center, center)
-
     # Keep filling until we hit a boundary
-    while perimeter:
-        # Randomly select a cell from the perimeter
-        next_cell = random.choice(list(perimeter))
-        perimeter.remove(next_cell)
+    while True:
+        # Find all unfilled cells adjacent to filled cells
+        candidates = []
+        min_val = float('inf')
 
-        x, y = next_cell
-        grid[x, y] = 1
-        filled.add(next_cell)
+        for x in range(grid.size):
+            for y in range(grid.size):
+                # Skip if already filled
+                if grid[x, y] == 1:
+                    continue
+
+                # Check if adjacent to a filled cell
+                is_neighbor = False
+                for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < grid.size and 0 <= ny < grid.size:
+                        if grid[nx, ny] == 1:
+                            is_neighbor = True
+                            break
+
+                if is_neighbor:
+                    val = values[x][y]
+                    if buggy:
+                        # Buggy: keep first encountered minimum (bias toward 0,0)
+                        if val < min_val:
+                            min_val = val
+                            candidates = [(x, y)]
+                        # Note: when val == min_val, we DON'T add it (keeps first)
+                    else:
+                        # Correct: collect all ties
+                        if val < min_val:
+                            min_val = val
+                            candidates = [(x, y)]
+                        elif val == min_val:
+                            candidates.append((x, y))
+
+        if not candidates:
+            raise RuntimeError("No candidates found - percolation failed")
+
+        # Select next cell
+        if buggy:
+            # Buggy version: candidates already contains only first encountered
+            next_x, next_y = candidates[0]
+        else:
+            # Correct version: randomly select among tied candidates
+            next_x, next_y = random.choice(candidates)
+
+        # Fill the selected cell
+        grid[next_x, next_y] = 1
         num_filled += 1
 
         # Check if we hit the boundary
-        if x == 0 or y == 0 or x == size_1 or y == size_1:
-            return num_filled, x, y
-
-        # Add neighbors of newly filled cell to perimeter
-        add_neighbors(x, y)
-
-    # Should never reach here if grid is bounded
-    raise RuntimeError("Percolation failed to reach boundary")
+        if next_x == 0 or next_y == 0 or next_x == size_1 or next_y == size_1:
+            return num_filled, next_x, next_y
 
 
 # ==============================================================================
@@ -111,15 +149,21 @@ def main():
     )
     parser.add_argument("--seed", type=int, required=True, help="RNG seed")
     parser.add_argument("--size", type=int, required=True, help="Grid size")
+    parser.add_argument(
+        "--buggy",
+        action="store_true",
+        help="Use buggy tie-breaking (bias toward 0,0)",
+    )
 
     args = parser.parse_args()
 
     random.seed(args.seed)
     grid = Grid(args.size)
 
-    num_filled, final_x, final_y = fill_grid_percolation(grid)
+    num_filled, final_x, final_y = fill_grid_percolation(grid, buggy=args.buggy)
 
-    print(f"INVASION PERCOLATION: Filled {num_filled} cells")
+    version = "BUGGY" if args.buggy else "CORRECT"
+    print(f"INVASION PERCOLATION ({version}): Filled {num_filled} cells")
     print(f"Final position: ({final_x}, {final_y})")
 
     # Determine which edge was hit
