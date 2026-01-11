@@ -144,7 +144,7 @@ def fill_grid(grid, moves):
     return num, x, y  # Steps taken and final position
 ```
 
-See [`random_walk.py` lines 45-70](https://github.com/aflaxman/ai_assisted_research/blob/09b6989784c3c288db96b65e56797af16cafec3b/simple_fuzzy_checker_application/random_walk.py#L45-L70) for the code in context.
+See [`random_walk.py` lines 45-70](https://github.com/aflaxman/ai_assisted_research/blob/a9b0af31a253415e1da57007772e7c435e6fa2dc/simple_fuzzy_checker_application/random_walk.py#L45-L70) for the code in context.
 
 ### 2. Test by Calling Your Implementation
 
@@ -233,7 +233,7 @@ That's **astronomically decisive** evidence of a bug. The buggy version can move
 
 ## Complete Test Example
 
-See [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/09b6989784c3c288db96b65e56797af16cafec3b/simple_fuzzy_checker_application/test_random_walk.py#L24-L46) for the full implementation following the pattern above.
+See [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/a9b0af31a253415e1da57007772e7c435e6fa2dc/simple_fuzzy_checker_application/test_random_walk.py#L24-L46) for the full implementation following the pattern above.
 
 ---
 
@@ -281,7 +281,7 @@ The directional bias bug is hard to spot—code runs without errors, output look
 
 ## Key Files in This Tutorial
 
-### [`random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/09b6989784c3c288db96b65e56797af16cafec3b/simple_fuzzy_checker_application/random_walk.py)
+### [`random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/a9b0af31a253415e1da57007772e7c435e6fa2dc/simple_fuzzy_checker_application/random_walk.py)
 The simulation implementation:
 - `Grid` class - Simple 2D grid for tracking visits
 - `fill_grid(grid, moves)` - Random walk that returns (steps, final_x, final_y)
@@ -293,7 +293,7 @@ Run a simulation:
 python random_walk.py --seed 42 --size 11
 ```
 
-### [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/09b6989784c3c288db96b65e56797af16cafec3b/simple_fuzzy_checker_application/test_random_walk.py)
+### [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/a9b0af31a253415e1da57007772e7c435e6fa2dc/simple_fuzzy_checker_application/test_random_walk.py)
 Test suite with:
 - One test for the correct version (validates exit edge proportions)
 - One test for the buggy version (demonstrates catching the bug)
