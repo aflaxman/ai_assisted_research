@@ -58,16 +58,16 @@ def fill_grid(grid, moves):
     center = grid.size // 2
     size_1 = grid.size - 1
     x, y = center, center
-    num = 0
+    num_steps = 0
 
     while (x != 0) and (y != 0) and (x != size_1) and (y != size_1):
         grid[x, y] += 1
-        num += 1
+        num_steps += 1
         m = random.choice(moves)
         x += m[0]
         y += m[1]
 
-    return num, x, y
+    return num_steps, x, y
 
 
 # Standard move sets for testing
@@ -103,19 +103,6 @@ def main():
     version = "BUGGY" if args.buggy else "CORRECT"
     print(f"{version} VERSION: Took {steps} steps")
     print(f"Final position: ({final_x}, {final_y})")
-
-    # Determine which edge was hit
-    size_1 = args.size - 1
-    if final_x == 0:
-        edge = "left edge (x=0)"
-    elif final_x == size_1:
-        edge = f"right edge (x={size_1})"
-    elif final_y == 0:
-        edge = "top edge (y=0)"
-    else:
-        edge = f"bottom edge (y={size_1})"
-    print(f"Exited at: {edge}")
-    print(grid)
 
 
 if __name__ == "__main__":

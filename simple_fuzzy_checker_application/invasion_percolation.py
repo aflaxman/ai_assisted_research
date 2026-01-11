@@ -105,19 +105,11 @@ def fill_grid_percolation(grid, buggy=False, depth=10):
 
                 if is_neighbor:
                     val = values[x][y]
-                    if buggy:
-                        # Buggy: keep first encountered minimum (bias toward 0,0)
-                        if val < min_val:
-                            min_val = val
-                            candidates = [(x, y)]
-                        # Note: when val == min_val, we DON'T add it (keeps first)
-                    else:
-                        # Correct: collect all ties
-                        if val < min_val:
-                            min_val = val
-                            candidates = [(x, y)]
-                        elif val == min_val:
-                            candidates.append((x, y))
+                    if val < min_val:
+                        min_val = val
+                        candidates = [(x, y)]
+                    elif val == min_val:
+                        candidates.append((x, y))
 
         if not candidates:
             raise RuntimeError("No candidates found - percolation failed")
@@ -166,19 +158,6 @@ def main():
     version = "BUGGY" if args.buggy else "CORRECT"
     print(f"INVASION PERCOLATION ({version}): Filled {num_filled} cells")
     print(f"Final position: ({final_x}, {final_y})")
-
-    # Determine which edge was hit
-    size_1 = args.size - 1
-    if final_x == 0:
-        edge = "left edge (x=0)"
-    elif final_x == size_1:
-        edge = f"right edge (x={size_1})"
-    elif final_y == 0:
-        edge = "top edge (y=0)"
-    else:
-        edge = f"bottom edge (y={size_1})"
-    print(f"Reached boundary at: {edge}")
-    print(grid)
 
 
 if __name__ == "__main__":

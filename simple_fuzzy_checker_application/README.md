@@ -8,7 +8,15 @@
 
 **What you'll get**: A failing test that catches a subtle directional bias bug with Bayes factor = 10⁷⁹ (decisive evidence).
 
-**The approach**: Run simulations many times, count outcomes, validate proportions using Bayesian hypothesis testing. See [The Fuzzy Checking Pattern](#the-fuzzy-checking-pattern) to get started immediately.
+**The approach**: Run simulations many times, count outcomes, validate proportions using Bayesian hypothesis testing. The heart of this [Fuzzy Checking Pattern](#the-fuzzy-checking-pattern) is this method
+
+```python
+fuzzy_checker.fuzzy_assert_proportion(
+    observed_numerator,
+    observed_denominator,
+    target_proportion,
+)
+```
 
 ---
 
@@ -47,7 +55,7 @@ This is done through **Bayes factors**:
 
 We'll test a simple 2D random walk simulation. The walker starts at the center of a grid and takes random steps (left, right, up, down) until it reaches an edge.
 
-The **correct** implementation:
+The **correct** implementation uses four moves:
 ```python
 moves = [[-1, 0], [1, 0], [0, -1], [0, 1]]  # left, right, up, down
 ```
@@ -101,7 +109,7 @@ python -c "from vivarium_testing_utils import FuzzyChecker; print('✓ FuzzyChec
 python random_walk.py --seed 42 --size 11
 ```
 
-You should see output like:
+You should see output that starts like this:
 ```
 CORRECT VERSION: Took 40 steps
 Final position: (0, 4)
@@ -112,7 +120,7 @@ Exited at: left edge (x=0)
 
 ## The Fuzzy Checking Pattern
 
-We separate simulation code (`random_walk.py`) from test code (`test_random_walk.py`). The simulation returns its natural output; tests aggregate and validate.
+I have separated the simulation code (`random_walk.py`) from the automatic testing code (`test_random_walk.py`). I recommend this for you, too.  The simulation does your science, the tests check if your science has bugs.
 
 ### 1. Write Your Simulation (in `random_walk.py`)
 
@@ -136,46 +144,37 @@ def fill_grid(grid, moves):
     return num, x, y  # Steps taken and final position
 ```
 
-See [`random_walk.py` lines 45-70](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/random_walk.py#L45-L70) for the complete implementation.
+See [`random_walk.py` lines 45-70](https://github.com/aflaxman/ai_assisted_research/blob/df50e38f6c6455d952eb0037824e81472486c0d2/simple_fuzzy_checker_application/random_walk.py#L45-L70) for the code in context.
 
 ### 2. Test by Calling Your Implementation
 
-For an unbiased walk, we expect about 25% of walks to exit at each edge. Run many simulations and count where they exit:
+This random walk is *symmetric*, so I expect 25% of walks to exit at each edge. Let's test that. Run many simulations and count where they exit:
 
 ```python
 from random_walk import Grid, fill_grid, CORRECT_MOVES
 
-grid = Grid(size=11)
 num_runs = 1000
-size_1 = grid.size - 1
-edge_counts = Counter()
+num_left_exits = 0
 
 for i in range(num_runs):
     random.seed(2000 + i)
-    grid.grid = [[0 for _ in range(grid.size)] for _ in range(grid.size)]
+    grid = Grid(size=11)
 
-    _, final_x, final_y = fill_grid(grid, CORRECT_MOVES)
+    num_steps, final_x, final_y = fill_grid(grid, CORRECT_MOVES)
 
-    # Count which edge we exited at
     if final_x == 0:
-        edge_counts["left"] += 1
-    elif final_x == size_1:
-        edge_counts["right"] += 1
-    # ...etc
+        num_left_exits += 1
 ```
 
 ### 3. Assert with Bayes Factors
 
 ```python
-fuzzy_checker.fuzzy_assert_proportion(
+FuzzyChecker().fuzzy_assert_proportion(
     observed_numerator=edge_counts["left"],
     observed_denominator=num_runs,
-    target_proportion=0.25,
-    name="left_exit_proportion"
+    target_proportion=0.25
 )
 ```
-
-See [The Core Method](#the-core-method-fuzzy_assert_proportion) for how Bayesian inference decides pass/fail.
 
 ---
 
@@ -186,14 +185,11 @@ This method performs Bayesian hypothesis testing to validate that observed propo
 ```python
 from vivarium_testing_utils import FuzzyChecker
 
-checker = FuzzyChecker()
-
 # Example: Validate that ~25% of walks exit at left edge
-checker.fuzzy_assert_proportion(
+FuzzyChecker().fuzzy_assert_proportion(
     observed_numerator=254,       # 254 walks exited left
     observed_denominator=1000,    # Out of 1000 total walks
     target_proportion=0.25,       # We expect 25%
-    name="left_exit_proportion"
 )
 ```
 
@@ -335,7 +331,7 @@ from vivarium_testing_utils import FuzzyChecker
 def fuzzy_checker():
     checker = FuzzyChecker()
     yield checker
-    checker.save_diagnostic_output("./diagnostics")
+    checker.save_diagnostic_output("./diagnostics")  # this pattern saves a csv for further inspection
 
 def test_my_property(fuzzy_checker):
     # Run your simulation many times
@@ -365,75 +361,6 @@ def test_my_property(fuzzy_checker):
 
 If you get "inconclusive" warnings, increase your number of simulation runs.
 
-### Step 5: Choose Target Proportions Appropriately
-
-- **Known theoretical values**: `target_proportion=0.5` (use exact expectations)
-- **Complex models with uncertainty**: `target_proportion=(0.48, 0.52)` (use intervals)
-- **Empirical estimates**: Use wider intervals `(0.45, 0.55)`
-
-For simple simulations with known theoretical values, use exact expectations. The Bayesian model handles uncertainty naturally. Only use intervals when you genuinely can't derive an exact expected value.
-
----
-
-## Advanced Topics
-
-### Custom Bug Priors
-
-By default, `fuzzy_assert_proportion()` uses a Jeffreys prior for the "bug" hypothesis. You can customize this:
-
-```python
-fuzzy_checker.fuzzy_assert_proportion(
-    observed_numerator=count,
-    observed_denominator=total,
-    target_proportion=0.25,
-    bug_issue_beta_distribution_parameters=(1.0, 1.0),  # Uniform prior
-    name="my_test"
-)
-```
-
-### Custom Bayes Factor Cutoffs
-
-Adjust sensitivity vs specificity:
-
-```python
-fuzzy_checker.fuzzy_assert_proportion(
-    observed_numerator=count,
-    observed_denominator=total,
-    target_proportion=0.25,
-    fail_bayes_factor_cutoff=50.0,        # Lower = more sensitive
-    inconclusive_bayes_factor_cutoff=0.2,  # Higher = fewer warnings
-    name="my_test"
-)
-```
-
-See the [Vivarium documentation](https://vivarium-research.readthedocs.io/en/latest/model_design/vivarium_features/automated_v_and_v/index.html#sensitivity-and-specificity) for guidance on choosing cutoffs.
-
-### Testing Other Quantities
-
-While this tutorial focuses on proportions, you can validate other quantities:
-- **Means**: Transform to proportion of "above threshold" events
-- **Scaling relationships**: Check if total/expected falls in (0.8, 1.2)
-- **Distributions**: Use multiple proportion tests for different bins
-
----
-
-## Why Bayesian, Not Frequentist?
-
-You might wonder: "Why not just use a χ² test or t-test?"
-
-### Problems with p-values:
-1. **Arbitrary α**: Is 0.05 the right threshold? Why not 0.01 or 0.10?
-2. **No evidence quantification**: p = 0.03 vs p = 0.0001 are both "significant" but very different
-3. **Encourages p-hacking**: Try different thresholds until tests pass
-4. **Can't express uncertainty in targets**: "Expected value is between 23% and 27%" is awkward
-
-### Benefits of Bayes factors:
-1. **No pre-commitment needed**: Cutoffs are conventional (100 = decisive) not arbitrary
-2. **Quantifies evidence**: BF = 1000 vs BF = 10⁶ tells you how strong the evidence is
-3. **Natural uncertainty**: Target intervals map directly to beta distributions
-4. **Interpretable**: "Evidence ratio for bug vs no-bug" is intuitive
-
-See the [Vivarium research docs](https://vivarium-research.readthedocs.io/en/latest/model_design/vivarium_features/automated_v_and_v/index.html#fuzzy-checking) for more on the statistical methodology.
 
 ---
 
@@ -450,11 +377,11 @@ Some ideas to explore:
 - What about the variance in visit counts?
 - Can you detect the bias without even tracking final positions?
 
-Try implementing a test that catches the bug using only the `grid` object returned after the walk. It's harder than it seems!
+Try implementing a test that catches the bug using only the `grid` object returned after the walk. 
 
 ---
 
-## Exercises: Deepen Your Understanding
+## Additional Challenges: Deepen Your Understanding
 
 Ready to experiment? Try these exercises to build intuition about fuzzy checking:
 
@@ -488,18 +415,9 @@ Write a new test that validates:
 
 ## Further Reading
 
-### Primary Resources
 - [Vivarium Testing Utils (GitHub)](https://github.com/ihmeuw/vivarium_testing_utils) - The source package
 - [Vivarium Fuzzy Checking Docs](https://vivarium-research.readthedocs.io/en/latest/model_design/vivarium_features/automated_v_and_v/index.html#fuzzy-checking) - Detailed methodology
 - [Greg Wilson's Testing Question](https://third-bit.com/2025/04/20/a-testing-question/) - The original challenge
-
-### Statistical Background
-- [Bayes Factors (Wikipedia)](https://en.wikipedia.org/wiki/Bayes_factor) - Introduction to Bayesian hypothesis testing
-- [Beta-Binomial Distribution](https://en.wikipedia.org/wiki/Beta-binomial_distribution) - The core distribution used
-
-### Related Techniques
-- [Property-Based Testing](https://hypothesis.works/) - Complementary approach for finding edge cases
-- [Monte Carlo Methods](https://en.wikipedia.org/wiki/Monte_Carlo_method) - Context for stochastic validation
 
 ---
 
@@ -509,9 +427,7 @@ Testing stochastic simulations doesn't have to rely on arbitrary thresholds or m
 
 ✅ Quantifies evidence with Bayes factors
 ✅ Expresses uncertainty naturally
-✅ Catches subtle bugs that traditional tests miss
-✅ Provides diagnostic output for investigation
-✅ Works with any proportion-based statistical property
+✅ Catches subtle bugs that traditional tests may miss
 
 The `vivarium_testing_utils` package makes this approach accessible with a simple, clean API. Whether you're testing random walks, agent-based models, or Monte Carlo simulations, fuzzy checking helps you validate statistical properties with confidence.
 
@@ -524,8 +440,6 @@ This tutorial used a simple random walk where tracking direction counts was stra
 Greg Wilson's blog post includes another example: **[invasion percolation](https://third-bit.com/2025/04/20/a-testing-question/#invasion-percolation)**, where a "filled" region grows by randomly selecting neighboring cells to fill next. The grid patterns are much more complex than a random walk.
 
 **How would you test that?** What statistical properties would you validate? How would you instrument the code to observe the right quantities?
-
-These are open questions. If you have ideas or try implementing fuzzy tests for invasion percolation, I'd love to hear about it! Open an issue or discussion in [this repository](https://github.com/aflaxman/ai_assisted_research/issues).
 
 ---
 
