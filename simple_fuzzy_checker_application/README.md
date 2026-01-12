@@ -148,7 +148,7 @@ def fill_grid(grid, moves):
     return num, x, y  # Steps taken and final position
 ```
 
-See `random_walk.py` lines 45-70 for the code in context.
+See [`random_walk.py` lines 45-70](https://github.com/aflaxman/ai_assisted_research/blob/1fc27f2d70786f91a36eba3602c43b0de8fa7064/simple_fuzzy_checker_application/random_walk.py#L45-L70) for the code in context.
 
 ### 2. Test by Calling Your Implementation
 
@@ -179,6 +179,8 @@ FuzzyChecker().fuzzy_assert_proportion(
     target_proportion=0.25
 )
 ```
+
+See [`test_random_walk.py` lines 24-46](https://github.com/aflaxman/ai_assisted_research/blob/1fc27f2d70786f91a36eba3602c43b0de8fa7064/simple_fuzzy_checker_application/test_random_walk.py#L24-L46) for the complete test implementation.
 
 ---
 
@@ -222,7 +224,7 @@ That's **astronomically decisive** evidence of a bug. The buggy version can move
 
 ## Key Files in This Tutorial
 
-### `random_walk.py`
+### [`random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/1fc27f2d70786f91a36eba3602c43b0de8fa7064/simple_fuzzy_checker_application/random_walk.py)
 The simulation implementation:
 - `Grid` class – Simple 2D grid for tracking visits
 - `fill_grid(grid, moves)` – Random walk that returns (steps, final_x, final_y)
@@ -234,7 +236,7 @@ Run a simulation:
 python random_walk.py --seed 42 --size 11
 ```
 
-### `test_random_walk.py`
+### [`test_random_walk.py`](https://github.com/aflaxman/ai_assisted_research/blob/1fc27f2d70786f91a36eba3602c43b0de8fa7064/simple_fuzzy_checker_application/test_random_walk.py)
 Test suite with:
 - One test for the correct version (validates exit edge proportions)
 - One test for the buggy version (demonstrates catching the bug)
