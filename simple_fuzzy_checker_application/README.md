@@ -4,6 +4,8 @@
 
 *A hands-on guide to catching simulations bugs with automated tests*
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aflaxman/ai_assisted_research/blob/main/simple_fuzzy_checker_application/fuzzy_checking_tutorial.ipynb)
+
 ## TL;DR
 
 **What you'll learn**: Write rigorous tests for randomized algorithms without arbitrary thresholds.
@@ -309,7 +311,7 @@ If you get "inconclusive" warnings, increase your number of simulation runs.
 
 The tests above observe exit locations. But **can you detect the bug using only the grid visit counts?**
 
-This is Greg Wilson's original challenge: find a statistical property of the grid itself that differs between correct and buggy versions.
+This is perhaps Greg Wilson's original challenge: find a statistical property of the grid itself that differs between correct and buggy versions.
 
 Some ideas to explore:
 - Does the distribution of visits differ between quadrants?
@@ -326,25 +328,19 @@ Try implementing a test that catches the bug using only the `grid` object return
 
 Ready to experiment? Try these exercises to build intuition about fuzzy checking:
 
-### 1. Explore Uncertainty Intervals
-Change the target proportion in `test_random_walk.py` from `0.25` to `(0.20, 0.30)`.
-- Do the tests still catch the bug?
-- What happens to the Bayes factors?
-- What does this teach you about expressing uncertainty explicitly vs letting the Bayesian model handle it?
-
-### 2. Sample Size Exploration
+### 1. Sample Size Exploration
 Reduce `num_runs` from 1000 to 100 in the directional balance test.
 - What happens to the Bayes factors?
 - Do tests become inconclusive?
 - How many runs do you need for decisive evidence?
 
-### 3. Create a Subtle Bug
-Modify the moves list to `[[-1, 0], [1, 0], [1, 0], [0, -1], [0, 1]]` (two right moves instead of two up moves).
-- Does fuzzy checking catch this subtler 33% vs 25% bias?
+### 2. Create a Subtle Bug
+Modify the moves list to this alternative buggy version: `[[-1, 0], [1, 0], [1, 0], [0, -1], [0, 1]]` (two right moves instead of two up moves; this erroneous addition to the list means that the random walk has some chance to exit from each side).
+- Does fuzzy checking catch this subtler bias?
 - How does the Bayes factor compare to the up/down bug?
 - What does this reveal about detection power?
 
-### 4. Validate New Properties
+### 3. Validate New Properties
 Write a new test that validates:
 - The center cell is visited most often
 - The walk forms a roughly circular distribution
@@ -356,9 +352,9 @@ Write a new test that validates:
 
 ## Further Reading
 
-- [Vivarium Testing Utils (GitHub)](https://github.com/ihmeuw/vivarium_testing_utils) - The source package
-- [Vivarium Fuzzy Checking Docs](https://vivarium-research.readthedocs.io/en/latest/model_design/vivarium_features/automated_v_and_v/index.html#fuzzy-checking) - Detailed methodology
-- [Greg Wilson's Testing Question](https://third-bit.com/2025/04/20/a-testing-question/) - The original challenge
+- [Vivarium Testing Utils (GitHub)](https://github.com/ihmeuw/vivarium_testing_utils) – The source package
+- [Vivarium Fuzzy Checking Docs](https://vivarium-research.readthedocs.io/en/latest/model_design/vivarium_features/automated_v_and_v/index.html#fuzzy-checking) – Detailed methodology
+- [Greg Wilson's Testing Question](https://third-bit.com/2025/04/20/a-testing-question/) – The original challenge
 
 ---
 
@@ -384,12 +380,4 @@ Greg Wilson's blog post includes another example: **[invasion percolation](https
 
 ---
 
-## Questions or Issues?
-
-- **Tutorial questions**: Open an issue in [this repository](https://github.com/aflaxman/ai_assisted_research/issues)
-- **Package bugs**: Report to [vivarium_testing_utils](https://github.com/ihmeuw/vivarium_testing_utils/issues)
-- **Statistical methodology**: See the [Vivarium research documentation](https://vivarium-research.readthedocs.io/en/latest/model_design/vivarium_features/automated_v_and_v/index.html)
-
----
-
-*This tutorial was created to demonstrate practical statistical validation for spatial simulations. The fuzzy checking methodology was developed by the [Vivarium](https://vivarium-research.readthedocs.io/) team at IHME for validation and verification of complex health simulations.*
+*This tutorial was created to demonstrate practical statistical validation for spatial simulations. The fuzzy checking methodology was developed at IHME for validation and verification of complex health simulations.*
