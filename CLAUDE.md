@@ -57,3 +57,38 @@ Each blog post directory should include:
 - Implementation files (e.g., `simulation.py`)
 - Test files (e.g., `test_simulation.py`)
 - Jupyter notebook (e.g., `tutorial.ipynb`)
+
+### Writing Style & Tone
+
+Based on healthyalgorithms.com established voice:
+
+1. **Accessible yet technical** - Balance rigor with conversational explanations
+2. **Use first person** - Write with "I" to create personal connection
+3. **Pragmatic positioning** - Frame tools/methods as useful rather than revolutionary
+4. **Metaphorical headers** - Use engaging section titles (e.g., "The Problem:", "An Answer:")
+5. **Question-driven narrative** - Open with a fundamental challenge readers face
+6. **Progressive complexity** - Start simple, build to advanced applications
+
+### Post Structure Pattern
+
+Follow this proven narrative arc:
+
+1. **Visual hook** - Start with an animation, graphic, or minimal code example
+2. **TL;DR section** - What readers will learn, get, and the core approach
+3. **Problem statement** - Articulate the fundamental challenge
+4. **Solution introduction** - Present the method/tool/approach
+5. **Concrete example** - Walk through a specific, complete implementation
+6. **Pedagogical elements**:
+   - Code snippets with explanations
+   - File-by-file breakdowns
+   - Links to GitHub permalinks for code context
+7. **Adaptation guidance** - "How to use this in your work"
+8. **Challenges/Exercises** - Engage readers beyond passive consumption
+9. **Further reading** - External resources and references
+
+### Interactive Elements
+
+- **Colab/Binder badges** - Make code immediately runnable
+- **Animated visualizations** - GIFs showing the concept in action
+- **External links** - Papers, GitHub repos, related tools
+- **Challenge sections** - Prompt readers to extend or experiment
