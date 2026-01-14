@@ -92,3 +92,30 @@ Follow this proven narrative arc:
 - **Animated visualizations** - GIFs showing the concept in action
 - **External links** - Papers, GitHub repos, related tools
 - **Challenge sections** - Prompt readers to extend or experiment
+
+### Prose Style: Strunk and White Principles
+
+Apply these timeless writing principles for clarity and impact:
+
+1. **Omit needless words** - Cut ruthlessly. "The question as to whether" → "Whether"
+2. **Use the active voice** - "The bug was caught by the test" → "The test caught the bug"
+3. **Put statements in positive form** - "Not honest" → "Dishonest"; avoid "not un-" constructions
+4. **Use definite, specific, concrete language** - Replace vague terms with precise examples
+5. **Place emphatic words at the end** - Save the punch for the sentence's conclusion
+6. **Express coordinate ideas in similar form** - Parallel structure aids comprehension
+7. **Keep related words together** - Minimize distance between subject and verb, modifier and modified
+8. **Use orthodox spelling** - Maintain credibility through correct conventions
+9. **Make the paragraph the unit of composition** - One paragraph = one topic
+10. **Begin each paragraph with a topic sentence** - Let readers know where they're going
+11. **Use figures of speech sparingly** - Technical writing needs clarity over ornamentation
+12. **Avoid a succession of loose sentences** - Vary structure to maintain engagement
+13. **Do not break sentences in two** - Two weak sentences are worse than one strong sentence
+14. **Avoid fancy words** - "Use" beats "utilize"; "help" beats "facilitate"
+15. **Be clear** - When choosing between clarity and style, always choose clarity
+
+**Application to technical blog posts:**
+- Replace passive constructions: "is calculated by" → "calculates"
+- Front-load value: Put the insight before the explanation
+- Cut filler: "In order to" → "To"; "It should be noted that" → delete
+- Strengthen verbs: "makes use of" → "uses"; "is in violation of" → "violates"
+- Concrete examples: Not "some bugs," but "three directional bias bugs"
