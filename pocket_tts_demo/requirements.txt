@@ -1,2 +1,6 @@
 pocket-tts
 scipy
+
+# Optional: For advanced audio processing in create_custom_voice.py
+# pydub
+# Also requires: sudo apt-get install ffmpeg

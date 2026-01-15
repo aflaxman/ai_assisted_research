@@ -7,13 +7,47 @@ A simple demo application for [Pocket TTS](https://github.com/kyutai-labs/pocket
 1. Generates speech using multiple preset voices
 2. Saves audio files for comparison
 3. Helps you find voices with breathy, gritty characteristics
+4. **NEW:** Advanced voice customization with audio processing
+5. **NEW:** Use your own voice recordings for custom TTS
+
+## 📄 What's Included
+
+- **`tts_demo.py`** - Basic demo with preset voices
+- **`create_custom_voice.py`** - Advanced: Create grittier custom voices
+- **`use_your_voice.py`** - Use your own audio recordings
+- **`TRAINING_GUIDE.md`** - Complete guide to voice customization
+- **`output/`** - Pre-generated example files
 
 ## 📋 Prerequisites
 
 - Python 3.10 or later
 - `uv` package manager (recommended) or `pip`
 
-## 🚀 Step-by-Step Instructions
+## ⚡ Quick Start Guide
+
+### Which Script Should I Use?
+
+| Script | Purpose | Auth Needed? | Best For |
+|--------|---------|--------------|----------|
+| `tts_demo.py` | Test preset voices | No | Getting started |
+| `create_custom_voice.py` | Compare & enhance voices | No | Finding grittiest presets |
+| `use_your_voice.py` | Clone YOUR voice | Yes* | Custom voice cloning |
+
+*Requires Hugging Face authentication - see TRAINING_GUIDE.md
+
+### Fastest Way to Get Started
+
+Already have the dependencies installed? Just run:
+```bash
+cd pocket_tts_demo
+python tts_demo.py  # Generate samples with 4 voices
+# OR
+python create_custom_voice.py  # Advanced comparison with all voices
+```
+
+Then open the `output/` folder and listen to the WAV files!
+
+## 🚀 Full Step-by-Step Instructions
 
 ### Step 1: Install uv (if you don't have it)
 
@@ -107,11 +141,56 @@ uvx pocket-tts generate --voice marius --text "The wind howled through the canyo
 uvx pocket-tts generate --voice my_voice.wav --text "The wind howled through the canyon."
 ```
 
+## 🔥 Advanced: Create Even Grittier Voices
+
+### Method 1: Automated Voice Processing
+
+Use the included script to automatically create a grittier voice:
+
+```bash
+python create_custom_voice.py
+```
+
+This script will:
+1. Start with the Javert preset (grittiest default)
+2. Process it with audio effects (pitch, compression, filtering)
+3. Create an even grittier custom voice
+4. Generate comparison samples
+
+**Requires:** `pip install pydub` and `sudo apt-get install ffmpeg`
+
+### Method 2: Use Your Own Voice Recording
+
+Record your own gritty/breathy voice and use it:
+
+```bash
+# Record 10-30 seconds of speech with desired characteristics
+# Save as: my_voice.wav
+
+# Use it to generate speech
+python use_your_voice.py my_voice.wav
+```
+
+The model will clone your voice's characteristics!
+
+### Method 3: Train Your Own Model?
+
+**Important:** Training code is NOT publicly available for Pocket TTS. However, voice cloning provides 90% of what custom training would give you!
+
+See **`TRAINING_GUIDE.md`** for:
+- Why training isn't available
+- Detailed voice cloning techniques
+- Audio processing methods
+- Alternative TTS models with training support
+- Tips for recording the perfect gritty voice sample
+
 ## 🎛️ Tips for Best Results
 
 1. **Voice Selection**: Deeper male voices (like Javert) tend to sound grittier
 2. **Text Choice**: Use text with consonants like "h", "s", "th" to emphasize breathy qualities
-3. **Voice Cloning**: For truly custom breathy/gritty voice, record a 5-10 second WAV sample with the characteristics you want
+3. **Voice Cloning**: For truly custom breathy/gritty voice, record a 10-30 second WAV sample with the characteristics you want
+4. **Audio Quality**: Use WAV format, 24kHz+ sample rate, minimal background noise
+5. **Voice Characteristics**: Speak with vocal fry or slight raspiness for gritty effect
 
 ## 🐛 Troubleshooting
 
