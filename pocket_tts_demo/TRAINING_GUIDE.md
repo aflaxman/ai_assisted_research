@@ -122,6 +122,8 @@ Sources for gritty voice samples:
 
 ## Using Your Custom Voice Sample
 
+**Note:** For Python examples below, make sure you have pocket-tts installed in a virtual environment. See the main README.md for setup instructions.
+
 ### Method 1: Python Script
 
 ```python

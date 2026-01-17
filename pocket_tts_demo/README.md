@@ -37,15 +37,21 @@ A simple demo application for [Pocket TTS](https://github.com/kyutai-labs/pocket
 
 ### Fastest Way to Get Started
 
-Already have the dependencies installed? Just run:
+**If you already have uv installed:**
 ```bash
 cd pocket_tts_demo
+
+# One-time setup: create venv and install
+uv venv && source .venv/bin/activate && uv pip install pocket-tts scipy
+
+# Run the demos
 python tts_demo.py  # Generate samples with 4 voices
 # OR
 python create_custom_voice.py  # Advanced comparison with all voices
 ```
 
-Then open the `output/` folder and listen to the WAV files!
+**Or use the pre-generated samples:**
+The `output/` folder already contains example audio files - just listen to them!
 
 ## 🚀 Full Step-by-Step Instructions
 
@@ -59,22 +65,57 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-### Step 2: Install Dependencies
+### Step 2: Create Virtual Environment and Install Dependencies
 
+**Option A: Using uv (Recommended)**
 ```bash
 cd pocket_tts_demo
+
+# Create isolated virtual environment
+uv venv
+
+# Activate it
+source .venv/bin/activate  # On Linux/WSL/Mac
+# OR on Windows:
+# .venv\Scripts\activate
+
+# Install dependencies in the isolated environment
 uv pip install pocket-tts scipy
 ```
 
-Or with regular pip:
+**Option B: Using standard Python venv**
 ```bash
-pip install pocket-tts scipy
+cd pocket_tts_demo
+
+# Create virtual environment
+python -m venv .venv
+
+# Activate it
+source .venv/bin/activate  # On Linux/WSL/Mac
+# OR on Windows:
+# .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+**Option C: One-command with uv run (no activation needed)**
+```bash
+cd pocket_tts_demo
+uv pip install pocket-tts scipy  # First time setup
+# Then just use: uv run python tts_demo.py
 ```
 
 ### Step 3: Run the Demo
 
+**If you activated the virtual environment:**
 ```bash
 python tts_demo.py
+```
+
+**Or use uv run (no activation needed):**
+```bash
+uv run python tts_demo.py
 ```
 
 **What to expect:**
@@ -148,6 +189,8 @@ uvx pocket-tts generate --voice my_voice.wav --text "The wind howled through the
 Use the included script to automatically create a grittier voice:
 
 ```bash
+# Make sure you're in your virtual environment first!
+# Then run:
 python create_custom_voice.py
 ```
 
@@ -157,7 +200,15 @@ This script will:
 3. Create an even grittier custom voice
 4. Generate comparison samples
 
-**Requires:** `pip install pydub` and `sudo apt-get install ffmpeg`
+**Optional enhancement:** For audio processing features, install pydub:
+```bash
+# In your activated virtual environment:
+uv pip install pydub
+# OR: pip install pydub
+
+# Also install ffmpeg system-wide:
+sudo apt-get install ffmpeg
+```
 
 ### Method 2: Use Your Own Voice Recording
 
