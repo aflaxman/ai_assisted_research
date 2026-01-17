@@ -12,12 +12,16 @@ A simple demo application for [Pocket TTS](https://github.com/kyutai-labs/pocket
 
 ## 📄 What's Included
 
+**Demo Scripts:**
 - **`tts_demo.py`** - Basic demo with preset voices
 - **`create_custom_voice.py`** - Advanced: Create grittier custom voices
 - **`record_voice.py`** - Record your own voice (Linux/Mac)
 - **`convert_recording.py`** - Convert audio files to TTS format (for WSL users)
 - **`use_your_voice.py`** - Use your own audio recordings
-- **`output/`** - Pre-generated example files
+
+**Training Resources:**
+- **`verify_model_access.py`** - Verify you can access model internals for training
+- **`FINE_TUNING_ANALYSIS.md`** - Complete technical analysis of fine-tuning possibilities
 
 ## 📋 Prerequisites
 
@@ -285,20 +289,32 @@ The model will extract and replicate:
 4. **Slight Raspiness**: Add a bit of roughness, but don't strain your voice
 5. **Consistent Style**: Maintain the same character throughout the recording
 
-### Method 3: Can I Train My Own Model?
+### Method 3: Can I Fine-Tune My Own Model?
 
-**No - training code is NOT publicly available.** The Kyutai team released:
-- ✅ Pre-trained 100M parameter model
-- ✅ Inference code
-- ✅ Voice cloning from audio samples
-- ❌ Training scripts or datasets
+**Yes - fine-tuning IS possible!** While Kyutai hasn't released training scripts, you have:
+- ✅ Complete model weights and architecture
+- ✅ Full access to all model internals
+- ✅ Published training methodology in the research paper
+- ✅ Ability to write your own training loop
 
-**Why training isn't available:**
-- Training the larger model required 32 H100 GPUs, 750k training steps, and 2.5 million hours of audio
-- Specialized infrastructure and expensive compute
-- Research code vs. production release
+**What's available:**
+- ✅ Pre-trained 100M parameter model (perfect for fine-tuning)
+- ✅ Full inference code showing data preprocessing
+- ✅ All model components accessible via Python API
+- ⚠️ Training scripts - you need to write these yourself
 
-**Good news:** Voice cloning provides 90% of what training would give you! You can clone ANY voice from a 10-30 second sample.
+**What's needed for fine-tuning:**
+- Your dataset (audio + transcripts)
+- 1x GPU (RTX 4090 or A100 recommended)
+- ~800 lines of training code (loop, loss, optimizer)
+- See **`FINE_TUNING_ANALYSIS.md`** for complete technical details
+
+**Quick verification:**
+```bash
+python verify_model_access.py  # Proves fine-tuning is possible
+```
+
+**For most users:** Voice cloning (Method 2) provides 90% of what training would give you, with zero coding required!
 
 ## 🎛️ Tips for Best Results
 

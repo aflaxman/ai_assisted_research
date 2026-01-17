@@ -39,7 +39,7 @@ wheels/
 .DS_Store
 Thumbs.db
 
-# Test outputs (keeping example files in output/ for demo purposes)
-# If you want to exclude all generated files:
-# output/*.wav
-# custom_voices/*.wav
+# Generated audio files
+*.wav
+output/
+custom_voices/
