@@ -1,0 +1,72 @@
+Bootstrap: docker
+From: nvidia/cuda:12.2.0-runtime-ubuntu22.04
+
+%labels
+    Author IHME
+    Version 1.0
+    Description SEIR disease simulation with CUDA acceleration
+
+%help
+    This container provides a CUDA-accelerated SEIR disease simulation
+    environment for running Monte Carlo epidemic simulations on GPU.
+
+    Usage:
+        # Run benchmark (CPU vs GPU comparison)
+        singularity exec --nv seir_cuda.sif python3 /app/seir_cuda_simulation.py --n-sims 1000
+
+        # Run with more simulations
+        singularity exec --nv seir_cuda.sif python3 /app/seir_cuda_simulation.py --n-sims 10000
+
+        # CPU only (no GPU required)
+        singularity exec seir_cuda.sif python3 /app/seir_cuda_simulation.py --device cpu
+
+        # Run tests
+        singularity exec --nv seir_cuda.sif python3 /app/test_seir_cuda.py
+
+%post
+    # Update system and install dependencies
+    apt-get update && apt-get install -y \
+        python3 \
+        python3-pip \
+        python3-dev \
+        && rm -rf /var/lib/apt/lists/*
+
+    # Install Python packages
+    pip3 install --no-cache-dir \
+        numpy>=1.24.0 \
+        numba>=0.58.0 \
+        matplotlib>=3.7.0 \
+        pytest>=7.0.0
+
+    # Create app directory
+    mkdir -p /app
+
+%files
+    seir_cuda_simulation.py /app/seir_cuda_simulation.py
+    seir_contact_simulation.py /app/seir_contact_simulation.py
+    visualize_results.py /app/visualize_results.py
+    test_seir_cuda.py /app/test_seir_cuda.py
+
+%environment
+    export LC_ALL=C
+    export PATH=/usr/local/cuda/bin:$PATH
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+    # CUDA driver is auto-detected by Numba when container runs with --nv
+
+%runscript
+    echo "SEIR CUDA Simulation Container"
+    echo "=============================="
+    echo ""
+    echo "Available commands:"
+    echo "  python3 /app/seir_cuda_simulation.py --help"
+    echo "  python3 /app/test_seir_cuda.py"
+    echo ""
+    echo "Running default benchmark..."
+    exec python3 /app/seir_cuda_simulation.py "$@"
+
+%test
+    echo "Testing Python dependencies..."
+    python3 -c "import numpy; print(f'NumPy version: {numpy.__version__}')"
+    python3 -c "import numba; print(f'Numba version: {numba.__version__}')"
+    echo "Note: CUDA availability can only be tested at runtime with --nv flag"
+    echo "Build-time tests complete!"
