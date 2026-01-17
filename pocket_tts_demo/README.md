@@ -27,11 +27,13 @@ A simple demo application for [Pocket TTS](https://github.com/kyutai-labs/pocket
 
 ### Which Script Should I Use?
 
-| Script | Purpose | Auth Needed? | Best For |
-|--------|---------|--------------|----------|
-| `tts_demo.py` | Test preset voices | No | Getting started |
-| `create_custom_voice.py` | Compare & enhance voices | No | Finding grittiest presets |
-| `use_your_voice.py` | Clone YOUR voice | Yes* | Custom voice cloning |
+```
+Script                    Purpose                      Auth?  Best For
+─────────────────────────────────────────────────────────────────────────────
+tts_demo.py               Test preset voices           No     Getting started
+create_custom_voice.py    Compare & enhance voices     No     Finding grittiest presets
+use_your_voice.py         Clone YOUR voice             Yes*   Custom voice cloning
+```
 
 *Requires Hugging Face authentication - see TRAINING_GUIDE.md
 
