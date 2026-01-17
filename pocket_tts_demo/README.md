@@ -43,20 +43,20 @@ use_your_voice.py         Clone custom voice           Yes*   Using recorded sam
 ```bash
 cd pocket_tts_demo
 
-# One-time setup: create venv and install (requires uv - see below if you don't have it)
-uv venv && source .venv/bin/activate && uv pip install pocket-tts scipy
+# Install ffmpeg (required for audio playback and processing)
+sudo apt update && sudo apt install -y ffmpeg
 
-# Install mpv for playing audio files
-sudo apt update && sudo apt install -y mpv
+# One-time setup: create venv and install
+uv venv && source .venv/bin/activate && uv pip install pocket-tts scipy pydub
 
 # Run the basic demo
 python tts_demo.py
 
 # Listen to the results
-mpv output/javert_demo.wav
+ffplay output/javert_demo.wav
 ```
 
-**Already have audio files?** The `output/` folder contains pre-generated examples - just play them with `mpv output/*.wav`!
+**Already have audio files?** The `output/` folder contains pre-generated examples - just play them with `ffplay output/javert_demo.wav`!
 
 ## 🚀 Full Step-by-Step Instructions
 
@@ -70,7 +70,15 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-### Step 2: Create Virtual Environment and Install Dependencies
+### Step 2: Install ffmpeg (Required)
+
+```bash
+# Install ffmpeg for audio playback and processing
+sudo apt update
+sudo apt install -y ffmpeg
+```
+
+### Step 3: Create Virtual Environment and Install Dependencies
 
 ```bash
 cd pocket_tts_demo
@@ -83,7 +91,7 @@ source .venv/bin/activate  # On Linux/WSL/Mac
 # OR on Windows: .venv\Scripts\activate
 
 # Install dependencies in the isolated environment
-uv pip install pocket-tts scipy
+uv pip install pocket-tts scipy pydub
 ```
 
 **Alternative:** If you don't have `uv`, you can use standard Python:
@@ -91,7 +99,7 @@ uv pip install pocket-tts scipy
 python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
 ```
 
-### Step 3: Run the Demo
+### Step 4: Run the Demo
 
 ```bash
 python tts_demo.py
@@ -102,24 +110,18 @@ python tts_demo.py
 - The script will generate 4 audio files with different voices
 - Files will be saved in the `output/` directory
 
-### Step 4: Listen to the Results
-
-**Install mpv (audio player for WSL):**
-```bash
-sudo apt update
-sudo apt install -y mpv
-```
+### Step 5: Listen to the Results
 
 **Play the generated audio files:**
 ```bash
 # Play the grittiest voice
-mpv output/javert_demo.wav
+ffplay output/javert_demo.wav
 
 # Play the breathy voice
-mpv output/marius_demo.wav
+ffplay output/marius_demo.wav
 
-# Compare all voices
-mpv output/*.wav
+# Play all voices for comparison (press 'q' to skip to next file)
+ffplay output/alba_demo.wav output/marius_demo.wav output/javert_demo.wav output/jean_demo.wav
 ```
 
 **What to listen for:**
@@ -185,15 +187,7 @@ This script will:
 3. Create an even grittier custom voice
 4. Generate comparison samples
 
-**Optional enhancement:** For audio processing features, install pydub:
-```bash
-# In your activated virtual environment:
-uv pip install pydub
-# OR: pip install pydub
-
-# Also install ffmpeg system-wide:
-sudo apt-get install ffmpeg
-```
+**Note:** This uses pydub for audio processing, which is included in the main setup (Step 3).
 
 ### Method 2: Record and Clone Your Own Voice
 
@@ -247,7 +241,7 @@ carried on whispers of wind and dust."
 
 ```bash
 # Test your recording first
-mpv my_voice.wav
+ffplay my_voice.wav
 
 # Use it to generate speech
 python use_your_voice.py my_voice.wav

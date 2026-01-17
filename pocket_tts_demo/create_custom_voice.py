@@ -81,7 +81,7 @@ def main():
     print("2. Processing it to be even grittier")
     print("3. Comparing different voice styles")
     print("\n⚠️  NOTE: Custom voice cloning from WAV files requires")
-    print("   Hugging Face authentication. See TRAINING_GUIDE.md")
+    print("   Hugging Face authentication. See README.md Method 2")
     print("   This demo uses preset voices (no auth needed).")
     print("="*60 + "\n")
 
@@ -189,9 +189,9 @@ def main():
     print("   • output/comparison_alba.wav   - Female")
 
     print("\n🎧 Listen and compare the voices:")
-    print("   mpv output/comparison_javert.wav  # Grittiest voice")
-    print("   mpv output/comparison_marius.wav  # Breathy voice")
-    print("   mpv output/comparison_*.wav       # Play all to compare")
+    print("   ffplay output/comparison_javert.wav  # Grittiest voice")
+    print("   ffplay output/comparison_marius.wav  # Breathy voice")
+    print("   ffplay output/comparison_*.wav       # Play all (press 'q' to skip)")
 
     print("\n📁 Other files created:")
     print(f"   • {base_voice_file} - Base Javert sample")
@@ -205,9 +205,9 @@ def main():
         print("   • For even grittier audio, install pydub:")
         print("     pip install pydub && sudo apt-get install ffmpeg")
     print("   • For CUSTOM voice cloning from your own audio:")
-    print("     1. Authenticate with Hugging Face (see TRAINING_GUIDE.md)")
+    print("     1. Authenticate with Hugging Face (see README.md Method 2)")
     print("     2. Run: python use_your_voice.py your_audio.wav")
-    print("   • See TRAINING_GUIDE.md for complete customization guide")
+    print("   • See README.md for complete customization guide")
     print("="*60 + "\n")
 
 

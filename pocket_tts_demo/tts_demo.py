@@ -53,9 +53,9 @@ def main():
     print("   • output/jean_demo.wav    - Neutral male voice")
 
     print("\n🎧 Listen and compare:")
-    print("   mpv output/javert_demo.wav  # Play grittiest voice")
-    print("   mpv output/marius_demo.wav  # Play breathy voice")
-    print("   mpv output/*.wav            # Play all to compare")
+    print("   ffplay output/javert_demo.wav  # Play grittiest voice")
+    print("   ffplay output/marius_demo.wav  # Play breathy voice")
+    print("   ffplay output/*.wav            # Play all (press 'q' to skip)")
 
     print("\n💡 Recommendation: Start with Javert for the grittiest sound!")
     print("="*60)

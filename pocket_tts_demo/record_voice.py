@@ -99,7 +99,7 @@ def main():
         print("="*60)
 
         print("\n🎧 Review your recording:")
-        print(f"   mpv {filename}")
+        print(f"   ffplay {filename}")
 
         print("\n📋 If you're not happy with it:")
         print(f"   python record_voice.py {duration}  # Record again")
