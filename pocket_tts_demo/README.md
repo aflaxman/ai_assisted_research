@@ -14,7 +14,8 @@ A simple demo application for [Pocket TTS](https://github.com/kyutai-labs/pocket
 
 - **`tts_demo.py`** - Basic demo with preset voices
 - **`create_custom_voice.py`** - Advanced: Create grittier custom voices
-- **`record_voice.py`** - Record your own voice for cloning
+- **`record_voice.py`** - Record your own voice (Linux/Mac)
+- **`convert_recording.py`** - Convert audio files to TTS format (for WSL users)
 - **`use_your_voice.py`** - Use your own audio recordings
 - **`output/`** - Pre-generated example files
 
@@ -32,7 +33,8 @@ Script                    Purpose                      Auth?  Best For
 ─────────────────────────────────────────────────────────────────────────────
 tts_demo.py               Test preset voices           No     Getting started
 create_custom_voice.py    Compare & enhance voices     No     Finding grittiest presets
-record_voice.py           Record your own voice        No     Creating voice samples
+record_voice.py           Record voice (Linux/Mac)     No     Direct recording
+convert_recording.py      Convert audio to TTS format  No     WSL users, format conversion
 use_your_voice.py         Clone custom voice           Yes*   Using recorded samples
 ```
 
@@ -206,16 +208,35 @@ uvx hf auth login
 
 #### Step 2: Record Your Voice
 
-Install the recording dependency:
-```bash
-# In your activated virtual environment:
-pip install sounddevice
+**⚠️ WSL Users:** WSL doesn't have direct access to Windows microphones. Use Option A or B below.
 
-# Also install system audio library:
+**Option A: Record on Windows (Recommended for WSL)**
+
+1. **Record on Windows:**
+   - Open Windows Voice Recorder or download Audacity
+   - Record 15-30 seconds of speech in your desired voice style
+   - Speak the suggested text (see tips below)
+
+2. **Copy to WSL:**
+   ```bash
+   # Copy from Windows Downloads to WSL
+   cp /mnt/c/Users/YourUsername/Downloads/recording.wav .
+   ```
+
+3. **Convert to correct format:**
+   ```bash
+   python convert_recording.py recording.wav my_voice.wav
+   ```
+
+**Option B: Record directly in WSL (Linux/Mac)**
+
+Install recording dependency:
+```bash
+uv pip install sounddevice
 sudo apt-get install portaudio19-dev
 ```
 
-Record a 15-second sample:
+Record:
 ```bash
 python record_voice.py
 ```

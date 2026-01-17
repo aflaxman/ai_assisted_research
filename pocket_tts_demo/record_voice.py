@@ -22,6 +22,26 @@ def record_voice(duration=15, sample_rate=24000):
     """
     print("🎙️  Voice Recording for Pocket TTS")
     print("="*60)
+
+    # Check for available audio devices
+    try:
+        devices = sd.query_devices()
+        input_devices = [d for d in devices if d['max_input_channels'] > 0]
+        if not input_devices:
+            print("\n❌ No input devices found!")
+            print("\n⚠️  WSL Audio Issue:")
+            print("  WSL doesn't have direct access to Windows microphones.")
+            print("\n  Recommended: Record on Windows, then copy to WSL")
+            print("    1. Use Windows Voice Recorder or Audacity")
+            print("    2. Save as WAV (24kHz, mono)")
+            print("    3. Copy to WSL:")
+            print("       cp /mnt/c/Users/YourName/Downloads/recording.wav my_voice.wav")
+            sys.exit(1)
+    except Exception as e:
+        print(f"\n❌ Error checking audio devices: {e}")
+        print("\n  Install portaudio: sudo apt-get install portaudio19-dev")
+        sys.exit(1)
+
     print(f"\nRecording Settings:")
     print(f"  • Duration: {duration} seconds")
     print(f"  • Sample Rate: {sample_rate} Hz")
@@ -118,9 +138,16 @@ def main():
         print(f"\n❌ Error: {e}")
         print("\nTroubleshooting:")
         print("  • Make sure you have a microphone connected")
-        print("  • Check that sounddevice is installed: pip install sounddevice")
-        print("  • On Linux/WSL, you may need: sudo apt-get install portaudio19-dev")
-        print("  • Test your mic with: python -m sounddevice")
+        print("  • Check that sounddevice is installed: uv pip install sounddevice")
+        print("  • On Linux, install: sudo apt-get install portaudio19-dev")
+        print("\n⚠️  WSL Audio Issue:")
+        print("  WSL doesn't have direct access to Windows microphones.")
+        print("\n  Option 1 (Easiest): Record on Windows, copy to WSL")
+        print("    1. Use Windows Voice Recorder or Audacity")
+        print("    2. Save as WAV (24kHz recommended)")
+        print("    3. Copy: cp /mnt/c/Users/YourName/Downloads/recording.wav my_voice.wav")
+        print("\n  Option 2: Set up PulseAudio for WSL (advanced)")
+        print("    See: https://github.com/microsoft/WSL/issues/237")
         sys.exit(1)
 
 
