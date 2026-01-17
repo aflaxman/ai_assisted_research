@@ -14,8 +14,8 @@ A simple demo application for [Pocket TTS](https://github.com/kyutai-labs/pocket
 
 - **`tts_demo.py`** - Basic demo with preset voices
 - **`create_custom_voice.py`** - Advanced: Create grittier custom voices
+- **`record_voice.py`** - Record your own voice for cloning
 - **`use_your_voice.py`** - Use your own audio recordings
-- **`TRAINING_GUIDE.md`** - Complete guide to voice customization
 - **`output/`** - Pre-generated example files
 
 ## 📋 Prerequisites
@@ -32,10 +32,11 @@ Script                    Purpose                      Auth?  Best For
 ─────────────────────────────────────────────────────────────────────────────
 tts_demo.py               Test preset voices           No     Getting started
 create_custom_voice.py    Compare & enhance voices     No     Finding grittiest presets
-use_your_voice.py         Clone YOUR voice             Yes*   Custom voice cloning
+record_voice.py           Record your own voice        No     Creating voice samples
+use_your_voice.py         Clone custom voice           Yes*   Using recorded samples
 ```
 
-*Requires Hugging Face authentication - see TRAINING_GUIDE.md
+*Voice cloning from custom files requires Hugging Face authentication (see Method 2 below)
 
 ### Fastest Way to Get Started
 
@@ -194,30 +195,96 @@ uv pip install pydub
 sudo apt-get install ffmpeg
 ```
 
-### Method 2: Use Your Own Voice Recording
+### Method 2: Record and Clone Your Own Voice
 
-Record your own gritty/breathy voice and use it:
+**This is the most powerful way to create a custom gritty/breathy voice!**
+
+#### Step 1: Authenticate with Hugging Face (Required for custom voice cloning)
 
 ```bash
-# Record 10-30 seconds of speech with desired characteristics
-# Save as: my_voice.wav
+# 1. Create a free account at https://huggingface.co
+# 2. Go to https://huggingface.co/kyutai/pocket-tts and accept the terms
+# 3. Login locally:
+uvx hf auth login
+# Enter your HF token when prompted
+```
+
+**Note:** The 8 preset voices (alba, marius, javert, etc.) work WITHOUT authentication. You only need HF auth for cloning custom voices from WAV files.
+
+#### Step 2: Record Your Voice
+
+Install the recording dependency:
+```bash
+# In your activated virtual environment:
+pip install sounddevice
+
+# Also install system audio library:
+sudo apt-get install portaudio19-dev
+```
+
+Record a 15-second sample:
+```bash
+python record_voice.py
+```
+
+**Tips for recording:**
+- Use a quiet room with minimal background noise
+- Speak naturally with varied intonation (don't be monotone)
+- **For gritty voice:** Lower your pitch, add vocal fry (that creaky sound), slight raspiness
+- **For breathy voice:** Emphasize air flow, speak softer, use more breath
+- Record 10-30 seconds - enough for variety but not too long
+- Use complete sentences with natural rhythm
+
+**Suggested text to read:**
+```
+"The old road winds through forgotten places,
+where shadows linger and secrets wait.
+Every step echoes with stories untold,
+carried on whispers of wind and dust."
+```
+
+#### Step 3: Use Your Recording for Voice Cloning
+
+```bash
+# Test your recording first
+mpv my_voice.wav
 
 # Use it to generate speech
 python use_your_voice.py my_voice.wav
+
+# Or use directly with CLI:
+uvx pocket-tts generate --voice my_voice.wav --text "Your text here"
 ```
 
-The model will clone your voice's characteristics!
+The model will extract and replicate:
+- Vocal timbre and tone
+- Breathiness and air flow
+- Grittiness and vocal fry
+- Pitch characteristics
+- Accent and speaking style
 
-### Method 3: Train Your Own Model?
+#### Recording Tips for Maximum Grittiness
 
-**Important:** Training code is NOT publicly available for Pocket TTS. However, voice cloning provides 90% of what custom training would give you!
+1. **Vocal Fry**: That low, creaky sound at the bottom of your vocal range
+2. **Lower Pitch**: Speak 5-10% lower than your normal speaking voice
+3. **Consonant Emphasis**: Hit consonants like "t", "k", "s" harder
+4. **Slight Raspiness**: Add a bit of roughness, but don't strain your voice
+5. **Consistent Style**: Maintain the same character throughout the recording
 
-See **`TRAINING_GUIDE.md`** for:
-- Why training isn't available
-- Detailed voice cloning techniques
-- Audio processing methods
-- Alternative TTS models with training support
-- Tips for recording the perfect gritty voice sample
+### Method 3: Can I Train My Own Model?
+
+**No - training code is NOT publicly available.** The Kyutai team released:
+- ✅ Pre-trained 100M parameter model
+- ✅ Inference code
+- ✅ Voice cloning from audio samples
+- ❌ Training scripts or datasets
+
+**Why training isn't available:**
+- Training the larger model required 32 H100 GPUs, 750k training steps, and 2.5 million hours of audio
+- Specialized infrastructure and expensive compute
+- Research code vs. production release
+
+**Good news:** Voice cloning provides 90% of what training would give you! You can clone ANY voice from a 10-30 second sample.
 
 ## 🎛️ Tips for Best Results
 
