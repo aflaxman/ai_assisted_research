@@ -43,11 +43,21 @@ def main():
         print(f"   ✓ Saved to {output_file}")
 
     print("\n" + "="*60)
-    print("🎉 Done! Check the 'output/' folder for generated audio files.")
-    print("\nVoice Recommendations:")
-    print("  • 'javert' - Often has a deeper, grittier tone")
-    print("  • 'marius' - Can have breathy qualities")
-    print("\nListen to each and pick your favorite!")
+    print("🎉 Done! Generated 4 voices with different characteristics.")
+    print("="*60)
+
+    print("\n📁 Files created:")
+    print("   • output/javert_demo.wav  - Gritty, deep tone")
+    print("   • output/marius_demo.wav  - Breathy quality")
+    print("   • output/alba_demo.wav    - Female voice")
+    print("   • output/jean_demo.wav    - Neutral male voice")
+
+    print("\n🎧 Listen and compare:")
+    print("   mpv output/javert_demo.wav  # Play grittiest voice")
+    print("   mpv output/marius_demo.wav  # Play breathy voice")
+    print("   mpv output/*.wav            # Play all to compare")
+
+    print("\n💡 Recommendation: Start with Javert for the grittiest sound!")
     print("="*60)
 
 if __name__ == "__main__":

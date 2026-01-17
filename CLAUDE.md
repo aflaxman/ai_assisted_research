@@ -17,3 +17,4 @@ This repository contains notes and experiments for AI-assisted open source devel
 - Test scripts follow the pattern `test_pr<NUMBER>_<description>.py`
 - Use `uv` for Python package management
 - Commit messages include the Claude Code attribution footer
+- **Quickstart sections**: Should be simple and direct - choose ONE recommended path, not multiple options. Don't force users to make decisions in quickstart; save alternatives for detailed instructions.

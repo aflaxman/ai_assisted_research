@@ -178,38 +178,37 @@ def main():
     # ===================================================================
     # Done!
     # ===================================================================
+    print("\n" + "="*60)
+    print("🎉 Done! Voice comparison samples generated!")
     print("="*60)
-    print("🎉 Done! Voice samples have been generated!")
-    print("="*60)
-    print("\n📁 Files created:")
-    print(f"   • {base_voice_file}")
-    print(f"      └─ Base voice sample from Javert")
-    print(f"   • {gritty_voice_file}")
-    print(f"      └─ Processed version (if pydub installed)")
-    print(f"   • {output_file}")
-    print(f"      └─ Longer speech sample with Javert")
+
+    print("\n📁 Comparison files (all saying the same text):")
+    print("   • output/comparison_javert.wav - Gritty male (RECOMMENDED)")
+    print("   • output/comparison_marius.wav - Breathy male")
+    print("   • output/comparison_jean.wav   - Neutral male")
+    print("   • output/comparison_alba.wav   - Female")
+
+    print("\n🎧 Listen and compare the voices:")
+    print("   mpv output/comparison_javert.wav  # Grittiest voice")
+    print("   mpv output/comparison_marius.wav  # Breathy voice")
+    print("   mpv output/comparison_*.wav       # Play all to compare")
+
+    print("\n📁 Other files created:")
+    print(f"   • {base_voice_file} - Base Javert sample")
+    print(f"   • {output_file} - Longer Javert speech")
     if HAS_PYDUB:
-        print(f"   • output/javert_long_gritty.wav")
-        print(f"      └─ Post-processed gritty version")
-    print(f"   • output/comparison_*.wav")
-    print(f"      └─ Voice comparison samples\n")
+        print(f"   • output/javert_long_gritty.wav - Post-processed gritty version")
 
-    print("🎧 Listen to the comparison files:")
-    print("   1. comparison_marius.wav  - Breathy male voice")
-    print("   2. comparison_javert.wav  - Gritty male voice")
-    print("   3. comparison_jean.wav    - Neutral male voice")
-    print("   4. comparison_alba.wav    - Female voice\n")
-
-    print("💡 Next steps:")
-    print("   • Listen to all the samples and pick your favorite")
+    print("\n💡 Next steps:")
     print("   • Javert is the grittiest preset voice")
     if not HAS_PYDUB:
-        print("   • Install pydub + ffmpeg for audio processing:")
+        print("   • For even grittier audio, install pydub:")
         print("     pip install pydub && sudo apt-get install ffmpeg")
-    print("   • For CUSTOM voice cloning from your own files:")
+    print("   • For CUSTOM voice cloning from your own audio:")
     print("     1. Authenticate with Hugging Face (see TRAINING_GUIDE.md)")
-    print("     2. Use: python use_your_voice.py your_audio.wav")
-    print("   • See TRAINING_GUIDE.md for complete customization guide\n")
+    print("     2. Run: python use_your_voice.py your_audio.wav")
+    print("   • See TRAINING_GUIDE.md for complete customization guide")
+    print("="*60 + "\n")
 
 
 if __name__ == "__main__":

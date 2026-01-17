@@ -39,21 +39,23 @@ use_your_voice.py         Clone YOUR voice             Yes*   Custom voice cloni
 
 ### Fastest Way to Get Started
 
-**If you already have uv installed:**
 ```bash
 cd pocket_tts_demo
 
-# One-time setup: create venv and install
+# One-time setup: create venv and install (requires uv - see below if you don't have it)
 uv venv && source .venv/bin/activate && uv pip install pocket-tts scipy
 
-# Run the demos
-python tts_demo.py  # Generate samples with 4 voices
-# OR
-python create_custom_voice.py  # Advanced comparison with all voices
+# Install mpv for playing audio files
+sudo apt update && sudo apt install -y mpv
+
+# Run the basic demo
+python tts_demo.py
+
+# Listen to the results
+mpv output/javert_demo.wav
 ```
 
-**Or use the pre-generated samples:**
-The `output/` folder already contains example audio files - just listen to them!
+**Already have audio files?** The `output/` folder contains pre-generated examples - just play them with `mpv output/*.wav`!
 
 ## 🚀 Full Step-by-Step Instructions
 
@@ -127,22 +129,31 @@ uv run python tts_demo.py
 
 ### Step 4: Listen to the Results
 
-Open the `output/` folder and play the WAV files:
-
+**Install mpv (audio player for WSL):**
 ```bash
-# On WSL, you can open the folder in Windows Explorer
-explorer.exe output
-
-# Or play directly (if you have a player installed)
-mpv output/javert_demo.wav
-# or
-aplay output/javert_demo.wav
+sudo apt update
+sudo apt install -y mpv
 ```
 
-Listen for:
-- **Javert** - Usually deeper and grittier
-- **Marius** - Often has breathy qualities
-- **Alba & Jean** - Compare these for contrast
+**Play the generated audio files:**
+```bash
+# Play the grittiest voice
+mpv output/javert_demo.wav
+
+# Play the breathy voice
+mpv output/marius_demo.wav
+
+# Compare all voices
+mpv output/*.wav
+
+# Or open in Windows Explorer (on WSL)
+explorer.exe output
+```
+
+**What to listen for:**
+- **Javert** - Deeper and grittier tone
+- **Marius** - Breathy qualities
+- **Alba & Jean** - Contrast voices for comparison
 
 ## 🎨 Customizing for More Gritty/Breathy Sound
 
