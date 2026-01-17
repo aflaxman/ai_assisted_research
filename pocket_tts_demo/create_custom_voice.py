@@ -27,10 +27,11 @@ def make_voice_grittier(input_wav: str, output_wav: str):
     Process audio to make it grittier using pydub.
 
     Techniques:
-    1. Slightly lower pitch
-    2. Add compression for more dynamic range
-    3. Filter high frequencies
-    4. Boost low-mid frequencies
+    1. Add compression for more dynamic range
+    2. Filter high frequencies to reduce harshness
+
+    Note: Pitch shifting removed as it causes audio artifacts.
+    For pitch changes, record your voice in the desired register instead.
     """
     if not HAS_PYDUB:
         print(f"   ⚠️  Skipping processing - copying {input_wav} to {output_wav}")
@@ -38,38 +39,27 @@ def make_voice_grittier(input_wav: str, output_wav: str):
         shutil.copy(input_wav, output_wav)
         return
 
-    print(f"   🎛️  Processing audio to make it grittier...")
+    print(f"   🎛️  Processing audio to enhance voice character...")
 
     # Load audio
     audio = AudioSegment.from_wav(input_wav)
 
-    # 1. Lower pitch by 5% (makes voice deeper/grittier)
-    print(f"      - Lowering pitch by 5%")
-    audio_gritty = audio._spawn(audio.raw_data, overrides={
-        "frame_rate": int(audio.frame_rate * 0.95)
-    })
-    audio_gritty = audio_gritty.set_frame_rate(24000)  # Pocket TTS uses 24kHz
-
-    # 2. Add compression (increases perceived grittiness)
-    print(f"      - Adding dynamic compression")
-    audio_gritty = compress_dynamic_range(
-        audio_gritty,
+    # 1. Add subtle compression (increases perceived presence)
+    print(f"      - Adding subtle compression")
+    audio_processed = compress_dynamic_range(
+        audio,
         threshold=-20.0,
-        ratio=4.0,
-        attack=5.0,
-        release=50.0
+        ratio=2.0,  # Reduced from 4.0 to avoid artifacts
+        attack=10.0,  # Slower attack to preserve transients
+        release=100.0  # Slower release for smoother sound
     )
 
-    # 3. Cut very high frequencies (makes it rougher)
-    print(f"      - Filtering high frequencies above 5kHz")
-    audio_gritty = low_pass_filter(audio_gritty, 5000)
+    # 2. Gentle high-frequency rolloff (reduces digital harshness)
+    print(f"      - Applying gentle high-frequency rolloff")
+    audio_processed = low_pass_filter(audio_processed, 8000)  # 8kHz instead of 5kHz
 
-    # 4. Boost low-mid frequencies (200-800 Hz for grittiness)
-    print(f"      - Boosting low-mid frequencies")
-    # Note: pydub doesn't have a parametric EQ, but compression helps here
-
-    # Export
-    audio_gritty.export(output_wav, format="wav")
+    # Export with high quality settings
+    audio_processed.export(output_wav, format="wav", parameters=["-q:a", "0"])
     print(f"   ✓ Processed audio saved to {output_wav}")
 
 

@@ -183,11 +183,10 @@ python create_custom_voice.py
 
 This script will:
 1. Start with the Javert preset (grittiest default)
-2. Process it with audio effects (pitch, compression, filtering)
-3. Create an even grittier custom voice
-4. Generate comparison samples
+2. Apply subtle audio processing (compression, filtering)
+3. Generate comparison samples across different voices
 
-**Note:** This uses pydub for audio processing, which is included in the main setup (Step 3).
+**Note:** Audio processing is optional and minimal to preserve quality. For significant voice changes, use Method 2 (record your own voice).
 
 ### Method 2: Record and Clone Your Own Voice
 
