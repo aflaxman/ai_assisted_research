@@ -312,11 +312,13 @@ The model will extract and replicate:
 
 **Model download is slow**: First run downloads ~200MB. Be patient!
 
-**No audio output**: Make sure scipy is installed: `pip install scipy`
+**No audio output**: Make sure dependencies are installed: `uv pip install pocket-tts scipy pydub`
 
-**Import errors**: Try using `uv` instead of pip, or create a fresh virtual environment
+**Import errors**: Create a fresh virtual environment and re-run Step 3
 
-**WSL audio issues**: Audio files should play fine in Windows (use `explorer.exe output`)
+**Audio won't play**: Make sure ffmpeg is installed: `sudo apt install ffmpeg`
+
+**Recording issues on WSL**: See README Method 2 → Step 2 for WSL-specific recording instructions
 
 ## 📚 Learn More
 

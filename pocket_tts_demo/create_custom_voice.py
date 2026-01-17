@@ -9,17 +9,15 @@ import scipy.io.wavfile
 import numpy as np
 import os
 
-# Optional: Install pydub for audio processing
-# pip install pydub
+# pydub for audio processing (included in main setup)
 try:
     from pydub import AudioSegment
     from pydub.effects import compress_dynamic_range, low_pass_filter
     HAS_PYDUB = True
 except ImportError:
     HAS_PYDUB = False
-    print("⚠️  pydub not installed - skipping audio processing steps")
-    print("   Install with: pip install pydub")
-    print("   Also install ffmpeg: sudo apt-get install ffmpeg\n")
+    print("⚠️  pydub not found - audio processing will be skipped")
+    print("   Make sure you ran: uv pip install pocket-tts scipy pydub\n")
 
 
 def make_voice_grittier(input_wav: str, output_wav: str):
@@ -191,9 +189,6 @@ def main():
 
     print("\n💡 Next steps:")
     print("   • Javert is the grittiest preset voice")
-    if not HAS_PYDUB:
-        print("   • For even grittier audio, install pydub:")
-        print("     pip install pydub && sudo apt-get install ffmpeg")
     print("   • For CUSTOM voice cloning from your own audio:")
     print("     1. Authenticate with Hugging Face (see README.md Method 2)")
     print("     2. Run: python use_your_voice.py your_audio.wav")
