@@ -71,7 +71,6 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 ### Step 2: Create Virtual Environment and Install Dependencies
 
-**Option A: Using uv (Recommended)**
 ```bash
 cd pocket_tts_demo
 
@@ -80,46 +79,21 @@ uv venv
 
 # Activate it
 source .venv/bin/activate  # On Linux/WSL/Mac
-# OR on Windows:
-# .venv\Scripts\activate
+# OR on Windows: .venv\Scripts\activate
 
 # Install dependencies in the isolated environment
 uv pip install pocket-tts scipy
 ```
 
-**Option B: Using standard Python venv**
+**Alternative:** If you don't have `uv`, you can use standard Python:
 ```bash
-cd pocket_tts_demo
-
-# Create virtual environment
-python -m venv .venv
-
-# Activate it
-source .venv/bin/activate  # On Linux/WSL/Mac
-# OR on Windows:
-# .venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-**Option C: One-command with uv run (no activation needed)**
-```bash
-cd pocket_tts_demo
-uv pip install pocket-tts scipy  # First time setup
-# Then just use: uv run python tts_demo.py
+python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
 ```
 
 ### Step 3: Run the Demo
 
-**If you activated the virtual environment:**
 ```bash
 python tts_demo.py
-```
-
-**Or use uv run (no activation needed):**
-```bash
-uv run python tts_demo.py
 ```
 
 **What to expect:**
@@ -145,9 +119,6 @@ mpv output/marius_demo.wav
 
 # Compare all voices
 mpv output/*.wav
-
-# Or open in Windows Explorer (on WSL)
-explorer.exe output
 ```
 
 **What to listen for:**
