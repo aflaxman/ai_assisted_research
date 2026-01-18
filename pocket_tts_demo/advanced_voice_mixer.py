@@ -7,6 +7,114 @@ This tool extracts voice embeddings from audio files and allows you to:
 - Interpolate between different voice characteristics
 - Modify KV cache values to tweak voice properties
 - Visualize voice embeddings
+
+## How Voice State Parameters Map to Code
+
+When you provide custom audio, the model extracts a "voice_state" which is a dictionary
+containing the transformer's KV (key-value) cache:
+
+```python
+voice_state = {
+    'transformer.layers.0.self_attn': {
+        'current_end': Tensor[125],  # Position tracker
+        'cache': Tensor[125, 2, 8, 127, 256]  # Actual KV cache
+    },
+    'transformer.layers.1.self_attn': { ... },
+    ...  # 6 layers total for Pocket TTS
+}
+```
+
+The cache dimensions are:
+- Dim 0 (125): Batch size
+- Dim 1 (2): Keys and Values
+- Dim 2 (8): Number of attention heads
+- Dim 3 (127): Sequence length (audio frames)
+- Dim 4 (256): Embedding dimension per head
+
+## What the Exposed Parameters Do
+
+### Voice Blending (blend_ratio)
+**Code:**
+```python
+blended_cache = (1 - blend_ratio) * cache_A + blend_ratio * cache_B
+```
+**What it does:** Weighted average of attention patterns from two voices.
+- 0.0 = 100% Voice A
+- 0.5 = 50/50 mix
+- 1.0 = 100% Voice B
+
+**Effect:** Combines voice characteristics like pitch, timbre, rhythm, breathiness.
+
+### Temperature Modification
+**Code:**
+```python
+mean = torch.nanmean(cache)
+modified = mean + (cache - mean) * temperature
+```
+**What it does:** Scales variance around the mean.
+- temperature > 1.0: Amplifies deviations → more varied/dynamic voice
+- temperature < 1.0: Reduces deviations → more consistent/flat voice
+- temperature = 1.0: No change
+
+**Effect:** Controls how much the voice varies during speech. Higher temperature
+makes the voice more expressive and dynamic, lower makes it more monotone.
+
+**Maps to:** The variance of attention weights in each layer's cache.
+
+### Sharpness Modification
+**Code:**
+```python
+median = torch.nanmedian(cache)
+sign = torch.sign(cache - median)
+modified = cache + sharpness * sign * torch.abs(cache - median)
+```
+**What it does:** Enhances or reduces contrast relative to the median.
+- sharpness > 0: Amplifies differences from median → sharper/crisper voice
+- sharpness < 0: Reduces differences → softer/mellower voice
+- sharpness = 0: No change
+
+**Effect:** Controls voice clarity and distinctiveness. Positive values make
+consonants crisper and vowels more defined. Negative values create a softer,
+more muffled quality.
+
+**Maps to:** The distribution of attention weights - sharper = more peaked
+attention, softer = more diffuse attention.
+
+### Depth Modification
+**Code:**
+```python
+modified = cache + depth
+```
+**What it does:** Shifts all cache values by a constant.
+- depth > 0: Shift upward → deeper/darker resonance
+- depth < 0: Shift downward → lighter/brighter resonance
+- depth = 0: No change
+
+**Effect:** Controls the overall tonal quality. Positive depth creates a
+deeper, more resonant voice (like shifting pitch down). Negative depth
+creates a lighter, airier voice.
+
+**Maps to:** The mean baseline of all attention values in the cache.
+
+## Limitations and Caveats
+
+1. **Not trained for this:** The model wasn't trained to handle modified KV caches,
+   so extreme values may produce artifacts or degraded quality.
+
+2. **Heuristic transformations:** These modifications are educated guesses about
+   how KV cache statistics relate to voice perception. They work reasonably well
+   but aren't guaranteed.
+
+3. **Non-linear interactions:** Combining multiple modifications may have
+   unexpected effects due to non-linear interactions in the transformer.
+
+4. **Better alternatives exist:** For production use, fine-tuning the model on
+   target speech data (see FINE_TUNING_ANALYSIS.md) will give better results.
+
+5. **Voice cloning limits:** Custom audio files require HF authentication for
+   voice cloning weights. Without it, only preset voices work.
+
+This tool is for experimentation and exploration of the voice embedding space!
 """
 
 import gradio as gr
@@ -22,8 +130,37 @@ print("Loading Pocket TTS model...")
 tts = TTSModel.load_model()
 print("Model loaded successfully!")
 
-# Preset voices
-PRESET_VOICES = ["javert", "daisy", "whisperer", "narrator"]
+# ACTUAL preset voices (verified to exist)
+PRESET_VOICES = [
+    "alba",      # Female
+    "marius",    # Male, breathy
+    "javert",    # Male, deep/gritty
+    "jean",      # Male
+    "fantine",   # Female
+    "cosette",   # Female
+    "eponine",   # Female
+    "azelma",    # Female
+]
+
+# Voice descriptions
+VOICE_INFO = {
+    "alba": "Female, clear",
+    "marius": "Male, breathy",
+    "javert": "Male, deep/gritty",
+    "jean": "Male, neutral",
+    "fantine": "Female, mature",
+    "cosette": "Female, young",
+    "eponine": "Female, spirited",
+    "azelma": "Female, soft",
+}
+
+# Default text samples
+SAMPLE_TEXTS = {
+    "Short": "The quick brown fox jumps over the lazy dog.",
+    "Medium": "In the beginning was the Word, and the Word was with God, and the Word was made flesh.",
+    "Long": "It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness.",
+    "Atmospheric": "The ancient forest whispers secrets through rustling leaves, while shadows dance in the fading light.",
+}
 
 # Cache for voice states
 voice_cache = {}
@@ -194,7 +331,7 @@ def generate_with_custom_voice(text, voice_a, voice_b, blend_ratio,
         # Get voice states
         if use_preset_a and voice_a:
             state_a = get_voice_state(voice_a)
-            source_a = f"Preset: {voice_a}"
+            source_a = f"{voice_a} ({VOICE_INFO.get(voice_a, '')})"
         elif custom_audio_a is not None:
             state_a = tts.get_state_for_audio_prompt(custom_audio_a)
             source_a = "Custom audio A"
@@ -205,7 +342,7 @@ def generate_with_custom_voice(text, voice_a, voice_b, blend_ratio,
         if blend_ratio > 0:
             if use_preset_b and voice_b:
                 state_b = get_voice_state(voice_b)
-                source_b = f"Preset: {voice_b}"
+                source_b = f"{voice_b} ({VOICE_INFO.get(voice_b, '')})"
             elif custom_audio_b is not None:
                 state_b = tts.get_state_for_audio_prompt(custom_audio_b)
                 source_b = "Custom audio B"
@@ -274,15 +411,14 @@ def compare_voices(voice_a, voice_b):
         return f"Error: {str(e)}"
 
 
-# Create Gradio interface
+# Create Gradio interface with auto-generation
 with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
     gr.Markdown("""
     # 🎛️ Advanced Voice Mixer Studio
 
-    Blend voices, modify characteristics, and explore the voice embedding space.
+    Blend voices, modify characteristics, and explore the voice embedding space in real-time.
 
-    **How it works**: Voice is represented as transformer attention cache (KV cache).
-    This tool lets you blend these caches and modify their statistics.
+    **Controls update automatically** - just move sliders and hear the changes!
     """)
 
     with gr.Tabs():
@@ -294,9 +430,16 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                     text_input = gr.Textbox(
                         label="Text to Speak",
                         placeholder="Enter text here...",
-                        lines=5,
+                        lines=4,
                         value="The ancient forest whispers secrets through rustling leaves.",
                     )
+
+                    with gr.Row():
+                        for name in SAMPLE_TEXTS.keys():
+                            gr.Button(name, size="sm").click(
+                                fn=lambda n=name: SAMPLE_TEXTS[n],
+                                outputs=text_input,
+                            )
 
                     gr.Markdown("### Voice Blending")
 
@@ -308,6 +451,7 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                                 label="Preset A",
                                 choices=PRESET_VOICES,
                                 value="javert",
+                                info=VOICE_INFO.get("javert", ""),
                             )
                             custom_audio_a = gr.Audio(
                                 label="Or upload custom audio A",
@@ -320,7 +464,8 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                             voice_b = gr.Dropdown(
                                 label="Preset B",
                                 choices=PRESET_VOICES,
-                                value="daisy",
+                                value="marius",
+                                info=VOICE_INFO.get("marius", ""),
                             )
                             custom_audio_b = gr.Audio(
                                 label="Or upload custom audio B",
@@ -365,14 +510,20 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                         info="Higher = deeper/darker, Lower = lighter/brighter"
                     )
 
-                    generate_btn = gr.Button("🎵 Generate Speech", variant="primary", size="lg")
+                    enable_loop = gr.Checkbox(
+                        label="Loop playback",
+                        value=True,
+                        info="Automatically loop the generated audio"
+                    )
 
                 with gr.Column():
-                    status_text = gr.Markdown("Ready to mix voices!")
+                    status_text = gr.Markdown("Adjust controls to generate speech automatically!")
 
                     audio_output = gr.Audio(
                         label="Generated Audio",
                         type="numpy",
+                        autoplay=True,
+                        loop=True,
                     )
 
                     gr.Markdown("""
@@ -381,30 +532,142 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                     **Blending:**
                     - Start with blend=0 to hear Voice A pure
                     - Gradually increase to hear the blend
-                    - blend=1.0 is Voice B pure
+                    - Try: javert (gritty) + marius (breathy)
 
                     **Modifications:**
-                    - Temperature: affects variation (1.0 = original)
-                    - Sharpness: affects clarity (0 = original)
-                    - Depth: affects tone (0 = original)
+                    - Temperature: 1.0 = original, >1.0 = more dynamic
+                    - Sharpness: 0 = original, >0 = crisper
+                    - Depth: 0 = original, >0 = deeper
 
-                    **Experimentation:**
-                    - Try blending opposite voices (javert + daisy)
-                    - Combine blending with modifications
-                    - Use custom audio for unique voices
+                    **Loop playback:** Enabled by default for easier comparison
                     """)
 
-            generate_btn.click(
-                fn=generate_with_custom_voice,
-                inputs=[
-                    text_input,
-                    voice_a, voice_b, blend_ratio,
-                    temperature, sharpness, depth,
-                    use_preset_a, use_preset_b,
-                    custom_audio_a, custom_audio_b,
-                ],
-                outputs=[audio_output, status_text],
-            )
+            # Auto-generate when any parameter changes
+            inputs = [
+                text_input,
+                voice_a, voice_b, blend_ratio,
+                temperature, sharpness, depth,
+                use_preset_a, use_preset_b,
+                custom_audio_a, custom_audio_b,
+            ]
+
+            # Connect all inputs to trigger auto-generation
+            for inp in inputs:
+                inp.change(
+                    fn=generate_with_custom_voice,
+                    inputs=inputs,
+                    outputs=[audio_output, status_text],
+                )
+
+        # Documentation tab
+        with gr.Tab("📖 Parameter Documentation"):
+            gr.Markdown("""
+            ## How Voice State Parameters Map to Code
+
+            ### Voice State Structure
+
+            When you provide custom audio, the model extracts a "voice_state" dictionary
+            containing the transformer's KV (key-value) cache:
+
+            ```python
+            voice_state = {
+                'transformer.layers.0.self_attn': {
+                    'current_end': Tensor[125],  # Position tracker
+                    'cache': Tensor[125, 2, 8, 127, 256]  # KV cache
+                },
+                'transformer.layers.1.self_attn': { ... },
+                ...  # 6 layers total for Pocket TTS
+            }
+            ```
+
+            **Cache dimensions:**
+            - Dim 0 (125): Batch size
+            - Dim 1 (2): Keys and Values
+            - Dim 2 (8): Number of attention heads
+            - Dim 3 (127): Sequence length (audio frames)
+            - Dim 4 (256): Embedding dimension per head
+
+            ---
+
+            ### Voice Blending
+
+            **What it does:**
+            ```python
+            blended_cache = (1 - blend_ratio) * cache_A + blend_ratio * cache_B
+            ```
+
+            Weighted average of attention patterns from two voices.
+
+            **Effect:** Combines voice characteristics like pitch, timbre, rhythm, breathiness.
+
+            **Parameters exposed:**
+            - `blend_ratio`: 0.0 (all A) to 1.0 (all B)
+
+            ---
+
+            ### Temperature Modification
+
+            **What it does:**
+            ```python
+            mean = torch.nanmean(cache)
+            modified = mean + (cache - mean) * temperature
+            ```
+
+            Scales variance around the mean.
+
+            **Effect:** Controls how much the voice varies during speech.
+            - `temperature > 1.0`: More varied/dynamic voice
+            - `temperature < 1.0`: More consistent/monotone voice
+
+            **Maps to:** Variance of attention weights in each layer's cache.
+
+            ---
+
+            ### Sharpness Modification
+
+            **What it does:**
+            ```python
+            median = torch.nanmedian(cache)
+            sign = torch.sign(cache - median)
+            modified = cache + sharpness * sign * torch.abs(cache - median)
+            ```
+
+            Enhances or reduces contrast relative to median.
+
+            **Effect:** Controls voice clarity and distinctiveness.
+            - `sharpness > 0`: Crisper consonants, defined vowels
+            - `sharpness < 0`: Softer, more muffled quality
+
+            **Maps to:** Distribution of attention weights (peaked vs diffuse).
+
+            ---
+
+            ### Depth Modification
+
+            **What it does:**
+            ```python
+            modified = cache + depth
+            ```
+
+            Shifts all cache values by a constant.
+
+            **Effect:** Controls overall tonal quality.
+            - `depth > 0`: Deeper, more resonant voice
+            - `depth < 0`: Lighter, airier voice
+
+            **Maps to:** Mean baseline of all attention values.
+
+            ---
+
+            ## Limitations
+
+            1. **Not trained for this:** Model wasn't trained to handle modified KV caches
+            2. **Heuristic:** These are educated guesses, not guarantees
+            3. **Non-linear:** Combining modifications may have unexpected effects
+            4. **Better alternatives:** Fine-tuning gives better production results
+
+            See `FINE_TUNING_ANALYSIS.md` for training your own custom voice models.
+            """)
 
         # Analysis tab
         with gr.Tab("🔬 Voice Analysis"):
@@ -447,7 +710,7 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                 compare_b = gr.Dropdown(
                     label="Voice B",
                     choices=PRESET_VOICES,
-                    value="daisy",
+                    value="marius",
                 )
 
             compare_btn = gr.Button("Compare Voices", variant="primary")
@@ -459,68 +722,13 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                 outputs=[comparison_output],
             )
 
-        # Help tab
-        with gr.Tab("❓ Help"):
-            gr.Markdown("""
-            ## Understanding Voice Representation
-
-            ### What is Voice State?
-
-            When you provide audio (either preset or custom), the model extracts a **voice state**
-            which is stored as the transformer's **key-value (KV) cache**. This cache contains:
-
-            - Attention patterns from each transformer layer
-            - Encoded voice characteristics (pitch, timbre, rhythm, etc.)
-            - Sequential dependencies from the audio
-
-            The KV cache is a high-dimensional representation (thousands of values per layer)
-            that captures the essence of the voice.
-
-            ### How Blending Works
-
-            When you blend two voices with ratio `r`:
-            ```
-            blended_cache = (1 - r) * cache_A + r * cache_B
-            ```
-
-            This creates a weighted average of the attention patterns, effectively
-            mixing the voice characteristics.
-
-            ### How Modifications Work
-
-            **Temperature**: Scales the variance around the mean
-            - Higher → more variation in attention patterns
-            - Lower → more consistent attention patterns
-
-            **Sharpness**: Enhances contrast in the cache values
-            - Positive → amplifies differences from median
-            - Negative → softens differences
-
-            **Depth**: Shifts the overall mean of cache values
-            - Positive → deeper/darker tone
-            - Negative → lighter/brighter tone
-
-            ### Limitations
-
-            - Modifications are heuristic (not guaranteed to work perfectly)
-            - Extreme values may produce artifacts
-            - The model wasn't trained for this type of manipulation
-            - Best results come from subtle adjustments
-
-            ### Advanced Usage
-
-            For true voice customization, consider:
-            1. Recording high-quality custom audio (10-30 seconds)
-            2. Fine-tuning the model (see `FINE_TUNING_ANALYSIS.md`)
-            3. Training on domain-specific speech data
-
-            This tool is for experimentation and exploration!
-            """)
-
 if __name__ == "__main__":
     print("\n" + "="*60)
     print("🎛️  Starting Advanced Voice Mixer Studio")
     print("="*60)
+    print("\nAvailable preset voices:")
+    for voice in PRESET_VOICES:
+        print(f"  • {voice}: {VOICE_INFO.get(voice, '')}")
     print("\n🌐 Launching web interface...")
     print("   Press Ctrl+C to stop.\n")
 

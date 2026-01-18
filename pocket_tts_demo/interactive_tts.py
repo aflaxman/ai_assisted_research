@@ -14,20 +14,24 @@ import torch
 import numpy as np
 from pathlib import Path
 import json
-from pocket_tts import PocketTTS
+from pocket_tts import TTSModel
 
 # Initialize model
 print("Loading Pocket TTS model...")
-tts = PocketTTS()
+tts = TTSModel.load_model()
 print("Model loaded successfully!")
 
-# Get available preset voices
+# ACTUAL preset voices (verified to exist)
 PRESET_VOICES = {
     "None (Default)": None,
-    "Javert (Deep, commanding)": "javert",
-    "Daisy (Light, youthful)": "daisy",
-    "Whisperer (Soft, intimate)": "whisperer",
-    "Narrator (Clear, authoritative)": "narrator",
+    "Alba (Female, clear)": "alba",
+    "Marius (Male, breathy)": "marius",
+    "Javert (Male, deep/gritty)": "javert",
+    "Jean (Male, neutral)": "jean",
+    "Fantine (Female, mature)": "fantine",
+    "Cosette (Female, young)": "cosette",
+    "Eponine (Female, spirited)": "eponine",
+    "Azelma (Female, soft)": "azelma",
 }
 
 # Default text samples
@@ -58,7 +62,7 @@ def get_model_info():
 
     # Mimi info
     info.append("\n## Mimi Audio Codec")
-    info.append(f"- Sample rate: {tts.mimi.sample_rate} Hz")
+    info.append(f"- Sample rate: {tts.sample_rate} Hz")
     info.append(f"- Frame rate: {tts.mimi.frame_rate} Hz")
     info.append(f"- Channels: {tts.mimi.channels}")
     info.append(f"- Transformer dimension: {tts.mimi.transformer.d_model}")
@@ -94,33 +98,25 @@ def generate_tts(
         voice_info = "🔊 Using default voice"
 
         if use_custom_voice and custom_voice_audio is not None:
-            # Use custom audio
-            voice = custom_voice_audio
+            # Use custom audio to extract voice state
+            voice_state = tts.get_state_for_audio_prompt(custom_voice_audio)
             voice_info = "🎤 Using custom voice (uploaded audio)"
         elif voice_preset and voice_preset != "None (Default)":
             # Use preset voice
             voice = PRESET_VOICES[voice_preset]
+            voice_state = tts.get_state_for_audio_prompt(voice)
             voice_info = f"🎭 Using preset: {voice_preset}"
+        else:
+            # Use default (no voice state)
+            voice_state = None
+            voice_info = "🔊 Using default voice"
 
         # Generate audio
-        # Note: Not all parameters may be exposed by pocket-tts API
-        # We'll use what's available
-        gen_params = {}
-
-        # Check what parameters the generate method accepts
-        import inspect
-        sig = inspect.signature(tts.generate)
-
-        # Add parameters if they're supported
-        if 'temperature' in sig.parameters:
-            gen_params['temperature'] = temperature
-        if 'cfg_scale' in sig.parameters:
-            gen_params['cfg_scale'] = cfg_scale
-        if 'num_steps' in sig.parameters:
-            gen_params['num_steps'] = num_steps
-
-        # Generate
-        audio = tts.generate(text, voice=voice, **gen_params)
+        if voice_state is not None:
+            audio = tts.generate_audio(voice_state, text)
+        else:
+            # For default voice, use the basic generate method
+            audio = tts.generate_audio(None, text)
 
         # Convert to numpy array if needed
         if torch.is_tensor(audio):
@@ -132,26 +128,19 @@ def generate_tts(
         elif audio.ndim == 2:
             audio = audio.T  # Gradio expects (samples, channels)
 
-        status = f"✅ Generated {len(audio)/tts.mimi.sample_rate:.2f}s of audio\n"
+        status = f"✅ Generated {len(audio)/tts.sample_rate:.2f}s of audio\n"
         status += voice_info
 
-        # Add warning if parameters aren't supported
-        unsupported = []
-        if 'temperature' not in sig.parameters:
-            unsupported.append('temperature')
-        if 'cfg_scale' not in sig.parameters:
-            unsupported.append('cfg_scale')
-        if 'num_steps' not in sig.parameters:
-            unsupported.append('num_steps')
+        # Note about unsupported parameters
+        status += "\n\n⚠️ Note: Temperature, CFG scale, and num_steps are not currently exposed by the Pocket TTS API."
+        status += "\nOnly text and voice selection are adjustable."
+        status += "\n\nFor advanced voice manipulation (blending, temperature, etc.), use advanced_voice_mixer.py"
 
-        if unsupported:
-            status += f"\n\n⚠️ Note: These parameters aren't supported by the current API: {', '.join(unsupported)}"
-            status += "\nOnly text and voice selection are currently adjustable."
-
-        return (tts.mimi.sample_rate, audio), status
+        return (tts.sample_rate, audio), status
 
     except Exception as e:
-        return None, f"❌ Error: {str(e)}"
+        import traceback
+        return None, f"❌ Error: {str(e)}\n\n{traceback.format_exc()}"
 
 
 def load_sample_text(sample_key):
@@ -164,10 +153,9 @@ with gr.Blocks(title="Interactive Pocket TTS", theme=gr.themes.Soft()) as demo:
     gr.Markdown("""
     # 🎙️ Interactive Pocket TTS Studio
 
-    Real-time text-to-speech generation with adjustable parameters.
+    Simple text-to-speech generation with voice selection.
 
-    **Note:** Most config parameters are model architecture settings (fixed at training time).
-    This tool exposes the **inference parameters** you can adjust in real-time.
+    **Note:** For advanced features (voice blending, temperature, etc.), use `advanced_voice_mixer.py`
     """)
 
     with gr.Tabs():
@@ -207,36 +195,42 @@ with gr.Blocks(title="Interactive Pocket TTS", theme=gr.themes.Soft()) as demo:
                             type="filepath",
                         )
                         gr.Markdown("*Upload a clean audio sample of the voice you want to clone*")
+                        gr.Markdown("*Requires HF authentication for voice cloning - see README.md Method 2*")
 
-                    gr.Markdown("### Generation Parameters")
-                    gr.Markdown("*Note: These parameters may not be exposed in the current API*")
+                    gr.Markdown("### Generation Parameters (Display Only)")
+                    gr.Markdown("*These parameters are not exposed in the current API*")
 
                     temperature = gr.Slider(
-                        label="Temperature (controls randomness)",
+                        label="Temperature (NOT USED - for display only)",
                         minimum=0.1,
                         maximum=2.0,
                         value=0.8,
                         step=0.1,
-                        info="Higher = more varied, Lower = more deterministic"
+                        interactive=False,
+                        info="Not exposed by Pocket TTS API"
                     )
 
                     cfg_scale = gr.Slider(
-                        label="Classifier-Free Guidance Scale",
+                        label="CFG Scale (NOT USED - for display only)",
                         minimum=0.0,
                         maximum=5.0,
                         value=1.5,
                         step=0.1,
-                        info="Higher = stronger text conditioning"
+                        interactive=False,
+                        info="Not exposed by Pocket TTS API"
                     )
 
                     num_steps = gr.Slider(
-                        label="Number of Generation Steps",
+                        label="Generation Steps (NOT USED - for display only)",
                         minimum=10,
                         maximum=100,
                         value=32,
                         step=1,
-                        info="More steps = higher quality but slower"
+                        interactive=False,
+                        info="Not exposed by Pocket TTS API"
                     )
+
+                    gr.Markdown("**For advanced control**, use `advanced_voice_mixer.py` which manipulates the KV cache")
 
                     generate_btn = gr.Button("🎵 Generate Speech", variant="primary", size="lg")
 
@@ -246,15 +240,19 @@ with gr.Blocks(title="Interactive Pocket TTS", theme=gr.themes.Soft()) as demo:
                     audio_output = gr.Audio(
                         label="Generated Audio",
                         type="numpy",
-                        autoplay=False,
+                        autoplay=True,
+                        loop=True,
                     )
 
                     gr.Markdown("""
                     ### 💡 Tips
-                    - Start with preset voices for consistent results
-                    - Custom voices require 3-10s of clear audio
+                    - Try different preset voices for variety
+                    - Custom voices require HF authentication
                     - Shorter texts generate faster
-                    - Temperature affects voice variation
+                    - Use advanced_voice_mixer.py for:
+                      * Voice blending
+                      * Temperature control
+                      * Sharpness/depth adjustment
                     """)
 
             # Connect sample buttons
@@ -266,6 +264,21 @@ with gr.Blocks(title="Interactive Pocket TTS", theme=gr.themes.Soft()) as demo:
 
             # Connect generate button
             generate_btn.click(
+                fn=generate_tts,
+                inputs=[
+                    text_input,
+                    voice_preset,
+                    custom_voice_audio,
+                    temperature,
+                    cfg_scale,
+                    num_steps,
+                    use_custom_voice,
+                ],
+                outputs=[audio_output, status_text],
+            )
+
+            # Also trigger on text change for convenience
+            text_input.change(
                 fn=generate_tts,
                 inputs=[
                     text_input,
@@ -323,49 +336,58 @@ with gr.Blocks(title="Interactive Pocket TTS", theme=gr.themes.Soft()) as demo:
             ### Basic Usage
             1. Enter text in the "Text to Speak" box
             2. Choose a preset voice or upload custom audio
-            3. Click "Generate Speech"
+            3. Click "Generate Speech" (or it auto-generates on text change)
             4. Listen to the result!
 
-            ### Parameter Explanation
-
-            **Adjustable at Inference:**
-            - **Text**: What to say (obviously!)
-            - **Voice**: Which voice to use (preset or custom)
-            - **Temperature/CFG/Steps**: May not be exposed by current API
-
-            **Fixed at Training:**
-            - All model architecture parameters (see Configuration tab)
-            - These define the model structure and can't change
-
-            ### Voice Options
+            ### Available Voices
 
             **Preset Voices:**
-            - **Javert**: Deep, commanding, authoritative
-            - **Daisy**: Light, youthful, energetic
-            - **Whisperer**: Soft, intimate, quiet
-            - **Narrator**: Clear, neutral, professional
+            - **Alba**: Female, clear
+            - **Marius**: Male, breathy
+            - **Javert**: Male, deep/gritty
+            - **Jean**: Male, neutral
+            - **Fantine**: Female, mature
+            - **Cosette**: Female, young
+            - **Eponine**: Female, spirited
+            - **Azelma**: Female, soft
 
             **Custom Voice:**
             - Upload 3-10 seconds of clean audio
             - Single speaker, no background noise
-            - The model will clone the voice characteristics
+            - Requires HF authentication (see README.md Method 2)
+
+            ### Limitations
+
+            **This tool is simplified:**
+            - No parameter tweaking (temperature, etc.)
+            - Just voice selection and text input
+
+            **For advanced features, use `advanced_voice_mixer.py`:**
+            - Voice blending (mix two voices)
+            - Temperature control (voice variability)
+            - Sharpness modification (crisp vs soft)
+            - Depth adjustment (deep vs light)
+            - Real-time auto-generation
+            - Loop playback
 
             ### Troubleshooting
 
-            **"Parameters not supported" warning:**
-            - The Pocket TTS API may not expose all parameters
-            - This is normal - focus on text and voice selection
+            **Custom voice fails:**
+            - Make sure you've authenticated with Hugging Face
+            - Run: `uvx hf auth login`
+            - Accept terms at https://huggingface.co/kyutai/pocket-tts
 
             **Generation fails:**
             - Check that text isn't empty
-            - For custom voice, ensure audio is valid
             - Try a shorter text first
+            - For custom voice, ensure audio is valid WAV format
 
             ### For More Information
 
             - See `README.md` for setup instructions
             - See `FINE_TUNING_ANALYSIS.md` for training details
-            - See `create_custom_voice.py` for voice comparison tool
+            - Use `advanced_voice_mixer.py` for voice manipulation
+            - Use `create_custom_voice.py` for voice comparison
             """)
 
 # Launch the app
@@ -384,5 +406,5 @@ if __name__ == "__main__":
         share=False,  # Set to True to create public link
         show_error=True,
         server_name="127.0.0.1",  # Change to "0.0.0.0" to allow external access
-        server_port=7860,
+        server_port=7861,  # Use different port from advanced_voice_mixer
     )

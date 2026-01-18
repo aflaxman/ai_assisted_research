@@ -103,7 +103,7 @@ source .venv/bin/activate  # On Linux/WSL/Mac
 # OR on Windows: .venv\Scripts\activate
 
 # Install dependencies in the isolated environment
-uv pip install pocket-tts scipy pydub
+uv pip install pocket-tts scipy pydub gradio
 ```
 
 **Alternative:** If you don't have `uv`, you can use standard Python:
