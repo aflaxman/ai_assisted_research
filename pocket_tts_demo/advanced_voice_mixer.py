@@ -542,11 +542,10 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                     )
 
                     with gr.Row():
+                        sample_buttons = {}
                         for name in SAMPLE_TEXTS.keys():
-                            gr.Button(name, size="sm").click(
-                                fn=lambda n=name: SAMPLE_TEXTS[n],
-                                outputs=text_input,
-                            )
+                            sample_buttons[name] = gr.Button(name, size="sm")
+                        regenerate_btn = gr.Button("🔄 Regenerate", variant="secondary", size="sm")
 
                     gr.Markdown("### Voice Blending")
 
@@ -672,6 +671,14 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                     - Split long text to reduce repetition
                     - Adjust pitch/tempo for singing (experimental)
                     - Narrower sharpness/depth ranges = no glitches!
+                    - 🔄 Regenerate button: Hear variation without changing parameters
+                    - Sample buttons: Click repeatedly to hear natural variation!
+
+                    **Hearing Natural Variation:**
+                    - Click sample text buttons multiple times
+                    - Each click regenerates with same params
+                    - Helps you feel the randomness in generation
+                    - Or use the 🔄 Regenerate button anytime
 
                     **Pitch/Tempo for Songs:**
                     - Pitch shift: ±12 semitones (full octave range)
@@ -721,6 +728,31 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                 fn=delete_preset,
                 inputs=[load_preset_dropdown],
                 outputs=[preset_status, load_preset_dropdown],
+            )
+
+            # Sample text buttons - trigger both text update AND regeneration
+            for name, btn in sample_buttons.items():
+                # Use a wrapper function to update text and trigger generation
+                def make_sample_handler(sample_name):
+                    def handler(*current_inputs):
+                        # Update the text (first input)
+                        new_inputs = list(current_inputs)
+                        new_inputs[0] = SAMPLE_TEXTS[sample_name]
+                        # Generate with new text
+                        return generate_with_custom_voice(*new_inputs)
+                    return handler
+
+                btn.click(
+                    fn=make_sample_handler(name),
+                    inputs=inputs,
+                    outputs=[audio_output, status_text],
+                )
+
+            # Regenerate button - triggers generation with current parameters
+            regenerate_btn.click(
+                fn=generate_with_custom_voice,
+                inputs=inputs,
+                outputs=[audio_output, status_text],
             )
 
         # Comparison tab with parallel coordinates
