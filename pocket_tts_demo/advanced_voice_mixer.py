@@ -2,9 +2,9 @@
 """
 Advanced Voice Mixer - Interactive tool with preset management, voice analysis, and audio manipulation.
 
-NEW FEATURES:
+FEATURES:
 - Save and load parameter presets
-- Text block splitting for less repetition
+- Real-time generation for quick parameter tweaking
 - Pitch and tempo controls (post-processing)
 - Parallel coordinates visualization of voice vectors
 - Enhanced comparison panel with saved presets
@@ -245,8 +245,7 @@ def generate_with_custom_voice(text, voice_a, voice_b, blend_ratio,
                                 temperature, sharpness, depth,
                                 use_preset_a, use_preset_b,
                                 custom_audio_a, custom_audio_b,
-                                pitch_shift, tempo_factor,
-                                split_blocks):
+                                pitch_shift, tempo_factor):
     """Generate speech with blended/modified voice and audio processing."""
     if not text or not text.strip():
         return None, "⚠️ Please enter some text"
@@ -286,12 +285,8 @@ def generate_with_custom_voice(text, voice_a, voice_b, blend_ratio,
             voice_state = modify_voice_state(voice_state, temperature, sharpness, depth)
             voice_info += f"\n🔧 Modified: temp={temperature:.2f}, sharp={sharpness:.2f}, depth={depth:.2f}"
 
-        # Split text into blocks if requested
-        if split_blocks:
-            text_blocks = split_text_into_blocks(text)
-            print(f"Split into {len(text_blocks)} blocks")
-        else:
-            text_blocks = [text]
+        # Don't split - generate quickly for parameter tweaking
+        text_blocks = [text]
 
         # Generate audio for each block
         audio_segments = []
@@ -315,9 +310,6 @@ def generate_with_custom_voice(text, voice_a, voice_b, blend_ratio,
             print(f"Applying pitch={pitch_shift} semitones, tempo={tempo_factor}x")
             audio = apply_pitch_tempo(audio, tts.sample_rate, pitch_shift, tempo_factor)
             voice_info += f"\n🎵 Audio: pitch={pitch_shift:+d} semitones, tempo={tempo_factor:.2f}x"
-
-        if split_blocks and len(text_blocks) > 1:
-            voice_info += f"\n📝 Split into {len(text_blocks)} blocks"
 
         status = f"✅ Generated {len(audio)/tts.sample_rate:.2f}s of audio\n{voice_info}"
 
@@ -519,7 +511,7 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
 
     Blend voices, modify characteristics, and explore the voice embedding space in real-time.
 
-    **NEW**: Save presets, text block splitting, pitch/tempo control, voice vector visualization!
+    **Features**: Save presets, pitch/tempo control, voice vector visualization, natural variation!
     """)
 
     with gr.Tabs():
@@ -535,17 +527,10 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                         value="The ancient forest whispers secrets through rustling leaves, while shadows dance in the fading light.",
                     )
 
-                    split_blocks = gr.Checkbox(
-                        label="Split into blocks (reduces repetition for long texts)",
-                        value=False,
-                        info="Processes text in sentence-sized chunks"
-                    )
-
                     with gr.Row():
                         sample_buttons = {}
                         for name in SAMPLE_TEXTS.keys():
                             sample_buttons[name] = gr.Button(name, size="sm")
-                        regenerate_btn = gr.Button("🔄 Regenerate", variant="secondary", size="sm")
 
                     gr.Markdown("### Voice Blending")
 
@@ -666,19 +651,18 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                     gr.Markdown("""
                     ### 💡 Tips
 
-                    **NEW Features:**
+                    **Features:**
                     - Save favorite settings as named presets
-                    - Split long text to reduce repetition
+                    - Real-time generation for quick parameter tweaking
                     - Adjust pitch/tempo for singing (experimental)
                     - Narrower sharpness/depth ranges = no glitches!
-                    - 🔄 Regenerate button: Hear variation without changing parameters
                     - Sample buttons: Click repeatedly to hear natural variation!
 
                     **Hearing Natural Variation:**
                     - Click sample text buttons multiple times
-                    - Each click regenerates with same params
+                    - Each click regenerates audio
                     - Helps you feel the randomness in generation
-                    - Or use the 🔄 Regenerate button anytime
+                    - Text updates automatically when you click
 
                     **Pitch/Tempo for Songs:**
                     - Pitch shift: ±12 semitones (full octave range)
@@ -699,7 +683,7 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                 temperature, sharpness, depth,
                 use_preset_a, use_preset_b,
                 custom_audio_a, custom_audio_b,
-                pitch_shift, tempo_factor, split_blocks,
+                pitch_shift, tempo_factor,
             ]
 
             for inp in inputs:
@@ -730,7 +714,7 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                 outputs=[preset_status, load_preset_dropdown],
             )
 
-            # Sample text buttons - trigger both text update AND regeneration
+            # Sample text buttons - update text and generate audio
             for name, btn in sample_buttons.items():
                 # Use a wrapper function to update text and trigger generation
                 def make_sample_handler(sample_name):
@@ -739,21 +723,16 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                         new_inputs = list(current_inputs)
                         new_inputs[0] = SAMPLE_TEXTS[sample_name]
                         # Generate with new text
-                        return generate_with_custom_voice(*new_inputs)
+                        audio_result, status_result = generate_with_custom_voice(*new_inputs)
+                        # Return updated text, audio, and status
+                        return SAMPLE_TEXTS[sample_name], audio_result, status_result
                     return handler
 
                 btn.click(
                     fn=make_sample_handler(name),
                     inputs=inputs,
-                    outputs=[audio_output, status_text],
+                    outputs=[text_input, audio_output, status_text],
                 )
-
-            # Regenerate button - triggers generation with current parameters
-            regenerate_btn.click(
-                fn=generate_with_custom_voice,
-                inputs=inputs,
-                outputs=[audio_output, status_text],
-            )
 
         # Comparison tab with parallel coordinates
         with gr.Tab("📊 Voice Comparison & Visualization"):
@@ -823,22 +802,6 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
               * So-VITS-SVC (singing voice synthesis)
               * RVC (Retrieval-based Voice Conversion)
 
-            ### Text Block Splitting
-
-            **Why split text:**
-            - Long texts can sound repetitive
-            - Each block is generated independently
-            - 0.2s silence added between blocks
-            - Target length: ~80 characters per block
-
-            **How it works:**
-            ```python
-            blocks = split_text_into_blocks(text, target_length=80)
-            for block in blocks:
-                audio_segment = generate(block)
-                # Add to final audio
-            ```
-
             ### Reduced Parameter Ranges
 
             **Old ranges caused glitches:**
@@ -884,12 +847,13 @@ if __name__ == "__main__":
     print("\n" + "="*60)
     print("🎛️  Starting Advanced Voice Mixer Studio v2.0")
     print("="*60)
-    print("\nNew features:")
+    print("\nFeatures:")
     print("  • Preset save/load")
-    print("  • Text block splitting")
+    print("  • Real-time generation for parameter tweaking")
     print("  • Pitch/tempo controls")
     print("  • Parallel coordinates visualization")
     print("  • Narrower parameter ranges (no more glitches!)")
+    print("  • Natural variation (click sample buttons repeatedly)")
     print("\nAvailable preset voices:")
     for voice in PRESET_VOICES:
         print(f"  • {voice}: {VOICE_INFO.get(voice, '')}")
