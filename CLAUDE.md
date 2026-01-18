@@ -21,10 +21,9 @@ I would like to keep the environments easy to create and isolated, e.g. for mpld
 
 - Use `uv` for Python package management
 - Commit messages include the Claude Code attribution footer
+- **Quickstart sections**: Should be simple and direct - choose ONE recommended path, not multiple options. Don't force users to make decisions in quickstart; save alternatives for detailed instructions.
 
-Also for mpld3_notes
-
-- Test scripts follow the pattern `test_pr<NUMBER>_<description>.py`
+- for mpld3_notes: Test scripts follow the pattern `test_pr<NUMBER>_<description>.py`
 
 ## Technical Blog Post Guidelines
 
