@@ -19,6 +19,10 @@ A simple demo application for [Pocket TTS](https://github.com/kyutai-labs/pocket
 - **`convert_recording.py`** - Convert audio files to TTS format (for WSL users)
 - **`use_your_voice.py`** - Use your own audio recordings
 
+**Interactive GUI Tools:**
+- **`interactive_tts.py`** - Web-based GUI for real-time TTS generation
+- **`advanced_voice_mixer.py`** - Blend voices and modify characteristics in real-time
+
 **Training Resources:**
 - **`verify_model_access.py`** - Verify you can access model internals for training
 - **`FINE_TUNING_ANALYSIS.md`** - Complete technical analysis of fine-tuning possibilities
@@ -33,13 +37,15 @@ A simple demo application for [Pocket TTS](https://github.com/kyutai-labs/pocket
 ### Which Script Should I Use?
 
 ```
-Script                    Purpose                      Auth?  Best For
-─────────────────────────────────────────────────────────────────────────────
-tts_demo.py               Test preset voices           No     Getting started
-create_custom_voice.py    Compare & enhance voices     No     Finding grittiest presets
-record_voice.py           Record voice (Linux/Mac)     No     Direct recording
-convert_recording.py      Convert audio to TTS format  No     WSL users, format conversion
-use_your_voice.py         Clone custom voice           Yes*   Using recorded samples
+Script                      Purpose                      Auth?  Best For
+───────────────────────────────────────────────────────────────────────────────────
+tts_demo.py                 Test preset voices           No     Getting started
+advanced_voice_mixer.py     Blend & modify voices (GUI)  No     Experimenting, best results!
+interactive_tts.py          Simple TTS generation (GUI)  No     Easy voice selection
+create_custom_voice.py      Compare & enhance voices     No     Finding grittiest presets
+record_voice.py             Record voice (Linux/Mac)     No     Direct recording
+convert_recording.py        Convert audio to TTS format  No     WSL users, format conversion
+use_your_voice.py           Clone custom voice           Yes*   Using recorded samples
 ```
 
 *Voice cloning from custom files requires Hugging Face authentication (see Method 2 below)
@@ -134,6 +140,50 @@ ffplay output/alba_demo.wav output/marius_demo.wav output/javert_demo.wav output
 - **Javert** - Deeper and grittier tone
 - **Marius** - Breathy qualities
 - **Alba & Jean** - Contrast voices for comparison
+
+## 🎛️ Interactive GUI Tools
+
+### Advanced Voice Mixer (Recommended!)
+
+The **Advanced Voice Mixer** lets you blend voices and modify characteristics in real-time through a web interface:
+
+```bash
+python advanced_voice_mixer.py
+```
+
+**Features:**
+- **Voice Blending**: Mix any two voices together with a slider
+- **Real-time Modifications**: Adjust temperature, sharpness, and depth
+- **Voice Analysis**: Examine the internal KV cache representation
+- **Voice Comparison**: See similarity metrics between voices
+- **Custom Audio**: Upload your own voice samples
+
+**How it works**: The tool manipulates the transformer's key-value (KV) cache that encodes voice characteristics. You can:
+- Blend `javert` (deep/gritty) + `daisy` (light/youthful) for unique combinations
+- Adjust temperature to control voice variation
+- Modify sharpness for crisp vs soft tones
+- Change depth for darker vs brighter resonance
+
+**Example workflow:**
+1. Start with Voice A = `javert` (gritty)
+2. Set Voice B = `whisperer` (breathy)
+3. Slide blend ratio to 0.3 (30% whisperer)
+4. Adjust sharpness = 0.2 for extra crispness
+5. Generate and listen!
+
+### Interactive TTS Studio
+
+A simpler GUI for basic TTS generation:
+
+```bash
+python interactive_tts.py
+```
+
+**Features:**
+- Text-to-speech with preset voices
+- Custom voice upload
+- Model configuration viewer
+- Sample text presets
 
 ## 🎨 Customizing for More Gritty/Breathy Sound
 

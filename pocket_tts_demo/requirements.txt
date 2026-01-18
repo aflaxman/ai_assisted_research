@@ -1,6 +1,7 @@
 pocket-tts
 scipy
 pydub
+gradio
 
 # Optional: For recording your own voice (record_voice.py)
 # sounddevice
