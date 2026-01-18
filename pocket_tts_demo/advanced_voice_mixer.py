@@ -1,120 +1,14 @@
 #!/usr/bin/env python3
 """
-Advanced Voice Mixer - Interactive tool to blend and manipulate voice characteristics.
+Advanced Voice Mixer - Interactive tool with preset management, voice analysis, and audio manipulation.
 
-This tool extracts voice embeddings from audio files and allows you to:
-- Blend multiple voices together
-- Interpolate between different voice characteristics
-- Modify KV cache values to tweak voice properties
-- Visualize voice embeddings
-
-## How Voice State Parameters Map to Code
-
-When you provide custom audio, the model extracts a "voice_state" which is a dictionary
-containing the transformer's KV (key-value) cache:
-
-```python
-voice_state = {
-    'transformer.layers.0.self_attn': {
-        'current_end': Tensor[125],  # Position tracker
-        'cache': Tensor[125, 2, 8, 127, 256]  # Actual KV cache
-    },
-    'transformer.layers.1.self_attn': { ... },
-    ...  # 6 layers total for Pocket TTS
-}
-```
-
-The cache dimensions are:
-- Dim 0 (125): Batch size
-- Dim 1 (2): Keys and Values
-- Dim 2 (8): Number of attention heads
-- Dim 3 (127): Sequence length (audio frames)
-- Dim 4 (256): Embedding dimension per head
-
-## What the Exposed Parameters Do
-
-### Voice Blending (blend_ratio)
-**Code:**
-```python
-blended_cache = (1 - blend_ratio) * cache_A + blend_ratio * cache_B
-```
-**What it does:** Weighted average of attention patterns from two voices.
-- 0.0 = 100% Voice A
-- 0.5 = 50/50 mix
-- 1.0 = 100% Voice B
-
-**Effect:** Combines voice characteristics like pitch, timbre, rhythm, breathiness.
-
-### Temperature Modification
-**Code:**
-```python
-mean = torch.nanmean(cache)
-modified = mean + (cache - mean) * temperature
-```
-**What it does:** Scales variance around the mean.
-- temperature > 1.0: Amplifies deviations → more varied/dynamic voice
-- temperature < 1.0: Reduces deviations → more consistent/flat voice
-- temperature = 1.0: No change
-
-**Effect:** Controls how much the voice varies during speech. Higher temperature
-makes the voice more expressive and dynamic, lower makes it more monotone.
-
-**Maps to:** The variance of attention weights in each layer's cache.
-
-### Sharpness Modification
-**Code:**
-```python
-median = torch.nanmedian(cache)
-sign = torch.sign(cache - median)
-modified = cache + sharpness * sign * torch.abs(cache - median)
-```
-**What it does:** Enhances or reduces contrast relative to the median.
-- sharpness > 0: Amplifies differences from median → sharper/crisper voice
-- sharpness < 0: Reduces differences → softer/mellower voice
-- sharpness = 0: No change
-
-**Effect:** Controls voice clarity and distinctiveness. Positive values make
-consonants crisper and vowels more defined. Negative values create a softer,
-more muffled quality.
-
-**Maps to:** The distribution of attention weights - sharper = more peaked
-attention, softer = more diffuse attention.
-
-### Depth Modification
-**Code:**
-```python
-modified = cache + depth
-```
-**What it does:** Shifts all cache values by a constant.
-- depth > 0: Shift upward → deeper/darker resonance
-- depth < 0: Shift downward → lighter/brighter resonance
-- depth = 0: No change
-
-**Effect:** Controls the overall tonal quality. Positive depth creates a
-deeper, more resonant voice (like shifting pitch down). Negative depth
-creates a lighter, airier voice.
-
-**Maps to:** The mean baseline of all attention values in the cache.
-
-## Limitations and Caveats
-
-1. **Not trained for this:** The model wasn't trained to handle modified KV caches,
-   so extreme values may produce artifacts or degraded quality.
-
-2. **Heuristic transformations:** These modifications are educated guesses about
-   how KV cache statistics relate to voice perception. They work reasonably well
-   but aren't guaranteed.
-
-3. **Non-linear interactions:** Combining multiple modifications may have
-   unexpected effects due to non-linear interactions in the transformer.
-
-4. **Better alternatives exist:** For production use, fine-tuning the model on
-   target speech data (see FINE_TUNING_ANALYSIS.md) will give better results.
-
-5. **Voice cloning limits:** Custom audio files require HF authentication for
-   voice cloning weights. Without it, only preset voices work.
-
-This tool is for experimentation and exploration of the voice embedding space!
+NEW FEATURES:
+- Save and load parameter presets
+- Text block splitting for less repetition
+- Pitch and tempo controls (post-processing)
+- Parallel coordinates visualization of voice vectors
+- Enhanced comparison panel with saved presets
+- Narrower parameter ranges to prevent glitchy sounds
 """
 
 import gradio as gr
@@ -124,15 +18,23 @@ from pocket_tts import TTSModel
 import scipy.io.wavfile
 from pathlib import Path
 import json
+import plotly.graph_objects as go
+import plotly.express as px
+import librosa
+from datetime import datetime
+import re
 
 # Initialize model
 print("Loading Pocket TTS model...")
 tts = TTSModel.load_model()
 print("Model loaded successfully!")
 
+# Preset storage file
+PRESETS_FILE = Path("voice_presets.json")
+
 # ACTUAL preset voices (verified to exist)
 PRESET_VOICES = [
-    "alba",      # Female
+    "alba",      # Female, clear
     "marius",    # Male, breathy
     "javert",    # Male, deep/gritty
     "jean",      # Male
@@ -164,6 +66,22 @@ SAMPLE_TEXTS = {
 
 # Cache for voice states
 voice_cache = {}
+# Cache for voice vectors
+voice_vector_cache = {}
+
+
+def load_presets():
+    """Load saved presets from JSON file."""
+    if PRESETS_FILE.exists():
+        with open(PRESETS_FILE, 'r') as f:
+            return json.load(f)
+    return {}
+
+
+def save_presets(presets):
+    """Save presets to JSON file."""
+    with open(PRESETS_FILE, 'w') as f:
+        json.dump(presets, f, indent=2)
 
 
 def get_voice_state(voice_source):
@@ -174,29 +92,6 @@ def get_voice_state(voice_source):
     return voice_cache[voice_source]
 
 
-def analyze_voice_state(voice_state):
-    """Analyze the structure and statistics of a voice state."""
-    info = []
-    info.append("# Voice State Analysis\n")
-
-    total_params = 0
-    for key, value in voice_state.items():
-        if isinstance(value, dict) and 'cache' in value:
-            cache = value['cache']
-            if torch.is_tensor(cache):
-                info.append(f"## {key}")
-                info.append(f"- Shape: {list(cache.shape)}")
-                info.append(f"- Total values: {cache.numel():,}")
-                info.append(f"- Range: [{cache.min().item():.4f}, {cache.max().item():.4f}]")
-                info.append(f"- Mean: {cache.mean().item():.4f}")
-                info.append(f"- Std: {cache.std().item():.4f}")
-                info.append("")
-                total_params += cache.numel()
-
-    info.insert(1, f"**Total cache size**: {total_params:,} values\n")
-    return "\n".join(info)
-
-
 def extract_voice_vector(voice_state):
     """Extract a summary vector from voice state by averaging key statistics."""
     vectors = []
@@ -205,7 +100,6 @@ def extract_voice_vector(voice_state):
             cache = value['cache']
             if torch.is_tensor(cache):
                 # Extract statistical summary
-                # Only use non-NaN values
                 mask = ~torch.isnan(cache)
                 valid_cache = cache[mask]
 
@@ -224,18 +118,45 @@ def extract_voice_vector(voice_state):
     return None
 
 
+def get_voice_vector(voice_name):
+    """Get or cache voice vector."""
+    if voice_name not in voice_vector_cache:
+        state = get_voice_state(voice_name)
+        voice_vector_cache[voice_name] = extract_voice_vector(state)
+    return voice_vector_cache[voice_name]
+
+
+def split_text_into_blocks(text, target_length=80):
+    """
+    Split text into blocks of approximately target_length characters.
+    Splits on sentence boundaries when possible.
+    """
+    # Split into sentences (simple approach)
+    sentences = re.split(r'([.!?]+\s*)', text)
+
+    blocks = []
+    current_block = ""
+
+    for i in range(0, len(sentences), 2):
+        sentence = sentences[i]
+        if i + 1 < len(sentences):
+            sentence += sentences[i + 1]  # Add punctuation
+
+        if len(current_block) + len(sentence) <= target_length * 1.5:
+            current_block += sentence
+        else:
+            if current_block:
+                blocks.append(current_block.strip())
+            current_block = sentence
+
+    if current_block:
+        blocks.append(current_block.strip())
+
+    return blocks if blocks else [text]
+
+
 def blend_voice_states(voice_state_a, voice_state_b, blend_ratio):
-    """
-    Blend two voice states together.
-
-    Args:
-        voice_state_a: First voice state (dict)
-        voice_state_b: Second voice state (dict)
-        blend_ratio: How much of B to blend in (0.0 = all A, 1.0 = all B)
-
-    Returns:
-        Blended voice state
-    """
+    """Blend two voice states together."""
     blended = {}
 
     for key in voice_state_a.keys():
@@ -248,11 +169,9 @@ def blend_voice_states(voice_state_a, voice_state_b, blend_ratio):
                 for subkey in value_a.keys():
                     if subkey in value_b:
                         if torch.is_tensor(value_a[subkey]) and torch.is_tensor(value_b[subkey]):
-                            # Blend tensors
                             tensor_a = value_a[subkey]
                             tensor_b = value_b[subkey]
 
-                            # Handle NaN values
                             mask_a = ~torch.isnan(tensor_a)
                             mask_b = ~torch.isnan(tensor_b)
 
@@ -263,7 +182,6 @@ def blend_voice_states(voice_state_a, voice_state_b, blend_ratio):
                             )
                             blended[key][subkey] = blended_tensor
                         else:
-                            # For non-tensor values, just take from A
                             blended[key][subkey] = value_a[subkey]
             else:
                 blended[key] = value_a
@@ -274,18 +192,7 @@ def blend_voice_states(voice_state_a, voice_state_b, blend_ratio):
 
 
 def modify_voice_state(voice_state, temperature, sharpness, depth):
-    """
-    Modify voice state characteristics.
-
-    Args:
-        voice_state: Input voice state
-        temperature: Controls variability (higher = more varied)
-        sharpness: Controls distinctiveness (higher = sharper)
-        depth: Controls resonance (deeper values)
-
-    Returns:
-        Modified voice state
-    """
+    """Modify voice state characteristics."""
     modified = {}
 
     for key, value in voice_state.items():
@@ -293,20 +200,16 @@ def modify_voice_state(voice_state, temperature, sharpness, depth):
             modified[key] = {}
             for subkey, subvalue in value.items():
                 if torch.is_tensor(subvalue) and subkey == 'cache':
-                    # Apply modifications
                     tensor = subvalue.clone()
 
-                    # Temperature: scale variance
                     if temperature != 1.0:
                         mean = torch.nanmean(tensor)
                         tensor = mean + (tensor - mean) * temperature
 
-                    # Sharpness: enhance contrast
                     if sharpness != 0.0:
                         median = torch.nanmedian(tensor)
                         tensor = tensor + sharpness * torch.sign(tensor - median) * torch.abs(tensor - median)
 
-                    # Depth: shift mean
                     if depth != 0.0:
                         tensor = tensor + depth
 
@@ -319,11 +222,32 @@ def modify_voice_state(voice_state, temperature, sharpness, depth):
     return modified
 
 
+def apply_pitch_tempo(audio, sample_rate, pitch_shift, tempo_factor):
+    """Apply pitch and tempo modifications using librosa."""
+    if pitch_shift == 0 and tempo_factor == 1.0:
+        return audio
+
+    # Ensure float32
+    audio = audio.astype(np.float32)
+
+    # Apply pitch shift (in semitones)
+    if pitch_shift != 0:
+        audio = librosa.effects.pitch_shift(audio, sr=sample_rate, n_steps=pitch_shift)
+
+    # Apply tempo change
+    if tempo_factor != 1.0:
+        audio = librosa.effects.time_stretch(audio, rate=tempo_factor)
+
+    return audio
+
+
 def generate_with_custom_voice(text, voice_a, voice_b, blend_ratio,
                                 temperature, sharpness, depth,
                                 use_preset_a, use_preset_b,
-                                custom_audio_a, custom_audio_b):
-    """Generate speech with blended/modified voice."""
+                                custom_audio_a, custom_audio_b,
+                                pitch_shift, tempo_factor,
+                                split_blocks):
+    """Generate speech with blended/modified voice and audio processing."""
     if not text or not text.strip():
         return None, "⚠️ Please enter some text"
 
@@ -349,7 +273,6 @@ def generate_with_custom_voice(text, voice_a, voice_b, blend_ratio,
             else:
                 return None, "⚠️ Please select Voice B for blending"
 
-            # Blend voices
             print(f"Blending {source_a} ({1-blend_ratio:.0%}) + {source_b} ({blend_ratio:.0%})")
             voice_state = blend_voice_states(state_a, state_b, blend_ratio)
             voice_info = f"🎨 Blended: {source_a} ({(1-blend_ratio)*100:.0f}%) + {source_b} ({blend_ratio*100:.0f}%)"
@@ -363,12 +286,38 @@ def generate_with_custom_voice(text, voice_a, voice_b, blend_ratio,
             voice_state = modify_voice_state(voice_state, temperature, sharpness, depth)
             voice_info += f"\n🔧 Modified: temp={temperature:.2f}, sharp={sharpness:.2f}, depth={depth:.2f}"
 
-        # Generate audio
-        audio = tts.generate_audio(voice_state, text)
+        # Split text into blocks if requested
+        if split_blocks:
+            text_blocks = split_text_into_blocks(text)
+            print(f"Split into {len(text_blocks)} blocks")
+        else:
+            text_blocks = [text]
 
-        # Convert to numpy
-        if torch.is_tensor(audio):
-            audio = audio.cpu().numpy()
+        # Generate audio for each block
+        audio_segments = []
+        for i, block in enumerate(text_blocks):
+            if block.strip():
+                print(f"Generating block {i+1}/{len(text_blocks)}: {block[:50]}...")
+                block_audio = tts.generate_audio(voice_state, block)
+                if torch.is_tensor(block_audio):
+                    block_audio = block_audio.cpu().numpy()
+                audio_segments.append(block_audio)
+                # Add small silence between blocks (0.2 seconds)
+                if i < len(text_blocks) - 1:
+                    silence = np.zeros(int(tts.sample_rate * 0.2))
+                    audio_segments.append(silence)
+
+        # Concatenate all segments
+        audio = np.concatenate(audio_segments)
+
+        # Apply pitch and tempo modifications
+        if pitch_shift != 0 or tempo_factor != 1.0:
+            print(f"Applying pitch={pitch_shift} semitones, tempo={tempo_factor}x")
+            audio = apply_pitch_tempo(audio, tts.sample_rate, pitch_shift, tempo_factor)
+            voice_info += f"\n🎵 Audio: pitch={pitch_shift:+d} semitones, tempo={tempo_factor:.2f}x"
+
+        if split_blocks and len(text_blocks) > 1:
+            voice_info += f"\n📝 Split into {len(text_blocks)} blocks"
 
         status = f"✅ Generated {len(audio)/tts.sample_rate:.2f}s of audio\n{voice_info}"
 
@@ -379,46 +328,198 @@ def generate_with_custom_voice(text, voice_a, voice_b, blend_ratio,
         return None, f"❌ Error: {str(e)}\n\n{traceback.format_exc()}"
 
 
-def compare_voices(voice_a, voice_b):
-    """Compare two voice states."""
+def save_current_preset(preset_name, voice_a, voice_b, blend_ratio,
+                       temperature, sharpness, depth, pitch_shift, tempo_factor):
+    """Save current parameters as a named preset."""
+    if not preset_name or not preset_name.strip():
+        return "⚠️ Please enter a preset name", gr.update()
+
+    presets = load_presets()
+    presets[preset_name] = {
+        "voice_a": voice_a,
+        "voice_b": voice_b,
+        "blend_ratio": blend_ratio,
+        "temperature": temperature,
+        "sharpness": sharpness,
+        "depth": depth,
+        "pitch_shift": pitch_shift,
+        "tempo_factor": tempo_factor,
+        "created": datetime.now().isoformat()
+    }
+    save_presets(presets)
+
+    # Update dropdown choices
+    preset_names = list(presets.keys())
+
+    return f"✅ Saved preset: {preset_name}", gr.update(choices=preset_names, value=preset_name)
+
+
+def load_preset(preset_name):
+    """Load a named preset."""
+    if not preset_name:
+        return [None] * 8 + ["⚠️ Select a preset to load"]
+
+    presets = load_presets()
+    if preset_name not in presets:
+        return [None] * 8 + [f"⚠️ Preset '{preset_name}' not found"]
+
+    preset = presets[preset_name]
+    return [
+        preset.get("voice_a", "javert"),
+        preset.get("voice_b", "marius"),
+        preset.get("blend_ratio", 0.0),
+        preset.get("temperature", 1.0),
+        preset.get("sharpness", 0.0),
+        preset.get("depth", 0.0),
+        preset.get("pitch_shift", 0),
+        preset.get("tempo_factor", 1.0),
+        f"✅ Loaded preset: {preset_name}"
+    ]
+
+
+def delete_preset(preset_name):
+    """Delete a named preset."""
+    if not preset_name:
+        return "⚠️ Select a preset to delete", gr.update()
+
+    presets = load_presets()
+    if preset_name in presets:
+        del presets[preset_name]
+        save_presets(presets)
+        preset_names = list(presets.keys())
+        return f"✅ Deleted preset: {preset_name}", gr.update(choices=preset_names, value=None)
+    else:
+        return f"⚠️ Preset '{preset_name}' not found", gr.update()
+
+
+def create_parallel_coordinates_plot(voices_to_compare):
+    """Create a parallel coordinates plot for voice vector comparison."""
+    if not voices_to_compare or len(voices_to_compare) < 1:
+        return None
+
+    # Get vectors
+    data = []
+    for voice in voices_to_compare:
+        vec = get_voice_vector(voice)
+        if vec is not None:
+            data.append({
+                "voice": voice,
+                "vector": vec.numpy()
+            })
+
+    if not data:
+        return None
+
+    # Create dataframe-like structure
+    # Each of the 30 dimensions represents: [mean, std, min, max, median] for 6 layers
+    dimension_names = []
+    for layer in range(6):
+        for stat in ["mean", "std", "min", "max", "median"]:
+            dimension_names.append(f"L{layer}_{stat}")
+
+    # Prepare data for plotly
+    plot_data = []
+    for item in data:
+        row = {"voice": item["voice"]}
+        for i, dim_name in enumerate(dimension_names):
+            row[dim_name] = item["vector"][i]
+        plot_data.append(row)
+
+    # Create parallel coordinates plot
+    dimensions = []
+    for dim_name in dimension_names:
+        values = [row[dim_name] for row in plot_data]
+        dimensions.append(dict(
+            label=dim_name,
+            values=values
+        ))
+
+    fig = go.Figure(data=
+        go.Parcoords(
+            line=dict(
+                color=[i for i in range(len(plot_data))],
+                colorscale='Viridis',
+                showscale=True,
+                cmin=0,
+                cmax=len(plot_data)-1
+            ),
+            dimensions=dimensions,
+            labelfont=dict(size=10)
+        )
+    )
+
+    fig.update_layout(
+        title="Voice Vector Comparison (30 Dimensions)",
+        height=600,
+        margin=dict(l=100, r=100, t=100, b=50)
+    )
+
+    return fig
+
+
+def compare_voices_detailed(voices_to_compare):
+    """Compare multiple voices with detailed statistics and visualization."""
+    if not voices_to_compare or len(voices_to_compare) < 2:
+        return "⚠️ Select at least 2 voices to compare", None
+
     try:
-        state_a = get_voice_state(voice_a)
-        state_b = get_voice_state(voice_b)
+        # Get vectors
+        vectors = {}
+        for voice in voices_to_compare:
+            vec = get_voice_vector(voice)
+            if vec is not None:
+                vectors[voice] = vec
 
-        vec_a = extract_voice_vector(state_a)
-        vec_b = extract_voice_vector(state_b)
+        if len(vectors) < 2:
+            return "⚠️ Could not extract vectors for comparison", None
 
-        if vec_a is not None and vec_b is not None:
-            # Compute similarity
-            similarity = torch.nn.functional.cosine_similarity(
-                vec_a.unsqueeze(0), vec_b.unsqueeze(0)
-            ).item()
+        # Compute pairwise similarities
+        info = "# Voice Comparison\n\n"
+        info += f"Comparing {len(vectors)} voices: {', '.join(vectors.keys())}\n\n"
+        info += "## Vector Statistics\n\n"
 
-            distance = torch.norm(vec_a - vec_b).item()
+        for voice, vec in vectors.items():
+            info += f"### {voice} ({VOICE_INFO.get(voice, '')})\n"
+            info += f"- Dimensions: {vec.numel()}\n"
+            info += f"- Mean: {vec.mean().item():.4f}\n"
+            info += f"- Std: {vec.std().item():.4f}\n"
+            info += f"- Range: [{vec.min().item():.4f}, {vec.max().item():.4f}]\n\n"
 
-            info = f"# Voice Comparison\n\n"
-            info += f"**{voice_a}** vs **{voice_b}**\n\n"
-            info += f"- Cosine Similarity: {similarity:.4f} ({similarity*100:.1f}% similar)\n"
-            info += f"- Euclidean Distance: {distance:.4f}\n"
-            info += f"- Vector A size: {vec_a.numel()} dimensions\n"
-            info += f"- Vector B size: {vec_b.numel()} dimensions\n"
+        # Pairwise comparisons
+        info += "## Pairwise Similarities\n\n"
+        voices = list(vectors.keys())
+        for i, voice_a in enumerate(voices):
+            for voice_b in voices[i+1:]:
+                vec_a = vectors[voice_a]
+                vec_b = vectors[voice_b]
 
-            return info
-        else:
-            return "Could not extract voice vectors for comparison"
+                similarity = torch.nn.functional.cosine_similarity(
+                    vec_a.unsqueeze(0), vec_b.unsqueeze(0)
+                ).item()
+                distance = torch.norm(vec_a - vec_b).item()
+
+                info += f"**{voice_a}** vs **{voice_b}**\n"
+                info += f"- Cosine Similarity: {similarity:.4f} ({similarity*100:.1f}% similar)\n"
+                info += f"- Euclidean Distance: {distance:.4f}\n\n"
+
+        # Create parallel coordinates plot
+        fig = create_parallel_coordinates_plot(voices_to_compare)
+
+        return info, fig
 
     except Exception as e:
-        return f"Error: {str(e)}"
+        import traceback
+        return f"❌ Error: {str(e)}\n\n{traceback.format_exc()}", None
 
 
-# Create Gradio interface with auto-generation
+# Create Gradio interface
 with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
     gr.Markdown("""
     # 🎛️ Advanced Voice Mixer Studio
 
     Blend voices, modify characteristics, and explore the voice embedding space in real-time.
 
-    **Controls update automatically** - just move sliders and hear the changes!
+    **NEW**: Save presets, text block splitting, pitch/tempo control, voice vector visualization!
     """)
 
     with gr.Tabs():
@@ -431,7 +532,13 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                         label="Text to Speak",
                         placeholder="Enter text here...",
                         lines=4,
-                        value="The ancient forest whispers secrets through rustling leaves.",
+                        value="The ancient forest whispers secrets through rustling leaves, while shadows dance in the fading light.",
+                    )
+
+                    split_blocks = gr.Checkbox(
+                        label="Split into blocks (reduces repetition for long texts)",
+                        value=False,
+                        info="Processes text in sentence-sized chunks"
                     )
 
                     with gr.Row():
@@ -478,7 +585,6 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                         maximum=1.0,
                         value=0.0,
                         step=0.05,
-                        info="Slide to blend between Voice A and Voice B"
                     )
 
                     gr.Markdown("### Voice Modifications")
@@ -489,32 +595,64 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                         maximum=2.0,
                         value=1.0,
                         step=0.1,
-                        info="Higher = more varied/dynamic, Lower = more consistent"
                     )
 
                     sharpness = gr.Slider(
                         label="Sharpness (voice distinctiveness)",
-                        minimum=-1.0,
-                        maximum=1.0,
+                        minimum=-0.3,
+                        maximum=0.3,
                         value=0.0,
-                        step=0.1,
-                        info="Higher = sharper/crisper, Lower = softer/mellower"
+                        step=0.05,
+                        info="REDUCED RANGE to prevent glitches"
                     )
 
                     depth = gr.Slider(
                         label="Depth (voice resonance)",
-                        minimum=-0.5,
-                        maximum=0.5,
+                        minimum=-0.2,
+                        maximum=0.2,
                         value=0.0,
-                        step=0.05,
-                        info="Higher = deeper/darker, Lower = lighter/brighter"
+                        step=0.02,
+                        info="REDUCED RANGE to prevent glitches"
                     )
 
-                    enable_loop = gr.Checkbox(
-                        label="Loop playback",
-                        value=True,
-                        info="Automatically loop the generated audio"
+                    gr.Markdown("### Audio Post-Processing")
+
+                    pitch_shift = gr.Slider(
+                        label="Pitch Shift (semitones)",
+                        minimum=-12,
+                        maximum=12,
+                        value=0,
+                        step=1,
+                        info="Negative = lower, Positive = higher"
                     )
+
+                    tempo_factor = gr.Slider(
+                        label="Tempo Factor (speed)",
+                        minimum=0.5,
+                        maximum=2.0,
+                        value=1.0,
+                        step=0.1,
+                        info="<1 = slower, >1 = faster"
+                    )
+
+                    gr.Markdown("### Preset Management")
+
+                    preset_name_input = gr.Textbox(
+                        label="Preset Name",
+                        placeholder="Enter name for current settings...",
+                    )
+
+                    with gr.Row():
+                        save_preset_btn = gr.Button("💾 Save Preset", variant="primary")
+                        load_preset_dropdown = gr.Dropdown(
+                            label="Load Preset",
+                            choices=list(load_presets().keys()),
+                            value=None,
+                        )
+                        load_preset_btn = gr.Button("📂 Load")
+                        delete_preset_btn = gr.Button("🗑️ Delete", variant="stop")
+
+                    preset_status = gr.Markdown("")
 
                 with gr.Column():
                     status_text = gr.Markdown("Adjust controls to generate speech automatically!")
@@ -529,29 +667,34 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                     gr.Markdown("""
                     ### 💡 Tips
 
-                    **Blending:**
-                    - Start with blend=0 to hear Voice A pure
-                    - Gradually increase to hear the blend
-                    - Try: javert (gritty) + marius (breathy)
+                    **NEW Features:**
+                    - Save favorite settings as named presets
+                    - Split long text to reduce repetition
+                    - Adjust pitch/tempo for singing (experimental)
+                    - Narrower sharpness/depth ranges = no glitches!
 
-                    **Modifications:**
-                    - Temperature: 1.0 = original, >1.0 = more dynamic
-                    - Sharpness: 0 = original, >0 = crisper
-                    - Depth: 0 = original, >0 = deeper
+                    **Pitch/Tempo for Songs:**
+                    - Pitch shift: ±12 semitones (full octave range)
+                    - Tempo: 0.5x to 2.0x speed
+                    - Note: These are post-processing effects
+                    - For true singing, use specialized TTS models
 
-                    **Loop playback:** Enabled by default for easier comparison
+                    **30-Dimensional Voice Vector:**
+                    - 6 layers × 5 stats (mean, std, min, max, median)
+                    - See Comparison tab for visualization
+                    - NOT full fine-grained control (that's the KV cache)
+                    - Useful for voice similarity analysis
                     """)
 
-            # Auto-generate when any parameter changes
+            # Auto-generate when parameters change
             inputs = [
-                text_input,
-                voice_a, voice_b, blend_ratio,
+                text_input, voice_a, voice_b, blend_ratio,
                 temperature, sharpness, depth,
                 use_preset_a, use_preset_b,
                 custom_audio_a, custom_audio_b,
+                pitch_shift, tempo_factor, split_blocks,
             ]
 
-            # Connect all inputs to trigger auto-generation
             for inp in inputs:
                 inp.change(
                     fn=generate_with_custom_voice,
@@ -559,173 +702,162 @@ with gr.Blocks(title="Advanced Voice Mixer", theme=gr.themes.Soft()) as demo:
                     outputs=[audio_output, status_text],
                 )
 
+            # Preset management
+            save_preset_btn.click(
+                fn=save_current_preset,
+                inputs=[preset_name_input, voice_a, voice_b, blend_ratio,
+                       temperature, sharpness, depth, pitch_shift, tempo_factor],
+                outputs=[preset_status, load_preset_dropdown],
+            )
+
+            load_preset_btn.click(
+                fn=load_preset,
+                inputs=[load_preset_dropdown],
+                outputs=[voice_a, voice_b, blend_ratio, temperature, sharpness,
+                        depth, pitch_shift, tempo_factor, preset_status],
+            )
+
+            delete_preset_btn.click(
+                fn=delete_preset,
+                inputs=[load_preset_dropdown],
+                outputs=[preset_status, load_preset_dropdown],
+            )
+
+        # Comparison tab with parallel coordinates
+        with gr.Tab("📊 Voice Comparison & Visualization"):
+            gr.Markdown("""
+            ## Compare Voice Vectors
+
+            The 30-dimensional vector represents statistical summaries from the 6-layer KV cache:
+            - Layer 0-5: mean, std, min, max, median for each layer
+            - Total: 6 layers × 5 statistics = 30 dimensions
+
+            This is a **compressed representation** for analysis. For full control, the KV cache
+            has millions of parameters (see Parameter Documentation tab).
+            """)
+
+            voices_to_compare = gr.CheckboxGroup(
+                label="Select voices to compare",
+                choices=PRESET_VOICES,
+                value=["javert", "marius"],
+            )
+
+            compare_btn = gr.Button("Compare Selected Voices", variant="primary")
+
+            comparison_text = gr.Markdown("")
+            parallel_plot = gr.Plot(label="Parallel Coordinates Plot")
+
+            compare_btn.click(
+                fn=compare_voices_detailed,
+                inputs=[voices_to_compare],
+                outputs=[comparison_text, parallel_plot],
+            )
+
+            gr.Markdown("""
+            ### How to Read the Parallel Coordinates Plot
+
+            - Each vertical axis = one of the 30 dimensions
+            - Each colored line = one voice
+            - Lines closer together = voices more similar in that dimension
+            - Pattern similarities = overall voice similarities
+
+            **Dimensions:**
+            - L0_mean through L5_mean: Average values per layer
+            - L0_std through L5_std: Variation per layer
+            - L0_min through L5_min: Minimum values
+            - L0_max through L5_max: Maximum values
+            - L0_median through L5_median: Median values
+            """)
+
         # Documentation tab
         with gr.Tab("📖 Parameter Documentation"):
             gr.Markdown("""
-            ## How Voice State Parameters Map to Code
+            ## Updated Parameter Guide
 
-            ### Voice State Structure
+            ### Pitch and Tempo Control
 
-            When you provide custom audio, the model extracts a "voice_state" dictionary
-            containing the transformer's KV (key-value) cache:
+            **Can PocketTTS make songs?**
+            - PocketTTS doesn't have native pitch/tempo control
+            - We use **librosa** for post-processing:
+              * `pitch_shift`: Shifts pitch up/down (in semitones)
+              * `tempo_factor`: Changes speed without pitch change
 
+            **For singing:**
+            - Pitch control: ±12 semitones (full octave)
+            - Tempo control: 0.5x to 2.0x
+            - **Limitation:** These are simple audio manipulations
+            - **Better approach:** Use dedicated singing TTS models like:
+              * Diff-SVC (for voice conversion to singing)
+              * So-VITS-SVC (singing voice synthesis)
+              * RVC (Retrieval-based Voice Conversion)
+
+            ### Text Block Splitting
+
+            **Why split text:**
+            - Long texts can sound repetitive
+            - Each block is generated independently
+            - 0.2s silence added between blocks
+            - Target length: ~80 characters per block
+
+            **How it works:**
             ```python
-            voice_state = {
-                'transformer.layers.0.self_attn': {
-                    'current_end': Tensor[125],  # Position tracker
-                    'cache': Tensor[125, 2, 8, 127, 256]  # KV cache
-                },
-                'transformer.layers.1.self_attn': { ... },
-                ...  # 6 layers total for Pocket TTS
-            }
+            blocks = split_text_into_blocks(text, target_length=80)
+            for block in blocks:
+                audio_segment = generate(block)
+                # Add to final audio
             ```
 
-            **Cache dimensions:**
-            - Dim 0 (125): Batch size
-            - Dim 1 (2): Keys and Values
-            - Dim 2 (8): Number of attention heads
-            - Dim 3 (127): Sequence length (audio frames)
-            - Dim 4 (256): Embedding dimension per head
+            ### Reduced Parameter Ranges
 
-            ---
+            **Old ranges caused glitches:**
+            - Sharpness: -1.0 to 1.0 → NOW: -0.3 to 0.3
+            - Depth: -0.5 to 0.5 → NOW: -0.2 to 0.2
 
-            ### Voice Blending
+            **Why:**
+            - Extreme values corrupt the KV cache
+            - Smaller ranges = stable, glitch-free output
+            - Still provides noticeable effect
 
-            **What it does:**
-            ```python
-            blended_cache = (1 - blend_ratio) * cache_A + blend_ratio * cache_B
+            ### 30-Dimensional Voice Vector Explained
+
+            **What it represents:**
+            ```
+            For each of 6 transformer layers:
+              - mean of KV cache values
+              - standard deviation
+              - minimum value
+              - maximum value
+              - median value
+
+            Total: 6 layers × 5 stats = 30 dimensions
             ```
 
-            Weighted average of attention patterns from two voices.
+            **Is this full fine-grained control?**
+            - NO - this is a statistical summary
+            - Full KV cache has ~25 million values
+            - 30 dimensions = compressed representation
+            - Useful for:
+              * Voice similarity comparison
+              * Understanding voice characteristics
+              * Quick voice analysis
 
-            **Effect:** Combines voice characteristics like pitch, timbre, rhythm, breathiness.
+            **For full control:**
+            - Manipulate the entire KV cache (what this tool does)
+            - Or fine-tune the model (see FINE_TUNING_ANALYSIS.md)
 
-            **Parameters exposed:**
-            - `blend_ratio`: 0.0 (all A) to 1.0 (all B)
-
-            ---
-
-            ### Temperature Modification
-
-            **What it does:**
-            ```python
-            mean = torch.nanmean(cache)
-            modified = mean + (cache - mean) * temperature
-            ```
-
-            Scales variance around the mean.
-
-            **Effect:** Controls how much the voice varies during speech.
-            - `temperature > 1.0`: More varied/dynamic voice
-            - `temperature < 1.0`: More consistent/monotone voice
-
-            **Maps to:** Variance of attention weights in each layer's cache.
-
-            ---
-
-            ### Sharpness Modification
-
-            **What it does:**
-            ```python
-            median = torch.nanmedian(cache)
-            sign = torch.sign(cache - median)
-            modified = cache + sharpness * sign * torch.abs(cache - median)
-            ```
-
-            Enhances or reduces contrast relative to median.
-
-            **Effect:** Controls voice clarity and distinctiveness.
-            - `sharpness > 0`: Crisper consonants, defined vowels
-            - `sharpness < 0`: Softer, more muffled quality
-
-            **Maps to:** Distribution of attention weights (peaked vs diffuse).
-
-            ---
-
-            ### Depth Modification
-
-            **What it does:**
-            ```python
-            modified = cache + depth
-            ```
-
-            Shifts all cache values by a constant.
-
-            **Effect:** Controls overall tonal quality.
-            - `depth > 0`: Deeper, more resonant voice
-            - `depth < 0`: Lighter, airier voice
-
-            **Maps to:** Mean baseline of all attention values.
-
-            ---
-
-            ## Limitations
-
-            1. **Not trained for this:** Model wasn't trained to handle modified KV caches
-            2. **Heuristic:** These are educated guesses, not guarantees
-            3. **Non-linear:** Combining modifications may have unexpected effects
-            4. **Better alternatives:** Fine-tuning gives better production results
-
-            See `FINE_TUNING_ANALYSIS.md` for training your own custom voice models.
+            See other tabs for the actual formulas and KV cache structure.
             """)
-
-        # Analysis tab
-        with gr.Tab("🔬 Voice Analysis"):
-            gr.Markdown("""
-            ## Analyze Voice Characteristics
-
-            Examine the internal representation (KV cache) of different voices.
-            """)
-
-            with gr.Row():
-                analyze_voice = gr.Dropdown(
-                    label="Select Voice to Analyze",
-                    choices=PRESET_VOICES,
-                    value="javert",
-                )
-                analyze_btn = gr.Button("Analyze", variant="primary")
-
-            analysis_output = gr.Markdown("Select a voice and click Analyze")
-
-            analyze_btn.click(
-                fn=lambda v: analyze_voice_state(get_voice_state(v)),
-                inputs=[analyze_voice],
-                outputs=[analysis_output],
-            )
-
-        # Comparison tab
-        with gr.Tab("📊 Voice Comparison"):
-            gr.Markdown("""
-            ## Compare Two Voices
-
-            See how similar or different two voices are in the embedding space.
-            """)
-
-            with gr.Row():
-                compare_a = gr.Dropdown(
-                    label="Voice A",
-                    choices=PRESET_VOICES,
-                    value="javert",
-                )
-                compare_b = gr.Dropdown(
-                    label="Voice B",
-                    choices=PRESET_VOICES,
-                    value="marius",
-                )
-
-            compare_btn = gr.Button("Compare Voices", variant="primary")
-            comparison_output = gr.Markdown("Select two voices and click Compare")
-
-            compare_btn.click(
-                fn=compare_voices,
-                inputs=[compare_a, compare_b],
-                outputs=[comparison_output],
-            )
 
 if __name__ == "__main__":
     print("\n" + "="*60)
-    print("🎛️  Starting Advanced Voice Mixer Studio")
+    print("🎛️  Starting Advanced Voice Mixer Studio v2.0")
     print("="*60)
+    print("\nNew features:")
+    print("  • Preset save/load")
+    print("  • Text block splitting")
+    print("  • Pitch/tempo controls")
+    print("  • Parallel coordinates visualization")
+    print("  • Narrower parameter ranges (no more glitches!)")
     print("\nAvailable preset voices:")
     for voice in PRESET_VOICES:
         print(f"  • {voice}: {VOICE_INFO.get(voice, '')}")

@@ -103,7 +103,7 @@ source .venv/bin/activate  # On Linux/WSL/Mac
 # OR on Windows: .venv\Scripts\activate
 
 # Install dependencies in the isolated environment
-uv pip install pocket-tts scipy pydub gradio
+uv pip install pocket-tts scipy pydub gradio plotly librosa
 ```
 
 **Alternative:** If you don't have `uv`, you can use standard Python:
@@ -143,7 +143,7 @@ ffplay output/alba_demo.wav output/marius_demo.wav output/javert_demo.wav output
 
 ## 🎛️ Interactive GUI Tools
 
-### Advanced Voice Mixer (Recommended!)
+### Advanced Voice Mixer v2.0 (Recommended!)
 
 The **Advanced Voice Mixer** lets you blend voices and modify characteristics in real-time through a web interface:
 
@@ -151,25 +151,36 @@ The **Advanced Voice Mixer** lets you blend voices and modify characteristics in
 python advanced_voice_mixer.py
 ```
 
-**Features:**
+**NEW Features in v2.0:**
+- 💾 **Save/Load Presets**: Save favorite settings with names
+- 📝 **Text Block Splitting**: Reduce repetition in long texts
+- 🎵 **Pitch & Tempo Control**: Adjust pitch (±12 semitones) and speed (0.5-2.0x)
+- 📊 **Parallel Coordinates Plot**: Visualize 30-dimensional voice vectors
+- ⚡ **Narrower Parameter Ranges**: Sharpness (-0.3 to 0.3) and Depth (-0.2 to 0.2) to prevent glitches
+
+**Core Features:**
 - **Voice Blending**: Mix any two voices together with a slider
 - **Real-time Modifications**: Adjust temperature, sharpness, and depth
 - **Voice Analysis**: Examine the internal KV cache representation
 - **Voice Comparison**: See similarity metrics between voices
 - **Custom Audio**: Upload your own voice samples
+- **Auto-generation**: Just move sliders - no button clicking!
+- **Loop Playback**: Enabled by default for easy comparison
 
 **How it works**: The tool manipulates the transformer's key-value (KV) cache that encodes voice characteristics. You can:
-- Blend `javert` (deep/gritty) + `daisy` (light/youthful) for unique combinations
+- Blend `javert` (deep/gritty) + `marius` (breathy) for unique combinations
 - Adjust temperature to control voice variation
 - Modify sharpness for crisp vs soft tones
 - Change depth for darker vs brighter resonance
+- Apply pitch/tempo changes for experimental singing effects
 
 **Example workflow:**
 1. Start with Voice A = `javert` (gritty)
-2. Set Voice B = `whisperer` (breathy)
-3. Slide blend ratio to 0.3 (30% whisperer)
-4. Adjust sharpness = 0.2 for extra crispness
-5. Generate and listen!
+2. Set Voice B = `marius` (breathy)
+3. Slide blend ratio to 0.3 (30% marius)
+4. Adjust sharpness = 0.1 for crispness (narrower range = no glitches!)
+5. Save as preset "gritty-breathy-mix"
+6. Auto-generates and loops!
 
 ### Interactive TTS Studio
 

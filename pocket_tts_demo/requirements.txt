@@ -2,6 +2,8 @@ pocket-tts
 scipy
 pydub
 gradio
+plotly
+librosa
 
 # Optional: For recording your own voice (record_voice.py)
 # sounddevice
