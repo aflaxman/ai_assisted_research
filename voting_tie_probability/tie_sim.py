@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Monte Carlo simulation of tie probabilities in multi-candidate voting.
+Monte Carlo simulation: probability of a tie for first place in multi-candidate voting.
 
 Context: The Douglass-Truth Library naming vote (Seattle, 1975) produced a
-tie between Frederick Douglass and Sojourner Truth among ~2,000 voters
-choosing from 10 candidates. How unlikely was that?
+first-place tie between Frederick Douglass and Sojourner Truth among ~2,000
+voters choosing from 10 candidates. How unlikely was that?
 
 Usage:
     python tie_sim.py [--trials N] [--voters N] [--plot]
@@ -18,10 +18,8 @@ from typing import NamedTuple
 class ScenarioResult(NamedTuple):
     """Results from simulating a voting scenario."""
     name: str
-    p_any_tie: float  # P(X_D == X_T), regardless of winning
-    p_first_tie: float  # P(X_D == X_T == max and only those two share max)
-    se_any: float  # standard error for p_any_tie
-    se_first: float  # standard error for p_first_tie
+    p_tie: float  # P(D and T tie for first place)
+    se: float  # standard error
 
 
 def simulate_scenario(
@@ -31,9 +29,9 @@ def simulate_scenario(
     idx_d: int = 0,  # index of Douglass in probs array
     idx_t: int = 1,  # index of Truth in probs array
     rng: np.random.Generator = None,
-) -> tuple[float, float, float, float]:
+) -> tuple[float, float]:
     """
-    Simulate votes and compute tie probabilities.
+    Simulate votes and compute probability of a two-way tie for first place.
 
     Args:
         probs: Array of vote share probabilities for each candidate (must sum to 1)
@@ -43,7 +41,7 @@ def simulate_scenario(
         rng: Random number generator
 
     Returns:
-        (p_any_tie, p_first_tie, se_any, se_first)
+        (p_tie, standard_error)
     """
     if rng is None:
         rng = np.random.default_rng()
@@ -55,30 +53,20 @@ def simulate_scenario(
     x_d = votes[:, idx_d]
     x_t = votes[:, idx_t]
 
-    # Condition 1: Any tie between D and T
-    any_tie = (x_d == x_t)
-
-    # Condition 2: Two-way tie for first place
-    # Both must equal the max, and no other candidate shares that max
+    # Two-way tie for first place:
+    # Both must equal the max, and exactly 2 candidates share that max
     max_votes = votes.max(axis=1)
     d_at_max = (x_d == max_votes)
     t_at_max = (x_t == max_votes)
-
-    # Count how many candidates are at the max
     at_max_count = (votes == max_votes[:, np.newaxis]).sum(axis=1)
 
-    # Two-way tie for first: D and T both at max, exactly 2 candidates at max
-    first_tie = d_at_max & t_at_max & (at_max_count == 2)
+    first_place_tie = d_at_max & t_at_max & (at_max_count == 2)
 
-    # Compute probabilities and standard errors
-    p_any = any_tie.mean()
-    p_first = first_tie.mean()
+    # Compute probability and standard error
+    p_tie = first_place_tie.mean()
+    se = np.sqrt(p_tie * (1 - p_tie) / n_trials)
 
-    # Standard error: sqrt(p(1-p)/n)
-    se_any = np.sqrt(p_any * (1 - p_any) / n_trials)
-    se_first = np.sqrt(p_first * (1 - p_first) / n_trials)
-
-    return p_any, p_first, se_any, se_first
+    return p_tie, se
 
 
 def binomial_tie_probability(n: int, p: float = 0.5) -> tuple[float, float]:
@@ -88,7 +76,7 @@ def binomial_tie_probability(n: int, p: float = 0.5) -> tuple[float, float]:
     For fair coin (p=0.5): P(tie) = C(n, n/2) * (0.5)^n
 
     Uses Stirling approximation for large n:
-    P(tie) ≈ 1 / sqrt(pi * n / 2) ≈ sqrt(2 / (pi * n))
+    P(tie) ≈ sqrt(2 / (pi * n))
     """
     from math import sqrt, pi, lgamma, log, exp
 
@@ -96,8 +84,6 @@ def binomial_tie_probability(n: int, p: float = 0.5) -> tuple[float, float]:
         return 0.0, 0.0  # Odd voters can't tie
 
     # Use log-space calculation to avoid overflow
-    # log(C(n, k)) = log(n!) - log(k!) - log((n-k)!)
-    # Using lgamma: log(n!) = lgamma(n+1)
     k = n // 2
     log_comb = lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1)
     log_prob = log_comb + k * log(p) + (n - k) * log(1 - p)
@@ -144,7 +130,7 @@ def run_sensitivity_sweep(
     n_voters: int,
     n_trials: int,
     rng: np.random.Generator,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Sweep front-runner gap from 0% to 10% difference.
 
@@ -152,47 +138,57 @@ def run_sensitivity_sweep(
     Vary: p_D from 0.20 to 0.30, p_T = 0.40 - p_D
     """
     gaps = np.linspace(0, 0.10, 21)  # 0% to 10% gap in 0.5% increments
-    p_any_ties = []
-    p_first_ties = []
+    p_ties = []
 
     for gap in gaps:
         p_d = 0.20 + gap / 2
         p_t = 0.20 - gap / 2
         probs = np.array([p_d, p_t] + [0.60 / 8] * 8)
 
-        p_any, p_first, _, _ = simulate_scenario(
-            probs, n_voters, n_trials, rng=rng
-        )
-        p_any_ties.append(p_any)
-        p_first_ties.append(p_first)
+        p_tie, _ = simulate_scenario(probs, n_voters, n_trials, rng=rng)
+        p_ties.append(p_tie)
 
-    return gaps, np.array(p_any_ties), np.array(p_first_ties)
+    return gaps, np.array(p_ties)
 
 
-def create_plot(gaps, p_any, p_first, n_voters, output_path="tie_sensitivity.png"):
+def create_plot(gaps, p_ties, n_voters, output_path="tie_sensitivity.png"):
     """Create a plot showing how tie probability varies with front-runner gap."""
     import matplotlib.pyplot as plt
 
     fig, ax = plt.subplots(figsize=(8, 5))
 
-    ax.plot(gaps * 100, p_any * 100, 'b-o', markersize=4, label='Any tie (D = T)')
-    ax.plot(gaps * 100, p_first * 100, 'r-s', markersize=4, label='Tie for 1st place')
+    ax.plot(gaps * 100, p_ties * 100, 'b-o', markersize=5, linewidth=2)
 
-    ax.set_xlabel('Gap between front-runners (percentage points)', fontsize=11)
-    ax.set_ylabel('Probability of tie (%)', fontsize=11)
-    ax.set_title(f'Tie Probability vs. Front-Runner Gap\n(N = {n_voters:,} voters, 10 candidates)', fontsize=12)
-    ax.legend(loc='upper right')
+    ax.set_xlabel('Gap between front-runners (percentage points)', fontsize=12)
+    ax.set_ylabel('Probability of first-place tie (%)', fontsize=12)
+    ax.set_title(
+        f'How Likely Is a Tie for First Place?\n'
+        f'(N = {n_voters:,} voters, 10 candidates, two front-runners)',
+        fontsize=13
+    )
     ax.grid(True, alpha=0.3)
     ax.set_xlim(-0.5, 10.5)
     ax.set_ylim(bottom=0)
 
-    # Add annotation
+    # Add annotation at zero gap
     ax.annotate(
-        f'At 0% gap:\nAny tie ≈ {p_any[0]*100:.2f}%\n1st place tie ≈ {p_first[0]*100:.2f}%',
-        xy=(0, p_any[0] * 100),
-        xytext=(2, p_any[0] * 100 * 0.7),
-        fontsize=9,
+        f'Equal support:\n~{p_ties[0]*100:.1f}% chance\n(1 in {1/p_ties[0]:.0f})',
+        xy=(0, p_ties[0] * 100),
+        xytext=(2.5, p_ties[0] * 100 * 0.85),
+        fontsize=10,
         arrowprops=dict(arrowstyle='->', color='gray', alpha=0.7),
+        bbox=dict(boxstyle='round,pad=0.3', facecolor='lightyellow', alpha=0.8),
+    )
+
+    # Add annotation at 2% gap
+    idx_2pct = 4  # 2% gap
+    ax.annotate(
+        f'2-point gap:\n~{p_ties[idx_2pct]*100:.2f}%\n(1 in {1/p_ties[idx_2pct]:.0f})',
+        xy=(2, p_ties[idx_2pct] * 100),
+        xytext=(4.5, p_ties[idx_2pct] * 100 + 0.3),
+        fontsize=10,
+        arrowprops=dict(arrowstyle='->', color='gray', alpha=0.7),
+        bbox=dict(boxstyle='round,pad=0.3', facecolor='lightyellow', alpha=0.8),
     )
 
     plt.tight_layout()
@@ -203,7 +199,7 @@ def create_plot(gaps, p_any, p_first, n_voters, output_path="tie_sensitivity.png
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Simulate tie probabilities in multi-candidate voting"
+        description="Simulate first-place tie probabilities in multi-candidate voting"
     )
     parser.add_argument(
         "--trials", type=int, default=200_000,
@@ -225,80 +221,79 @@ def main():
 
     rng = np.random.default_rng(args.seed)
 
-    print("=" * 70)
-    print("TIE PROBABILITY SIMULATION: Douglass-Truth Library Naming Vote")
-    print("=" * 70)
-    print(f"\nParameters: {args.voters:,} voters, {args.trials:,} trials per scenario")
+    print("=" * 65)
+    print("  FIRST-PLACE TIE SIMULATION")
+    print("  Douglass-Truth Library Naming Vote (Seattle, 1975)")
+    print("=" * 65)
+    print(f"\nSimulating {args.voters:,} voters, {args.trials:,} trials per scenario")
     print(f"Random seed: {args.seed}")
 
     # Sanity check: binomial approximation
-    print("\n" + "-" * 70)
-    print("SANITY CHECK: Two-candidate binomial model (p = 0.5)")
-    print("-" * 70)
+    print("\n" + "-" * 65)
+    print("SANITY CHECK: Two-candidate race (p = 0.5 each)")
+    print("-" * 65)
     exact, approx = binomial_tie_probability(args.voters)
-    print(f"N = {args.voters}")
-    print(f"Exact P(tie)   = {exact:.6f} ({exact*100:.4f}%)")
-    print(f"Stirling approx = {approx:.6f} ({approx*100:.4f}%)")
-    print(f"Order of magnitude: O(1/sqrt(N)) ≈ 1/sqrt({args.voters}) ≈ {1/np.sqrt(args.voters):.4f}")
+    print(f"  N = {args.voters}")
+    print(f"  Exact P(tie)    = {exact:.4f}  ({exact*100:.2f}%)")
+    print(f"  Stirling approx = {approx:.4f}  ({approx*100:.2f}%)")
+    print(f"  Key insight: P(tie) ~ 1/sqrt(N), not 1/N")
 
     # Run scenarios
-    print("\n" + "-" * 70)
-    print("SCENARIO RESULTS: 10-candidate multinomial model")
-    print("-" * 70)
+    print("\n" + "-" * 65)
+    print("RESULTS: 10-candidate race")
+    print("-" * 65)
 
     scenarios = create_scenarios()
     results = []
 
     for name, probs in scenarios:
-        p_any, p_first, se_any, se_first = simulate_scenario(
-            probs, args.voters, args.trials, rng=rng
-        )
-        results.append(ScenarioResult(name, p_any, p_first, se_any, se_first))
+        p_tie, se = simulate_scenario(probs, args.voters, args.trials, rng=rng)
+        results.append(ScenarioResult(name, p_tie, se))
 
     # Print results table
-    print(f"\n{'Scenario':<30} {'P(D=T)':<12} {'P(1st tie)':<12} {'1 in X':<10}")
-    print("-" * 70)
+    print(f"\n{'Scenario':<32} {'P(tie)':<14} {'Odds':<15}")
+    print("-" * 65)
     for r in results:
-        odds_any = f"1 in {1/r.p_any_tie:,.0f}" if r.p_any_tie > 0 else "N/A"
-        odds_first = f"1 in {1/r.p_first_tie:,.0f}" if r.p_first_tie > 0 else "N/A"
-        print(f"{r.name:<30} {r.p_any_tie*100:>6.3f}% ± {r.se_any*100:.3f}  "
-              f"{r.p_first_tie*100:>6.4f}% ± {r.se_first*100:.4f}")
+        odds = f"1 in {1/r.p_tie:,.0f}" if r.p_tie > 0 else "N/A"
+        print(f"{r.name:<32} {r.p_tie*100:>5.2f}% ± {r.se*100:.2f}%   {odds}")
 
-    print("\n" + "-" * 70)
+    # Key interpretation
+    print("\n" + "-" * 65)
     print("INTERPRETATION")
-    print("-" * 70)
+    print("-" * 65)
 
-    # Find scenario B for interpretation
     scen_b = results[1]  # Front-runners at 20%/20%
-    print(f"\nWith two front-runners at 20% each (Scenario B):")
-    print(f"  - Any tie between D & T:     {scen_b.p_any_tie*100:.3f}% (about 1 in {1/scen_b.p_any_tie:,.0f})")
-    print(f"  - Tie for first place:       {scen_b.p_first_tie*100:.4f}% (about 1 in {1/scen_b.p_first_tie:,.0f})")
-
     scen_c = results[2]  # 21%/19%
-    print(f"\nWith slight imbalance 21%/19% (Scenario C):")
-    print(f"  - Any tie between D & T:     {scen_c.p_any_tie*100:.3f}% (about 1 in {1/scen_c.p_any_tie:,.0f})")
-    print(f"  - Tie for first place:       {scen_c.p_first_tie*100:.4f}% (about 1 in {1/scen_c.p_first_tie:,.0f})")
+
+    print(f"""
+Scenario B (two front-runners at 20% each) is plausible for the
+Douglass-Truth vote. Result: a tie for first happens about
+{scen_b.p_tie*100:.1f}% of the time, or roughly 1 in {1/scen_b.p_tie:.0f} elections.
+
+Even a small gap matters: at 21%/19% (Scenario C), the probability
+drops to {scen_c.p_tie*100:.2f}%, or about 1 in {1/scen_c.p_tie:.0f}.
+""")
 
     # Sensitivity sweep
     if args.plot:
-        print("\n" + "-" * 70)
+        print("-" * 65)
         print("GENERATING SENSITIVITY PLOT...")
-        print("-" * 70)
-        gaps, p_any_sweep, p_first_sweep = run_sensitivity_sweep(
-            args.voters, args.trials // 2, rng  # Fewer trials for sweep
+        print("-" * 65)
+        gaps, p_ties = run_sensitivity_sweep(
+            args.voters, args.trials // 2, rng
         )
-        create_plot(gaps, p_any_sweep, p_first_sweep, args.voters)
+        create_plot(gaps, p_ties, args.voters)
 
-    print("\n" + "=" * 70)
+    print("=" * 65)
     print("CONCLUSION")
-    print("=" * 70)
+    print("=" * 65)
     print(f"""
-A tie in a 2000-voter, 10-candidate race is unlikely but far from impossible.
-With equal front-runners at ~20% each, a tie for first occurs roughly once
-every {1/scen_b.p_first_tie:,.0f} elections. Not astronomical odds at all.
+A first-place tie in a 2,000-voter, 10-candidate race is unlikely
+but not miraculous. With two equally popular front-runners, it
+happens roughly once every {1/scen_b.p_tie:.0f} elections.
 
-The Douglass-Truth tie was genuinely rare—but democracy occasionally
-delivers such serendipitous outcomes.
+The Douglass-Truth tie was rare—but democracy occasionally
+delivers such beautiful coincidences.
 """)
 
 
