@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Global Burden Trail</title>
+    <style>
+        :root {
+            --retro-green: #33ff00;
+            --retro-dark: #001100;
+            --retro-black: #000000;
+        }
+
+        body {
+            background-color: var(--retro-black);
+            color: var(--retro-green);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Scanline effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        #game-container {
+            width: 800px;
+            height: 600px;
+            border: 4px solid var(--retro-green);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background-color: var(--retro-dark);
+            box-shadow: 0 0 20px var(--retro-green);
+        }
+
+        h1 {
+            text-align: center;
+            border-bottom: 2px dashed var(--retro-green);
+            padding-bottom: 10px;
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #stats-bar {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--retro-green);
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        #main-display {
+            flex-grow: 1;
+            border: 1px solid var(--retro-green);
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow-y: auto;
+            white-space: pre-wrap; /* Preserves formatting */
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        #controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            height: 60px;
+        }
+
+        button {
+            background-color: var(--retro-black);
+            color: var(--retro-green);
+            border: 2px solid var(--retro-green);
+            padding: 10px 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1em;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.1s;
+        }
+
+        button:hover {
+            background-color: var(--retro-green);
+            color: var(--retro-black);
+        }
+
+        button:disabled {
+            border-color: #555;
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            color: #ff3333; /* Retro red for bad news */
+            font-weight: bold;
+        }
+        
+        .success {
+            color: #ffff00; /* Retro yellow for good news */
+            font-weight: bold;
+        }
+
+        /* ASCII Wagon */
+        .ascii-art {
+            text-align: center;
+            font-size: 10px;
+            margin-bottom: 20px;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <h1>The Global Burden Trail</h1>
+    
+    <div id="stats-bar">
+        <div class="stat-box">Year<br><span id="year-val" class="stat-value">2023</span></div>
+        <div class="stat-box">Progress<br><span id="progress-val" class="stat-value">0%</span></div>
+        <div class="stat-box">Global Health<br><span id="health-val" class="stat-value">100%</span></div>
+        <div class="stat-box">DALYs (Burden)<br><span id="daly-val" class="stat-value">0</span></div>
+    </div>
+
+    <div class="ascii-art" id="visuals">
+       Start the journey to analyze global health...
+    </div>
+
+    <div id="main-display">
+        Welcome to the Global Burden Trail.
+        
+        Your mission: Traverse the data landscape of 204 countries.
+        Goal: Minimize DALYs (Disability-Adjusted Life Years) and keep Global Health high.
+        
+        Beware: The leading causes of death have shifted from communicable diseases to NCDs (Non-Communicable Diseases).
+    </div>
+
+    <div id="controls">
+        <button id="btn-start" onclick="startGame()">Start Journey</button>
+        <button id="btn-choice-1" onclick="handleChoice(1)" style="display:none;">Choice 1</button>
+        <button id="btn-choice-2" onclick="handleChoice(2)" style="display:none;">Choice 2</button>
+        <button id="btn-continue" onclick="nextTurn()" style="display:none;">Continue</button>
+    </div>
+</div>
+
+<script>
+    // --- Game State ---
+    let state = {
+        progress: 0,       // 0 to 100%
+        health: 100,       // Global Population Health
+        dalys: 0,          // Score (Lower is better)
+        isGameOver: false,
+        currentEvent: null
+    };
+
+    // --- Assets ---
+    const asciiWagon = `
+      _______
+     /      /|
+    /______/ |
+    |      | |   --> TO 2050 PREDICTIONS
+    |______|/
+    O      O
+    `;
+
+    const asciiGrave = `
+       _
+      / \\
+     /   \\
+    / R.I.P \\
+   |  GAME   |
+   |  OVER   |
+   |_________|
+    `;
+
+    const asciiWin = `
+    \\O/  GLOBAL
+     |   HEALTH
+    / \\  IMPROVED!
+    `;
+
+    // --- Educational Events Data (GBD 2023 Findings) ---
+    const events = [
+        {
+            title: "Top Risk Encounter",
+            text: "You encounter the #1 Global Risk Factor: High Systolic Blood Pressure.\nIt silently affects your population.",
+            c1: "Implement Sodium Reduction Policy",
+            c2: "Ignore and Travel On",
+            effect1: { health: -5, dalys: 10, msg: "Policy works. Health dip is minor." },
+            effect2: { health: -20, dalys: 50, msg: "Heart attacks spike! Massive burden added." }
+        },
+        {
+            title: "Air Quality Alert",
+            text: "Smog descends. Particulate Matter (PM 2.5) is a leading environmental risk.",
+            c1: "Distribute Masks & Filters",
+            c2: "Wait for wind",
+            effect1: { health: -2, dalys: 5, msg: "Respiratory infections minimized." },
+            effect2: { health: -15, dalys: 40, msg: "COPD rates increase dramatically." }
+        },
+        {
+            title: "The Metabolic Shift",
+            text: "Your population's Fasting Plasma Glucose is rising. Diabetes type 2 risks are surging.",
+            c1: "Promote Physical Activity",
+            c2: "Focus on Infectious Diseases instead",
+            effect1: { health: 0, dalys: 0, msg: "Good choice. NCDs are the modern battleground." },
+            effect2: { health: -10, dalys: 30, msg: "You ignored the NCD shift. Diabetes burden grows." }
+        },
+        {
+            title: "Pandemic Rebound",
+            text: "The data shows a rebound in Life Expectancy post-COVID-19 (2023 Update).",
+            c1: "Invest in Long-COVID research",
+            c2: "Celebrate early",
+            effect1: { health: +10, dalys: -10, msg: "Smart. Life expectancy stabilizes at 76.3 years." },
+            effect2: { health: +5, dalys: 0, msg: "Health improves, but lingering issues remain." }
+        },
+        {
+            title: "Mental Health Crisis",
+            text: "Depression and Anxiety are rising causes of disability (YLDs), especially in youth.",
+            c1: "Integrate Mental Health into Primary Care",
+            c2: "Focus only on physical trauma",
+            effect1: { health: +5, dalys: -20, msg: "Disability burden reduced significantly." },
+            effect2: { health: -5, dalys: +30, msg: "Physical health is fine, but productivity plummets." }
+        }
+    ];
+
+    // --- DOM Elements ---
+    const ui = {
+        progress: document.getElementById('progress-val'),
+        health: document.getElementById('health-val'),
+        dalys: document.getElementById('daly-val'),
+        display: document.getElementById('main-display'),
+        visuals: document.getElementById('visuals'),
+        btnStart: document.getElementById('btn-start'),
+        btnC1: document.getElementById('btn-choice-1'),
+        btnC2: document.getElementById('btn-choice-2'),
+        btnCont: document.getElementById('btn-continue')
+    };
+
+    // --- Core Functions ---
+
+    function startGame() {
+        state = { progress: 0, health: 100, dalys: 0, isGameOver: false, currentEvent: null };
+        ui.btnStart.style.display = 'none';
+        updateStats();
+        ui.visuals.innerText = asciiWagon;
+        log("You set out to map the Global Burden of Disease.\nYour wagon is loaded with statistical models and epidemiologists.\n\nPress Continue to travel.");
+        ui.btnCont.style.display = 'block';
+    }
+
+    function updateStats() {
+        ui.progress.innerText = state.progress + "%";
+        ui.health.innerText = state.health + "%";
+        ui.dalys.innerText = state.dalys.toLocaleString(); // Add commas
+        
+        // Color coding health
+        if (state.health < 30) ui.health.style.color = '#ff3333';
+        else ui.health.style.color = '#33ff00';
+    }
+
+    function log(text, type = "") {
+        if (type === "alert") {
+            ui.display.innerHTML += `<br><br><span class="alert">${text}</span>`;
+        } else if (type === "success") {
+            ui.display.innerHTML += `<br><br><span class="success">${text}</span>`;
+        } else {
+            ui.display.innerHTML = text; // Replace text for main updates
+        }
+        ui.display.scrollTop = ui.display.scrollHeight;
+    }
+
+    function nextTurn() {
+        if (state.isGameOver) return;
+
+        // Travel logic
+        const progressStep = 20;
+        state.progress += progressStep;
+        
+        // Base burden accumulation (entropy)
+        state.dalys += 1000; 
+
+        if (state.progress >= 100) {
+            triggerWin();
+            return;
+        }
+
+        // Trigger Event
+        triggerRandomEvent();
+    }
+
+    function triggerRandomEvent() {
+        // Hide continue, show choices
+        ui.btnCont.style.display = 'none';
+        
+        // Pick random event
+        const eventIndex = Math.floor(Math.random() * events.length);
+        state.currentEvent = events[eventIndex];
+
+        log(`Currently analyzing Region ${state.progress / 20}...\n\nEVENT: ${state.currentEvent.title}\n${state.currentEvent.text}`);
+        
+        ui.btnC1.innerText = "1. " + state.currentEvent.c1;
+        ui.btnC2.innerText = "2. " + state.currentEvent.c2;
+        
+        ui.btnC1.style.display = 'block';
+        ui.btnC2.style.display = 'block';
+    }
+
+    function handleChoice(choiceNum) {
+        const evt = state.currentEvent;
+        let outcome = (choiceNum === 1) ? evt.effect1 : evt.effect2;
+
+        // Apply effects
+        state.health += outcome.health;
+        if (state.health > 100) state.health = 100;
+        state.dalys += outcome.dalys;
+
+        // UI Updates
+        updateStats();
+        
+        // Hide choices, show continue
+        ui.btnC1.style.display = 'none';
+        ui.btnC2.style.display = 'none';
+        
+        let outcomeType = (outcome.dalys > 10) ? "alert" : "success";
+        log(outcome.msg, outcomeType);
+
+        // Check Death
+        if (state.health <= 0) {
+            triggerGameOver();
+        } else {
+            ui.btnCont.style.display = 'block';
+        }
+    }
+
+    function triggerGameOver() {
+        state.isGameOver = true;
+        ui.visuals.innerText = asciiGrave;
+        ui.display.innerHTML = `<span class="alert">GAME OVER</span>\n\nYour population's health collapsed due to unmitigated risk factors.\n\nTotal DALYs Burden: ${state.dalys}\n\nRefresh to try again.`;
+        ui.btnCont.style.display = 'none';
+        ui.btnStart.innerText = "Restart";
+        ui.btnStart.style.display = 'block';
+    }
+
+    function triggerWin() {
+        state.isGameOver = true;
+        ui.visuals.innerText = asciiWin;
+        ui.display.innerHTML = `<span class="success">MISSION ACCOMPLISHED</span>\n\nYou have mapped the health of 204 countries!\n\nFinal DALY Score: ${state.dalys} (Lower is better)\nLife Expectancy: 76.3 Years\n\nKey Takeaway: Tackling NCDs (Heart Disease, Stroke, Diabetes) is the key to the future of global health.`;
+        ui.btnCont.style.display = 'none';
+        ui.btnStart.innerText = "Play Again";
+        ui.btnStart.style.display = 'block';
+    }
+
+</script>
+
+</body>
+</html>
