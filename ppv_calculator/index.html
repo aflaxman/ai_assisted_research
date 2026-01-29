@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PPV Calculator</title>
+  <title>PPV Calculator | IHME Simulation Science</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
@@ -16,132 +16,201 @@
       line-height: 1.5;
     }
 
-    .container { max-width: 900px; margin: 0 auto; }
+    .container { max-width: 960px; margin: 0 auto; }
+
+    header {
+      margin-bottom: 20px;
+    }
 
     h1 {
-      font-size: 1.75rem;
+      font-size: 1.6rem;
       font-weight: 600;
-      margin: 0 0 8px 0;
+      margin: 0 0 4px 0;
       color: #2c3e50;
+    }
+
+    .branding {
+      font-size: 0.75rem;
+      color: #2980b9;
+      font-weight: 500;
+      letter-spacing: 0.3px;
     }
 
     .subtitle {
       color: #5a6c7d;
-      margin: 0 0 24px 0;
-      font-size: 0.95rem;
+      margin: 8px 0 0 0;
+      font-size: 0.9rem;
+    }
+
+    /* Top section: PPV + Parameters side by side on wide screens */
+    .top-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
     }
 
     .card {
       background: #fff;
       border: 1px solid #e1e5e9;
       border-radius: 8px;
-      padding: 24px;
-      margin-bottom: 20px;
+      padding: 20px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
     .card-title {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: #5a6c7d;
-      margin: 0 0 16px 0;
+      margin: 0 0 12px 0;
     }
 
     /* PPV Result */
-    .result-section {
+    .result-card {
+      flex: 0 0 auto;
+      min-width: 180px;
       text-align: center;
-      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .ppv-label {
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       color: #5a6c7d;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
 
     .ppv-value {
-      font-size: 3.5rem;
+      font-size: 3rem;
       font-weight: 700;
       color: #2980b9;
       line-height: 1;
+      cursor: help;
+      position: relative;
     }
 
     .ppv-warning {
       color: #c0392b;
-      font-size: 0.85rem;
-      margin-top: 8px;
-      min-height: 1.3em;
+      font-size: 0.8rem;
+      margin-top: 6px;
+      min-height: 1.2em;
     }
 
-    /* Parameters layout: sliders left, inputs right */
+    /* Tooltip for formula */
+    .tooltip-trigger {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip-content {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2c3e50;
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+      white-space: nowrap;
+      z-index: 100;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: opacity 0.2s, visibility 0.2s;
+    }
+
+    .tooltip-content::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: #2c3e50;
+    }
+
+    .tooltip-trigger:hover .tooltip-content,
+    .tooltip-trigger:focus .tooltip-content {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .tooltip-line { margin-bottom: 3px; }
+    .tooltip-line:last-child { margin-bottom: 0; }
+    .tooltip-dim { opacity: 0.7; }
+
+    /* Parameters card */
+    .params-card {
+      flex: 1;
+    }
+
     .params-layout {
       display: flex;
-      gap: 32px;
+      gap: 24px;
       align-items: flex-start;
     }
 
-    /* Vertical sliders container */
+    /* Vertical sliders */
     .sliders-group {
       display: flex;
-      gap: 24px;
-      padding: 16px 8px;
+      gap: 16px;
     }
 
     .slider-col {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .slider-col label {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 500;
       color: #5a6c7d;
-      text-align: center;
-      writing-mode: horizontal-tb;
     }
 
-    /* Vertical range slider */
     input[type="range"].vertical {
       -webkit-appearance: slider-vertical;
       appearance: slider-vertical;
       writing-mode: vertical-lr;
       direction: rtl;
-      width: 24px;
-      height: 120px;
+      width: 20px;
+      height: 100px;
       background: transparent;
     }
 
     input[type="range"].vertical::-webkit-slider-runnable-track {
-      width: 6px;
+      width: 5px;
       background: #e1e5e9;
       border-radius: 3px;
     }
 
     input[type="range"].vertical::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       background: #2980b9;
       border-radius: 50%;
       cursor: pointer;
       border: 2px solid #fff;
       box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-      margin-left: -6px;
+      margin-left: -5px;
     }
 
     input[type="range"].vertical::-moz-range-track {
-      width: 6px;
+      width: 5px;
       background: #e1e5e9;
       border-radius: 3px;
     }
 
     input[type="range"].vertical::-moz-range-thumb {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       background: #2980b9;
       border-radius: 50%;
       cursor: pointer;
@@ -150,36 +219,34 @@
     }
 
     .slider-value {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: #34495e;
       font-weight: 500;
     }
 
-    /* Text inputs group */
-    .inputs-group {
-      flex: 1;
-    }
+    /* Text inputs */
+    .inputs-group { flex: 1; }
 
     .input-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
+      gap: 10px;
+      margin-bottom: 8px;
     }
 
     .input-row:last-child { margin-bottom: 0; }
 
     .input-label {
-      width: 90px;
-      font-size: 0.9rem;
+      width: 80px;
+      font-size: 0.85rem;
       font-weight: 500;
       color: #34495e;
     }
 
     input[type="number"] {
-      width: 70px;
-      padding: 6px 8px;
-      font-size: 0.9rem;
+      width: 60px;
+      padding: 5px 6px;
+      font-size: 0.85rem;
       border: 1px solid #d1d5db;
       border-radius: 4px;
       text-align: right;
@@ -192,53 +259,34 @@
     }
 
     .unit {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: #5a6c7d;
     }
 
-    /* Prevalence lookup section */
-    .lookup-section {
-      margin-top: 24px;
+    /* Prevalence section */
+    .prevalence-card {
+      margin-bottom: 20px;
     }
 
-    .lookup-header {
+    .prevalence-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       margin-bottom: 12px;
+      gap: 16px;
     }
 
-    .lookup-title {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #5a6c7d;
+    .prevalence-title-group {
+      flex: 1;
     }
 
-    .sex-toggle {
-      display: flex;
-      gap: 4px;
-    }
-
-    .sex-toggle button {
-      padding: 4px 12px;
+    .prevalence-desc {
       font-size: 0.75rem;
-      border: 1px solid #d1d5db;
-      background: #fff;
-      color: #5a6c7d;
-      cursor: pointer;
-      transition: all 0.15s;
+      color: #7f8c8d;
+      margin-top: 4px;
     }
 
-    .sex-toggle button:first-child { border-radius: 4px 0 0 4px; }
-    .sex-toggle button:last-child { border-radius: 0 4px 4px 0; }
-
-    .sex-toggle button.active {
-      background: #2980b9;
-      border-color: #2980b9;
-      color: #fff;
-    }
-
-    .lookup-content {
+    .prevalence-content {
       display: flex;
       gap: 16px;
     }
@@ -256,46 +304,93 @@
     }
 
     .prevalence-table th {
-      text-align: left;
-      padding: 8px 12px;
+      text-align: center;
+      padding: 6px 8px;
       background: #f8f9fa;
       border-bottom: 2px solid #e1e5e9;
       font-weight: 600;
       color: #5a6c7d;
-    }
-
-    .prevalence-table td {
-      padding: 8px 12px;
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    .prevalence-table tr {
       cursor: pointer;
-      transition: background 0.1s;
     }
 
-    .prevalence-table tbody tr:hover {
-      background: #f0f7fc;
+    .prevalence-table th:hover {
+      background: #eef2f5;
     }
 
-    .prevalence-table tr.selected {
+    .prevalence-table th.selected {
       background: #e8f4fc;
+      color: #2980b9;
     }
 
-    .prevalence-table tr.selected td {
-      color: #2980b9;
+    .prevalence-table th:first-child {
+      text-align: left;
+    }
+
+    .prevalence-table .subheader {
+      font-size: 0.65rem;
       font-weight: 500;
     }
 
-    .prev-value {
-      font-weight: 600;
+    .prevalence-table td {
+      padding: 5px 8px;
+      border-bottom: 1px solid #e9ecef;
+      text-align: center;
+    }
+
+    .prevalence-table td:first-child {
+      text-align: left;
+      font-weight: 500;
+      color: #5a6c7d;
+      cursor: pointer;
+    }
+
+    .prevalence-table td:first-child:hover {
+      background: #f0f7fc;
+    }
+
+    .prevalence-table td:first-child.selected {
+      background: #e8f4fc;
       color: #2980b9;
     }
 
-    /* Simple world map */
+    .prevalence-table tbody tr:hover td:not(:first-child) {
+      background: #fafbfc;
+    }
+
+    /* Individual cells for F/M values */
+    .cell-pair {
+      display: flex;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .cell-val {
+      padding: 3px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.1s;
+      min-width: 36px;
+    }
+
+    .cell-val:hover {
+      background: #e8f4fc;
+    }
+
+    .cell-val.selected {
+      background: #2980b9;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .cell-val.female { color: #8e44ad; }
+    .cell-val.male { color: #2980b9; }
+    .cell-val.selected { color: #fff; }
+
+    /* Map */
     .map-container {
-      width: 180px;
+      width: 140px;
       flex-shrink: 0;
+      text-align: center;
     }
 
     .map-svg {
@@ -314,80 +409,56 @@
       stroke: #fff;
       stroke-width: 0.5;
       transition: fill 0.2s;
-    }
-
-    .map-svg .country.active {
-      fill: #2980b9;
-    }
-
-    .map-svg .country:hover {
-      fill: #5dade2;
       cursor: pointer;
     }
 
+    .map-svg .country.active { fill: #2980b9; }
+    .map-svg .country:hover { fill: #5dade2; }
+
     .map-label {
       font-size: 0.7rem;
-      color: #7f8c8d;
-      text-align: center;
+      color: #5a6c7d;
       margin-top: 4px;
     }
 
-    /* Details section */
-    .details-section {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid #e1e5e9;
-    }
-
-    .details-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #7f8c8d;
-      margin-bottom: 10px;
-    }
-
-    .formula {
-      font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
-      font-size: 0.8rem;
-      background: #f8f9fa;
-      padding: 12px;
-      border-radius: 4px;
-      color: #34495e;
-      overflow-x: auto;
-    }
-
-    .formula-line { margin-bottom: 4px; }
-    .formula-line:last-child { margin-bottom: 0; }
-    .intermediate { color: #7f8c8d; }
-
     footer {
       text-align: center;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: #7f8c8d;
-      padding: 16px 0;
+      padding: 12px 0;
     }
 
-    /* Responsive */
+    /* Responsive: stack on narrow screens */
     @media (max-width: 700px) {
+      .top-row {
+        flex-direction: column;
+      }
+
+      .result-card {
+        min-width: auto;
+      }
+
       .params-layout {
         flex-direction: column;
-        gap: 20px;
+        align-items: center;
+        gap: 16px;
       }
 
       .sliders-group {
         justify-content: center;
+      }
+
+      .inputs-group {
         width: 100%;
       }
 
-      .lookup-content {
+      .prevalence-content {
         flex-direction: column;
       }
 
       .map-container {
         width: 100%;
-        max-width: 200px;
+        max-width: 160px;
         margin: 0 auto;
       }
     }
@@ -395,125 +466,126 @@
 </head>
 <body>
   <div class="container">
-    <h1>Positive Predictive Value Calculator</h1>
-    <p class="subtitle">Calculate PPV from sensitivity, specificity, and prevalence</p>
+    <header>
+      <div class="branding">IHME Simulation Science Team</div>
+      <h1>Positive Predictive Value Calculator</h1>
+      <p class="subtitle">Calculate PPV from sensitivity, specificity, and prevalence</p>
+    </header>
 
-    <!-- Result Card -->
-    <div class="card result-section">
-      <div class="ppv-label">Positive Predictive Value</div>
-      <div class="ppv-value" id="ppvValue">35.7%</div>
-      <div class="ppv-warning" id="ppvWarning"></div>
-    </div>
-
-    <!-- Inputs Card -->
-    <div class="card">
-      <h2 class="card-title">Parameters</h2>
-
-      <div class="params-layout">
-        <!-- Vertical sliders (not tabbable) -->
-        <div class="sliders-group">
-          <div class="slider-col">
-            <label>Se</label>
-            <input type="range" class="vertical" id="sensitivitySlider"
-                   min="0" max="100" step="1" value="50" tabindex="-1">
-            <span class="slider-value" id="seSliderVal">50</span>
-          </div>
-          <div class="slider-col">
-            <label>Sp</label>
-            <input type="range" class="vertical" id="specificitySlider"
-                   min="0" max="100" step="1" value="90" tabindex="-1">
-            <span class="slider-value" id="spSliderVal">90</span>
-          </div>
-          <div class="slider-col">
-            <label>Prev</label>
-            <input type="range" class="vertical" id="prevalenceSlider"
-                   min="0" max="100" step="1" value="10" tabindex="-1">
-            <span class="slider-value" id="prevSliderVal">10</span>
+    <!-- Top row: PPV result + Parameters -->
+    <div class="top-row">
+      <!-- PPV Result -->
+      <div class="card result-card">
+        <div class="ppv-label">Positive Predictive Value</div>
+        <div class="tooltip-trigger" tabindex="0">
+          <span class="ppv-value" id="ppvValue">35.7%</span>
+          <div class="tooltip-content" id="tooltipContent">
+            <!-- Populated by JS -->
           </div>
         </div>
-
-        <!-- Text inputs (tabbable) -->
-        <div class="inputs-group">
-          <div class="input-row">
-            <label class="input-label" for="sensitivityNum">Sensitivity</label>
-            <input type="number" id="sensitivityNum" min="0" max="100" step="1" value="50">
-            <span class="unit">%</span>
-          </div>
-          <div class="input-row">
-            <label class="input-label" for="specificityNum">Specificity</label>
-            <input type="number" id="specificityNum" min="0" max="100" step="1" value="90">
-            <span class="unit">%</span>
-          </div>
-          <div class="input-row">
-            <label class="input-label" for="prevalenceNum">Prevalence</label>
-            <input type="number" id="prevalenceNum" min="0" max="100" step="1" value="10">
-            <span class="unit">%</span>
-          </div>
-        </div>
+        <div class="ppv-warning" id="ppvWarning"></div>
       </div>
 
-      <!-- Prevalence Lookup Table -->
-      <div class="lookup-section">
-        <div class="lookup-header">
-          <span class="lookup-title">Prevalence Lookup (Stand-in Data)</span>
-          <div class="sex-toggle">
-            <button type="button" id="btnFemale" class="active">Female</button>
-            <button type="button" id="btnMale">Male</button>
+      <!-- Parameters -->
+      <div class="card params-card">
+        <h2 class="card-title">Parameters</h2>
+        <div class="params-layout">
+          <div class="sliders-group">
+            <div class="slider-col">
+              <label>Se</label>
+              <input type="range" class="vertical" id="sensitivitySlider"
+                     min="0" max="100" step="1" value="50" tabindex="-1">
+              <span class="slider-value" id="seSliderVal">50</span>
+            </div>
+            <div class="slider-col">
+              <label>Sp</label>
+              <input type="range" class="vertical" id="specificitySlider"
+                     min="0" max="100" step="1" value="90" tabindex="-1">
+              <span class="slider-value" id="spSliderVal">90</span>
+            </div>
+            <div class="slider-col">
+              <label>Prev</label>
+              <input type="range" class="vertical" id="prevalenceSlider"
+                     min="0" max="100" step="1" value="10" tabindex="-1">
+              <span class="slider-value" id="prevSliderVal">10</span>
+            </div>
+          </div>
+          <div class="inputs-group">
+            <div class="input-row">
+              <label class="input-label" for="sensitivityNum">Sensitivity</label>
+              <input type="number" id="sensitivityNum" min="0" max="100" step="1" value="50">
+              <span class="unit">%</span>
+            </div>
+            <div class="input-row">
+              <label class="input-label" for="specificityNum">Specificity</label>
+              <input type="number" id="specificityNum" min="0" max="100" step="1" value="90">
+              <span class="unit">%</span>
+            </div>
+            <div class="input-row">
+              <label class="input-label" for="prevalenceNum">Prevalence</label>
+              <input type="number" id="prevalenceNum" min="0" max="100" step="1" value="10">
+              <span class="unit">%</span>
+            </div>
           </div>
         </div>
-
-        <div class="lookup-content">
-          <div class="prevalence-table-wrap">
-            <table class="prevalence-table">
-              <thead>
-                <tr>
-                  <th>Age</th>
-                  <th>United States</th>
-                  <th>Brazil</th>
-                  <th>China</th>
-                </tr>
-              </thead>
-              <tbody id="prevalenceTableBody">
-                <!-- Populated by JS -->
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Simple world map -->
-          <div class="map-container">
-            <svg class="map-svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid meet">
-              <!-- Simplified continent outlines -->
-              <g class="land">
-                <!-- North America -->
-                <path d="M10,15 L50,10 L55,35 L40,50 L20,45 L10,30 Z"/>
-                <!-- South America -->
-                <path d="M35,52 L55,48 L60,70 L50,90 L35,85 L30,65 Z"/>
-                <!-- Europe/Africa -->
-                <path d="M85,15 L110,12 L115,35 L105,50 L90,55 L80,40 Z"/>
-                <path d="M85,58 L105,55 L110,80 L95,90 L80,85 L78,70 Z"/>
-                <!-- Asia -->
-                <path d="M115,10 L180,8 L190,35 L175,55 L140,50 L115,35 Z"/>
-                <!-- Australia -->
-                <path d="M160,65 L185,60 L190,80 L175,88 L158,82 Z"/>
-              </g>
-              <!-- Clickable country markers -->
-              <circle class="country" id="mapUS" cx="35" cy="30" r="8" data-location="United States"/>
-              <circle class="country" id="mapBrazil" cx="50" cy="70" r="8" data-location="Brazil"/>
-              <circle class="country" id="mapChina" cx="155" cy="32" r="8" data-location="China"/>
-            </svg>
-            <div class="map-label" id="mapLabel">Click to select</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Details -->
-      <div class="details-section">
-        <div class="details-title">Calculation Details</div>
-        <div class="formula" id="formulaDetails"></div>
       </div>
     </div>
 
-    <footer>PPV calculator • Sensitivity/Specificity/Prevalence</footer>
+    <!-- Prevalence Lookup -->
+    <div class="card prevalence-card">
+      <div class="prevalence-header">
+        <div class="prevalence-title-group">
+          <h2 class="card-title" style="margin-bottom:0">Prevalence of Preclinical Alzheimer's Disease</h2>
+          <p class="prevalence-desc">Detectable using blood-based biomarker (BBBM) testing. Click a cell to set prevalence.</p>
+        </div>
+      </div>
+
+      <div class="prevalence-content">
+        <div class="prevalence-table-wrap">
+          <table class="prevalence-table">
+            <thead>
+              <tr>
+                <th>Age</th>
+                <th id="colUS" data-location="United States">
+                  United States
+                  <div class="subheader">F / M</div>
+                </th>
+                <th id="colBrazil" data-location="Brazil">
+                  Brazil
+                  <div class="subheader">F / M</div>
+                </th>
+                <th id="colChina" data-location="China">
+                  China
+                  <div class="subheader">F / M</div>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="prevalenceTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="map-container">
+          <svg class="map-svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid meet">
+            <g class="land">
+              <path d="M10,15 L50,10 L55,35 L40,50 L20,45 L10,30 Z"/>
+              <path d="M35,52 L55,48 L60,70 L50,90 L35,85 L30,65 Z"/>
+              <path d="M85,15 L110,12 L115,35 L105,50 L90,55 L80,40 Z"/>
+              <path d="M85,58 L105,55 L110,80 L95,90 L80,85 L78,70 Z"/>
+              <path d="M115,10 L180,8 L190,35 L175,55 L140,50 L115,35 Z"/>
+              <path d="M160,65 L185,60 L190,80 L175,88 L158,82 Z"/>
+            </g>
+            <circle class="country" id="mapUS" cx="35" cy="30" r="8" data-location="United States"/>
+            <circle class="country" id="mapBrazil" cx="50" cy="70" r="8" data-location="Brazil"/>
+            <circle class="country" id="mapChina" cx="155" cy="32" r="8" data-location="China"/>
+          </svg>
+          <div class="map-label" id="mapLabel">Click to select</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>PPV Calculator • IHME Simulation Science Team</footer>
   </div>
 
   <script>
@@ -540,7 +612,6 @@
       }
     };
 
-    // Map location to SVG element ID
     const LOCATION_MAP_IDS = {
       "United States": "mapUS",
       "Brazil": "mapBrazil",
@@ -551,9 +622,9 @@
     // STATE
     // =========================================================================
 
-    let currentSex = "Female";
     let selectedLocation = null;
     let selectedAge = null;
+    let selectedSex = null;
 
     // =========================================================================
     // DOM ELEMENTS
@@ -570,13 +641,11 @@
     const spSliderVal = document.getElementById('spSliderVal');
     const prevSliderVal = document.getElementById('prevSliderVal');
 
-    const btnFemale = document.getElementById('btnFemale');
-    const btnMale = document.getElementById('btnMale');
     const prevalenceTableBody = document.getElementById('prevalenceTableBody');
 
     const ppvValue = document.getElementById('ppvValue');
     const ppvWarning = document.getElementById('ppvWarning');
-    const formulaDetails = document.getElementById('formulaDetails');
+    const tooltipContent = document.getElementById('tooltipContent');
     const mapLabel = document.getElementById('mapLabel');
 
     // =========================================================================
@@ -637,17 +706,17 @@
       if (result.ppv === null) {
         ppvValue.textContent = '—';
         ppvWarning.textContent = 'Undefined: no positive tests occur';
+        tooltipContent.innerHTML = '<div class="tooltip-line">Denominator is zero</div>';
       } else {
         ppvValue.textContent = (result.ppv * 100).toFixed(1) + '%';
         ppvWarning.textContent = '';
+        tooltipContent.innerHTML = `
+          <div class="tooltip-line tooltip-dim">Se=${result.se.toFixed(2)}, Sp=${result.sp.toFixed(2)}, Prev=${result.prev.toFixed(2)}</div>
+          <div class="tooltip-line">PPV = (Se×Prev) / (Se×Prev + (1−Sp)×(1−Prev))</div>
+          <div class="tooltip-line">PPV = ${result.numerator.toFixed(4)} / ${result.denominator.toFixed(4)}</div>
+          <div class="tooltip-line">PPV = ${result.ppv.toFixed(4)}</div>
+        `;
       }
-
-      formulaDetails.innerHTML = `
-        <div class="formula-line intermediate">Se = ${result.se.toFixed(4)}, Sp = ${result.sp.toFixed(4)}, Prev = ${result.prev.toFixed(4)}</div>
-        <div class="formula-line">PPV = (Se × Prev) / (Se × Prev + (1 − Sp) × (1 − Prev))</div>
-        <div class="formula-line">PPV = ${result.numerator.toFixed(6)} / ${result.denominator.toFixed(6)}</div>
-        <div class="formula-line">PPV = ${result.ppv !== null ? result.ppv.toFixed(4) : 'undefined'}</div>
-      `;
     }
 
     // =========================================================================
@@ -659,33 +728,54 @@
 
       AGE_GROUPS.forEach(age => {
         const tr = document.createElement('tr');
-        tr.dataset.age = age;
 
-        // Age cell
+        // Age cell (clickable to select age)
         const tdAge = document.createElement('td');
         tdAge.textContent = age.replace('-', '–');
+        tdAge.dataset.age = age;
+        tdAge.addEventListener('click', () => selectAge(age));
         tr.appendChild(tdAge);
 
-        // Location cells
+        // Location cells with F/M values
         LOCATIONS.forEach(loc => {
           const td = document.createElement('td');
-          const val = PREVALENCE_DATA[loc]?.[currentSex]?.[age];
-          if (val !== undefined) {
-            td.innerHTML = `<span class="prev-value">${val}%</span>`;
-            td.dataset.location = loc;
-            td.dataset.prevalence = val;
-          } else {
-            td.textContent = '—';
-          }
-          tr.appendChild(td);
-        });
+          const femaleVal = PREVALENCE_DATA[loc]?.["Female"]?.[age];
+          const maleVal = PREVALENCE_DATA[loc]?.["Male"]?.[age];
 
-        // Click handler for entire row
-        tr.addEventListener('click', (e) => {
-          const cell = e.target.closest('td[data-location]');
-          if (cell) {
-            selectPrevalence(age, cell.dataset.location, parseInt(cell.dataset.prevalence, 10));
-          }
+          const cellPair = document.createElement('div');
+          cellPair.className = 'cell-pair';
+
+          // Female value
+          const fSpan = document.createElement('span');
+          fSpan.className = 'cell-val female';
+          fSpan.textContent = femaleVal !== undefined ? `${femaleVal}%` : '—';
+          fSpan.dataset.location = loc;
+          fSpan.dataset.age = age;
+          fSpan.dataset.sex = 'Female';
+          fSpan.dataset.prevalence = femaleVal;
+          fSpan.addEventListener('click', () => selectCell(age, loc, 'Female', femaleVal));
+          cellPair.appendChild(fSpan);
+
+          // Separator
+          const sep = document.createElement('span');
+          sep.textContent = '/';
+          sep.style.color = '#bdc3c7';
+          sep.style.padding = '0 2px';
+          cellPair.appendChild(sep);
+
+          // Male value
+          const mSpan = document.createElement('span');
+          mSpan.className = 'cell-val male';
+          mSpan.textContent = maleVal !== undefined ? `${maleVal}%` : '—';
+          mSpan.dataset.location = loc;
+          mSpan.dataset.age = age;
+          mSpan.dataset.sex = 'Male';
+          mSpan.dataset.prevalence = maleVal;
+          mSpan.addEventListener('click', () => selectCell(age, loc, 'Male', maleVal));
+          cellPair.appendChild(mSpan);
+
+          td.appendChild(cellPair);
+          tr.appendChild(td);
         });
 
         prevalenceTableBody.appendChild(tr);
@@ -694,32 +784,82 @@
       updateTableSelection();
     }
 
-    function selectPrevalence(age, location, value) {
+    function selectCell(age, location, sex, value) {
+      if (value === undefined) return;
+
       selectedAge = age;
       selectedLocation = location;
+      selectedSex = sex;
 
       prevalenceNum.value = value;
       prevalenceSlider.value = value;
       prevSliderVal.textContent = value;
 
       updateTableSelection();
+      updateColumnHeaders();
       updateMapSelection();
       updateCalculation();
     }
 
-    function updateTableSelection() {
-      // Clear all selections
-      prevalenceTableBody.querySelectorAll('tr').forEach(tr => {
-        tr.classList.remove('selected');
-      });
-
-      // Apply selection if we have one
-      if (selectedAge && selectedLocation) {
-        const tr = prevalenceTableBody.querySelector(`tr[data-age="${selectedAge}"]`);
-        if (tr) {
-          tr.classList.add('selected');
+    function selectAge(age) {
+      // Keep current location/sex if available, just change age
+      if (selectedLocation && selectedSex) {
+        const val = PREVALENCE_DATA[selectedLocation]?.[selectedSex]?.[age];
+        if (val !== undefined) {
+          selectCell(age, selectedLocation, selectedSex, val);
+          return;
         }
       }
+      // Otherwise just update the age highlight
+      selectedAge = age;
+      updateTableSelection();
+    }
+
+    function selectLocation(location) {
+      // Keep current age/sex if available, just change location
+      if (selectedAge && selectedSex) {
+        const val = PREVALENCE_DATA[location]?.[selectedSex]?.[selectedAge];
+        if (val !== undefined) {
+          selectCell(selectedAge, location, selectedSex, val);
+          return;
+        }
+      }
+      // Otherwise just update the location highlight
+      selectedLocation = location;
+      updateColumnHeaders();
+      updateMapSelection();
+    }
+
+    function updateTableSelection() {
+      // Clear cell selections
+      document.querySelectorAll('.cell-val').forEach(el => {
+        el.classList.remove('selected');
+      });
+
+      // Clear age selections
+      document.querySelectorAll('#prevalenceTableBody td:first-child').forEach(el => {
+        el.classList.remove('selected');
+      });
+
+      // Highlight selected cell
+      if (selectedAge && selectedLocation && selectedSex) {
+        const cell = document.querySelector(
+          `.cell-val[data-age="${selectedAge}"][data-location="${selectedLocation}"][data-sex="${selectedSex}"]`
+        );
+        if (cell) cell.classList.add('selected');
+      }
+
+      // Highlight selected age row
+      if (selectedAge) {
+        const ageCell = document.querySelector(`#prevalenceTableBody td[data-age="${selectedAge}"]`);
+        if (ageCell) ageCell.classList.add('selected');
+      }
+    }
+
+    function updateColumnHeaders() {
+      document.querySelectorAll('.prevalence-table th[data-location]').forEach(th => {
+        th.classList.toggle('selected', th.dataset.location === selectedLocation);
+      });
     }
 
     // =========================================================================
@@ -727,12 +867,10 @@
     // =========================================================================
 
     function updateMapSelection() {
-      // Clear all
       document.querySelectorAll('.map-svg .country').forEach(el => {
         el.classList.remove('active');
       });
 
-      // Highlight selected
       if (selectedLocation && LOCATION_MAP_IDS[selectedLocation]) {
         const el = document.getElementById(LOCATION_MAP_IDS[selectedLocation]);
         if (el) el.classList.add('active');
@@ -745,44 +883,17 @@
     function initMap() {
       document.querySelectorAll('.map-svg .country').forEach(el => {
         el.addEventListener('click', () => {
-          const loc = el.dataset.location;
-          if (loc && selectedAge) {
-            // Use current age selection with new location
-            const val = PREVALENCE_DATA[loc]?.[currentSex]?.[selectedAge];
-            if (val !== undefined) {
-              selectPrevalence(selectedAge, loc, val);
-            }
-          } else if (loc) {
-            // No age selected, just highlight and use first age group
-            const val = PREVALENCE_DATA[loc]?.[currentSex]?.[AGE_GROUPS[0]];
-            if (val !== undefined) {
-              selectPrevalence(AGE_GROUPS[0], loc, val);
-            }
-          }
+          selectLocation(el.dataset.location);
         });
       });
     }
 
-    // =========================================================================
-    // SEX TOGGLE
-    // =========================================================================
-
-    function setSex(sex) {
-      currentSex = sex;
-      btnFemale.classList.toggle('active', sex === 'Female');
-      btnMale.classList.toggle('active', sex === 'Male');
-      buildPrevalenceTable();
-
-      // Update prevalence if we have a selection
-      if (selectedAge && selectedLocation) {
-        const val = PREVALENCE_DATA[selectedLocation]?.[currentSex]?.[selectedAge];
-        if (val !== undefined) {
-          prevalenceNum.value = val;
-          prevalenceSlider.value = val;
-          prevSliderVal.textContent = val;
-          updateCalculation();
-        }
-      }
+    function initColumnHeaders() {
+      document.querySelectorAll('.prevalence-table th[data-location]').forEach(th => {
+        th.addEventListener('click', () => {
+          selectLocation(th.dataset.location);
+        });
+      });
     }
 
     // =========================================================================
@@ -794,10 +905,7 @@
     specificitySlider.addEventListener('input', () => syncFromSlider(specificitySlider, specificityNum, spSliderVal));
     prevalenceSlider.addEventListener('input', () => {
       syncFromSlider(prevalenceSlider, prevalenceNum, prevSliderVal);
-      selectedAge = null;
-      selectedLocation = null;
-      updateTableSelection();
-      updateMapSelection();
+      clearSelection();
     });
 
     // Number inputs
@@ -807,16 +915,18 @@
     specificityNum.addEventListener('blur', () => syncFromInput(specificitySlider, specificityNum, spSliderVal));
     prevalenceNum.addEventListener('input', () => {
       syncFromInput(prevalenceSlider, prevalenceNum, prevSliderVal);
-      selectedAge = null;
-      selectedLocation = null;
-      updateTableSelection();
-      updateMapSelection();
+      clearSelection();
     });
     prevalenceNum.addEventListener('blur', () => syncFromInput(prevalenceSlider, prevalenceNum, prevSliderVal));
 
-    // Sex toggle
-    btnFemale.addEventListener('click', () => setSex('Female'));
-    btnMale.addEventListener('click', () => setSex('Male'));
+    function clearSelection() {
+      selectedAge = null;
+      selectedLocation = null;
+      selectedSex = null;
+      updateTableSelection();
+      updateColumnHeaders();
+      updateMapSelection();
+    }
 
     // =========================================================================
     // INIT
@@ -824,6 +934,7 @@
 
     buildPrevalenceTable();
     initMap();
+    initColumnHeaders();
     updateCalculation();
 
     // =========================================================================
