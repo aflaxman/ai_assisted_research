@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PPV Calculator</title>
   <style>
-    /* Reset and base styles */
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
+    *, *::before, *::after { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -19,11 +16,7 @@
       line-height: 1.5;
     }
 
-    /* Layout */
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
+    .container { max-width: 900px; margin: 0 auto; }
 
     h1 {
       font-size: 1.75rem;
@@ -38,7 +31,6 @@
       font-size: 0.95rem;
     }
 
-    /* Card panel */
     .card {
       background: #fff;
       border: 1px solid #e1e5e9;
@@ -57,10 +49,10 @@
       margin: 0 0 16px 0;
     }
 
-    /* PPV Result display */
+    /* PPV Result */
     .result-section {
       text-align: center;
-      padding: 32px 24px;
+      padding: 24px;
     }
 
     .ppv-label {
@@ -74,7 +66,6 @@
       font-weight: 700;
       color: #2980b9;
       line-height: 1;
-      margin-bottom: 8px;
     }
 
     .ppv-warning {
@@ -84,63 +75,105 @@
       min-height: 1.3em;
     }
 
-    /* Input groups */
+    /* Parameters layout: sliders left, inputs right */
+    .params-layout {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+    }
+
+    /* Vertical sliders container */
+    .sliders-group {
+      display: flex;
+      gap: 24px;
+      padding: 16px 8px;
+    }
+
+    .slider-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slider-col label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #5a6c7d;
+      text-align: center;
+      writing-mode: horizontal-tb;
+    }
+
+    /* Vertical range slider */
+    input[type="range"].vertical {
+      -webkit-appearance: slider-vertical;
+      appearance: slider-vertical;
+      writing-mode: vertical-lr;
+      direction: rtl;
+      width: 24px;
+      height: 120px;
+      background: transparent;
+    }
+
+    input[type="range"].vertical::-webkit-slider-runnable-track {
+      width: 6px;
+      background: #e1e5e9;
+      border-radius: 3px;
+    }
+
+    input[type="range"].vertical::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      background: #2980b9;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      margin-left: -6px;
+    }
+
+    input[type="range"].vertical::-moz-range-track {
+      width: 6px;
+      background: #e1e5e9;
+      border-radius: 3px;
+    }
+
+    input[type="range"].vertical::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      background: #2980b9;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .slider-value {
+      font-size: 0.8rem;
+      color: #34495e;
+      font-weight: 500;
+    }
+
+    /* Text inputs group */
+    .inputs-group {
+      flex: 1;
+    }
+
     .input-row {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 20px;
+      gap: 12px;
+      margin-bottom: 12px;
     }
 
-    .input-row:last-child {
-      margin-bottom: 0;
-    }
+    .input-row:last-child { margin-bottom: 0; }
 
     .input-label {
-      width: 100px;
+      width: 90px;
       font-size: 0.9rem;
       font-weight: 500;
       color: #34495e;
-      flex-shrink: 0;
-    }
-
-    .slider-container {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    input[type="range"] {
-      flex: 1;
-      height: 6px;
-      -webkit-appearance: none;
-      appearance: none;
-      background: #e1e5e9;
-      border-radius: 3px;
-      outline: none;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      background: #2980b9;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid #fff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-
-    input[type="range"]::-moz-range-thumb {
-      width: 18px;
-      height: 18px;
-      background: #2980b9;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid #fff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
     input[type="number"] {
@@ -161,80 +194,142 @@
     .unit {
       font-size: 0.85rem;
       color: #5a6c7d;
-      width: 16px;
     }
 
     /* Prevalence lookup section */
     .lookup-section {
-      background: #f8f9fa;
-      border-radius: 6px;
-      padding: 16px;
       margin-top: 24px;
+    }
+
+    .lookup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
     }
 
     .lookup-title {
       font-size: 0.8rem;
       font-weight: 600;
       color: #5a6c7d;
-      margin-bottom: 12px;
     }
 
-    .lookup-row {
+    .sex-toggle {
       display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .lookup-field {
-      display: flex;
-      flex-direction: column;
       gap: 4px;
     }
 
-    .lookup-field label {
+    .sex-toggle button {
+      padding: 4px 12px;
       font-size: 0.75rem;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      color: #5a6c7d;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .sex-toggle button:first-child { border-radius: 4px 0 0 4px; }
+    .sex-toggle button:last-child { border-radius: 0 4px 4px 0; }
+
+    .sex-toggle button.active {
+      background: #2980b9;
+      border-color: #2980b9;
+      color: #fff;
+    }
+
+    .lookup-content {
+      display: flex;
+      gap: 16px;
+    }
+
+    /* Prevalence table */
+    .prevalence-table-wrap {
+      flex: 1;
+      overflow-x: auto;
+    }
+
+    .prevalence-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .prevalence-table th {
+      text-align: left;
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-bottom: 2px solid #e1e5e9;
+      font-weight: 600;
       color: #5a6c7d;
     }
 
-    select {
-      padding: 6px 10px;
-      font-size: 0.85rem;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      background: #fff;
-      color: #1a1a1a;
-      min-width: 120px;
+    .prevalence-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e9ecef;
     }
 
-    select:focus {
-      outline: none;
-      border-color: #2980b9;
-      box-shadow: 0 0 0 2px rgba(41,128,185,0.15);
-    }
-
-    .auto-btn {
-      padding: 6px 12px;
-      font-size: 0.8rem;
-      background: #e8f4fc;
-      color: #2980b9;
-      border: 1px solid #b8d4e8;
-      border-radius: 4px;
+    .prevalence-table tr {
       cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .prevalence-table tbody tr:hover {
+      background: #f0f7fc;
+    }
+
+    .prevalence-table tr.selected {
+      background: #e8f4fc;
+    }
+
+    .prevalence-table tr.selected td {
+      color: #2980b9;
       font-weight: 500;
-      margin-top: 18px;
     }
 
-    .auto-btn:hover {
-      background: #d4ebf8;
+    .prev-value {
+      font-weight: 600;
+      color: #2980b9;
     }
 
-    .lookup-message {
-      font-size: 0.8rem;
+    /* Simple world map */
+    .map-container {
+      width: 180px;
+      flex-shrink: 0;
+    }
+
+    .map-svg {
+      width: 100%;
+      height: auto;
+    }
+
+    .map-svg .land {
+      fill: #e1e5e9;
+      stroke: #fff;
+      stroke-width: 0.5;
+    }
+
+    .map-svg .country {
+      fill: #cfd8dc;
+      stroke: #fff;
+      stroke-width: 0.5;
+      transition: fill 0.2s;
+    }
+
+    .map-svg .country.active {
+      fill: #2980b9;
+    }
+
+    .map-svg .country:hover {
+      fill: #5dade2;
+      cursor: pointer;
+    }
+
+    .map-label {
+      font-size: 0.7rem;
       color: #7f8c8d;
-      margin-top: 10px;
-      min-height: 1.2em;
-      font-style: italic;
+      text-align: center;
+      margin-top: 4px;
     }
 
     /* Details section */
@@ -263,19 +358,10 @@
       overflow-x: auto;
     }
 
-    .formula-line {
-      margin-bottom: 4px;
-    }
+    .formula-line { margin-bottom: 4px; }
+    .formula-line:last-child { margin-bottom: 0; }
+    .intermediate { color: #7f8c8d; }
 
-    .formula-line:last-child {
-      margin-bottom: 0;
-    }
-
-    .intermediate {
-      color: #7f8c8d;
-    }
-
-    /* Footer */
     footer {
       text-align: center;
       font-size: 0.8rem;
@@ -284,32 +370,25 @@
     }
 
     /* Responsive */
-    @media (max-width: 600px) {
-      .input-row {
-        flex-wrap: wrap;
-      }
-
-      .input-label {
-        width: 100%;
-        margin-bottom: 4px;
-      }
-
-      .lookup-row {
+    @media (max-width: 700px) {
+      .params-layout {
         flex-direction: column;
-        align-items: stretch;
+        gap: 20px;
       }
 
-      .lookup-field {
+      .sliders-group {
+        justify-content: center;
         width: 100%;
       }
 
-      select {
-        width: 100%;
+      .lookup-content {
+        flex-direction: column;
       }
 
-      .auto-btn {
-        margin-top: 8px;
+      .map-container {
         width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
       }
     }
   </style>
@@ -330,157 +409,151 @@
     <div class="card">
       <h2 class="card-title">Parameters</h2>
 
-      <!-- Sensitivity -->
-      <div class="input-row">
-        <label class="input-label" for="sensitivityNum">Sensitivity</label>
-        <div class="slider-container">
-          <input type="range" id="sensitivitySlider" min="0" max="100" step="1" value="50">
-          <input type="number" id="sensitivityNum" min="0" max="100" step="1" value="50">
-          <span class="unit">%</span>
+      <div class="params-layout">
+        <!-- Vertical sliders (not tabbable) -->
+        <div class="sliders-group">
+          <div class="slider-col">
+            <label>Se</label>
+            <input type="range" class="vertical" id="sensitivitySlider"
+                   min="0" max="100" step="1" value="50" tabindex="-1">
+            <span class="slider-value" id="seSliderVal">50</span>
+          </div>
+          <div class="slider-col">
+            <label>Sp</label>
+            <input type="range" class="vertical" id="specificitySlider"
+                   min="0" max="100" step="1" value="90" tabindex="-1">
+            <span class="slider-value" id="spSliderVal">90</span>
+          </div>
+          <div class="slider-col">
+            <label>Prev</label>
+            <input type="range" class="vertical" id="prevalenceSlider"
+                   min="0" max="100" step="1" value="10" tabindex="-1">
+            <span class="slider-value" id="prevSliderVal">10</span>
+          </div>
+        </div>
+
+        <!-- Text inputs (tabbable) -->
+        <div class="inputs-group">
+          <div class="input-row">
+            <label class="input-label" for="sensitivityNum">Sensitivity</label>
+            <input type="number" id="sensitivityNum" min="0" max="100" step="1" value="50">
+            <span class="unit">%</span>
+          </div>
+          <div class="input-row">
+            <label class="input-label" for="specificityNum">Specificity</label>
+            <input type="number" id="specificityNum" min="0" max="100" step="1" value="90">
+            <span class="unit">%</span>
+          </div>
+          <div class="input-row">
+            <label class="input-label" for="prevalenceNum">Prevalence</label>
+            <input type="number" id="prevalenceNum" min="0" max="100" step="1" value="10">
+            <span class="unit">%</span>
+          </div>
         </div>
       </div>
 
-      <!-- Specificity -->
-      <div class="input-row">
-        <label class="input-label" for="specificityNum">Specificity</label>
-        <div class="slider-container">
-          <input type="range" id="specificitySlider" min="0" max="100" step="1" value="90">
-          <input type="number" id="specificityNum" min="0" max="100" step="1" value="90">
-          <span class="unit">%</span>
-        </div>
-      </div>
-
-      <!-- Prevalence -->
-      <div class="input-row">
-        <label class="input-label" for="prevalenceNum">Prevalence</label>
-        <div class="slider-container">
-          <input type="range" id="prevalenceSlider" min="0" max="100" step="1" value="10">
-          <input type="number" id="prevalenceNum" min="0" max="100" step="1" value="10">
-          <span class="unit">%</span>
-        </div>
-      </div>
-
-      <!-- Prevalence Lookup -->
+      <!-- Prevalence Lookup Table -->
       <div class="lookup-section">
-        <div class="lookup-title">Prevalence Lookup (Stand-in Data)</div>
-        <div class="lookup-row">
-          <div class="lookup-field">
-            <label for="ageSelect">Age Group</label>
-            <select id="ageSelect">
-              <option value="60-64">60–64</option>
-              <option value="65-69">65–69</option>
-              <option value="70-74">70–74</option>
-              <option value="75-79">75–79</option>
-              <option value="80-84">80–84</option>
-            </select>
+        <div class="lookup-header">
+          <span class="lookup-title">Prevalence Lookup (Stand-in Data)</span>
+          <div class="sex-toggle">
+            <button type="button" id="btnFemale" class="active">Female</button>
+            <button type="button" id="btnMale">Male</button>
           </div>
-          <div class="lookup-field">
-            <label for="sexSelect">Sex</label>
-            <select id="sexSelect">
-              <option value="Female">Female</option>
-              <option value="Male">Male</option>
-            </select>
-          </div>
-          <div class="lookup-field">
-            <label for="locationSelect">Location</label>
-            <select id="locationSelect">
-              <!-- Populated from LOCATIONS array -->
-            </select>
-          </div>
-          <button type="button" class="auto-btn" id="autoBtn">Auto</button>
         </div>
-        <div class="lookup-message" id="lookupMessage"></div>
+
+        <div class="lookup-content">
+          <div class="prevalence-table-wrap">
+            <table class="prevalence-table">
+              <thead>
+                <tr>
+                  <th>Age</th>
+                  <th>United States</th>
+                  <th>Brazil</th>
+                  <th>China</th>
+                </tr>
+              </thead>
+              <tbody id="prevalenceTableBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Simple world map -->
+          <div class="map-container">
+            <svg class="map-svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid meet">
+              <!-- Simplified continent outlines -->
+              <g class="land">
+                <!-- North America -->
+                <path d="M10,15 L50,10 L55,35 L40,50 L20,45 L10,30 Z"/>
+                <!-- South America -->
+                <path d="M35,52 L55,48 L60,70 L50,90 L35,85 L30,65 Z"/>
+                <!-- Europe/Africa -->
+                <path d="M85,15 L110,12 L115,35 L105,50 L90,55 L80,40 Z"/>
+                <path d="M85,58 L105,55 L110,80 L95,90 L80,85 L78,70 Z"/>
+                <!-- Asia -->
+                <path d="M115,10 L180,8 L190,35 L175,55 L140,50 L115,35 Z"/>
+                <!-- Australia -->
+                <path d="M160,65 L185,60 L190,80 L175,88 L158,82 Z"/>
+              </g>
+              <!-- Clickable country markers -->
+              <circle class="country" id="mapUS" cx="35" cy="30" r="8" data-location="United States"/>
+              <circle class="country" id="mapBrazil" cx="50" cy="70" r="8" data-location="Brazil"/>
+              <circle class="country" id="mapChina" cx="155" cy="32" r="8" data-location="China"/>
+            </svg>
+            <div class="map-label" id="mapLabel">Click to select</div>
+          </div>
+        </div>
       </div>
 
       <!-- Details -->
       <div class="details-section">
         <div class="details-title">Calculation Details</div>
-        <div class="formula" id="formulaDetails">
-          <!-- Populated by JS -->
-        </div>
+        <div class="formula" id="formulaDetails"></div>
       </div>
     </div>
 
-    <footer>
-      PPV calculator • Sensitivity/Specificity/Prevalence
-    </footer>
+    <footer>PPV calculator • Sensitivity/Specificity/Prevalence</footer>
   </div>
 
   <script>
     // =========================================================================
-    // EXTENDABLE DATA: Add new locations here
+    // EXTENDABLE DATA
     // =========================================================================
 
-    /**
-     * List of available locations.
-     * To add a new location:
-     *   1. Add the location name to this array
-     *   2. Add corresponding prevalence data to PREVALENCE_DATA below
-     */
-    const LOCATIONS = [
-      "United States",
-      "Brazil",
-      "China"
-    ];
+    const LOCATIONS = ["United States", "Brazil", "China"];
+    const AGE_GROUPS = ["60-64", "65-69", "70-74", "75-79", "80-84"];
 
-    /**
-     * Stand-in prevalence data (percent values).
-     * Structure: { location: { sex: { ageGroup: prevalencePercent } } }
-     *
-     * To add data for a new location, add a new key matching a LOCATIONS entry.
-     * Age groups: "60-64", "65-69", "70-74", "75-79", "80-84"
-     * Sex: "Female", "Male"
-     */
+    // Structure: { location: { sex: { ageGroup: prevalencePercent } } }
     const PREVALENCE_DATA = {
       "United States": {
-        "Female": {
-          "60-64": 8,
-          "65-69": 11,
-          "70-74": 15,
-          "75-79": 21,
-          "80-84": 28
-        },
-        "Male": {
-          "60-64": 10,
-          "65-69": 14,
-          "70-74": 19,
-          "75-79": 26,
-          "80-84": 34
-        }
+        "Female": { "60-64": 8, "65-69": 11, "70-74": 15, "75-79": 21, "80-84": 28 },
+        "Male":   { "60-64": 10, "65-69": 14, "70-74": 19, "75-79": 26, "80-84": 34 }
       },
       "Brazil": {
-        "Female": {
-          "60-64": 7,
-          "65-69": 10,
-          "70-74": 14,
-          "75-79": 19,
-          "80-84": 25
-        },
-        "Male": {
-          "60-64": 9,
-          "65-69": 12,
-          "70-74": 17,
-          "75-79": 23,
-          "80-84": 30
-        }
+        "Female": { "60-64": 7, "65-69": 10, "70-74": 14, "75-79": 19, "80-84": 25 },
+        "Male":   { "60-64": 9, "65-69": 12, "70-74": 17, "75-79": 23, "80-84": 30 }
       },
       "China": {
-        "Female": {
-          "60-64": 6,
-          "65-69": 9,
-          "70-74": 12,
-          "75-79": 17,
-          "80-84": 23
-        },
-        "Male": {
-          "60-64": 8,
-          "65-69": 11,
-          "70-74": 15,
-          "75-79": 21,
-          "80-84": 28
-        }
+        "Female": { "60-64": 6, "65-69": 9, "70-74": 12, "75-79": 17, "80-84": 23 },
+        "Male":   { "60-64": 8, "65-69": 11, "70-74": 15, "75-79": 21, "80-84": 28 }
       }
     };
+
+    // Map location to SVG element ID
+    const LOCATION_MAP_IDS = {
+      "United States": "mapUS",
+      "Brazil": "mapBrazil",
+      "China": "mapChina"
+    };
+
+    // =========================================================================
+    // STATE
+    // =========================================================================
+
+    let currentSex = "Female";
+    let selectedLocation = null;
+    let selectedAge = null;
 
     // =========================================================================
     // DOM ELEMENTS
@@ -493,193 +566,222 @@
     const prevalenceSlider = document.getElementById('prevalenceSlider');
     const prevalenceNum = document.getElementById('prevalenceNum');
 
-    const ageSelect = document.getElementById('ageSelect');
-    const sexSelect = document.getElementById('sexSelect');
-    const locationSelect = document.getElementById('locationSelect');
-    const autoBtn = document.getElementById('autoBtn');
-    const lookupMessage = document.getElementById('lookupMessage');
+    const seSliderVal = document.getElementById('seSliderVal');
+    const spSliderVal = document.getElementById('spSliderVal');
+    const prevSliderVal = document.getElementById('prevSliderVal');
+
+    const btnFemale = document.getElementById('btnFemale');
+    const btnMale = document.getElementById('btnMale');
+    const prevalenceTableBody = document.getElementById('prevalenceTableBody');
 
     const ppvValue = document.getElementById('ppvValue');
     const ppvWarning = document.getElementById('ppvWarning');
     const formulaDetails = document.getElementById('formulaDetails');
+    const mapLabel = document.getElementById('mapLabel');
 
     // =========================================================================
-    // INITIALIZATION
+    // UTILITY
     // =========================================================================
 
-    /**
-     * Populate the location dropdown from the LOCATIONS array.
-     */
-    function initLocationDropdown() {
-      locationSelect.innerHTML = '';
-      LOCATIONS.forEach(loc => {
-        const option = document.createElement('option');
-        option.value = loc;
-        option.textContent = loc;
-        locationSelect.appendChild(option);
-      });
-    }
-
-    // =========================================================================
-    // UTILITY FUNCTIONS
-    // =========================================================================
-
-    /**
-     * Clamp a value to [0, 100] and round to integer.
-     */
     function clampAndRound(val) {
       const num = parseFloat(val);
       if (isNaN(num)) return 0;
       return Math.max(0, Math.min(100, Math.round(num)));
     }
 
-    /**
-     * Format a number as a proportion with 4 decimal places.
-     */
-    function toProportion(percent) {
-      return (percent / 100).toFixed(4);
-    }
-
     // =========================================================================
     // PPV CALCULATION
     // =========================================================================
 
-    /**
-     * Calculate Positive Predictive Value.
-     *
-     * Formula: PPV = (Se * Prev) / (Se * Prev + (1 - Sp) * (1 - Prev))
-     *
-     * Where:
-     *   Se = Sensitivity (proportion, 0-1)
-     *   Sp = Specificity (proportion, 0-1)
-     *   Prev = Prevalence (proportion, 0-1)
-     *
-     * @param {number} sensitivityPct - Sensitivity in percent (0-100)
-     * @param {number} specificityPct - Specificity in percent (0-100)
-     * @param {number} prevalencePct - Prevalence in percent (0-100)
-     * @returns {object} { ppv: number|null, numerator, denominator, se, sp, prev }
-     */
     function calculatePPV(sensitivityPct, specificityPct, prevalencePct) {
-      // Convert percentages to proportions
       const se = sensitivityPct / 100;
       const sp = specificityPct / 100;
       const prev = prevalencePct / 100;
 
-      // True positives component: Se * Prev
-      const truePositives = se * prev;
+      const truePos = se * prev;
+      const falsePos = (1 - sp) * (1 - prev);
+      const denom = truePos + falsePos;
 
-      // False positives component: (1 - Sp) * (1 - Prev)
-      const falsePositives = (1 - sp) * (1 - prev);
-
-      // Denominator: all positive test results
-      const denominator = truePositives + falsePositives;
-
-      // Handle edge case: denominator is zero
-      // This happens when Se=0 AND Sp=1 (no positive tests ever occur)
-      if (denominator === 0) {
-        return {
-          ppv: null,
-          numerator: truePositives,
-          denominator: denominator,
-          se: se,
-          sp: sp,
-          prev: prev
-        };
+      if (denom === 0) {
+        return { ppv: null, numerator: truePos, denominator: denom, se, sp, prev };
       }
 
-      // PPV = true positives / all positives
-      const ppv = truePositives / denominator;
-
-      return {
-        ppv: ppv,
-        numerator: truePositives,
-        denominator: denominator,
-        se: se,
-        sp: sp,
-        prev: prev
-      };
+      return { ppv: truePos / denom, numerator: truePos, denominator: denom, se, sp, prev };
     }
 
     // =========================================================================
-    // UI UPDATE FUNCTIONS
+    // UI UPDATE
     // =========================================================================
 
-    /**
-     * Sync slider and number input, then recalculate.
-     */
-    function syncInputs(slider, numInput) {
-      const val = clampAndRound(numInput.value);
-      numInput.value = val;
-      slider.value = val;
+    function syncFromSlider(slider, numInput, valDisplay) {
+      numInput.value = slider.value;
+      valDisplay.textContent = slider.value;
       updateCalculation();
     }
 
-    /**
-     * Update the PPV display and formula details.
-     */
+    function syncFromInput(slider, numInput, valDisplay) {
+      const val = clampAndRound(numInput.value);
+      numInput.value = val;
+      slider.value = val;
+      valDisplay.textContent = val;
+      updateCalculation();
+    }
+
     function updateCalculation() {
-      const sensitivity = parseInt(sensitivityNum.value, 10);
-      const specificity = parseInt(specificityNum.value, 10);
-      const prevalence = parseInt(prevalenceNum.value, 10);
+      const se = parseInt(sensitivityNum.value, 10);
+      const sp = parseInt(specificityNum.value, 10);
+      const prev = parseInt(prevalenceNum.value, 10);
 
-      const result = calculatePPV(sensitivity, specificity, prevalence);
+      const result = calculatePPV(se, sp, prev);
 
-      // Update PPV display
       if (result.ppv === null) {
         ppvValue.textContent = '—';
-        ppvWarning.textContent = 'Undefined: no positive tests occur with these parameters';
+        ppvWarning.textContent = 'Undefined: no positive tests occur';
       } else {
-        const ppvPercent = (result.ppv * 100).toFixed(1);
-        ppvValue.textContent = ppvPercent + '%';
+        ppvValue.textContent = (result.ppv * 100).toFixed(1) + '%';
         ppvWarning.textContent = '';
       }
 
-      // Update formula details
-      const seStr = result.se.toFixed(4);
-      const spStr = result.sp.toFixed(4);
-      const prevStr = result.prev.toFixed(4);
-      const numStr = result.numerator.toFixed(6);
-      const denomStr = result.denominator.toFixed(6);
-      const ppvStr = result.ppv !== null ? result.ppv.toFixed(4) : 'undefined';
-
       formulaDetails.innerHTML = `
-        <div class="formula-line intermediate">Se = ${seStr}, Sp = ${spStr}, Prev = ${prevStr}</div>
+        <div class="formula-line intermediate">Se = ${result.se.toFixed(4)}, Sp = ${result.sp.toFixed(4)}, Prev = ${result.prev.toFixed(4)}</div>
         <div class="formula-line">PPV = (Se × Prev) / (Se × Prev + (1 − Sp) × (1 − Prev))</div>
-        <div class="formula-line">PPV = ${numStr} / ${denomStr}</div>
-        <div class="formula-line">PPV = ${ppvStr}</div>
+        <div class="formula-line">PPV = ${result.numerator.toFixed(6)} / ${result.denominator.toFixed(6)}</div>
+        <div class="formula-line">PPV = ${result.ppv !== null ? result.ppv.toFixed(4) : 'undefined'}</div>
       `;
     }
 
-    /**
-     * Look up prevalence from the stand-in dataset.
-     * @returns {number|null} Prevalence percent, or null if not found.
-     */
-    function lookupPrevalence() {
-      const age = ageSelect.value;
-      const sex = sexSelect.value;
-      const location = locationSelect.value;
+    // =========================================================================
+    // PREVALENCE TABLE
+    // =========================================================================
 
-      try {
-        const val = PREVALENCE_DATA[location]?.[sex]?.[age];
-        return typeof val === 'number' ? val : null;
-      } catch {
-        return null;
+    function buildPrevalenceTable() {
+      prevalenceTableBody.innerHTML = '';
+
+      AGE_GROUPS.forEach(age => {
+        const tr = document.createElement('tr');
+        tr.dataset.age = age;
+
+        // Age cell
+        const tdAge = document.createElement('td');
+        tdAge.textContent = age.replace('-', '–');
+        tr.appendChild(tdAge);
+
+        // Location cells
+        LOCATIONS.forEach(loc => {
+          const td = document.createElement('td');
+          const val = PREVALENCE_DATA[loc]?.[currentSex]?.[age];
+          if (val !== undefined) {
+            td.innerHTML = `<span class="prev-value">${val}%</span>`;
+            td.dataset.location = loc;
+            td.dataset.prevalence = val;
+          } else {
+            td.textContent = '—';
+          }
+          tr.appendChild(td);
+        });
+
+        // Click handler for entire row
+        tr.addEventListener('click', (e) => {
+          const cell = e.target.closest('td[data-location]');
+          if (cell) {
+            selectPrevalence(age, cell.dataset.location, parseInt(cell.dataset.prevalence, 10));
+          }
+        });
+
+        prevalenceTableBody.appendChild(tr);
+      });
+
+      updateTableSelection();
+    }
+
+    function selectPrevalence(age, location, value) {
+      selectedAge = age;
+      selectedLocation = location;
+
+      prevalenceNum.value = value;
+      prevalenceSlider.value = value;
+      prevSliderVal.textContent = value;
+
+      updateTableSelection();
+      updateMapSelection();
+      updateCalculation();
+    }
+
+    function updateTableSelection() {
+      // Clear all selections
+      prevalenceTableBody.querySelectorAll('tr').forEach(tr => {
+        tr.classList.remove('selected');
+      });
+
+      // Apply selection if we have one
+      if (selectedAge && selectedLocation) {
+        const tr = prevalenceTableBody.querySelector(`tr[data-age="${selectedAge}"]`);
+        if (tr) {
+          tr.classList.add('selected');
+        }
       }
     }
 
-    /**
-     * Apply prevalence from lookup to the prevalence input.
-     */
-    function applyLookupPrevalence() {
-      const prev = lookupPrevalence();
+    // =========================================================================
+    // MAP
+    // =========================================================================
 
-      if (prev !== null) {
-        prevalenceNum.value = prev;
-        prevalenceSlider.value = prev;
-        lookupMessage.textContent = `Prevalence set to ${prev}%`;
-        updateCalculation();
+    function updateMapSelection() {
+      // Clear all
+      document.querySelectorAll('.map-svg .country').forEach(el => {
+        el.classList.remove('active');
+      });
+
+      // Highlight selected
+      if (selectedLocation && LOCATION_MAP_IDS[selectedLocation]) {
+        const el = document.getElementById(LOCATION_MAP_IDS[selectedLocation]);
+        if (el) el.classList.add('active');
+        mapLabel.textContent = selectedLocation;
       } else {
-        lookupMessage.textContent = 'No prevalence found for this combination';
+        mapLabel.textContent = 'Click to select';
+      }
+    }
+
+    function initMap() {
+      document.querySelectorAll('.map-svg .country').forEach(el => {
+        el.addEventListener('click', () => {
+          const loc = el.dataset.location;
+          if (loc && selectedAge) {
+            // Use current age selection with new location
+            const val = PREVALENCE_DATA[loc]?.[currentSex]?.[selectedAge];
+            if (val !== undefined) {
+              selectPrevalence(selectedAge, loc, val);
+            }
+          } else if (loc) {
+            // No age selected, just highlight and use first age group
+            const val = PREVALENCE_DATA[loc]?.[currentSex]?.[AGE_GROUPS[0]];
+            if (val !== undefined) {
+              selectPrevalence(AGE_GROUPS[0], loc, val);
+            }
+          }
+        });
+      });
+    }
+
+    // =========================================================================
+    // SEX TOGGLE
+    // =========================================================================
+
+    function setSex(sex) {
+      currentSex = sex;
+      btnFemale.classList.toggle('active', sex === 'Female');
+      btnMale.classList.toggle('active', sex === 'Male');
+      buildPrevalenceTable();
+
+      // Update prevalence if we have a selection
+      if (selectedAge && selectedLocation) {
+        const val = PREVALENCE_DATA[selectedLocation]?.[currentSex]?.[selectedAge];
+        if (val !== undefined) {
+          prevalenceNum.value = val;
+          prevalenceSlider.value = val;
+          prevSliderVal.textContent = val;
+          updateCalculation();
+        }
       }
     }
 
@@ -687,104 +789,57 @@
     // EVENT LISTENERS
     // =========================================================================
 
-    // Sensitivity
-    sensitivitySlider.addEventListener('input', () => {
-      sensitivityNum.value = sensitivitySlider.value;
-      updateCalculation();
-    });
-    sensitivityNum.addEventListener('input', () => syncInputs(sensitivitySlider, sensitivityNum));
-    sensitivityNum.addEventListener('blur', () => syncInputs(sensitivitySlider, sensitivityNum));
-
-    // Specificity
-    specificitySlider.addEventListener('input', () => {
-      specificityNum.value = specificitySlider.value;
-      updateCalculation();
-    });
-    specificityNum.addEventListener('input', () => syncInputs(specificitySlider, specificityNum));
-    specificityNum.addEventListener('blur', () => syncInputs(specificitySlider, specificityNum));
-
-    // Prevalence
+    // Sliders
+    sensitivitySlider.addEventListener('input', () => syncFromSlider(sensitivitySlider, sensitivityNum, seSliderVal));
+    specificitySlider.addEventListener('input', () => syncFromSlider(specificitySlider, specificityNum, spSliderVal));
     prevalenceSlider.addEventListener('input', () => {
-      prevalenceNum.value = prevalenceSlider.value;
-      lookupMessage.textContent = ''; // Clear lookup message on manual change
-      updateCalculation();
+      syncFromSlider(prevalenceSlider, prevalenceNum, prevSliderVal);
+      selectedAge = null;
+      selectedLocation = null;
+      updateTableSelection();
+      updateMapSelection();
     });
+
+    // Number inputs
+    sensitivityNum.addEventListener('input', () => syncFromInput(sensitivitySlider, sensitivityNum, seSliderVal));
+    sensitivityNum.addEventListener('blur', () => syncFromInput(sensitivitySlider, sensitivityNum, seSliderVal));
+    specificityNum.addEventListener('input', () => syncFromInput(specificitySlider, specificityNum, spSliderVal));
+    specificityNum.addEventListener('blur', () => syncFromInput(specificitySlider, specificityNum, spSliderVal));
     prevalenceNum.addEventListener('input', () => {
-      syncInputs(prevalenceSlider, prevalenceNum);
-      lookupMessage.textContent = ''; // Clear lookup message on manual change
+      syncFromInput(prevalenceSlider, prevalenceNum, prevSliderVal);
+      selectedAge = null;
+      selectedLocation = null;
+      updateTableSelection();
+      updateMapSelection();
     });
-    prevalenceNum.addEventListener('blur', () => {
-      syncInputs(prevalenceSlider, prevalenceNum);
-    });
+    prevalenceNum.addEventListener('blur', () => syncFromInput(prevalenceSlider, prevalenceNum, prevSliderVal));
 
-    // Lookup dropdowns - auto-apply when changed
-    ageSelect.addEventListener('change', applyLookupPrevalence);
-    sexSelect.addEventListener('change', applyLookupPrevalence);
-    locationSelect.addEventListener('change', applyLookupPrevalence);
-
-    // Auto button - re-apply lookup value
-    autoBtn.addEventListener('click', applyLookupPrevalence);
+    // Sex toggle
+    btnFemale.addEventListener('click', () => setSex('Female'));
+    btnMale.addEventListener('click', () => setSex('Male'));
 
     // =========================================================================
-    // INITIALIZE
+    // INIT
     // =========================================================================
 
-    initLocationDropdown();
+    buildPrevalenceTable();
+    initMap();
     updateCalculation();
 
     // =========================================================================
-    // TEST CASES (for manual verification)
+    // TEST CASES
     // =========================================================================
-
     /*
-    Hand-check examples:
+    Test 1: Se=50%, Sp=90%, Prev=10%
+      PPV = 0.05 / 0.14 = 0.3571 → 35.7% ✓
 
-    Test 1: Default values
-      Se = 50%, Sp = 90%, Prev = 10%
-      Se = 0.50, Sp = 0.90, Prev = 0.10
+    Test 2: Se=90%, Sp=99%, Prev=1%
+      PPV = 0.009 / 0.0189 = 0.4762 → 47.6%
 
-      Numerator = Se × Prev = 0.50 × 0.10 = 0.05
-      False positives = (1 - Sp) × (1 - Prev) = 0.10 × 0.90 = 0.09
-      Denominator = 0.05 + 0.09 = 0.14
-      PPV = 0.05 / 0.14 = 0.3571...
-      PPV ≈ 35.7%
-      ✓ Expected: 35.7%
+    Test 3: Se=80%, Sp=100%, Prev=5%
+      PPV = 0.04 / 0.04 = 1.0 → 100%
 
-    Test 2: High specificity, low prevalence
-      Se = 90%, Sp = 99%, Prev = 1%
-      Se = 0.90, Sp = 0.99, Prev = 0.01
-
-      Numerator = 0.90 × 0.01 = 0.009
-      False positives = 0.01 × 0.99 = 0.0099
-      Denominator = 0.009 + 0.0099 = 0.0189
-      PPV = 0.009 / 0.0189 = 0.4762...
-      PPV ≈ 47.6%
-
-    Test 3: Perfect specificity (no false positives)
-      Se = 80%, Sp = 100%, Prev = 5%
-
-      Numerator = 0.80 × 0.05 = 0.04
-      False positives = 0 × 0.95 = 0
-      Denominator = 0.04 + 0 = 0.04
-      PPV = 0.04 / 0.04 = 1.0
-      PPV = 100%
-
-    Test 4: Edge case - denominator is zero
-      Se = 0%, Sp = 100%, Prev = any
-
-      Numerator = 0 × Prev = 0
-      False positives = 0 × (1 - Prev) = 0
-      Denominator = 0
-      PPV = undefined (should show "—")
-
-    Test 5: Perfect sensitivity
-      Se = 100%, Sp = 90%, Prev = 10%
-
-      Numerator = 1.0 × 0.10 = 0.10
-      False positives = 0.10 × 0.90 = 0.09
-      Denominator = 0.10 + 0.09 = 0.19
-      PPV = 0.10 / 0.19 = 0.5263...
-      PPV ≈ 52.6%
+    Test 4: Se=0%, Sp=100% → denominator=0 → "—"
     */
   </script>
 </body>
