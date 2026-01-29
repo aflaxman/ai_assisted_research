@@ -144,6 +144,17 @@
     .tooltip-line:last-child { margin-bottom: 0; }
     .tooltip-dim { opacity: 0.7; }
 
+    .tooltip-hint {
+      font-size: 0.7rem;
+      color: #7f8c8d;
+      margin-top: 6px;
+      cursor: help;
+    }
+
+    .tooltip-hint:hover {
+      color: #2980b9;
+    }
+
     /* Parameters card */
     .params-card {
       flex: 1;
@@ -479,6 +490,7 @@
         <div class="ppv-label">Positive Predictive Value</div>
         <div class="tooltip-trigger" tabindex="0">
           <span class="ppv-value" id="ppvValue">35.7%</span>
+          <div class="tooltip-hint">how this is calculated</div>
           <div class="tooltip-content" id="tooltipContent">
             <!-- Populated by JS -->
           </div>
