@@ -433,14 +433,14 @@
     .map-svg .country {
       fill: #cfd8dc;
       stroke: #fff;
-      stroke-width: 0.3;
-      transition: fill 0.2s;
+      stroke-width: 0.5;
+      transition: fill 0.2s, opacity 0.2s;
       cursor: pointer;
     }
 
     .map-svg .country.active { fill: #2980b9; }
     .map-svg .country:hover { fill: #5dade2; }
-    .map-svg .country.hidden { display: none; }
+    .map-svg .country.dimmed { opacity: 0.4; }
 
     .map-label {
       font-size: 0.7rem;
@@ -554,18 +554,18 @@
               <path d="M160,65 L185,60 L190,80 L175,88 L158,82 Z"/>
             </g>
             <!-- Americas -->
-            <circle class="country" data-location="United States" data-region="americas" cx="30" cy="28" r="5"/>
-            <circle class="country" data-location="Brazil" data-region="americas" cx="52" cy="72" r="5"/>
+            <circle class="country" data-location="United States" data-region="americas" cx="30" cy="28" r="8"/>
+            <circle class="country" data-location="Brazil" data-region="americas" cx="52" cy="72" r="8"/>
             <!-- Europe -->
-            <circle class="country" data-location="United Kingdom" data-region="europe" cx="88" cy="22" r="4"/>
-            <circle class="country" data-location="Sweden" data-region="europe" cx="98" cy="16" r="4"/>
-            <circle class="country" data-location="Germany" data-region="europe" cx="96" cy="26" r="4"/>
-            <circle class="country" data-location="Spain" data-region="europe" cx="86" cy="34" r="4"/>
-            <circle class="country" data-location="Israel" data-region="europe" cx="108" cy="42" r="4"/>
+            <circle class="country" data-location="United Kingdom" data-region="europe" cx="88" cy="20" r="7"/>
+            <circle class="country" data-location="Sweden" data-region="europe" cx="100" cy="12" r="7"/>
+            <circle class="country" data-location="Germany" data-region="europe" cx="98" cy="28" r="7"/>
+            <circle class="country" data-location="Spain" data-region="europe" cx="84" cy="36" r="7"/>
+            <circle class="country" data-location="Israel" data-region="europe" cx="112" cy="44" r="7"/>
             <!-- Asia-Pacific -->
-            <circle class="country" data-location="China" data-region="asia" cx="152" cy="34" r="5"/>
-            <circle class="country" data-location="Japan" data-region="asia" cx="172" cy="30" r="4"/>
-            <circle class="country" data-location="Taiwan" data-region="asia" cx="165" cy="42" r="4"/>
+            <circle class="country" data-location="China" data-region="asia" cx="150" cy="34" r="8"/>
+            <circle class="country" data-location="Japan" data-region="asia" cx="174" cy="26" r="7"/>
+            <circle class="country" data-location="Taiwan" data-region="asia" cx="166" cy="44" r="7"/>
           </svg>
           <div class="map-label" id="mapLabel">Select a region</div>
         </div>
@@ -894,9 +894,10 @@
     // =========================================================================
 
     function updateMapVisibility() {
+      // Dim countries not in current region, but keep them visible
       document.querySelectorAll('.map-svg .country').forEach(el => {
         const region = el.dataset.region;
-        el.classList.toggle('hidden', region !== currentRegion);
+        el.classList.toggle('dimmed', region !== currentRegion);
       });
       updateMapSelection();
     }
@@ -906,20 +907,47 @@
 
       if (selectedLocation) {
         const el = document.querySelector(`.map-svg .country[data-location="${selectedLocation}"]`);
-        if (el && !el.classList.contains('hidden')) {
-          el.classList.add('active');
-        }
+        if (el) el.classList.add('active');
         mapLabel.textContent = selectedLocation;
       } else {
         mapLabel.textContent = REGIONS[currentRegion].name;
       }
     }
 
+    function getRegionForLocation(location) {
+      for (const [key, region] of Object.entries(REGIONS)) {
+        if (region.locations.includes(location)) return key;
+      }
+      return null;
+    }
+
     function initMap() {
       document.querySelectorAll('.map-svg .country').forEach(el => {
+        // Click: switch to country's region and select it
         el.addEventListener('click', () => {
-          if (el.classList.contains('hidden')) return;
-          selectLocation(el.dataset.location);
+          const location = el.dataset.location;
+          const region = el.dataset.region;
+
+          // Switch region if needed
+          if (region !== currentRegion) {
+            setRegion(region);
+          }
+
+          selectLocation(location);
+        });
+
+        // Mouseover: show country name
+        el.addEventListener('mouseenter', () => {
+          mapLabel.textContent = el.dataset.location;
+        });
+
+        // Mouseout: restore to selected or region name
+        el.addEventListener('mouseleave', () => {
+          if (selectedLocation) {
+            mapLabel.textContent = selectedLocation;
+          } else {
+            mapLabel.textContent = REGIONS[currentRegion].name;
+          }
         });
       });
     }
