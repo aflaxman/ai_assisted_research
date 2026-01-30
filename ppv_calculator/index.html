@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PPV Calculator | IHME Simulation Science</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f8f9fa;
+      color: #1a1a1a;
+      line-height: 1.5;
+    }
+
+    .container { max-width: 960px; margin: 0 auto; }
+
+    header { margin-bottom: 20px; }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+      color: #2c3e50;
+    }
+
+    .branding {
+      font-size: 0.75rem;
+      color: #2980b9;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    .subtitle {
+      color: #5a6c7d;
+      margin: 8px 0 0 0;
+      font-size: 0.9rem;
+    }
+
+    .top-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e1e5e9;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #5a6c7d;
+      margin: 0 0 12px 0;
+    }
+
+    /* PPV Result */
+    .result-card {
+      flex: 0 0 auto;
+      min-width: 180px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .ppv-label {
+      font-size: 0.8rem;
+      color: #5a6c7d;
+      margin-bottom: 4px;
+    }
+
+    .ppv-value {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #2980b9;
+      line-height: 1;
+    }
+
+    .ppv-warning {
+      color: #c0392b;
+      font-size: 0.8rem;
+      margin-top: 6px;
+      min-height: 1.2em;
+    }
+
+    /* Tooltip */
+    .tooltip-trigger {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+    }
+
+    .tooltip-content {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2c3e50;
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-family: "SF Mono", Monaco, monospace;
+      white-space: nowrap;
+      z-index: 100;
+      margin-top: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: opacity 0.2s, visibility 0.2s;
+    }
+
+    .tooltip-content::after {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-bottom-color: #2c3e50;
+    }
+
+    .tooltip-trigger:hover .tooltip-content,
+    .tooltip-trigger:focus .tooltip-content {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .tooltip-line { margin-bottom: 3px; }
+    .tooltip-line:last-child { margin-bottom: 0; }
+    .tooltip-dim { opacity: 0.7; }
+
+    .tooltip-hint {
+      font-size: 0.7rem;
+      color: #7f8c8d;
+      margin-top: 6px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tooltip-hint:hover { color: #2980b9; }
+
+    .tooltip-hint .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      font-size: 0.6rem;
+      font-weight: 600;
+    }
+
+    /* Definition tooltips */
+    .def-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 13px;
+      height: 13px;
+      border: 1px solid #9ca3af;
+      border-radius: 50%;
+      font-size: 0.55rem;
+      font-weight: 600;
+      color: #9ca3af;
+      cursor: help;
+      margin-left: 4px;
+      position: relative;
+      vertical-align: middle;
+    }
+
+    .def-icon:hover {
+      border-color: #2980b9;
+      color: #2980b9;
+    }
+
+    .def-tooltip {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2c3e50;
+      color: #fff;
+      padding: 8px 10px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 400;
+      font-family: inherit;
+      width: 200px;
+      white-space: normal;
+      line-height: 1.4;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: opacity 0.2s, visibility 0.2s;
+    }
+
+    .def-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #2c3e50;
+    }
+
+    .def-icon:hover .def-tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Parameters */
+    .params-card { flex: 1; }
+
+    .params-layout {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .sliders-group {
+      display: flex;
+      gap: 16px;
+    }
+
+    .slider-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .slider-col label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #5a6c7d;
+    }
+
+    input[type="range"].vertical {
+      -webkit-appearance: slider-vertical;
+      appearance: slider-vertical;
+      writing-mode: vertical-lr;
+      direction: rtl;
+      width: 20px;
+      height: 100px;
+      background: transparent;
+    }
+
+    input[type="range"].vertical::-webkit-slider-runnable-track {
+      width: 5px;
+      background: #e1e5e9;
+      border-radius: 3px;
+    }
+
+    input[type="range"].vertical::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #2980b9;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      margin-left: -5px;
+    }
+
+    input[type="range"].vertical::-moz-range-track {
+      width: 5px;
+      background: #e1e5e9;
+      border-radius: 3px;
+    }
+
+    input[type="range"].vertical::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #2980b9;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .slider-value {
+      font-size: 0.75rem;
+      color: #34495e;
+      font-weight: 500;
+    }
+
+    .inputs-group { flex: 1; }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .input-row:last-child { margin-bottom: 0; }
+
+    .input-label {
+      width: 90px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #34495e;
+      white-space: nowrap;
+    }
+
+    input[type="number"] {
+      width: 60px;
+      padding: 5px 6px;
+      font-size: 0.85rem;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      text-align: right;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #2980b9;
+      box-shadow: 0 0 0 2px rgba(41,128,185,0.15);
+    }
+
+    .unit {
+      font-size: 0.8rem;
+      color: #5a6c7d;
+    }
+
+    /* Prevalence section */
+    .prevalence-card { margin-bottom: 20px; }
+
+    .prevalence-header {
+      margin-bottom: 12px;
+    }
+
+    .prevalence-desc {
+      font-size: 0.75rem;
+      color: #7f8c8d;
+      margin-top: 4px;
+    }
+
+    /* Region tabs */
+    .region-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #e1e5e9;
+      padding-bottom: 8px;
+    }
+
+    .region-tab {
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #5a6c7d;
+      background: none;
+      border: 1px solid transparent;
+      border-radius: 4px 4px 0 0;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .region-tab:hover {
+      color: #2980b9;
+      background: #f0f7fc;
+    }
+
+    .region-tab.active {
+      color: #2980b9;
+      background: #e8f4fc;
+      border-color: #e1e5e9;
+      border-bottom-color: #fff;
+      margin-bottom: -9px;
+      padding-bottom: 14px;
+    }
+
+    .prevalence-content {
+      display: flex;
+      gap: 16px;
+    }
+
+    /* Table */
+    .prevalence-table-wrap {
+      flex: 1;
+      overflow-x: auto;
+    }
+
+    .prevalence-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+
+    .prevalence-table th {
+      text-align: center;
+      padding: 6px 6px;
+      background: #f8f9fa;
+      border-bottom: 2px solid #e1e5e9;
+      font-weight: 600;
+      color: #5a6c7d;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .prevalence-table th:hover { background: #eef2f5; }
+    .prevalence-table th.selected { background: #e8f4fc; color: #2980b9; }
+    .prevalence-table th:first-child { text-align: left; width: 60px; }
+
+    .prevalence-table .subheader {
+      font-size: 0.6rem;
+      font-weight: 500;
+      opacity: 0.7;
+    }
+
+    .prevalence-table td {
+      padding: 4px 6px;
+      border-bottom: 1px solid #e9ecef;
+      text-align: center;
+    }
+
+    .prevalence-table td:first-child {
+      text-align: left;
+      font-weight: 500;
+      color: #5a6c7d;
+      cursor: pointer;
+    }
+
+    .prevalence-table td:first-child:hover { background: #f0f7fc; }
+    .prevalence-table td:first-child.selected { background: #e8f4fc; color: #2980b9; }
+
+    .cell-pair {
+      display: flex;
+      justify-content: center;
+      gap: 1px;
+    }
+
+    .cell-val {
+      padding: 2px 4px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.1s;
+      min-width: 28px;
+      font-size: 0.7rem;
+    }
+
+    .cell-val:hover { background: #e8f4fc; }
+
+    .cell-val.selected {
+      background: #2980b9;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .cell-val.female { color: #8e44ad; }
+    .cell-val.male { color: #2980b9; }
+    .cell-val.selected { color: #fff; }
+
+    .cell-sep {
+      color: #d1d5db;
+      font-size: 0.65rem;
+    }
+
+    /* Map */
+    .map-container {
+      width: 160px;
+      flex-shrink: 0;
+      text-align: center;
+    }
+
+    .map-svg {
+      width: 100%;
+      height: auto;
+    }
+
+    .map-svg .land {
+      fill: #e9ecef;
+      stroke: #fff;
+      stroke-width: 0.5;
+    }
+
+    .map-svg .country {
+      fill: #cfd8dc;
+      stroke: #fff;
+      stroke-width: 0.5;
+      transition: fill 0.2s, opacity 0.2s;
+      cursor: pointer;
+    }
+
+    .map-svg .country.active { fill: #2980b9; }
+    .map-svg .country:hover { fill: #5dade2; }
+    .map-svg .country.dimmed { opacity: 0.4; }
+
+    .map-label {
+      font-size: 0.7rem;
+      color: #5a6c7d;
+      margin-top: 4px;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #7f8c8d;
+      padding: 12px 0;
+    }
+
+    @media (max-width: 700px) {
+      .top-row { flex-direction: column; }
+      .result-card { min-width: auto; }
+      .params-layout { flex-direction: column; align-items: center; gap: 16px; }
+      .sliders-group { justify-content: center; }
+      .inputs-group { width: 100%; }
+      .prevalence-content { flex-direction: column; }
+      .map-container { width: 100%; max-width: 180px; margin: 0 auto; }
+      .region-tabs { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="branding">IHME Simulation Science Team</div>
+      <h1>Positive Predictive Value Calculator</h1>
+      <p class="subtitle">Calculate PPV from sensitivity, specificity, and prevalence</p>
+    </header>
+
+    <div class="top-row">
+      <div class="card result-card">
+        <div class="ppv-label">Positive Predictive Value<span class="def-icon">?<span class="def-tooltip">The probability that a person with a positive test result actually has the condition. Higher PPV means fewer false positives.</span></span></div>
+        <div class="tooltip-trigger" tabindex="0">
+          <span class="ppv-value" id="ppvValue">35.7%</span>
+          <div class="tooltip-hint">how is this calculated <span class="icon">?</span></div>
+          <div class="tooltip-content" id="tooltipContent"></div>
+        </div>
+        <div class="ppv-warning" id="ppvWarning"></div>
+      </div>
+
+      <div class="card params-card">
+        <h2 class="card-title">Parameters</h2>
+        <div class="params-layout">
+          <div class="sliders-group">
+            <div class="slider-col">
+              <label>Se</label>
+              <input type="range" class="vertical" id="sensitivitySlider" min="0" max="100" step="1" value="50" tabindex="-1">
+              <span class="slider-value" id="seSliderVal">50</span>
+            </div>
+            <div class="slider-col">
+              <label>Sp</label>
+              <input type="range" class="vertical" id="specificitySlider" min="0" max="100" step="1" value="90" tabindex="-1">
+              <span class="slider-value" id="spSliderVal">90</span>
+            </div>
+            <div class="slider-col">
+              <label>Prev</label>
+              <input type="range" class="vertical" id="prevalenceSlider" min="0" max="100" step="1" value="10" tabindex="-1">
+              <span class="slider-value" id="prevSliderVal">10</span>
+            </div>
+          </div>
+          <div class="inputs-group">
+            <div class="input-row">
+              <label class="input-label" for="sensitivityNum">Sensitivity<span class="def-icon">?<span class="def-tooltip">The test's ability to correctly identify people who have the condition (true positive rate).</span></span></label>
+              <input type="number" id="sensitivityNum" min="0" max="100" step="1" value="50">
+              <span class="unit">%</span>
+            </div>
+            <div class="input-row">
+              <label class="input-label" for="specificityNum">Specificity<span class="def-icon">?<span class="def-tooltip">The test's ability to correctly identify people who do not have the condition (true negative rate).</span></span></label>
+              <input type="number" id="specificityNum" min="0" max="100" step="1" value="90">
+              <span class="unit">%</span>
+            </div>
+            <div class="input-row">
+              <label class="input-label" for="prevalenceNum">Prevalence<span class="def-icon">?<span class="def-tooltip">The proportion of people in a population who have the condition at a given time.</span></span></label>
+              <input type="number" id="prevalenceNum" min="0" max="100" step="1" value="10">
+              <span class="unit">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card prevalence-card">
+      <div class="prevalence-header">
+        <h2 class="card-title" style="margin-bottom:0">Prevalence of Preclinical Alzheimer's Disease</h2>
+        <p class="prevalence-desc">Detectable using blood-based biomarker (BBBM) testing. Click a cell to set prevalence.</p>
+      </div>
+
+      <div class="region-tabs" id="regionTabs"></div>
+
+      <div class="prevalence-content">
+        <div class="prevalence-table-wrap">
+          <table class="prevalence-table">
+            <thead id="tableHead"></thead>
+            <tbody id="prevalenceTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="map-container">
+          <svg class="map-svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid meet">
+            <g class="land">
+              <path d="M10,15 L50,10 L55,35 L40,50 L20,45 L10,30 Z"/>
+              <path d="M35,52 L55,48 L60,70 L50,90 L35,85 L30,65 Z"/>
+              <path d="M85,15 L110,12 L115,35 L105,50 L90,55 L80,40 Z"/>
+              <path d="M85,58 L105,55 L110,80 L95,90 L80,85 L78,70 Z"/>
+              <path d="M115,10 L180,8 L190,35 L175,55 L140,50 L115,35 Z"/>
+              <path d="M160,65 L185,60 L190,80 L175,88 L158,82 Z"/>
+            </g>
+            <!-- Americas -->
+            <circle class="country" data-location="United States" data-region="americas" cx="30" cy="28" r="8"/>
+            <circle class="country" data-location="Brazil" data-region="americas" cx="52" cy="72" r="8"/>
+            <!-- Europe -->
+            <circle class="country" data-location="United Kingdom" data-region="europe" cx="88" cy="20" r="7"/>
+            <circle class="country" data-location="Sweden" data-region="europe" cx="100" cy="12" r="7"/>
+            <circle class="country" data-location="Germany" data-region="europe" cx="98" cy="28" r="7"/>
+            <circle class="country" data-location="Spain" data-region="europe" cx="84" cy="36" r="7"/>
+            <circle class="country" data-location="Israel" data-region="europe" cx="112" cy="44" r="7"/>
+            <!-- Asia-Pacific -->
+            <circle class="country" data-location="China" data-region="asia" cx="150" cy="34" r="8"/>
+            <circle class="country" data-location="Japan" data-region="asia" cx="174" cy="26" r="7"/>
+            <circle class="country" data-location="Taiwan" data-region="asia" cx="166" cy="44" r="7"/>
+          </svg>
+          <div class="map-label" id="mapLabel">Select a region</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>PPV Calculator • IHME Simulation Science Team</footer>
+  </div>
+
+  <script>
+    // =========================================================================
+    // DATA
+    // =========================================================================
+
+    const REGIONS = {
+      "americas": { name: "Americas", locations: ["United States", "Brazil"] },
+      "europe": { name: "Europe & Middle East", locations: ["United Kingdom", "Germany", "Spain", "Sweden", "Israel"] },
+      "asia": { name: "Asia-Pacific", locations: ["China", "Japan", "Taiwan"] }
+    };
+
+    const AGE_GROUPS = ["60-64", "65-69", "70-74", "75-79"];
+
+    // Prevalence data: { location: { sex: { ageGroup: percent } } }
+    const PREVALENCE_DATA = {
+      "United States": {
+        "Female": { "60-64": 0.7, "65-69": 2.0, "70-74": 4.1, "75-79": 12.3 },
+        "Male":   { "60-64": 0.5, "65-69": 1.1, "70-74": 2.1, "75-79": 5.4 }
+      },
+      "Brazil": {
+        "Female": { "60-64": 1.2, "65-69": 2.0, "70-74": 5.9, "75-79": 10.6 },
+        "Male":   { "60-64": 0.6, "65-69": 1.3, "70-74": 2.8, "75-79": 6.2 }
+      },
+      "China": {
+        "Female": { "60-64": 1.3, "65-69": 1.9, "70-74": 9.1, "75-79": 8.6 },
+        "Male":   { "60-64": 0.6, "65-69": 1.2, "70-74": 2.2, "75-79": 5.7 }
+      },
+      "Germany": {
+        "Female": { "60-64": 0.8, "65-69": 1.9, "70-74": 5.5, "75-79": 8.8 },
+        "Male":   { "60-64": 0.3, "65-69": 1.3, "70-74": 2.8, "75-79": 6.7 }
+      },
+      "Spain": {
+        "Female": { "60-64": 0.4, "65-69": 1.4, "70-74": 3.1, "75-79": 8.2 },
+        "Male":   { "60-64": 0.3, "65-69": 0.7, "70-74": 1.7, "75-79": 4.1 }
+      },
+      "Sweden": {
+        "Female": { "60-64": 0.4, "65-69": 1.5, "70-74": 2.9, "75-79": 8.4 },
+        "Male":   { "60-64": 0.2, "65-69": 0.9, "70-74": 1.9, "75-79": 4.7 }
+      },
+      "Israel": {
+        "Female": { "60-64": 0.2, "65-69": 0.8, "70-74": 1.6, "75-79": 4.4 },
+        "Male":   { "60-64": 0.2, "65-69": 0.5, "70-74": 1.0, "75-79": 2.6 }
+      },
+      "United Kingdom": {
+        "Female": { "60-64": 0.6, "65-69": 1.4, "70-74": 3.3, "75-79": 14.6 },
+        "Male":   { "60-64": 0.3, "65-69": 0.7, "70-74": 1.9, "75-79": 4.7 }
+      },
+      "Japan": {
+        "Female": { "60-64": 0.6, "65-69": 1.4, "70-74": 3.2, "75-79": 8.5 },
+        "Male":   { "60-64": 0.3, "65-69": 0.8, "70-74": 1.8, "75-79": 4.5 }
+      },
+      "Taiwan": {
+        "Female": { "60-64": 0.6, "65-69": 1.3, "70-74": 3.9, "75-79": 7.1 },
+        "Male":   { "60-64": 0.3, "65-69": 0.6, "70-74": 1.2, "75-79": 3.1 }
+      }
+    };
+
+    // =========================================================================
+    // STATE
+    // =========================================================================
+
+    let currentRegion = "americas";
+    let selectedLocation = null;
+    let selectedAge = null;
+    let selectedSex = null;
+
+    // =========================================================================
+    // DOM
+    // =========================================================================
+
+    const sensitivitySlider = document.getElementById('sensitivitySlider');
+    const sensitivityNum = document.getElementById('sensitivityNum');
+    const specificitySlider = document.getElementById('specificitySlider');
+    const specificityNum = document.getElementById('specificityNum');
+    const prevalenceSlider = document.getElementById('prevalenceSlider');
+    const prevalenceNum = document.getElementById('prevalenceNum');
+    const seSliderVal = document.getElementById('seSliderVal');
+    const spSliderVal = document.getElementById('spSliderVal');
+    const prevSliderVal = document.getElementById('prevSliderVal');
+    const regionTabs = document.getElementById('regionTabs');
+    const tableHead = document.getElementById('tableHead');
+    const prevalenceTableBody = document.getElementById('prevalenceTableBody');
+    const ppvValue = document.getElementById('ppvValue');
+    const ppvWarning = document.getElementById('ppvWarning');
+    const tooltipContent = document.getElementById('tooltipContent');
+    const mapLabel = document.getElementById('mapLabel');
+
+    // =========================================================================
+    // UTILITY
+    // =========================================================================
+
+    function clampAndRound(val) {
+      const num = parseFloat(val);
+      if (isNaN(num)) return 0;
+      return Math.max(0, Math.min(100, Math.round(num)));
+    }
+
+    // =========================================================================
+    // PPV
+    // =========================================================================
+
+    function calculatePPV(sePct, spPct, prevPct) {
+      const se = sePct / 100, sp = spPct / 100, prev = prevPct / 100;
+      const truePos = se * prev;
+      const falsePos = (1 - sp) * (1 - prev);
+      const denom = truePos + falsePos;
+      if (denom === 0) return { ppv: null, numerator: truePos, denominator: denom, se, sp, prev };
+      return { ppv: truePos / denom, numerator: truePos, denominator: denom, se, sp, prev };
+    }
+
+    function updateCalculation() {
+      const se = parseInt(sensitivityNum.value, 10);
+      const sp = parseInt(specificityNum.value, 10);
+      const prev = parseInt(prevalenceNum.value, 10);
+      const result = calculatePPV(se, sp, prev);
+
+      if (result.ppv === null) {
+        ppvValue.textContent = '—';
+        ppvWarning.textContent = 'Undefined: no positive tests occur';
+        tooltipContent.innerHTML = '<div class="tooltip-line">Denominator is zero</div>';
+      } else {
+        ppvValue.textContent = (result.ppv * 100).toFixed(1) + '%';
+        ppvWarning.textContent = '';
+        tooltipContent.innerHTML = `
+          <div class="tooltip-line tooltip-dim">Se=${result.se.toFixed(2)}, Sp=${result.sp.toFixed(2)}, Prev=${result.prev.toFixed(2)}</div>
+          <div class="tooltip-line">PPV = (Se×Prev) / (Se×Prev + (1−Sp)×(1−Prev))</div>
+          <div class="tooltip-line">PPV = ${result.numerator.toFixed(4)} / ${result.denominator.toFixed(4)}</div>
+          <div class="tooltip-line">PPV = ${result.ppv.toFixed(4)}</div>
+        `;
+      }
+    }
+
+    // =========================================================================
+    // SYNC INPUTS
+    // =========================================================================
+
+    function syncFromSlider(slider, numInput, valDisplay) {
+      numInput.value = slider.value;
+      valDisplay.textContent = slider.value;
+      updateCalculation();
+    }
+
+    function syncFromInput(slider, numInput, valDisplay) {
+      const val = clampAndRound(numInput.value);
+      numInput.value = val;
+      slider.value = val;
+      valDisplay.textContent = val;
+      updateCalculation();
+    }
+
+    // =========================================================================
+    // REGION TABS
+    // =========================================================================
+
+    function buildRegionTabs() {
+      regionTabs.innerHTML = '';
+      Object.entries(REGIONS).forEach(([key, region]) => {
+        const btn = document.createElement('button');
+        btn.className = 'region-tab' + (key === currentRegion ? ' active' : '');
+        btn.textContent = region.name;
+        btn.addEventListener('click', () => setRegion(key));
+        regionTabs.appendChild(btn);
+      });
+    }
+
+    function setRegion(regionKey) {
+      currentRegion = regionKey;
+      // Clear selection if location not in new region
+      if (selectedLocation && !REGIONS[regionKey].locations.includes(selectedLocation)) {
+        selectedLocation = null;
+        selectedAge = null;
+        selectedSex = null;
+      }
+      buildRegionTabs();
+      buildTable();
+      updateMapVisibility();
+    }
+
+    // =========================================================================
+    // TABLE
+    // =========================================================================
+
+    function buildTable() {
+      const locations = REGIONS[currentRegion].locations;
+
+      // Header
+      let headerHTML = '<tr><th>Age</th>';
+      locations.forEach(loc => {
+        const shortName = loc.replace('United States', 'USA').replace('United Kingdom', 'UK');
+        headerHTML += `<th data-location="${loc}">${shortName}<div class="subheader">F / M</div></th>`;
+      });
+      headerHTML += '</tr>';
+      tableHead.innerHTML = headerHTML;
+
+      // Body
+      prevalenceTableBody.innerHTML = '';
+      AGE_GROUPS.forEach(age => {
+        const tr = document.createElement('tr');
+
+        const tdAge = document.createElement('td');
+        tdAge.textContent = age.replace('-', '–');
+        tdAge.dataset.age = age;
+        tdAge.addEventListener('click', () => selectAge(age));
+        tr.appendChild(tdAge);
+
+        locations.forEach(loc => {
+          const td = document.createElement('td');
+          const fVal = PREVALENCE_DATA[loc]?.["Female"]?.[age];
+          const mVal = PREVALENCE_DATA[loc]?.["Male"]?.[age];
+
+          const pair = document.createElement('div');
+          pair.className = 'cell-pair';
+
+          const fSpan = document.createElement('span');
+          fSpan.className = 'cell-val female';
+          fSpan.textContent = fVal !== undefined ? fVal : '—';
+          fSpan.dataset.location = loc;
+          fSpan.dataset.age = age;
+          fSpan.dataset.sex = 'Female';
+          fSpan.dataset.prevalence = fVal;
+          fSpan.addEventListener('click', () => selectCell(age, loc, 'Female', fVal));
+          pair.appendChild(fSpan);
+
+          const sep = document.createElement('span');
+          sep.className = 'cell-sep';
+          sep.textContent = '/';
+          pair.appendChild(sep);
+
+          const mSpan = document.createElement('span');
+          mSpan.className = 'cell-val male';
+          mSpan.textContent = mVal !== undefined ? mVal : '—';
+          mSpan.dataset.location = loc;
+          mSpan.dataset.age = age;
+          mSpan.dataset.sex = 'Male';
+          mSpan.dataset.prevalence = mVal;
+          mSpan.addEventListener('click', () => selectCell(age, loc, 'Male', mVal));
+          pair.appendChild(mSpan);
+
+          td.appendChild(pair);
+          tr.appendChild(td);
+        });
+
+        prevalenceTableBody.appendChild(tr);
+      });
+
+      // Header click handlers
+      document.querySelectorAll('#tableHead th[data-location]').forEach(th => {
+        th.addEventListener('click', () => selectLocation(th.dataset.location));
+      });
+
+      updateTableSelection();
+    }
+
+    function selectCell(age, location, sex, value) {
+      if (value === undefined) return;
+      selectedAge = age;
+      selectedLocation = location;
+      selectedSex = sex;
+
+      prevalenceNum.value = value;
+      prevalenceSlider.value = value;
+      prevSliderVal.textContent = value;
+
+      updateTableSelection();
+      updateMapSelection();
+      updateCalculation();
+    }
+
+    function selectAge(age) {
+      if (selectedLocation && selectedSex) {
+        const val = PREVALENCE_DATA[selectedLocation]?.[selectedSex]?.[age];
+        if (val !== undefined) {
+          selectCell(age, selectedLocation, selectedSex, val);
+          return;
+        }
+      }
+      selectedAge = age;
+      updateTableSelection();
+    }
+
+    function selectLocation(location) {
+      if (selectedAge && selectedSex) {
+        const val = PREVALENCE_DATA[location]?.[selectedSex]?.[selectedAge];
+        if (val !== undefined) {
+          selectCell(selectedAge, location, selectedSex, val);
+          return;
+        }
+      }
+      selectedLocation = location;
+      updateTableSelection();
+      updateMapSelection();
+    }
+
+    function updateTableSelection() {
+      document.querySelectorAll('.cell-val').forEach(el => el.classList.remove('selected'));
+      document.querySelectorAll('#prevalenceTableBody td:first-child').forEach(el => el.classList.remove('selected'));
+      document.querySelectorAll('#tableHead th[data-location]').forEach(th => th.classList.remove('selected'));
+
+      if (selectedAge && selectedLocation && selectedSex) {
+        const cell = document.querySelector(`.cell-val[data-age="${selectedAge}"][data-location="${selectedLocation}"][data-sex="${selectedSex}"]`);
+        if (cell) cell.classList.add('selected');
+      }
+
+      if (selectedAge) {
+        const ageCell = document.querySelector(`#prevalenceTableBody td[data-age="${selectedAge}"]`);
+        if (ageCell) ageCell.classList.add('selected');
+      }
+
+      if (selectedLocation) {
+        const locHeader = document.querySelector(`#tableHead th[data-location="${selectedLocation}"]`);
+        if (locHeader) locHeader.classList.add('selected');
+      }
+    }
+
+    // =========================================================================
+    // MAP
+    // =========================================================================
+
+    function updateMapVisibility() {
+      // Dim countries not in current region, but keep them visible
+      document.querySelectorAll('.map-svg .country').forEach(el => {
+        const region = el.dataset.region;
+        el.classList.toggle('dimmed', region !== currentRegion);
+      });
+      updateMapSelection();
+    }
+
+    function updateMapSelection() {
+      document.querySelectorAll('.map-svg .country').forEach(el => el.classList.remove('active'));
+
+      if (selectedLocation) {
+        const el = document.querySelector(`.map-svg .country[data-location="${selectedLocation}"]`);
+        if (el) el.classList.add('active');
+        mapLabel.textContent = selectedLocation;
+      } else {
+        mapLabel.textContent = REGIONS[currentRegion].name;
+      }
+    }
+
+    function getRegionForLocation(location) {
+      for (const [key, region] of Object.entries(REGIONS)) {
+        if (region.locations.includes(location)) return key;
+      }
+      return null;
+    }
+
+    function initMap() {
+      document.querySelectorAll('.map-svg .country').forEach(el => {
+        // Click: switch to country's region and select it
+        el.addEventListener('click', () => {
+          const location = el.dataset.location;
+          const region = el.dataset.region;
+
+          // Preserve current age/sex selection
+          const prevAge = selectedAge;
+          const prevSex = selectedSex;
+
+          // Switch region if needed
+          if (region !== currentRegion) {
+            setRegion(region);
+          }
+
+          // If we had an age/sex selection, apply it to the new country
+          if (prevAge && prevSex) {
+            const val = PREVALENCE_DATA[location]?.[prevSex]?.[prevAge];
+            if (val !== undefined) {
+              selectCell(prevAge, location, prevSex, val);
+              return;
+            }
+          }
+
+          selectLocation(location);
+        });
+
+        // Mouseover: show country name
+        el.addEventListener('mouseenter', () => {
+          mapLabel.textContent = el.dataset.location;
+        });
+
+        // Mouseout: restore to selected or region name
+        el.addEventListener('mouseleave', () => {
+          if (selectedLocation) {
+            mapLabel.textContent = selectedLocation;
+          } else {
+            mapLabel.textContent = REGIONS[currentRegion].name;
+          }
+        });
+      });
+    }
+
+    // =========================================================================
+    // EVENTS
+    // =========================================================================
+
+    sensitivitySlider.addEventListener('input', () => syncFromSlider(sensitivitySlider, sensitivityNum, seSliderVal));
+    specificitySlider.addEventListener('input', () => syncFromSlider(specificitySlider, specificityNum, spSliderVal));
+    prevalenceSlider.addEventListener('input', () => {
+      syncFromSlider(prevalenceSlider, prevalenceNum, prevSliderVal);
+      clearSelection();
+    });
+
+    sensitivityNum.addEventListener('input', () => syncFromInput(sensitivitySlider, sensitivityNum, seSliderVal));
+    sensitivityNum.addEventListener('blur', () => syncFromInput(sensitivitySlider, sensitivityNum, seSliderVal));
+    specificityNum.addEventListener('input', () => syncFromInput(specificitySlider, specificityNum, spSliderVal));
+    specificityNum.addEventListener('blur', () => syncFromInput(specificitySlider, specificityNum, spSliderVal));
+    prevalenceNum.addEventListener('input', () => {
+      syncFromInput(prevalenceSlider, prevalenceNum, prevSliderVal);
+      clearSelection();
+    });
+    prevalenceNum.addEventListener('blur', () => syncFromInput(prevalenceSlider, prevalenceNum, prevSliderVal));
+
+    function clearSelection() {
+      selectedAge = null;
+      selectedLocation = null;
+      selectedSex = null;
+      updateTableSelection();
+      updateMapSelection();
+    }
+
+    // =========================================================================
+    // INIT
+    // =========================================================================
+
+    buildRegionTabs();
+    buildTable();
+    initMap();
+    updateMapVisibility();
+    updateCalculation();
+  </script>
+</body>
+</html>
