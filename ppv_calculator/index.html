@@ -349,7 +349,7 @@
     }
 
     input[type="number"] {
-      width: 60px;
+      width: 70px;
       padding: 5px 6px;
       font-size: 0.85rem;
       border: 1px solid var(--border-medium);
@@ -592,34 +592,34 @@
           <div class="sliders-group">
             <div class="slider-col">
               <label>Se</label>
-              <input type="range" class="vertical" id="sensitivitySlider" min="0" max="100" step="1" value="50" tabindex="-1">
+              <input type="range" class="vertical" id="sensitivitySlider" min="0" max="100" step="0.1" value="50" tabindex="-1">
               <span class="slider-value" id="seSliderVal">50</span>
             </div>
             <div class="slider-col">
               <label>Sp</label>
-              <input type="range" class="vertical" id="specificitySlider" min="0" max="100" step="1" value="90" tabindex="-1">
+              <input type="range" class="vertical" id="specificitySlider" min="0" max="100" step="0.1" value="90" tabindex="-1">
               <span class="slider-value" id="spSliderVal">90</span>
             </div>
             <div class="slider-col">
               <label>Prev</label>
-              <input type="range" class="vertical" id="prevalenceSlider" min="0" max="100" step="1" value="10" tabindex="-1">
+              <input type="range" class="vertical" id="prevalenceSlider" min="0" max="100" step="0.1" value="10" tabindex="-1">
               <span class="slider-value" id="prevSliderVal">10</span>
             </div>
           </div>
           <div class="inputs-group">
             <div class="input-row">
               <label class="input-label" for="sensitivityNum">Sensitivity<span class="def-icon">?<span class="def-tooltip">The test's ability to correctly identify people who have the condition (true positive rate).</span></span></label>
-              <input type="number" id="sensitivityNum" min="0" max="100" step="1" value="50">
+              <input type="number" id="sensitivityNum" min="0" max="100" step="0.1" value="50">
               <span class="unit">%</span>
             </div>
             <div class="input-row">
               <label class="input-label" for="specificityNum">Specificity<span class="def-icon">?<span class="def-tooltip">The test's ability to correctly identify people who do not have the condition (true negative rate).</span></span></label>
-              <input type="number" id="specificityNum" min="0" max="100" step="1" value="90">
+              <input type="number" id="specificityNum" min="0" max="100" step="0.1" value="90">
               <span class="unit">%</span>
             </div>
             <div class="input-row">
               <label class="input-label" for="prevalenceNum">Prevalence<span class="def-icon">?<span class="def-tooltip">The proportion of people in a population who have the condition at a given time.</span></span></label>
-              <input type="number" id="prevalenceNum" min="0" max="100" step="1" value="10">
+              <input type="number" id="prevalenceNum" min="0" max="100" step="0.1" value="10">
               <span class="unit">%</span>
             </div>
           </div>
@@ -769,7 +769,8 @@
     function clampAndRound(val) {
       const num = parseFloat(val);
       if (isNaN(num)) return 0;
-      return Math.max(0, Math.min(100, Math.round(num)));
+      // Round to 1 decimal place
+      return Math.max(0, Math.min(100, Math.round(num * 10) / 10));
     }
 
     // =========================================================================
@@ -786,9 +787,9 @@
     }
 
     function updateCalculation() {
-      const se = parseInt(sensitivityNum.value, 10);
-      const sp = parseInt(specificityNum.value, 10);
-      const prev = parseInt(prevalenceNum.value, 10);
+      const se = parseFloat(sensitivityNum.value) || 0;
+      const sp = parseFloat(specificityNum.value) || 0;
+      const prev = parseFloat(prevalenceNum.value) || 0;
       const result = calculatePPV(se, sp, prev);
 
       if (result.ppv === null) {
