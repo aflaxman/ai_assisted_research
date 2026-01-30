@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PPV Calculator | IHME Simulation Science</title>
+  <script data-goatcounter="https://aflaxman-ppv.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
@@ -805,6 +807,15 @@
           <div class="tooltip-line">PPV = ${result.numerator.toFixed(4)} / ${result.denominator.toFixed(4)}</div>
           <div class="tooltip-line">PPV = ${result.ppv.toFixed(4)}</div>
         `;
+      }
+
+      // Telemetry: Track that a calculation happened
+      if (window.goatcounter && window.goatcounter.count) {
+        window.goatcounter.count({
+          path:  'click-calculate',
+          title: 'Calculation Run',
+          event: true
+        });
       }
     }
 
