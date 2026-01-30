@@ -312,10 +312,11 @@
     .input-row:last-child { margin-bottom: 0; }
 
     .input-label {
-      width: 80px;
+      width: 90px;
       font-size: 0.85rem;
       font-weight: 500;
       color: #34495e;
+      white-space: nowrap;
     }
 
     input[type="number"] {
@@ -540,7 +541,7 @@
         <div class="ppv-label">Positive Predictive Value<span class="def-icon">?<span class="def-tooltip">The probability that a person with a positive test result actually has the condition. Higher PPV means fewer false positives.</span></span></div>
         <div class="tooltip-trigger" tabindex="0">
           <span class="ppv-value" id="ppvValue">35.7%</span>
-          <div class="tooltip-hint"><span class="icon">?</span> how is this calculated?</div>
+          <div class="tooltip-hint">how is this calculated <span class="icon">?</span></div>
           <div class="tooltip-content" id="tooltipContent"></div>
         </div>
         <div class="ppv-warning" id="ppvWarning"></div>
