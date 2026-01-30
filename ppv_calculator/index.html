@@ -104,7 +104,7 @@
       visibility: hidden;
       opacity: 0;
       position: absolute;
-      bottom: 100%;
+      top: 100%;
       left: 50%;
       transform: translateX(-50%);
       background: #2c3e50;
@@ -115,7 +115,7 @@
       font-family: "SF Mono", Monaco, monospace;
       white-space: nowrap;
       z-index: 100;
-      margin-bottom: 8px;
+      margin-top: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       transition: opacity 0.2s, visibility 0.2s;
     }
@@ -123,11 +123,11 @@
     .tooltip-content::after {
       content: '';
       position: absolute;
-      top: 100%;
+      bottom: 100%;
       left: 50%;
       transform: translateX(-50%);
       border: 6px solid transparent;
-      border-top-color: #2c3e50;
+      border-bottom-color: #2c3e50;
     }
 
     .tooltip-trigger:hover .tooltip-content,
