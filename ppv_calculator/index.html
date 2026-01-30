@@ -163,6 +163,66 @@
       font-weight: 600;
     }
 
+    /* Definition tooltips */
+    .def-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 13px;
+      height: 13px;
+      border: 1px solid #9ca3af;
+      border-radius: 50%;
+      font-size: 0.55rem;
+      font-weight: 600;
+      color: #9ca3af;
+      cursor: help;
+      margin-left: 4px;
+      position: relative;
+      vertical-align: middle;
+    }
+
+    .def-icon:hover {
+      border-color: #2980b9;
+      color: #2980b9;
+    }
+
+    .def-tooltip {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2c3e50;
+      color: #fff;
+      padding: 8px 10px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 400;
+      font-family: inherit;
+      width: 200px;
+      white-space: normal;
+      line-height: 1.4;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: opacity 0.2s, visibility 0.2s;
+    }
+
+    .def-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #2c3e50;
+    }
+
+    .def-icon:hover .def-tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+
     /* Parameters */
     .params-card { flex: 1; }
 
@@ -477,7 +537,7 @@
 
     <div class="top-row">
       <div class="card result-card">
-        <div class="ppv-label">Positive Predictive Value</div>
+        <div class="ppv-label">Positive Predictive Value<span class="def-icon">?<span class="def-tooltip">The probability that a person with a positive test result actually has the condition. Higher PPV means fewer false positives.</span></span></div>
         <div class="tooltip-trigger" tabindex="0">
           <span class="ppv-value" id="ppvValue">35.7%</span>
           <div class="tooltip-hint"><span class="icon">?</span> how is this calculated?</div>
@@ -508,17 +568,17 @@
           </div>
           <div class="inputs-group">
             <div class="input-row">
-              <label class="input-label" for="sensitivityNum">Sensitivity</label>
+              <label class="input-label" for="sensitivityNum">Sensitivity<span class="def-icon">?<span class="def-tooltip">The test's ability to correctly identify people who have the condition (true positive rate).</span></span></label>
               <input type="number" id="sensitivityNum" min="0" max="100" step="1" value="50">
               <span class="unit">%</span>
             </div>
             <div class="input-row">
-              <label class="input-label" for="specificityNum">Specificity</label>
+              <label class="input-label" for="specificityNum">Specificity<span class="def-icon">?<span class="def-tooltip">The test's ability to correctly identify people who do not have the condition (true negative rate).</span></span></label>
               <input type="number" id="specificityNum" min="0" max="100" step="1" value="90">
               <span class="unit">%</span>
             </div>
             <div class="input-row">
-              <label class="input-label" for="prevalenceNum">Prevalence</label>
+              <label class="input-label" for="prevalenceNum">Prevalence<span class="def-icon">?<span class="def-tooltip">The proportion of people in a population who have the condition at a given time.</span></span></label>
               <input type="number" id="prevalenceNum" min="0" max="100" step="1" value="10">
               <span class="unit">%</span>
             </div>
