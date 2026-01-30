@@ -928,9 +928,22 @@
           const location = el.dataset.location;
           const region = el.dataset.region;
 
+          // Preserve current age/sex selection
+          const prevAge = selectedAge;
+          const prevSex = selectedSex;
+
           // Switch region if needed
           if (region !== currentRegion) {
             setRegion(region);
+          }
+
+          // If we had an age/sex selection, apply it to the new country
+          if (prevAge && prevSex) {
+            const val = PREVALENCE_DATA[location]?.[prevSex]?.[prevAge];
+            if (val !== undefined) {
+              selectCell(prevAge, location, prevSex, val);
+              return;
+            }
           }
 
           selectLocation(location);
