@@ -775,6 +775,21 @@
       return Math.max(0, Math.min(100, Math.round(num * 10) / 10));
     }
 
+    // Debounced telemetry - only fires 500ms after user stops interacting
+    let telemetryTimeout = null;
+    function trackCalculation() {
+      clearTimeout(telemetryTimeout);
+      telemetryTimeout = setTimeout(() => {
+        if (window.goatcounter && window.goatcounter.count) {
+          window.goatcounter.count({
+            path: 'calculate',
+            title: 'PPV Calculation',
+            event: true
+          });
+        }
+      }, 500);
+    }
+
     // =========================================================================
     // PPV
     // =========================================================================
@@ -809,14 +824,8 @@
         `;
       }
 
-      // Telemetry: Track that a calculation happened
-      if (window.goatcounter && window.goatcounter.count) {
-        window.goatcounter.count({
-          path:  'click-calculate',
-          title: 'Calculation Run',
-          event: true
-        });
-      }
+      // Telemetry: Track calculation (debounced)
+      trackCalculation();
     }
 
     // =========================================================================
