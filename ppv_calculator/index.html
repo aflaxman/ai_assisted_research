@@ -836,7 +836,16 @@
       updateCalculation();
     }
 
-    function syncFromInput(slider, numInput, valDisplay) {
+    // Called on input - update slider and calc, but don't modify the text field
+    function syncFromInputLive(slider, numInput, valDisplay) {
+      const val = parseFloat(numInput.value) || 0;
+      slider.value = Math.max(0, Math.min(100, val));
+      valDisplay.textContent = slider.value;
+      updateCalculation();
+    }
+
+    // Called on blur - clamp and round the text field value
+    function syncFromInputBlur(slider, numInput, valDisplay) {
       const val = clampAndRound(numInput.value);
       numInput.value = val;
       slider.value = val;
@@ -1095,15 +1104,15 @@
       clearSelection();
     });
 
-    sensitivityNum.addEventListener('input', () => syncFromInput(sensitivitySlider, sensitivityNum, seSliderVal));
-    sensitivityNum.addEventListener('blur', () => syncFromInput(sensitivitySlider, sensitivityNum, seSliderVal));
-    specificityNum.addEventListener('input', () => syncFromInput(specificitySlider, specificityNum, spSliderVal));
-    specificityNum.addEventListener('blur', () => syncFromInput(specificitySlider, specificityNum, spSliderVal));
+    sensitivityNum.addEventListener('input', () => syncFromInputLive(sensitivitySlider, sensitivityNum, seSliderVal));
+    sensitivityNum.addEventListener('blur', () => syncFromInputBlur(sensitivitySlider, sensitivityNum, seSliderVal));
+    specificityNum.addEventListener('input', () => syncFromInputLive(specificitySlider, specificityNum, spSliderVal));
+    specificityNum.addEventListener('blur', () => syncFromInputBlur(specificitySlider, specificityNum, spSliderVal));
     prevalenceNum.addEventListener('input', () => {
-      syncFromInput(prevalenceSlider, prevalenceNum, prevSliderVal);
+      syncFromInputLive(prevalenceSlider, prevalenceNum, prevSliderVal);
       clearSelection();
     });
-    prevalenceNum.addEventListener('blur', () => syncFromInput(prevalenceSlider, prevalenceNum, prevSliderVal));
+    prevalenceNum.addEventListener('blur', () => syncFromInputBlur(prevalenceSlider, prevalenceNum, prevSliderVal));
 
     function clearSelection() {
       selectedAge = null;
