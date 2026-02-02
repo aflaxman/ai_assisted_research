@@ -1,0 +1,13 @@
+# Generated example data (created by example_run.py)
+example_data/
+
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# pytest cache
+.pytest_cache/
