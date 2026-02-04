@@ -126,70 +126,53 @@ def create_scenarios(n_candidates: int = 10) -> list[tuple[str, np.ndarray]]:
     return scenarios
 
 
-def run_sensitivity_sweep(
-    n_voters: int,
+def run_voter_sweep(
     n_trials: int,
     rng: np.random.Generator,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, dict]:
     """
-    Sweep front-runner gap from 0% to 10% difference.
+    Sweep number of voters for different scenarios.
 
-    Base: p_D + p_T = 0.40 total, others split 0.60
-    Vary: p_D from 0.20 to 0.30, p_T = 0.40 - p_D
+    Returns voter counts and dict of scenario -> probabilities.
     """
-    gaps = np.linspace(0, 0.10, 21)  # 0% to 10% gap in 0.5% increments
-    p_ties = []
+    voter_counts = np.array([500, 1000, 1500, 2000, 2500, 3000, 4000, 5000])
 
-    for gap in gaps:
-        p_d = 0.20 + gap / 2
-        p_t = 0.20 - gap / 2
-        probs = np.array([p_d, p_t] + [0.60 / 8] * 8)
+    scenarios = {
+        "Equal chance for 10 candidates": np.ones(10) / 10,
+        "Two front-runners tied": np.array([0.20, 0.20] + [0.60 / 8] * 8),
+        "One candidate has 10-point lead": np.array([0.25, 0.15] + [0.60 / 8] * 8),
+    }
 
-        p_tie, _ = simulate_scenario(probs, n_voters, n_trials, rng=rng)
-        p_ties.append(p_tie)
+    results = {name: [] for name in scenarios}
 
-    return gaps, np.array(p_ties)
+    for n_voters in voter_counts:
+        for name, probs in scenarios.items():
+            p_tie, _ = simulate_scenario(probs, n_voters, n_trials, rng=rng)
+            results[name].append(p_tie)
+
+    return voter_counts, {k: np.array(v) for k, v in results.items()}
 
 
-def create_plot(gaps, p_ties, n_voters, output_path="tie_sensitivity.png"):
-    """Create a plot showing how tie probability varies with front-runner gap."""
+def create_plot(voter_counts, results, output_path="tie_sensitivity.png"):
+    """Create a plot showing how tie probability varies with number of voters."""
     import matplotlib.pyplot as plt
 
     fig, ax = plt.subplots(figsize=(8, 5))
 
-    ax.plot(gaps * 100, p_ties * 100, 'b-o', markersize=5, linewidth=2)
+    colors = ['tab:blue', 'tab:orange', 'tab:green']
+    markers = ['o', 's', '^']
 
-    ax.set_xlabel('Gap between front-runners (percentage points)', fontsize=12)
-    ax.set_ylabel('Probability of first-place tie (%)', fontsize=12)
-    ax.set_title(
-        f'How Likely Is a Tie for First Place?\n'
-        f'(N = {n_voters:,} voters, 10 candidates, two front-runners)',
-        fontsize=13
-    )
+    for (name, probs), color, marker in zip(results.items(), colors, markers):
+        ax.plot(voter_counts, probs * 100, f'-{marker}',
+                color=color, markersize=6, linewidth=2, label=name)
+
+    ax.set_xlabel('Number of Votes', fontsize=12)
+    ax.set_ylabel('Chance of Tie (%)', fontsize=12)
+    ax.set_title('Probability of a First-Place Tie\n(10 candidates)', fontsize=13)
+    ax.legend(loc='upper right', fontsize=10)
     ax.grid(True, alpha=0.3)
-    ax.set_xlim(-0.5, 10.5)
+    ax.set_xlim(0, 5500)
     ax.set_ylim(bottom=0)
-
-    # Add annotation at zero gap
-    ax.annotate(
-        f'Equal support:\n~{p_ties[0]*100:.1f}% chance\n(1 in {1/p_ties[0]:.0f})',
-        xy=(0, p_ties[0] * 100),
-        xytext=(2.5, p_ties[0] * 100 * 0.85),
-        fontsize=10,
-        arrowprops=dict(arrowstyle='->', color='gray', alpha=0.7),
-        bbox=dict(boxstyle='round,pad=0.3', facecolor='lightyellow', alpha=0.8),
-    )
-
-    # Add annotation at 2% gap
-    idx_2pct = 4  # 2% gap
-    ax.annotate(
-        f'2-point gap:\n~{p_ties[idx_2pct]*100:.2f}%\n(1 in {1/p_ties[idx_2pct]:.0f})',
-        xy=(2, p_ties[idx_2pct] * 100),
-        xytext=(4.5, p_ties[idx_2pct] * 100 + 0.3),
-        fontsize=10,
-        arrowprops=dict(arrowstyle='->', color='gray', alpha=0.7),
-        bbox=dict(boxstyle='round,pad=0.3', facecolor='lightyellow', alpha=0.8),
-    )
 
     plt.tight_layout()
     plt.savefig(output_path, dpi=150)
@@ -274,15 +257,13 @@ Even a small gap matters: at 21%/19% (Scenario C), the probability
 drops to {scen_c.p_tie*100:.2f}%, or about 1 in {1/scen_c.p_tie:.0f}.
 """)
 
-    # Sensitivity sweep
+    # Voter count sweep plot
     if args.plot:
         print("-" * 65)
-        print("GENERATING SENSITIVITY PLOT...")
+        print("GENERATING PLOT: Tie probability vs number of voters...")
         print("-" * 65)
-        gaps, p_ties = run_sensitivity_sweep(
-            args.voters, args.trials // 2, rng
-        )
-        create_plot(gaps, p_ties, args.voters)
+        voter_counts, sweep_results = run_voter_sweep(args.trials // 2, rng)
+        create_plot(voter_counts, sweep_results)
 
     print("=" * 65)
     print("CONCLUSION")
