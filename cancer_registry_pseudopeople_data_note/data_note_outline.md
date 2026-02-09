@@ -1,12 +1,12 @@
 # Data Note Outline: Florida-Scale Pseudopeople Linkage Benchmark
 
 ## 1. Working title
-**Data Note:** A Florida-scale synthetic registry and finder-file benchmark for probabilistic record linkage using pseudopeople (2020 baseline; GBD 2023 prevalence weighting)
+**Data Note:** A Florida-Cancer-Registry-scale benchmark dataset for record linkage: simulated data from pseudopeople and the GBD
 
 ## 2. Abstract (structured, 200–300 words)
 - **Background:** Synthetic population subset designed to prototype cancer registry linkage workflows.
 - **Methods:** Stratified, prevalence-weighted sampling from Florida pseudopeople 2020 census; creation of three datasets with controlled overlap; controlled missingness and error in SSN and address fields.
-- **Data records:** Three CSV/Parquet-style datasets (df_2, df_1a, df_1b) plus changelog and provenance notes.
+- **Data records:** Three CSV/Parquet-style datasets (registry file + two finder files) plus changelog and provenance notes.
 - **Validation:** Checks for target sizes and overlaps; missingness rates; distributional checks of age and sex.
 - **Usage:** Intended for linkage benchmarking and privacy-preserving record linkage exercises.
 
@@ -23,8 +23,8 @@
 
 ## 4. Data products
 ### 4.1 Files / tables
-- **Registry file (df_2 / “FCDS-side”):** ~5,000,000 records, Florida pseudopeople subset (seeded/reproducible).
-- **Finder files (df_1a / df_1b / “client-side”):** 500,000 and 100,000 records, with controlled overlap.
+- **Registry file (“FCDS-side”):** ~5,000,000 records, Florida pseudopeople subset (seeded/reproducible).
+- **Finder files (“client-side”):** 500,000 and 100,000 records, with controlled overlap.
 - **Truth labels:** mapping from finder records to registry records via `simulant_id` (TP/FP/FN/TN definable).
 - **Scenario configs:** address missingness + SSN missingness/transposition regimes (finder vs registry).
 
@@ -52,10 +52,10 @@
 - Convert prevalence percent to probability weights for sampling.
 
 ### 5.4 Dataset design and target sizes
-- **df_2 (Cancer cohort):** 5,000,000 records, prevalence-weighted sampling.
-- **df_1a (Finder A):** 500,000 records, includes overlap with df_2.
-- **df_1b (Finder B):** 100,000 records, includes overlap with df_2.
-- Overlaps: 100,000 (df_1a–df_2) and 20,000 (df_1b–df_2).
+- **Registry file (cancer cohort):** 5,000,000 records, prevalence-weighted sampling.
+- **Finder file A:** 500,000 records, includes overlap with registry file.
+- **Finder file B:** 100,000 records, includes overlap with registry file.
+- Overlaps: 100,000 (Finder A–Registry) and 20,000 (Finder B–Registry).
 - Oversampling factor (1.5x) to account for downstream non-response.
 
 ### 5.5 Default pseudopeople noise and modeled artifacts
@@ -121,7 +121,8 @@
 - Tasks:
   - 5M × 500k main benchmark.
   - 5M × 100k sensitivity benchmarks (two variants).
-- Record linkage tools: Match*Pro, fastLink, Splink.
+- Benchmark facilitates comparing Match*Pro, fastLink, and Splink (planned analyses), and invites future work with additional tools.
+- Suggested minimum evaluation metrics: precision, recall, and compute time.
 
 ## 9. Usage notes
 - Suggested use cases: linkage benchmarking, algorithm evaluation, privacy-preserving linkage.
