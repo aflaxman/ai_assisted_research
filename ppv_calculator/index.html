@@ -368,6 +368,36 @@
       color: var(--text-muted);
     }
 
+    /* Specificity toggle buttons */
+    .sp-toggles {
+      display: flex;
+      gap: 6px;
+      margin: -2px 0 6px 0;
+      padding-left: 100px;
+    }
+
+    .sp-toggle {
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 2px solid var(--ihme-teal);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ihme-teal-dark);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .sp-toggle:hover {
+      background: rgba(20, 184, 166, 0.08);
+    }
+
+    .sp-toggle.active {
+      background: linear-gradient(135deg, var(--ihme-teal) 0%, var(--ihme-blue) 100%);
+      color: #fff;
+      border-color: transparent;
+    }
+
     /* Prevalence section */
     .prevalence-card { margin-bottom: 20px; }
 
@@ -597,8 +627,8 @@
             </div>
             <div class="slider-col">
               <label>Sp</label>
-              <input type="range" class="vertical" id="specificitySlider" min="0" max="100" step="0.1" value="99.8" tabindex="-1">
-              <span class="slider-value" id="spSliderVal">99.8</span>
+              <input type="range" class="vertical" id="specificitySlider" min="0" max="100" step="0.1" value="90" tabindex="-1">
+              <span class="slider-value" id="spSliderVal">90</span>
             </div>
             <div class="slider-col">
               <label>Prev</label>
@@ -614,8 +644,12 @@
             </div>
             <div class="input-row">
               <label class="input-label" for="specificityNum">Specificity<span class="def-icon">?<span class="def-tooltip">The test's ability to correctly identify people who do not have the condition (true negative rate).</span></span></label>
-              <input type="number" id="specificityNum" min="0" max="100" step="0.1" value="99.8">
+              <input type="number" id="specificityNum" min="0" max="100" step="0.1" value="90">
               <span class="unit">%</span>
+            </div>
+            <div class="sp-toggles">
+              <button class="sp-toggle active" data-sp="90">90%</button>
+              <button class="sp-toggle" data-sp="98.5">98.5%</button>
             </div>
             <div class="input-row">
               <label class="input-label" for="prevalenceNum">Prevalence<span class="def-icon">?<span class="def-tooltip">The proportion of people in a population who have the condition at a given time.</span></span></label>
@@ -1098,7 +1132,7 @@
     // =========================================================================
 
     sensitivitySlider.addEventListener('input', () => syncFromSlider(sensitivitySlider, sensitivityNum, seSliderVal));
-    specificitySlider.addEventListener('input', () => syncFromSlider(specificitySlider, specificityNum, spSliderVal));
+    specificitySlider.addEventListener('input', () => { syncFromSlider(specificitySlider, specificityNum, spSliderVal); updateSpToggles(); });
     prevalenceSlider.addEventListener('input', () => {
       syncFromSlider(prevalenceSlider, prevalenceNum, prevSliderVal);
       clearSelection();
@@ -1106,8 +1140,27 @@
 
     sensitivityNum.addEventListener('input', () => syncFromInputLive(sensitivitySlider, sensitivityNum, seSliderVal));
     sensitivityNum.addEventListener('blur', () => syncFromInputBlur(sensitivitySlider, sensitivityNum, seSliderVal));
-    specificityNum.addEventListener('input', () => syncFromInputLive(specificitySlider, specificityNum, spSliderVal));
-    specificityNum.addEventListener('blur', () => syncFromInputBlur(specificitySlider, specificityNum, spSliderVal));
+    specificityNum.addEventListener('input', () => { syncFromInputLive(specificitySlider, specificityNum, spSliderVal); updateSpToggles(); });
+    specificityNum.addEventListener('blur', () => { syncFromInputBlur(specificitySlider, specificityNum, spSliderVal); updateSpToggles(); });
+
+    // Specificity toggle buttons
+    function updateSpToggles() {
+      const val = parseFloat(specificityNum.value);
+      document.querySelectorAll('.sp-toggle').forEach(btn => {
+        btn.classList.toggle('active', parseFloat(btn.dataset.sp) === val);
+      });
+    }
+
+    document.querySelectorAll('.sp-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = parseFloat(btn.dataset.sp);
+        specificityNum.value = val;
+        specificitySlider.value = val;
+        spSliderVal.textContent = val;
+        updateSpToggles();
+        updateCalculation();
+      });
+    });
     prevalenceNum.addEventListener('input', () => {
       syncFromInputLive(prevalenceSlider, prevalenceNum, prevSliderVal);
       clearSelection();
