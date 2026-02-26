@@ -1,0 +1,7 @@
+# Raw data files (large, downloadable)
+data/raw/
+data/derived/
+
+# Python
+__pycache__/
+*.pyc

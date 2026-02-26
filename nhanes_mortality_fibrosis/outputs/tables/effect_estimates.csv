@@ -1,0 +1,8 @@
+RR,RR_lower,RR_upper,n_fib_yes,n_fib_no,d_fib_yes,d_fib_no,cycle,window,fibrosis_def,unadj_label,unadj_IRR,unadj_IRR_lower,unadj_IRR_upper,unadj_p_value,adj_label,adj_IRR,adj_IRR_lower,adj_IRR_upper,adj_p_value
+13.06,7.92,21.53,172,3982,22,39,2007-2008,24,FIB4 (>=2.67 vs <1.30),Poisson unadjusted,13.25,7.79,22.52,0.0,Poisson age+sex adjusted,2.07,1.06,4.01,0.0322
+12.82,8.49,19.34,172,3982,31,56,2007-2008,36,FIB4 (>=2.67 vs <1.30),Poisson unadjusted,13.55,8.7,21.11,0.0,Poisson age+sex adjusted,1.83,1.05,3.18,0.0324
+19.84,10.98,35.85,215,3523,23,19,2011-2012,24,FIB4 (>=2.67 vs <1.30),Poisson unadjusted,20.0,10.83,36.96,0.0,Poisson age+sex adjusted,1.87,0.8,4.38,0.1473
+15.52,10.05,23.97,215,3523,36,38,2011-2012,36,FIB4 (>=2.67 vs <1.30),Poisson unadjusted,16.35,10.33,25.87,0.0,Poisson age+sex adjusted,1.84,0.98,3.46,0.0594
+24.58,13.98,43.21,189,3573,26,20,2017-2018,24,FIB4 (>=2.67 vs <1.30),Poisson unadjusted,28.24,15.63,51.02,0.0,Poisson age+sex adjusted,7.28,3.33,15.89,0.0
+3.5,2.08,5.88,386,4274,18,57,2017-2018,24,LSM (Castera/EASL),Poisson unadjusted,3.48,2.02,5.99,0.0,Poisson age+sex adjusted,2.43,1.41,4.2,0.0015
+3.42,2.02,5.79,370,4536,17,61,2017-2018,24,LSM (Eddowes/NAFLD),Poisson unadjusted,3.38,1.94,5.87,0.0,Poisson age+sex adjusted,2.43,1.39,4.23,0.0017
