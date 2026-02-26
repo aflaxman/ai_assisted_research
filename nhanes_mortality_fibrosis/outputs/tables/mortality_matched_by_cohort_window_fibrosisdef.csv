@@ -1,0 +1,15 @@
+Cycle,Window,Def,Group,N,Deaths,PY,Risk,Rate/1000PY,d_Heart disease,d_Malignant neoplasms,d_Chronic lower resp.,d_Accidents,d_Cerebrovascular,d_Alzheimer's,d_Diabetes,d_Influenza/pneumonia,d_Nephritis,d_All other causes
+2007-2008,24,FIB4 ≥2.67 vs <1.30 (matched),Fibrosis+,59,6,112.3,0.1017,53.4,1,1,0,0,0,1,1,0,1,1
+2007-2008,24,FIB4 ≥2.67 vs <1.30 (matched),Fibrosis-,59,1,117.4,0.0169,8.5,0,0,0,0,0,0,1,0,0,0
+2007-2008,36,FIB4 ≥2.67 vs <1.30 (matched),Fibrosis+,59,10,164.3,0.1695,60.9,2,2,0,0,0,1,1,0,2,2
+2007-2008,36,FIB4 ≥2.67 vs <1.30 (matched),Fibrosis-,59,3,174.5,0.0508,17.2,0,0,0,0,1,0,2,0,0,0
+2011-2012,24,FIB4 ≥2.67 vs <1.30 (matched),Fibrosis+,65,3,126.1,0.0462,23.8,2,0,0,0,0,0,0,0,0,1
+2011-2012,24,FIB4 ≥2.67 vs <1.30 (matched),Fibrosis-,65,2,127.8,0.0308,15.6,0,0,0,1,0,0,0,0,1,0
+2011-2012,36,FIB4 ≥2.67 vs <1.30 (matched),Fibrosis+,65,5,187.6,0.0769,26.7,2,0,0,0,0,0,0,0,0,3
+2011-2012,36,FIB4 ≥2.67 vs <1.30 (matched),Fibrosis-,65,2,190.8,0.0308,10.5,0,0,0,1,0,0,0,0,1,0
+2017-2018,24,FIB4 ≥2.67 vs <1.30 (matched),Fibrosis+,77,7,127.6,0.0909,54.9,0,2,0,0,0,0,0,0,0,5
+2017-2018,24,FIB4 ≥2.67 vs <1.30 (matched),Fibrosis-,77,2,132.9,0.026,15.0,0,2,0,0,0,0,0,0,0,0
+2017-2018,24,LSM Castera/EASL (matched),Fibrosis+,136,4,235.2,0.0294,17.0,0,2,0,0,0,0,0,0,0,2
+2017-2018,24,LSM Castera/EASL (matched),Fibrosis-,136,3,233.8,0.0221,12.8,0,1,0,0,0,0,0,0,0,2
+2017-2018,24,LSM Eddowes/NAFLD (matched),Fibrosis+,137,4,237.0,0.0292,16.9,0,2,0,0,0,0,0,0,0,2
+2017-2018,24,LSM Eddowes/NAFLD (matched),Fibrosis-,137,0,235.0,0.0,0.0,0,0,0,0,0,0,0,0,0,0
