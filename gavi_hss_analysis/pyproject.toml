@@ -1,0 +1,13 @@
+[project]
+name = "gavi-hss-analysis"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "matplotlib>=3.10.8",
+    "pandas>=3.0.1",
+    "pymupdf>=1.27.1",
+    "python-docx>=1.2.0",
+    "requests>=2.32.5",
+    "seaborn>=0.13.2",
+]
