@@ -1,8 +1,10 @@
 # Can We Replicate This Analysis with NHIS Linked Mortality Data?
 
-**Short answer: No.** The NHIS lacks the laboratory biomarkers required to
-compute FIB-4 and other non-invasive fibrosis scores. A different — and more
-limited — analysis is possible.
+**Short answer: No** — not the FIB-4 analysis specifically. The NHIS lacks the
+laboratory biomarkers required to compute FIB-4 and other non-invasive fibrosis
+scores. But a complementary analysis using **self-reported liver disease** is
+possible, and we built it in notebooks `04_nhis_data_download.ipynb` and
+`05_nhis_pooled_analysis.ipynb`.
 
 ## What Our NHANES Analysis Requires
 
