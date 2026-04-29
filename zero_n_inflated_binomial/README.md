@@ -44,3 +44,30 @@ uv run python zni_binomial.py
 Outputs `frames/stage_*.png` and `zni_binomial_stages.gif`.
 
 ![stages](zni_binomial_stages.gif)
+
+## Notebooks
+
+Two walkthrough notebooks compare this NumPyro model with the R package
+[`mcount`](https://cran.r-project.org/package=mcount) (Zhou et al., 2024),
+whose `mznib()` function fits a *marginalized* zero- and N-inflated Binomial
+by maximum likelihood with bootstrap inference.
+
+- `01_numpyro_walkthrough.ipynb` — defines the NumPyro model, fits matched
+  data, then walks through the four misspecification stages.
+- `02_compare_mcount.ipynb` — fits the same data with `mcount::mznib` via
+  `rpy2`, then lays the two outputs side by side.
+
+The headline finding: both methods agree on `E[y/N]` whenever the marginal
+mean is well-defined, but they answer different questions. `mznib` reports a
+single regression coefficient on the proportion scale; the NumPyro model
+exposes π_0, π_N, p separately. Posterior predictive checks (NumPyro) and
+per-row N (`mznib`) are the diagnostics that catch the misspecification each
+tool is silent about.
+
+To regenerate the executed notebooks:
+
+```bash
+uv run python build_notebooks.py
+```
+
+This requires R ≥ 4.3 with `mcount` installed.
