@@ -139,9 +139,13 @@ data). Coverage well below 95% means the interval is too narrow.
     ),
     code(
         """
-def coverage_sim(stage_name, sim_fn, kwargs, n_reps=60, R=80):
+def coverage_sim(stage_name, sim_fn, kwargs, n_reps=40, R=50):
+    import sys, time
     rows = []
+    t0 = time.time()
     for r in range(n_reps):
+        if r % 10 == 0:
+            print(f"  {stage_name}: rep {r}/{n_reps}  elapsed {time.time()-t0:.0f}s", flush=True)
         rng = np.random.default_rng(1000 + r)
         y, tx = sim_fn(rng, **kwargs)
         emp = (y[tx == 1] / N).mean() - (y[tx == 0] / N).mean()
@@ -160,7 +164,7 @@ def coverage_sim(stage_name, sim_fn, kwargs, n_reps=60, R=80):
 
 # Use the same simulator-ground-truth comparison: average over reps.
 all_reps = pd.concat([
-    coverage_sim(name, sim, kw, n_reps=60, R=80)
+    coverage_sim(name, sim, kw, n_reps=40, R=50)
     for (name, sim, kw) in sims
 ], ignore_index=True)
 print(f"{len(all_reps)} total replicates")
@@ -214,7 +218,7 @@ ax.bar(xs + 0.2, cov_tbl['mznib coverage'], width=0.4, label='mznib',
 ax.axhline(0.95, ls='--', color='red', lw=1, label='nominal 95%')
 ax.set_xticks(xs); ax.set_xticklabels(cov_tbl.index, rotation=20)
 ax.set_ylim(0, 1.05); ax.set_ylabel("CI coverage of true marginal Δ")
-ax.legend(); ax.set_title("95% interval calibration over 60 reps/stage")
+ax.legend(); ax.set_title("95% interval calibration over 40 reps/stage")
 
 ax = axes[1]
 ax.bar(xs - 0.2, cov_tbl['naive CI width'], width=0.4, label='naive GLM',

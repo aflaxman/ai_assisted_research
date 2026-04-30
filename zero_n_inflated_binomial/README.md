@@ -69,6 +69,22 @@ by maximum likelihood with bootstrap inference.
   - Under subject-level overdispersion, only `mznib`'s nonparametric
     bootstrap widens the CI honestly; the naive GLM and NumPyro intervals
     are about three times too narrow.
+- `04_diagnostics_and_fixes.ipynb` — opens the box on the two surprises
+  from notebook 03:
+  - **Why naive GLM ≠ `mznib`.** The point estimates are mathematically
+    identical (both target `logit(E[y/N])` and reduce to per-arm means
+    with a binary covariate). They diverge in *uncertainty*: a small
+    coverage simulation shows the naive Binomial Wald CI is
+    anti-conservative whenever the data has any inflation or
+    overdispersion, while `mznib`'s nonparametric bootstrap stays
+    roughly calibrated.
+  - **Why basic NumPyro undershoots Stage 2.** Algebraically the model's
+    marginal effect equals `π_bin · (p_tx − p_ctl)` because `π_0` and
+    `π_N` are shared across arms; if the data also moves `π_0` between
+    arms, that contribution has nowhere to live. The notebook fits an
+    extended NumPyro model where `tx` enters both `π_0` (3-class
+    softmax) and `p` (logit), and shows the marginal estimate snaps
+    back onto the empirical truth.
 
 The headline finding: both methods agree on `E[y/N]` whenever the marginal
 mean is well-defined, but they answer different questions. `mznib` reports a
