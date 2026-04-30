@@ -176,5 +176,78 @@ def fit_numpyro(y, tx, N, key=0, num_warmup=600, num_samples=1200):
     )
 
 
+# ---------------------------------------------------------------------------
+# Extended model: covariate effects on both pi_0 AND p (pi_N constant).
+# ---------------------------------------------------------------------------
+def zni_binomial_full_regression_model(N, X, y=None, n_obs=None):
+    """ZNI-Binomial where tx acts on both pi_0 and p, pi_N stays constant.
+
+    A 3-class softmax in (zero_logit, N_logit, 0) gives pi per observation.
+    p has the usual logit link.
+    """
+    if y is not None:
+        n_obs = y.shape[0]
+    n_features = X.shape[1]
+
+    alpha_zero = numpyro.sample(
+        "alpha_zero", dist.Normal(0.0, 2.0).expand([n_features]).to_event(1)
+    )
+    alpha_p = numpyro.sample(
+        "alpha_p", dist.Normal(0.0, 2.0).expand([n_features]).to_event(1)
+    )
+    log_piN = numpyro.sample("log_piN_raw", dist.Normal(-2.0, 1.0))
+
+    zero_logit = X @ alpha_zero
+    body_logit = jnp.zeros_like(zero_logit)
+    N_logit = jnp.broadcast_to(log_piN, zero_logit.shape)
+    logits = jnp.stack([zero_logit, N_logit, body_logit], axis=-1)
+    log_pi = jax.nn.log_softmax(logits, axis=-1)  # (n_obs, 3)
+
+    p = jax.nn.sigmoid(X @ alpha_p)
+    binom = dist.Binomial(total_count=N, probs=p)
+
+    log_lik_bin = binom.log_prob(y) + log_pi[:, 2]
+    log_lik_zero = jnp.where(y == 0, log_pi[:, 0], -jnp.inf)
+    log_lik_N = jnp.where(y == N, log_pi[:, 1], -jnp.inf)
+    log_lik = jax.scipy.special.logsumexp(
+        jnp.stack([log_lik_zero, log_lik_N, log_lik_bin], axis=0), axis=0
+    )
+    numpyro.factor("zni_full_lik", log_lik.sum())
+
+
+def fit_numpyro_full(y, tx, N, key=0, num_warmup=600, num_samples=1200):
+    X = np.column_stack([np.ones_like(tx, dtype=float), tx.astype(float)])
+    kernel = NUTS(zni_binomial_full_regression_model)
+    mcmc = MCMC(kernel, num_warmup=num_warmup, num_samples=num_samples, progress_bar=False)
+    mcmc.run(jax.random.PRNGKey(key), N=int(N), X=jnp.asarray(X), y=jnp.asarray(y))
+    s = mcmc.get_samples()
+    az = np.asarray(s["alpha_zero"])     # (S, 2)
+    ap = np.asarray(s["alpha_p"])        # (S, 2)
+    log_piN = np.asarray(s["log_piN_raw"])  # (S,)
+
+    def softmax3(zero_logit, n_logit):
+        m = np.maximum(np.maximum(zero_logit, n_logit), 0.0)
+        ez = np.exp(zero_logit - m); en = np.exp(n_logit - m); eb = np.exp(-m)
+        Z = ez + en + eb
+        return ez / Z, en / Z, eb / Z
+
+    zero_ctl = az[:, 0]
+    zero_tx  = az[:, 0] + az[:, 1]
+    pi0_ctl, piN_ctl, pibin_ctl = softmax3(zero_ctl, log_piN)
+    pi0_tx,  piN_tx,  pibin_tx  = softmax3(zero_tx,  log_piN)
+    p_ctl = 1.0 / (1.0 + np.exp(-ap[:, 0]))
+    p_tx  = 1.0 / (1.0 + np.exp(-(ap[:, 0] + ap[:, 1])))
+
+    em_ctl = piN_ctl + pibin_ctl * p_ctl
+    em_tx  = piN_tx  + pibin_tx  * p_tx
+    return dict(
+        beta_p=ap[:, 1], beta_zero=az[:, 1],
+        pi0_ctl=pi0_ctl, pi0_tx=pi0_tx,
+        p_ctl=p_ctl, p_tx=p_tx,
+        em_ctl=em_ctl, em_tx=em_tx,
+        em_diff=em_tx - em_ctl,
+    )
+
+
 def summarise(samples):
     return float(np.mean(samples)), float(np.quantile(samples, 0.025)), float(np.quantile(samples, 0.975))
