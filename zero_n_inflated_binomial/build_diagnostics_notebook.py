@@ -139,51 +139,21 @@ data). Coverage well below 95% means the interval is too narrow.
     ),
     code(
         """
-def coverage_sim(stage_name, sim_fn, kwargs, n_reps=40, R=50):
-    import sys, time
-    rows = []
-    t0 = time.time()
-    for r in range(n_reps):
-        if r % 10 == 0:
-            print(f"  {stage_name}: rep {r}/{n_reps}  elapsed {time.time()-t0:.0f}s", flush=True)
-        rng = np.random.default_rng(1000 + r)
-        y, tx = sim_fn(rng, **kwargs)
-        emp = (y[tx == 1] / N).mean() - (y[tx == 0] / N).mean()
-        # naive
-        nd, nci = fit_naive_diff(y, tx, N)
-        # mznib bootstrap
-        md_, mci = fit_mznib_diff(y, tx, N, R=R, seed=r + 1)
-        rows.append({
-            'stage': stage_name,
-            'naive est': nd, 'naive lo': nci[0], 'naive hi': nci[1],
-            'mznib est': md_, 'mznib lo': mci[0], 'mznib hi': mci[1],
-            'truth': emp,
-        })
-    return pd.DataFrame(rows)
-
-
-# Use the same simulator-ground-truth comparison: average over reps.
-all_reps = pd.concat([
-    coverage_sim(name, sim, kw, n_reps=40, R=50)
-    for (name, sim, kw) in sims
-], ignore_index=True)
-print(f"{len(all_reps)} total replicates")
-all_reps.head()
-"""
-    ),
-    code(
-        """
-# Compare against a fixed truth (true population marginal Δ for each stage),
-# computed from a single very large draw.
-truths = {}
-for name, sim, kw in sims:
-    big = np.random.default_rng(987654321)
-    y_big, tx_big = sim(big, n_per_arm=20000, **kw)
-    truths[name] = (y_big[tx_big == 1] / N).mean() - (y_big[tx_big == 0] / N).mean()
-
-print("Population marginal Δ per stage:")
+# The coverage simulation is precomputed (slow: many mznib bootstrap fits)
+# and cached to coverage_sim.pkl. To regenerate, run
+#   uv run python precompute_coverage.py 30 50
+# Schema: {'reps': DataFrame, 'truths': dict, 'n_reps': int, 'R': int}
+import pickle
+with open("coverage_sim.pkl", "rb") as f:
+    cov_data = pickle.load(f)
+all_reps = cov_data["reps"]
+truths   = cov_data["truths"]
+print(f"loaded {len(all_reps)} replicates "
+      f"({cov_data['n_reps']} per stage, mznib R={cov_data['R']})")
+print("\\nPopulation marginal Δ per stage:")
 for k, v in truths.items():
     print(f"  {k:>16}: {v:+.4f}")
+all_reps.head()
 """
     ),
     code(
