@@ -56,6 +56,19 @@ by maximum likelihood with bootstrap inference.
   data, then walks through the four misspecification stages.
 - `02_compare_mcount.ipynb` — fits the same data with `mcount::mznib` via
   `rpy2`, then lays the two outputs side by side.
+- `03_treatment_effect_rct.ipynb` — simulates a digital-reminder RCT for
+  medication adherence with a ~25% lift on the latent success rate, then
+  estimates the treatment effect with a naive Binomial GLM, `mcount::mznib`,
+  and the NumPyro ZNI-Binomial regression. Walks through four stages of
+  increasing misspecification and shows where each method holds up. Two
+  punchlines:
+  - When the treatment also reduces the structural-zero rate (a realistic
+    adherence story), `mznib`'s marginalized parameterization recovers the
+    correct effect; the NumPyro model with effect on `p` only undershoots
+    by ~40%.
+  - Under subject-level overdispersion, only `mznib`'s nonparametric
+    bootstrap widens the CI honestly; the naive GLM and NumPyro intervals
+    are about three times too narrow.
 
 The headline finding: both methods agree on `E[y/N]` whenever the marginal
 mean is well-defined, but they answer different questions. `mznib` reports a
