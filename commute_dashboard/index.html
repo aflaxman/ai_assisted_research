@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Live commute dashboard for the trip between Hiawatha & Dearborn (Seattle) and the Hans Rosling Center at UW. Weather, traffic, bus arrivals, light rail, gas prices, all in 80s synthwave." />
+<title>Seattle Commute Dashboard | ai_assisted_research</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg-0: #0a0014;
+    --bg-1: #1a0033;
+    --bg-2: #2d004f;
+    --neon-pink: #ff006e;
+    --neon-magenta: #ff00ff;
+    --neon-cyan: #00f5ff;
+    --neon-yellow: #ffd700;
+    --neon-purple: #b026ff;
+    --neon-coral: #ff7e5f;
+    --soft-pink: #ffb3e6;
+    --text: #e0e0ff;
+    --muted: #8a7fa3;
+    --panel-bg: rgba(20, 0, 40, 0.65);
+    --panel-border: rgba(255, 0, 255, 0.35);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg-0);
+    color: var(--text);
+    font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body {
+    background:
+      radial-gradient(ellipse at 50% 100%, rgba(255, 0, 110, 0.35) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 10%, rgba(0, 245, 255, 0.18) 0%, transparent 50%),
+      radial-gradient(ellipse at 20% 30%, rgba(176, 38, 255, 0.18) 0%, transparent 55%),
+      linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 50%, var(--bg-2) 100%);
+    background-attachment: fixed;
+    position: relative;
+  }
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0) 0px,
+      rgba(0, 0, 0, 0) 2px,
+      rgba(255, 0, 255, 0.04) 3px,
+      rgba(0, 0, 0, 0) 4px
+    );
+    z-index: 100;
+  }
+  /* Sun horizon at bottom */
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30vh;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, transparent 0%, rgba(255, 0, 110, 0.08) 100%),
+      repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 30px,
+        rgba(255, 0, 255, 0.12) 31px,
+        transparent 32px
+      ),
+      repeating-linear-gradient(
+        180deg,
+        transparent 0px,
+        transparent 30px,
+        rgba(0, 245, 255, 0.10) 31px,
+        transparent 32px
+      );
+    transform: perspective(400px) rotateX(60deg);
+    transform-origin: bottom center;
+    z-index: -1;
+    opacity: 0.5;
+  }
+
+  .container {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 14px 22px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    border: 2px solid var(--neon-magenta);
+    border-radius: 4px;
+    padding: 10px 18px;
+    margin-bottom: 10px;
+    background: var(--panel-bg);
+    box-shadow:
+      0 0 16px rgba(255, 0, 255, 0.35),
+      inset 0 0 24px rgba(255, 0, 255, 0.06);
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 20px;
+    align-items: center;
+  }
+  .title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    color: var(--neon-cyan);
+    text-shadow:
+      0 0 8px var(--neon-cyan),
+      0 0 16px rgba(0, 245, 255, 0.55),
+      2px 2px 0 var(--neon-pink);
+    text-transform: uppercase;
+  }
+  .subtitle {
+    font-size: 9px;
+    letter-spacing: 1.6px;
+    color: var(--soft-pink);
+    margin-top: 2px;
+    text-transform: uppercase;
+  }
+  .clock-block {
+    text-align: right;
+  }
+  .clock {
+    font-size: 20px;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.55);
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    line-height: 1;
+  }
+  .date {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1.2px;
+    margin-top: 3px;
+  }
+  .header-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  /* ===== TOOLBAR ===== */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .btn {
+    background: transparent;
+    border: 1.5px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    padding: 5px 12px;
+    font-family: inherit;
+    font-size: 10px;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-shadow: 0 0 4px rgba(0, 245, 255, 0.6);
+    box-shadow: 0 0 6px rgba(0, 245, 255, 0.18), inset 0 0 8px rgba(0, 245, 255, 0.05);
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn:hover {
+    background: rgba(0, 245, 255, 0.1);
+    box-shadow: 0 0 16px rgba(0, 245, 255, 0.5), inset 0 0 16px rgba(0, 245, 255, 0.15);
+  }
+  .btn-pink {
+    border-color: var(--neon-pink);
+    color: var(--neon-pink);
+    text-shadow: 0 0 4px rgba(255, 0, 110, 0.6);
+    box-shadow: 0 0 8px rgba(255, 0, 110, 0.2), inset 0 0 8px rgba(255, 0, 110, 0.05);
+  }
+  .btn-pink:hover {
+    background: rgba(255, 0, 110, 0.1);
+    box-shadow: 0 0 16px rgba(255, 0, 110, 0.5), inset 0 0 16px rgba(255, 0, 110, 0.15);
+  }
+  .btn-yellow {
+    border-color: var(--neon-yellow);
+    color: var(--neon-yellow);
+    text-shadow: 0 0 4px rgba(255, 215, 0, 0.6);
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
+  }
+  .btn-yellow:hover {
+    background: rgba(255, 215, 0, 0.1);
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.5);
+  }
+  .last-update {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+  }
+
+  /* ===== RECOMMENDATION BAR ===== */
+  .reco {
+    border: 1.5px solid var(--neon-yellow);
+    border-radius: 4px;
+    padding: 8px 14px;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.08), rgba(255, 0, 110, 0.08));
+    box-shadow: 0 0 14px rgba(255, 215, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .reco-icon {
+    font-size: 24px;
+    line-height: 1;
+  }
+  .reco-text {
+    flex: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .reco-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--neon-yellow);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .reco-value {
+    font-size: 14px;
+    color: var(--soft-pink);
+    letter-spacing: 0.5px;
+  }
+
+  /* ===== GRID LAYOUT ===== */
+  .grid-arrivals {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .grid-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .grid-extras {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  @media (max-width: 1100px) {
+    .grid-arrivals { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 800px) {
+    .grid-arrivals, .grid-top { grid-template-columns: 1fr; }
+  }
+
+  /* ===== PANEL ===== */
+  .panel {
+    border: 1.5px solid var(--panel-border);
+    border-radius: 4px;
+    padding: 10px 14px 12px;
+    background: var(--panel-bg);
+    box-shadow:
+      0 0 10px rgba(255, 0, 255, 0.16),
+      inset 0 0 16px rgba(255, 0, 255, 0.04);
+    position: relative;
+  }
+  .panel-cyan {
+    border-color: rgba(0, 245, 255, 0.4);
+    box-shadow: 0 0 12px rgba(0, 245, 255, 0.18), inset 0 0 20px rgba(0, 245, 255, 0.04);
+  }
+  .panel-pink {
+    border-color: rgba(255, 0, 110, 0.4);
+    box-shadow: 0 0 12px rgba(255, 0, 110, 0.18), inset 0 0 20px rgba(255, 0, 110, 0.04);
+  }
+  .panel-yellow {
+    border-color: rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.18), inset 0 0 20px rgba(255, 215, 0, 0.04);
+  }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 0, 255, 0.2);
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+  }
+  .panel-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--neon-magenta);
+    text-shadow: 0 0 6px rgba(255, 0, 255, 0.5);
+    font-weight: 700;
+  }
+  .panel-cyan .panel-title { color: var(--neon-cyan); text-shadow: 0 0 6px rgba(0, 245, 255, 0.5); }
+  .panel-pink .panel-title { color: var(--neon-pink); text-shadow: 0 0 6px rgba(255, 0, 110, 0.5); }
+  .panel-yellow .panel-title { color: var(--neon-yellow); text-shadow: 0 0 6px rgba(255, 215, 0, 0.5); }
+  .panel-badge {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+  }
+
+  /* ===== WEATHER ===== */
+  .weather-now {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .weather-icon {
+    font-size: 36px;
+    line-height: 1;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+  }
+  .weather-temp {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+    line-height: 1;
+  }
+  .weather-cond {
+    font-size: 11px;
+    color: var(--soft-pink);
+    letter-spacing: 1.3px;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .weather-detail {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+    letter-spacing: 0.8px;
+  }
+  .weather-periods {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(255, 0, 255, 0.2);
+  }
+  .weather-period {
+    text-align: center;
+    padding: 4px 2px;
+    background: rgba(255, 0, 255, 0.05);
+    border-radius: 2px;
+  }
+  .weather-period-name {
+    font-size: 8px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .weather-period-temp {
+    font-size: 14px;
+    color: var(--neon-cyan);
+    font-weight: 700;
+    margin: 2px 0;
+  }
+  .weather-period-icon {
+    font-size: 16px;
+    margin-bottom: 1px;
+  }
+  .weather-period-rain {
+    font-size: 8px;
+    color: var(--neon-cyan);
+    letter-spacing: 0.8px;
+  }
+
+  /* ===== TRAVEL ===== */
+  .travel-modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .travel-mode {
+    text-align: center;
+    padding: 8px 4px;
+    background: rgba(0, 245, 255, 0.06);
+    border: 1px solid rgba(0, 245, 255, 0.2);
+    border-radius: 4px;
+  }
+  .travel-icon {
+    font-size: 20px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .travel-time {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 6px rgba(0, 245, 255, 0.4);
+  }
+  .travel-label {
+    font-size: 8px;
+    color: var(--muted);
+    letter-spacing: 1.2px;
+    margin-top: 2px;
+    text-transform: uppercase;
+  }
+  .travel-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .traffic-caveat {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.8px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed rgba(0, 245, 255, 0.15);
+    font-style: italic;
+  }
+
+  /* ===== BUSES ===== */
+  .bus-stop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1.2px;
+  }
+  .arrivals-list {
+    list-style: none;
+  }
+  .arrival {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px dashed rgba(255, 0, 255, 0.15);
+  }
+  .arrival:last-child { border-bottom: none; }
+  .route-badge {
+    background: var(--neon-pink);
+    color: var(--bg-0);
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 3px;
+    font-size: 12px;
+    min-width: 38px;
+    text-align: center;
+    box-shadow: 0 0 6px rgba(255, 0, 110, 0.45);
+  }
+  .route-badge.r7 { background: #ff006e; }
+  .route-badge.r48 { background: #00f5ff; color: var(--bg-0); }
+  .route-badge.r106 { background: #ffd700; color: var(--bg-0); }
+  .route-badge.r554 { background: #b026ff; color: #fff; }
+  .route-badge.r1Line { background: #00b04f; color: #fff; min-width: 50px; font-size: 10px; }
+  .route-badge.r2Line { background: #0072ce; color: #fff; min-width: 50px; font-size: 10px; }
+  .arrival-headsign {
+    font-size: 11px;
+    color: var(--soft-pink);
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+  }
+  .arrival-headsign-detail {
+    font-size: 8px;
+    color: var(--muted);
+    margin-top: 1px;
+    letter-spacing: 0.8px;
+  }
+  .arrival-eta {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 5px rgba(0, 245, 255, 0.4);
+    min-width: 60px;
+    text-align: right;
+    line-height: 1;
+  }
+  .arrival-eta.soon { color: var(--neon-yellow); text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+  .arrival-eta.now { color: var(--neon-pink); text-shadow: 0 0 5px rgba(255, 0, 110, 0.5); animation: pulse 1s infinite; }
+  .arrival-eta.late { color: var(--neon-coral); }
+  .arrival-sub {
+    font-size: 8px;
+    color: var(--muted);
+    letter-spacing: 0.8px;
+    margin-top: 2px;
+    text-align: right;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+  .empty-state {
+    text-align: center;
+    padding: 20px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+  }
+  .loading {
+    color: var(--neon-cyan);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-align: center;
+    padding: 20px;
+    animation: pulse 1.2s infinite;
+  }
+  .error {
+    color: var(--neon-coral);
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 12px;
+    background: rgba(255, 126, 95, 0.08);
+    border: 1px dashed rgba(255, 126, 95, 0.3);
+    border-radius: 4px;
+  }
+
+  /* ===== EXTRAS ===== */
+  .extras-list {
+    list-style: none;
+  }
+  .extras-list li {
+    padding: 8px 0;
+    border-bottom: 1px dashed rgba(255, 0, 255, 0.12);
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+  .extras-list li:last-child { border-bottom: none; }
+  .extras-list a {
+    color: var(--neon-cyan);
+    text-decoration: none;
+  }
+  .extras-list a:hover {
+    color: var(--neon-pink);
+    text-shadow: 0 0 6px rgba(255, 0, 110, 0.4);
+  }
+  .extra-icon {
+    display: inline-block;
+    margin-right: 6px;
+  }
+
+  /* ===== SETTINGS DRAWER ===== */
+  .settings-drawer {
+    border: 1.5px dashed var(--neon-yellow);
+    border-radius: 4px;
+    padding: 20px;
+    background: rgba(20, 0, 40, 0.85);
+    margin-bottom: 20px;
+    display: none;
+  }
+  .settings-drawer.open { display: block; }
+  .settings-drawer h3 {
+    color: var(--neon-yellow);
+    font-size: 13px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .settings-drawer p, .settings-drawer ol {
+    font-size: 11px;
+    color: var(--soft-pink);
+    line-height: 1.7;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    padding-left: 0;
+  }
+  .settings-drawer ol { padding-left: 20px; }
+  .settings-drawer ol li { margin-bottom: 4px; }
+  .settings-drawer label {
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 12px;
+    margin-bottom: 4px;
+  }
+  .settings-drawer input {
+    width: 100%;
+    background: var(--bg-0);
+    border: 1px solid var(--neon-yellow);
+    color: var(--neon-cyan);
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 1px;
+    border-radius: 2px;
+  }
+  .settings-drawer input:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+  }
+  .settings-drawer a {
+    color: var(--neon-cyan);
+    text-decoration: underline;
+  }
+  .save-btn {
+    margin-top: 16px;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  footer a { color: var(--neon-magenta); text-decoration: none; }
+  footer a:hover { color: var(--neon-cyan); }
+
+  /* Refresh spin */
+  .spinning { animation: spin 0.8s linear infinite; display: inline-block; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ===== HEADER (compact, with toolbar inline) ===== -->
+  <header>
+    <div>
+      <div class="title">▰ Hiawatha &amp; Dearborn ↦ Hans Rosling ▰</div>
+      <div class="subtitle">Live Commute Telemetry · WFH Advisor · Est. 198X</div>
+    </div>
+    <div class="clock-block">
+      <div class="clock" id="clock">--:--</div>
+      <div class="date" id="date">--</div>
+    </div>
+    <div class="header-controls">
+      <button class="btn" id="refresh-btn">↻</button>
+      <button class="btn btn-pink" id="settings-btn">⚙</button>
+    </div>
+  </header>
+
+  <!-- last-updated stays below header but minimal -->
+  <div class="toolbar">
+    <span class="last-update" id="last-update" style="margin-left:0;">Loading…</span>
+  </div>
+
+  <!-- ===== SETTINGS DRAWER ===== -->
+  <div class="settings-drawer" id="settings-drawer">
+    <h3>🛠 Settings &amp; OneBusAway API Key</h3>
+    <p>This dashboard ships with the public <code style="color:var(--neon-cyan)">TEST</code> key for OneBusAway Puget Sound. It works but is rate-limited and shared with everyone. For reliable use, get your own free key:</p>
+    <ol>
+      <li>Visit <a href="https://www.soundtransit.org/help-contacts/business-information/open-transit-data-otd" target="_blank">Sound Transit Open Transit Data</a> and follow the OneBusAway API instructions.</li>
+      <li>Or email <code style="color:var(--neon-cyan)">api@onebusaway.org</code> to request a key (free, usually replies within a day).</li>
+      <li>Paste your key below and hit Save. It's stored in your browser only (localStorage), never sent anywhere except OBA.</li>
+    </ol>
+    <label for="api-key-input">OBA API Key</label>
+    <input type="text" id="api-key-input" placeholder="TEST" />
+    <label for="home-input">Home Coordinates (lat,lon)</label>
+    <input type="text" id="home-input" placeholder="47.6011,-122.3015" />
+    <label for="work-input">Work Coordinates (lat,lon)</label>
+    <input type="text" id="work-input" placeholder="47.6541,-122.3128" />
+    <button class="btn btn-yellow save-btn" id="save-settings">💾 Save &amp; Reload</button>
+  </div>
+
+  <!-- ===== RECOMMENDATION ===== -->
+  <div class="reco" id="reco">
+    <div class="reco-icon" id="reco-icon">🤔</div>
+    <div class="reco-text">
+      <div class="reco-label">Today's Verdict</div>
+      <div class="reco-value" id="reco-value">Crunching the numbers…</div>
+    </div>
+  </div>
+
+  <!-- ===== ARRIVALS GRID — top priority, 3 columns ===== -->
+  <div class="grid-arrivals">
+
+    <!-- RAINIER (7, 106, 554) -->
+    <div class="panel panel-pink">
+      <div class="panel-header">
+        <div class="panel-title">🚌 Rainier NB · 7 · 106 · 554</div>
+        <a href="https://pugetsound.onebusaway.org/m/index?q=8494" target="_blank" style="color:var(--neon-cyan); text-decoration:none; font-size:9px; letter-spacing:1px;">OBA →</a>
+      </div>
+      <ul class="arrivals-list" id="arrivals-rainier">
+        <li class="loading">▰▰▰ Loading ▰▰▰</li>
+      </ul>
+    </div>
+
+    <!-- 23rd (48) -->
+    <div class="panel panel-pink">
+      <div class="panel-header">
+        <div class="panel-title">🚌 23rd NB · 48 · Wood Tech</div>
+        <a href="https://pugetsound.onebusaway.org/m/index?q=12532" target="_blank" style="color:var(--neon-cyan); text-decoration:none; font-size:9px; letter-spacing:1px;">OBA →</a>
+      </div>
+      <ul class="arrivals-list" id="arrivals-23rd">
+        <li class="loading">▰▰▰ Loading ▰▰▰</li>
+      </ul>
+    </div>
+
+    <!-- 2 LINE (Judkins Park Station) -->
+    <div class="panel panel-cyan">
+      <div class="panel-header">
+        <div class="panel-title">🚇 2 Line · Judkins Park</div>
+        <a href="https://www.soundtransit.org/ride-with-us/stops-stations/judkins-park-station" target="_blank" style="color:var(--neon-cyan); text-decoration:none; font-size:9px; letter-spacing:1px;">Station →</a>
+      </div>
+      <ul class="arrivals-list" id="arrivals-link">
+        <li class="loading">▰▰▰ Locating &amp; loading ▰▰▰</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== WEATHER + TRAVEL ROW ===== -->
+  <div class="grid-top">
+
+    <!-- WEATHER -->
+    <div class="panel panel-yellow" id="weather-panel">
+      <div class="panel-header">
+        <div class="panel-title">☀ Weather · Judkins Park</div>
+        <div class="panel-badge">NWS · weather.gov</div>
+      </div>
+      <div id="weather-content">
+        <div class="loading">▰▰▰ Loading forecast ▰▰▰</div>
+      </div>
+    </div>
+
+    <!-- TRAVEL -->
+    <div class="panel panel-cyan" id="travel-panel">
+      <div class="panel-header">
+        <div class="panel-title">🚗 Travel · Home → Hans Rosling</div>
+        <div class="panel-badge">OSRM · BRouter</div>
+      </div>
+      <div id="travel-content">
+        <div class="loading">▰▰▰ Routing ▰▰▰</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== EXTRAS GRID ===== -->
+  <div class="grid-extras">
+
+    <!-- Gas Prices — live -->
+    <div class="panel panel-yellow">
+      <div class="panel-header">
+        <div class="panel-title">⛽ Gas Prices · WA State</div>
+        <div class="panel-badge">AAA · live scrape</div>
+      </div>
+      <div id="gas-content">
+        <div class="loading">▰▰▰ Loading gas prices ▰▰▰</div>
+      </div>
+    </div>
+
+    <!-- Air Quality -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🌫 Air Quality · PSCAA</div>
+        <div class="panel-badge">PurpleAir · AirNow</div>
+      </div>
+      <div id="aqi-content">
+        <div class="loading">▰▰▰ Loading AQI ▰▰▰</div>
+      </div>
+      <div class="travel-actions" style="margin-top:12px;">
+        <a href="https://map.purpleair.com/air-quality-standards-us-epa-aqi?opt=1/m/i/mAQI/a10/cC0&select=44705&key=&lat=47.6011&lng=-122.3015" target="_blank" class="btn">PurpleAir Map</a>
+      </div>
+    </div>
+
+    <!-- Bike specifics -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🚲 Bike · Route &amp; Conditions</div>
+        <div class="panel-badge">SDOT · Strava</div>
+      </div>
+      <ul class="extras-list">
+        <li><a href="https://www.google.com/maps/dir/?api=1&origin=Judkins+Park,Seattle,WA&destination=Hans+Rosling+Center+for+Population+Health,Seattle,WA&travelmode=bicycling" target="_blank"><span class="extra-icon">🗺</span>Google bike directions</a></li>
+        <li><a href="https://www.seattle.gov/transportation/projects-and-programs/programs/bike-program/bike-master-plan" target="_blank"><span class="extra-icon">🛣</span>SDOT bike map</a></li>
+        <li><a href="https://www.strava.com/heatmap#13.0/-122.31/47.62/hot/cycling" target="_blank"><span class="extra-icon">🔥</span>Strava heatmap</a></li>
+      </ul>
+      <p style="font-size:10px; color:var(--muted); margin-top:10px; letter-spacing:1px; font-style:italic;">Recommended: Judkins → Mountains-to-Sound Trail → 23rd Ave → Burke-Gilman (~5.2 mi, mostly protected).</p>
+    </div>
+
+    <!-- SDOT Traffic Cameras -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📷 Traffic Cams · I-90 &amp; Route</div>
+        <div class="panel-badge">WSDOT · SDOT</div>
+      </div>
+      <ul class="extras-list">
+        <li><a href="https://wsdot.com/travel/real-time/mountainpasses/cameras/I-90?cameraId=9275" target="_blank"><span class="extra-icon">🎥</span>I-90 @ Rainier (WSDOT)</a></li>
+        <li><a href="https://web6.seattle.gov/Travelers/" target="_blank"><span class="extra-icon">🎥</span>SDOT camera grid</a></li>
+        <li><a href="https://wsdot.com/traffic/seattle/" target="_blank"><span class="extra-icon">🛣</span>WSDOT Seattle map</a></li>
+        <li><a href="https://www.google.com/maps/@47.65,-122.305,14z/data=!5m1!1e1" target="_blank"><span class="extra-icon">🚦</span>Google live traffic</a></li>
+      </ul>
+    </div>
+
+    <!-- Sun/Tide trivia -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🌅 Daylight</div>
+        <div class="panel-badge">Computed</div>
+      </div>
+      <div id="daylight-content">
+        <div class="loading">▰▰▰ Loading ▰▰▰</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Data from <a href="https://api.weather.gov" target="_blank">NWS</a> ·
+    <a href="https://onebusaway.org" target="_blank">OneBusAway</a> ·
+    <a href="https://project-osrm.org" target="_blank">OSRM</a> ·
+    <a href="https://open-meteo.com" target="_blank">Open-Meteo</a>
+    <br>
+    Built for Abie · Synthwave forever · v1.0
+  </footer>
+
+</div>
+
+<script>
+'use strict';
+
+/* ===========================================================
+   CONFIG — edit defaults here, override via settings drawer
+   =========================================================== */
+const DEFAULTS = {
+  apiKey: 'TEST',
+  home: { lat: 47.5989, lon: -122.3146 },  // 800 Hiawatha Pl S (Jackson Place Cohousing, corner of Hiawatha & Dearborn)
+  work: { lat: 47.6547, lon: -122.3118 },  // Hans Rosling Center for Population Health (UW)
+  judkinsStation: { lat: 47.5979, lon: -122.3008 },  // Judkins Park Light Rail Station (I-90 lid)
+};
+
+// Public CORS proxy fallback. Used when fetch() is blocked by CORS (common from file:// origin).
+// corsproxy.io is free, no key required, rate-limited. If you build your own backend later, point this there.
+const CORS_PROXY = 'https://corsproxy.io/?url=';
+
+// Each entry: stop ID + routes to display from that stop
+const RAINIER_STOPS = [
+  { id: '1_8429', label: 'Rainier & Bayview NB', routes: ['7', '106'] },
+  { id: '1_8494', label: 'Rainier & Charles NB', routes: ['7', '106', '554'] },
+];
+const STOP_23RD = { id: '1_12532', label: '23rd & S Lane NB', routes: ['48'] };
+
+const ROUTE_HEADSIGN_HINTS = {
+  '7':   'Downtown Seattle',
+  '106': 'Downtown / Renton',
+  '554': 'Issaquah ↔ Downtown',
+  '48':  'University District / Loyal Heights',
+};
+
+/* ===========================================================
+   STATE
+   =========================================================== */
+function loadSettings() {
+  return {
+    apiKey: localStorage.getItem('oba_key') || DEFAULTS.apiKey,
+    home: parseLatLon(localStorage.getItem('home_coords')) || DEFAULTS.home,
+    work: parseLatLon(localStorage.getItem('work_coords')) || DEFAULTS.work,
+  };
+}
+function parseLatLon(str) {
+  if (!str) return null;
+  const m = str.split(',').map(s => parseFloat(s.trim()));
+  if (m.length !== 2 || m.some(isNaN)) return null;
+  return { lat: m[0], lon: m[1] };
+}
+let SETTINGS = loadSettings();
+let LATEST = { weather: null, drive: null, bike: null, bikeDist: null, arrivals: { rainier: [], st23rd: [], link: [] } };
+
+/* ===========================================================
+   FETCH HELPERS — direct first, CORS proxy fallback, w/ timeout
+   =========================================================== */
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`${label || 'fetch'} timeout ${ms}ms`)), ms)),
+  ]);
+}
+
+async function safeFetchJson(url, extra = {}) {
+  // Try direct (5s)
+  try {
+    const resp = await withTimeout(fetch(url, extra), 5000, 'direct');
+    if (resp.ok) return await resp.json();
+    if (resp.status >= 400 && resp.status < 500) {
+      throw new Error(`API ${resp.status}`);  // real API error, no point proxying
+    }
+    console.warn('[safeFetchJson] direct returned', resp.status, url);
+  } catch (e) {
+    console.warn('[safeFetchJson] direct failed:', e.message, url);
+  }
+  // Fall back to CORS proxy (8s — proxies can be slow)
+  const proxiedUrl = CORS_PROXY + encodeURIComponent(url);
+  console.warn('[safeFetchJson] trying proxy for', url);
+  const resp2 = await withTimeout(fetch(proxiedUrl, extra), 8000, 'proxy');
+  if (!resp2.ok) throw new Error(`proxy ${resp2.status}`);
+  return await resp2.json();
+}
+
+async function safeFetchText(url) {
+  try {
+    const resp = await withTimeout(fetch(url), 5000, 'direct');
+    if (resp.ok) return await resp.text();
+  } catch (e) {
+    console.warn('[safeFetchText] direct failed:', e.message, url);
+  }
+  const resp2 = await withTimeout(fetch(CORS_PROXY + encodeURIComponent(url)), 8000, 'proxy');
+  if (!resp2.ok) throw new Error(`proxy ${resp2.status}`);
+  return await resp2.text();
+}
+
+/* ===========================================================
+   CLOCK
+   =========================================================== */
+function tickClock() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  document.getElementById('clock').textContent = `${hh}:${mm}:${ss}`;
+  document.getElementById('date').textContent = now.toLocaleDateString('en-US', {
+    weekday: 'long', month: 'short', day: 'numeric', year: 'numeric'
+  }).toUpperCase();
+}
+setInterval(tickClock, 1000); tickClock();
+
+/* ===========================================================
+   WEATHER (NWS) — two-step: /points → forecast URL
+   =========================================================== */
+async function loadWeather() {
+  const { lat, lon } = SETTINGS.home;
+  try {
+    const pointsData = await safeFetchJson(`https://api.weather.gov/points/${lat},${lon}`, {
+      headers: { 'Accept': 'application/geo+json' }
+    });
+    const fcstUrl = pointsData.properties.forecast;
+    const fcstHourlyUrl = pointsData.properties.forecastHourly;
+
+    const [fcst, hourly] = await Promise.all([
+      safeFetchJson(fcstUrl, { headers: { 'Accept': 'application/geo+json' } }),
+      safeFetchJson(fcstHourlyUrl, { headers: { 'Accept': 'application/geo+json' } }).catch(() => null),
+    ]);
+
+    LATEST.weather = { forecast: fcst, hourly };
+    renderWeather(fcst, hourly);
+  } catch (err) {
+    document.getElementById('weather-content').innerHTML =
+      `<div class="error">Weather load failed: ${err.message}. NWS API is occasionally flaky — try Refresh.</div>`;
+  }
+}
+
+function weatherEmoji(shortForecast = '', isDaytime = true) {
+  const s = shortForecast.toLowerCase();
+  if (s.includes('thunder')) return '⛈';
+  if (s.includes('snow')) return '🌨';
+  if (s.includes('rain') || s.includes('shower') || s.includes('drizzle')) return '🌧';
+  if (s.includes('fog') || s.includes('haze')) return '🌫';
+  if (s.includes('cloud') && s.includes('partly')) return isDaytime ? '⛅' : '☁';
+  if (s.includes('cloud')) return '☁';
+  if (s.includes('sun') || s.includes('clear')) return isDaytime ? '☀' : '🌙';
+  return isDaytime ? '🌤' : '🌙';
+}
+
+function renderWeather(fcst, hourly) {
+  const periods = fcst.properties.periods || [];
+  if (!periods.length) {
+    document.getElementById('weather-content').innerHTML = `<div class="empty-state">No forecast data.</div>`;
+    return;
+  }
+  // Use first hourly entry if available for "now" temp, else first period
+  const nowTemp = hourly && hourly.properties.periods[0] ? hourly.properties.periods[0].temperature : periods[0].temperature;
+  const nowCond = hourly && hourly.properties.periods[0] ? hourly.properties.periods[0].shortForecast : periods[0].shortForecast;
+  const nowIsDay = hourly && hourly.properties.periods[0] ? hourly.properties.periods[0].isDaytime : periods[0].isDaytime;
+  const todayPeriod = periods[0];
+  const rainPct = todayPeriod.probabilityOfPrecipitation && todayPeriod.probabilityOfPrecipitation.value;
+  const wind = todayPeriod.windSpeed;
+
+  const periodCards = periods.slice(0, 4).map(p => {
+    const r = p.probabilityOfPrecipitation && p.probabilityOfPrecipitation.value;
+    return `
+      <div class="weather-period">
+        <div class="weather-period-icon">${weatherEmoji(p.shortForecast, p.isDaytime)}</div>
+        <div class="weather-period-name">${p.name}</div>
+        <div class="weather-period-temp">${p.temperature}°</div>
+        <div class="weather-period-rain">${r != null ? r + '% 💧' : '—'}</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('weather-content').innerHTML = `
+    <div class="weather-now">
+      <div class="weather-icon">${weatherEmoji(nowCond, nowIsDay)}</div>
+      <div>
+        <div class="weather-temp">${nowTemp}°<span style="font-size:18px;color:var(--muted);">F</span></div>
+        <div class="weather-cond">${nowCond}</div>
+        <div class="weather-detail">
+          ${todayPeriod.name}: ${todayPeriod.shortForecast} ·
+          ${rainPct != null ? rainPct + '% rain' : 'no rain data'} ·
+          wind ${wind || '—'}
+        </div>
+      </div>
+    </div>
+    <div class="weather-periods">${periodCards}</div>
+  `;
+}
+
+/* ===========================================================
+   TRAVEL (OSRM) — drive + bike
+   =========================================================== */
+async function loadTravel() {
+  const { home, work } = SETTINGS;
+  const coords = `${home.lon},${home.lat};${work.lon},${work.lat}`;
+
+  // Driving via OSRM demo server (FOSSGIS uses "car" profile name)
+  const drivePromise = safeFetchJson(`https://router.project-osrm.org/route/v1/car/${coords}?overview=false`)
+    .catch(() => safeFetchJson(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=false`))
+    .catch(() => null);
+
+  // Cycling via BRouter — purpose-built cycling router with elevation awareness.
+  // OSRM demo's bike profile is broken / returns car routing. BRouter is correct.
+  const brouterUrl = `https://brouter.de/brouter?lonlats=${home.lon},${home.lat}|${work.lon},${work.lat}&profile=trekking&alternativeidx=0&format=geojson`;
+  const bikePromise = safeFetchJson(brouterUrl).catch(() => null);
+
+  // NOTE: OSRM demo server's "foot" profile is broken (same bug as "bike" — silently
+  // returns car routing, so e.g. 6 mi shows as 13 min). We estimate walking from the
+  // BRouter cycling distance × 19 min/mi instead. Pedestrians can usually take the
+  // bike route + a few shortcuts; the ratio is close enough for "should I walk?" decisions.
+
+  const [drive, bike] = await Promise.all([drivePromise, bikePromise]);
+
+  const driveMin = drive && drive.routes && drive.routes[0] ? Math.round(drive.routes[0].duration / 60) : null;
+  const driveMi  = drive && drive.routes && drive.routes[0] ? (drive.routes[0].distance / 1609.34).toFixed(1) : null;
+
+  let bikeMin = null, bikeMi = null, bikeAscentFt = null;
+  if (bike && bike.features && bike.features[0]) {
+    const props = bike.features[0].properties;
+    const timeSec = parseInt(props['total-time'] || '0', 10);
+    const distM = parseInt(props['track-length'] || '0', 10);
+    const ascentM = parseInt(props['filtered ascend'] || props['plain-ascend'] || '0', 10);
+    bikeMin = Math.round(timeSec / 60);
+    bikeMi = (distM / 1609.34).toFixed(1);
+    bikeAscentFt = Math.round(ascentM * 3.281);
+  }
+
+  // Walking estimate: use bike distance × 19 min/mi (~3.15 mph, brisk-but-not-rushing
+  // walking pace). Falls back to drive distance × 1.05 if BRouter unavailable.
+  let walkMin = null, walkMi = null;
+  if (bikeMi != null) {
+    walkMi = bikeMi;
+    walkMin = Math.round(parseFloat(bikeMi) * 19);
+  } else if (driveMi != null) {
+    walkMi = (parseFloat(driveMi) * 1.05).toFixed(1);  // pedestrian route ~5% longer than driving
+    walkMin = Math.round(parseFloat(walkMi) * 19);
+  }
+
+  LATEST.drive = driveMin;
+  LATEST.bike  = bikeMin;
+  LATEST.bikeDist = bikeMi;
+
+  const gmapsLive    = `https://www.google.com/maps/dir/?api=1&origin=${home.lat},${home.lon}&destination=${work.lat},${work.lon}&travelmode=driving`;
+  const gmapsBike    = `https://www.google.com/maps/dir/?api=1&origin=${home.lat},${home.lon}&destination=${work.lat},${work.lon}&travelmode=bicycling`;
+  const gmapsTransit = `https://www.google.com/maps/dir/?api=1&origin=${home.lat},${home.lon}&destination=${work.lat},${work.lon}&travelmode=transit`;
+
+  document.getElementById('travel-content').innerHTML = `
+    <div class="travel-modes">
+      <div class="travel-mode">
+        <div class="travel-icon">🚗</div>
+        <div class="travel-time">${driveMin != null ? driveMin : '—'}<span style="font-size:13px;color:var(--muted);">min</span></div>
+        <div class="travel-label">Drive · ${driveMi || '?'} mi</div>
+      </div>
+      <div class="travel-mode">
+        <div class="travel-icon">🚲</div>
+        <div class="travel-time">${bikeMin != null ? bikeMin : '—'}<span style="font-size:13px;color:var(--muted);">min</span></div>
+        <div class="travel-label">Bike · ${bikeMi || '?'} mi${bikeAscentFt != null ? ` · ↑${bikeAscentFt}ft` : ''}</div>
+      </div>
+      <div class="travel-mode">
+        <div class="travel-icon">🚶</div>
+        <div class="travel-time">${walkMin != null ? walkMin : '—'}<span style="font-size:13px;color:var(--muted);">min</span></div>
+        <div class="travel-label">Walk · ${walkMi || '?'} mi</div>
+      </div>
+    </div>
+    <div class="travel-actions">
+      <a href="${gmapsLive}" target="_blank" class="btn btn-pink">🚦 Live Traffic →</a>
+      <a href="${gmapsBike}" target="_blank" class="btn">🚲 Bike Route →</a>
+      <a href="${gmapsTransit}" target="_blank" class="btn">🚌 Transit →</a>
+    </div>
+    <div class="traffic-caveat">
+      Drive/walk: OSRM (OpenStreetMap, no live traffic). Bike: BRouter (cycling-optimized + elevation).
+      Tap "Live Traffic" for real-time congestion.
+    </div>
+  `;
+}
+
+/* ===========================================================
+   ONEBUSAWAY — arrivals
+   =========================================================== */
+async function fetchArrivals(stopId) {
+  const url = `https://api.pugetsound.onebusaway.org/api/where/arrivals-and-departures-for-stop/${stopId}.json?key=${encodeURIComponent(SETTINGS.apiKey)}&minutesAfter=60`;
+  const data = await safeFetchJson(url);
+  return (data && data.data && data.data.entry && data.data.entry.arrivalsAndDepartures) || [];
+}
+
+async function fetchStopsNear(lat, lon, radius = 300) {
+  const url = `https://api.pugetsound.onebusaway.org/api/where/stops-for-location.json?lat=${lat}&lon=${lon}&radius=${radius}&key=${encodeURIComponent(SETTINGS.apiKey)}`;
+  const data = await safeFetchJson(url);
+  return data && data.data ? data.data : { list: [], references: { routes: [] } };
+}
+
+function etaMinutes(arr) {
+  const now = Date.now();
+  const predicted = arr.predictedArrivalTime || arr.predictedDepartureTime;
+  const scheduled = arr.scheduledArrivalTime || arr.scheduledDepartureTime;
+  const t = predicted && predicted > 0 ? predicted : scheduled;
+  if (!t) return null;
+  return Math.round((t - now) / 60000);
+}
+
+function formatArrival(arr) {
+  const min = etaMinutes(arr);
+  if (min == null) return null;
+  const route = arr.routeShortName || '?';
+  const headsign = arr.tripHeadsign || ROUTE_HEADSIGN_HINTS[route] || '—';
+  const isPredicted = arr.predicted && (arr.predictedArrivalTime > 0 || arr.predictedDepartureTime > 0);
+  const sched = arr.scheduledArrivalTime || arr.scheduledDepartureTime;
+  const schedTime = sched ? new Date(sched).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+  return { route, headsign, min, isPredicted, schedTime, rawArr: arr };
+}
+
+function renderArrivals(targetId, items) {
+  const list = document.getElementById(targetId);
+  if (!items.length) {
+    list.innerHTML = `<li class="empty-state">No arrivals in next 60 min.</li>`;
+    return;
+  }
+  list.innerHTML = items.map(a => {
+    let etaText, etaClass = 'arrival-eta';
+    if (a.min <= 0) { etaText = 'NOW'; etaClass += ' now'; }
+    else if (a.min <= 5) { etaText = `${a.min}m`; etaClass += ' soon'; }
+    else if (a.min > 45) { etaText = `${a.min}m`; etaClass += ' late'; }
+    else { etaText = `${a.min}m`; }
+
+    const routeSlug = String(a.route).replace(/\s+/g, '').replace(/[^a-zA-Z0-9_-]/g, '');
+    const routeClass = `route-badge r${routeSlug}`;
+    const subText = a.isPredicted ? `${a.schedTime} · LIVE` : `${a.schedTime} · sched`;
+    const stopLine = a.stopName ? `<div class="arrival-headsign-detail" style="color:var(--soft-pink); opacity:0.7;">↳ ${a.stopName}</div>` : '';
+    return `
+      <li class="arrival">
+        <div class="${routeClass}">${a.route}</div>
+        <div>
+          <div class="arrival-headsign">${a.headsign}</div>
+          <div class="arrival-headsign-detail">${a.isPredicted ? '📡 real-time' : '⏰ scheduled'}</div>
+          ${stopLine}
+        </div>
+        <div>
+          <div class="${etaClass}">${etaText}</div>
+          <div class="arrival-sub">${subText}</div>
+        </div>
+      </li>
+    `;
+  }).join('');
+}
+
+async function loadRainier() {
+  try {
+    // Fetch both Rainier stops in parallel, then merge & filter
+    const allResults = await Promise.all(
+      RAINIER_STOPS.map(s =>
+        fetchArrivals(s.id).then(arr => arr.map(a => ({ ...a, _stop: s }))).catch(e => {
+          console.warn('Stop fetch failed', s.id, e);
+          return [];
+        })
+      )
+    );
+    const merged = allResults.flat();
+
+    // Filter to wanted routes only (combined across both stops)
+    const allowedRoutes = new Set(['7', '106', '554']);
+    const filtered = merged
+      .filter(a => allowedRoutes.has(a.routeShortName))
+      .map(formatArrival)
+      .filter(Boolean)
+      .filter(a => a.min >= -2)        // include just-departed
+      .sort((a, b) => a.min - b.min)
+      .slice(0, 4);
+
+    // Deduplicate (same trip might appear from both stop calls if they overlap)
+    const seen = new Set();
+    const deduped = filtered.filter(a => {
+      const key = `${a.route}-${a.rawArr.tripId}-${a.rawArr.scheduledArrivalTime || a.rawArr.scheduledDepartureTime}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    LATEST.arrivals.rainier = deduped;
+    renderArrivals('arrivals-rainier', deduped);
+  } catch (err) {
+    document.getElementById('arrivals-rainier').innerHTML =
+      `<li class="error">OBA fetch failed: ${err.message}. ${SETTINGS.apiKey === 'TEST' ? 'The TEST key is rate-limited — try again in a minute, or add your own key in Settings.' : 'Check your API key in Settings.'}</li>`;
+  }
+}
+
+async function load23rd() {
+  try {
+    const arrivals = await fetchArrivals(STOP_23RD.id);
+    const allowedRoutes = new Set(STOP_23RD.routes);
+    const filtered = arrivals
+      .filter(a => allowedRoutes.has(a.routeShortName))
+      .map(formatArrival)
+      .filter(Boolean)
+      .filter(a => a.min >= -2)
+      .sort((a, b) => a.min - b.min)
+      .slice(0, 4);
+
+    LATEST.arrivals.st23rd = filtered;
+    renderArrivals('arrivals-23rd', filtered);
+  } catch (err) {
+    document.getElementById('arrivals-23rd').innerHTML =
+      `<li class="error">OBA fetch failed: ${err.message}. ${SETTINGS.apiKey === 'TEST' ? 'The TEST key is rate-limited — try again in a minute, or add your own key in Settings.' : 'Check your API key in Settings.'}</li>`;
+  }
+}
+
+/* ===========================================================
+   LIGHT RAIL · 2 Line at Judkins Park — dynamic stop discovery
+   =========================================================== */
+let LINK_DISCOVERY_CACHE = null;   // { stops, routes, debug } — single cache object so debug always travels with stops/routes
+async function discoverLinkStops() {
+  if (LINK_DISCOVERY_CACHE) return LINK_DISCOVERY_CACHE;
+  const { lat, lon } = SETTINGS.judkinsStation || DEFAULTS.judkinsStation;
+
+  // Try increasing radii — start tight, expand if nothing found. Judkins Park platforms
+  // sit on the I-90 lid; sometimes OBA's geocoding pins them a bit off-center.
+  let result = { list: [], references: { routes: [] } };
+  let usedRadius = 0;
+  for (const radius of [300, 500, 800]) {
+    try {
+      result = await fetchStopsNear(lat, lon, radius);
+    } catch (e) {
+      console.warn('[discoverLinkStops] fetchStopsNear failed at radius', radius, e.message);
+      // Keep going to next radius; if all fail, result stays empty.
+      continue;
+    }
+    usedRadius = radius;
+    if ((result.list || []).length) break;
+  }
+  console.log('[discoverLinkStops] radius', usedRadius, 'stops', (result.list||[]).length, 'routes', ((result.references||{}).routes||[]).length);
+
+  const routesList = (result && result.references && result.references.routes) || [];
+  const linkRoutes = routesList.filter(r => {
+    if (!r) return false;
+    const sn = String(r.shortName || '').toLowerCase().trim();
+    const ln = String(r.longName || '').toLowerCase().trim();
+    const desc = String(r.description || '').toLowerCase().trim();
+    // Matches: "1 Line", "2 Line", "1Line", "Link", "Link Light Rail", "S Line", etc.
+    return /\bline\b/.test(sn)
+        || /\blink\b/.test(sn)
+        || /\blink\b/.test(ln)
+        || /\blight\s*rail\b/.test(ln)
+        || /\blight\s*rail\b/.test(desc)
+        || r.type === 0       // GTFS route_type 0 = light rail/tram
+        || r.type === 1;      // GTFS route_type 1 = subway/metro
+  });
+  console.log('[discoverLinkStops] matched link routes:', linkRoutes.map(r => `${r.id} sn="${r.shortName}" ln="${r.longName}"`));
+  const linkRouteIds = new Set(linkRoutes.map(r => r.id));
+  const linkStops = ((result && result.list) || []).filter(s =>
+    s && (s.routeIds || []).some(rid => linkRouteIds.has(rid))
+  );
+  console.log('[discoverLinkStops] matched link stops:', linkStops.map(s => `${s.id} "${s.name}"`));
+
+  const out = {
+    stops: linkStops,
+    routes: linkRoutes,
+    debug: { usedRadius, totalStops: ((result && result.list) || []).length, totalRoutes: routesList.length },
+  };
+  // Only cache when we actually found platforms; empty results may be transient (OBA
+  // feed not yet populated, rate-limit, etc.), so let the next refresh retry.
+  if (linkStops.length) LINK_DISCOVERY_CACHE = out;
+  return out;
+}
+
+async function loadLink() {
+  const target = document.getElementById('arrivals-link');
+  try {
+    const discovery = await discoverLinkStops();
+    const stops = (discovery && discovery.stops) || [];
+    const routes = (discovery && discovery.routes) || [];
+    const debug = (discovery && discovery.debug) || { usedRadius: 0, totalStops: 0, totalRoutes: 0 };
+    if (!stops.length) {
+      target.innerHTML =
+        `<li class="empty-state">No Link platforms detected at Judkins Park.<br>
+         <small style="opacity:0.7;">Searched ${debug.totalStops} stops &amp; ${debug.totalRoutes} routes within ${debug.usedRadius}m.<br>
+         If 2 Line just opened in OBA's feed, try again later — or override coords in ⚙ Settings.</small></li>`;
+      return;
+    }
+    const allowedRouteIds = new Set(routes.map(r => r.id));
+    const results = await Promise.all(stops.map(s =>
+      fetchArrivals(s.id).then(arr => arr.map(a => ({ ...a, _stopName: s.name }))).catch(e => {
+        console.warn('[loadLink] stop fetch failed', s.id, e.message);
+        return [];
+      })
+    ));
+    const merged = results.flat()
+      .filter(a => allowedRouteIds.has(a.routeId))
+      .map(a => {
+        const f = formatArrival(a);
+        if (f) f.stopName = a._stopName || '';
+        return f;
+      })
+      .filter(Boolean)
+      .filter(a => a.min >= -2)
+      .sort((a, b) => a.min - b.min)
+      .slice(0, 4);
+
+    LATEST.arrivals.link = merged;
+    if (!merged.length) {
+      target.innerHTML = `<li class="empty-state">${stops.length} platform${stops.length>1?'s':''} found, but no arrivals in the next 60 min.<br><small style="opacity:0.7;">Check Sound Transit if this seems wrong.</small></li>`;
+    } else {
+      renderArrivals('arrivals-link', merged);
+    }
+  } catch (err) {
+    console.error('[loadLink] failed:', err);
+    target.innerHTML =
+      `<li class="error">2 Line fetch failed: ${err.message}.<br><small style="opacity:0.8;">Open DevTools console for details. If hosted on github.io, this should resolve automatically (CORS issue from file://).</small></li>`;
+  }
+}
+
+/* ===========================================================
+   GAS PRICES — scrape AAA WA state page via CORS proxy
+   =========================================================== */
+async function loadGas() {
+  try {
+    const html = await safeFetchText('https://gasprices.aaa.com/?state=WA');
+
+    // AAA's page shows current/yesterday/week ago/month ago/year ago for Regular/Mid/Premium/Diesel.
+    // The structure has $X.XXX values in <td>s. We grep for the grade name then the next price.
+    const extract = (label) => {
+      // Match the label, then the next dollar amount that appears (within reasonable window)
+      const re = new RegExp(label + '[\\s\\S]{0,400}?\\$([0-9]+\\.[0-9]+)', 'i');
+      const m = html.match(re);
+      return m ? parseFloat(m[1]) : null;
+    };
+    const regular = extract('Regular');
+    const midgrade = extract('Mid-?\\s?Grade') || extract('Midgrade');
+    const premium = extract('Premium');
+    const diesel = extract('Diesel');
+
+    // Try to also pluck yesterday & year-ago to show trend
+    // Find all $X.XXX after "Regular" and take the first 5 (today, yesterday, week, month, year)
+    const seqRe = /Regular[\s\S]*?($[\s\S]*?$)/i;
+    let regularSequence = [];
+    const regMatch = html.match(/Regular([\s\S]{0,800})/i);
+    if (regMatch) {
+      const prices = [...regMatch[1].matchAll(/\$([0-9]+\.[0-9]{2,3})/g)].map(m => parseFloat(m[1]));
+      regularSequence = prices.slice(0, 5);
+    }
+
+    const today = regular || (regularSequence[0] || null);
+    const yest = regularSequence[1] || null;
+    const yearAgo = regularSequence[4] || null;
+
+    let trend = '';
+    if (today != null && yest != null) {
+      const d = today - yest;
+      if (Math.abs(d) < 0.005) trend = '<span style="color:var(--muted);">→ flat</span>';
+      else if (d > 0) trend = `<span style="color:var(--neon-coral);">↑ +$${d.toFixed(2)} vs yest.</span>`;
+      else trend = `<span style="color:var(--neon-cyan);">↓ -$${Math.abs(d).toFixed(2)} vs yest.</span>`;
+    }
+    let yoy = '';
+    if (today != null && yearAgo != null) {
+      const d = today - yearAgo;
+      const sign = d >= 0 ? '+' : '-';
+      const cls = d >= 0 ? 'var(--neon-coral)' : 'var(--neon-cyan)';
+      yoy = `<span style="color:${cls};">${sign}$${Math.abs(d).toFixed(2)} vs 1 yr ago</span>`;
+    }
+
+    if (today == null) throw new Error('could not parse');
+
+    document.getElementById('gas-content').innerHTML = `
+      <div style="display:flex; align-items:baseline; gap:12px; margin-bottom:10px;">
+        <div style="font-size:36px; font-weight:700; color:var(--neon-yellow); text-shadow:0 0 10px rgba(255,215,0,0.5); line-height:1;">$${today.toFixed(3)}</div>
+        <div style="font-size:11px; color:var(--muted); letter-spacing:1.5px;">WA REGULAR<br><span style="font-size:9px;">${trend}</span></div>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:10px;">
+        ${midgrade != null ? `<div style="text-align:center; padding:8px 4px; background:rgba(255,215,0,0.06); border-radius:2px;">
+          <div style="font-size:9px; color:var(--muted); letter-spacing:1.2px;">MID-GRADE</div>
+          <div style="font-size:14px; color:var(--neon-cyan); font-weight:700; margin-top:2px;">$${midgrade.toFixed(2)}</div>
+        </div>` : ''}
+        ${premium != null ? `<div style="text-align:center; padding:8px 4px; background:rgba(255,215,0,0.06); border-radius:2px;">
+          <div style="font-size:9px; color:var(--muted); letter-spacing:1.2px;">PREMIUM</div>
+          <div style="font-size:14px; color:var(--neon-cyan); font-weight:700; margin-top:2px;">$${premium.toFixed(2)}</div>
+        </div>` : ''}
+        ${diesel != null ? `<div style="text-align:center; padding:8px 4px; background:rgba(255,215,0,0.06); border-radius:2px;">
+          <div style="font-size:9px; color:var(--muted); letter-spacing:1.2px;">DIESEL</div>
+          <div style="font-size:14px; color:var(--neon-cyan); font-weight:700; margin-top:2px;">$${diesel.toFixed(2)}</div>
+        </div>` : ''}
+      </div>
+      ${yoy ? `<div style="font-size:10px; color:var(--muted); letter-spacing:1px; margin-bottom:10px;">${yoy}</div>` : ''}
+      <div class="travel-actions">
+        <a href="https://www.gasbuddy.com/station-finder?search=98144" target="_blank" class="btn">🏠 98144</a>
+        <a href="https://www.gasbuddy.com/station-finder?search=98105" target="_blank" class="btn">🎓 98105</a>
+        <a href="https://gasprices.aaa.com/?state=WA" target="_blank" class="btn btn-pink">AAA →</a>
+      </div>
+    `;
+  } catch (err) {
+    document.getElementById('gas-content').innerHTML = `
+      <div style="font-size:11px; color:var(--soft-pink); margin-bottom:10px;">
+        Live scrape unavailable (${err.message}). Use these instead:
+      </div>
+      <ul class="extras-list">
+        <li><a href="https://gasprices.aaa.com/?state=WA" target="_blank"><span class="extra-icon">📊</span>AAA WA average</a></li>
+        <li><a href="https://www.gasbuddy.com/station-finder?search=98144" target="_blank"><span class="extra-icon">🏠</span>Near Hiawatha (98144)</a></li>
+        <li><a href="https://www.gasbuddy.com/station-finder?search=98105" target="_blank"><span class="extra-icon">🎓</span>Near UW (98105)</a></li>
+        <li><a href="https://www.gasbuddy.com/gasprices/washington/seattle" target="_blank"><span class="extra-icon">📍</span>GasBuddy Seattle</a></li>
+      </ul>
+    `;
+  }
+}
+
+/* ===========================================================
+   AIR QUALITY — Open-Meteo (free, no key)
+   =========================================================== */
+async function loadAQI() {
+  const { lat, lon } = SETTINGS.home;
+  try {
+    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm2_5,pm10&timezone=America%2FLos_Angeles`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`AQ ${resp.status}`);
+    const data = await resp.json();
+    const aqi = data.current && data.current.us_aqi;
+    const pm25 = data.current && data.current.pm2_5;
+    const pm10 = data.current && data.current.pm10;
+
+    let band, color;
+    if (aqi == null) { band = 'Unknown'; color = 'var(--muted)'; }
+    else if (aqi <= 50)  { band = 'Good'; color = 'var(--neon-cyan)'; }
+    else if (aqi <= 100) { band = 'Moderate'; color = 'var(--neon-yellow)'; }
+    else if (aqi <= 150) { band = 'USG'; color = 'var(--neon-coral)'; }
+    else if (aqi <= 200) { band = 'Unhealthy'; color = 'var(--neon-pink)'; }
+    else if (aqi <= 300) { band = 'Very Unhealthy'; color = 'var(--neon-magenta)'; }
+    else                 { band = 'Hazardous'; color = 'var(--neon-purple)'; }
+
+    document.getElementById('aqi-content').innerHTML = `
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div style="font-size:42px; font-weight:700; color:${color}; text-shadow:0 0 10px ${color};">${aqi != null ? aqi : '—'}</div>
+        <div>
+          <div style="font-size:13px; color:${color}; letter-spacing:1.5px; text-transform:uppercase;">${band}</div>
+          <div style="font-size:10px; color:var(--muted); letter-spacing:1px; margin-top:4px;">
+            PM2.5: ${pm25 != null ? pm25.toFixed(1) : '—'} µg/m³<br>
+            PM10: ${pm10 != null ? pm10.toFixed(1) : '—'} µg/m³
+          </div>
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    document.getElementById('aqi-content').innerHTML =
+      `<div class="error">AQI failed: ${err.message}</div>`;
+  }
+}
+
+/* ===========================================================
+   DAYLIGHT — sunrise-sunset.org (free, no key)
+   =========================================================== */
+async function loadDaylight() {
+  const { lat, lon } = SETTINGS.home;
+  try {
+    const url = `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&date=today&formatted=0`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`SUN ${resp.status}`);
+    const data = await resp.json();
+    if (data.status !== 'OK') throw new Error('SUN bad status');
+    const r = data.results;
+    const fmt = iso => new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const sunrise = fmt(r.sunrise);
+    const sunset = fmt(r.sunset);
+    const dayLenSec = r.day_length;
+    const hh = Math.floor(dayLenSec / 3600);
+    const mm = Math.floor((dayLenSec % 3600) / 60);
+
+    document.getElementById('daylight-content').innerHTML = `
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; text-align:center;">
+        <div>
+          <div style="font-size:24px;">🌅</div>
+          <div style="font-size:18px; color:var(--neon-yellow); font-weight:700; margin-top:4px;">${sunrise}</div>
+          <div style="font-size:9px; color:var(--muted); letter-spacing:1.5px; margin-top:2px;">SUNRISE</div>
+        </div>
+        <div>
+          <div style="font-size:24px;">🌇</div>
+          <div style="font-size:18px; color:var(--neon-pink); font-weight:700; margin-top:4px;">${sunset}</div>
+          <div style="font-size:9px; color:var(--muted); letter-spacing:1.5px; margin-top:2px;">SUNSET</div>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:12px; padding-top:12px; border-top:1px dashed rgba(255,0,255,0.15); font-size:11px; color:var(--soft-pink); letter-spacing:1px;">
+        Daylight: ${hh}h ${mm}m
+      </div>
+    `;
+  } catch (err) {
+    document.getElementById('daylight-content').innerHTML =
+      `<div class="error">Daylight failed: ${err.message}</div>`;
+  }
+}
+
+/* ===========================================================
+   RECOMMENDATION
+   =========================================================== */
+function computeRecommendation() {
+  const w = LATEST.weather;
+  const drive = LATEST.drive;
+  const bike = LATEST.bike;
+  if (!w) return null;
+
+  const today = w.forecast.properties.periods[0];
+  const rain = today.probabilityOfPrecipitation && today.probabilityOfPrecipitation.value;
+  const tempNow = w.hourly && w.hourly.properties.periods[0] ? w.hourly.properties.periods[0].temperature : today.temperature;
+  const cond = (today.shortForecast || '').toLowerCase();
+  const heavyRain = cond.includes('rain') && (rain != null && rain >= 60);
+  const stormy = cond.includes('thunder') || cond.includes('storm');
+
+  // Bus + light rail availability — any watched route arriving in 0-20 min
+  const allArr = [...LATEST.arrivals.rainier, ...LATEST.arrivals.st23rd, ...LATEST.arrivals.link];
+  const goodBus = allArr.find(a => a.min >= 0 && a.min <= 18);
+  const goodLink = LATEST.arrivals.link.find(a => a.min >= 0 && a.min <= 12);
+
+  if (stormy) return { icon: '🏡', text: 'Stay home. Storms in the forecast — perfect WFH day.' };
+  if (heavyRain && tempNow < 50) return { icon: '🏡', text: `Heavy rain + ${tempNow}°F. WFH is the move.` };
+  if (rain != null && rain >= 50 && bike) return { icon: '🚌', text: `${rain}% rain — skip the bike. Bus in ${goodBus ? goodBus.min + ' min' : 'a bit'}.` };
+  if (bike && bike <= 35 && (rain == null || rain < 30) && tempNow >= 50 && tempNow <= 80) {
+    return { icon: '🚲', text: `Perfect bike day. ${bike} min ride, ${tempNow}°F, ${rain != null ? rain + '%' : 'low'} rain.` };
+  }
+  if (goodLink) return { icon: '🚇', text: `2 Line in ${goodLink.min} min from Judkins Park — ${goodLink.headsign}. Transfer to 1 Line at I-District for UW.` };
+  if (goodBus) return { icon: '🚌', text: `Bus is your friend — Route ${goodBus.route} in ${goodBus.min} min toward ${goodBus.headsign}.` };
+  if (drive) return { icon: '🚗', text: `Drive looks reasonable: ~${drive} min via OSM (check live traffic).` };
+  return { icon: '🤷', text: 'Mixed signals — check the panels below and decide.' };
+}
+
+function renderRecommendation() {
+  const r = computeRecommendation();
+  if (!r) return;
+  document.getElementById('reco-icon').textContent = r.icon;
+  document.getElementById('reco-value').textContent = r.text;
+}
+
+/* ===========================================================
+   ORCHESTRATION
+   =========================================================== */
+async function refreshAll() {
+  const btn = document.getElementById('refresh-btn');
+  btn.innerHTML = '<span class="spinning">↻</span> Refreshing';
+  document.getElementById('last-update').textContent = 'Refreshing…';
+  await Promise.allSettled([loadWeather(), loadTravel(), loadRainier(), load23rd(), loadLink(), loadGas(), loadAQI(), loadDaylight()]);
+  setTimeout(renderRecommendation, 200); // let LATEST settle
+  document.getElementById('last-update').textContent =
+    'Last updated: ' + new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+  btn.innerHTML = '↻ Refresh';
+}
+
+/* ===========================================================
+   SETTINGS UI
+   =========================================================== */
+document.getElementById('settings-btn').addEventListener('click', () => {
+  const drawer = document.getElementById('settings-drawer');
+  drawer.classList.toggle('open');
+  if (drawer.classList.contains('open')) {
+    document.getElementById('api-key-input').value = SETTINGS.apiKey === 'TEST' ? '' : SETTINGS.apiKey;
+    document.getElementById('home-input').value = `${SETTINGS.home.lat},${SETTINGS.home.lon}`;
+    document.getElementById('work-input').value = `${SETTINGS.work.lat},${SETTINGS.work.lon}`;
+  }
+});
+document.getElementById('save-settings').addEventListener('click', () => {
+  const key = document.getElementById('api-key-input').value.trim() || 'TEST';
+  const home = document.getElementById('home-input').value.trim();
+  const work = document.getElementById('work-input').value.trim();
+  localStorage.setItem('oba_key', key);
+  if (home) localStorage.setItem('home_coords', home);
+  if (work) localStorage.setItem('work_coords', work);
+  SETTINGS = loadSettings();
+  document.getElementById('settings-drawer').classList.remove('open');
+  refreshAll();
+});
+document.getElementById('refresh-btn').addEventListener('click', refreshAll);
+
+/* ===========================================================
+   BOOT + auto-refresh every 90s
+   =========================================================== */
+refreshAll();
+setInterval(refreshAll, 90000);
+</script>
+</body>
+</html>
