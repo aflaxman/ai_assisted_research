@@ -1,0 +1,18 @@
+# Python virtual environment
+.venv/
+
+# Downloaded raw data (large binary files)
+data/raw/*.pdf
+data/raw/*.doc
+data/raw/*.docx
+
+# Processed data (regenerable)
+data/processed/*
+!data/processed/.gitkeep
+
+# Python cache
+__pycache__/
+*.pyc
+
+# uv lock (large, regenerable)
+uv.lock
