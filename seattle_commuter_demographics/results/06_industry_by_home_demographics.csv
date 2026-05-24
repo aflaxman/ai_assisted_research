@@ -1,0 +1,241 @@
+industry,home_origin,demographic,label,share_pct
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CA01,≤29,17.1
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CA01,≤29,17.6
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CA01,≤29,17.7
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CA01,≤29,17.7
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CA02,30–54,58.6
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CA02,30–54,58.5
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CA02,30–54,58.5
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CA02,30–54,58.1
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CA03,≥55,24.3
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CA03,≥55,23.9
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CA03,≥55,23.8
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CA03,≥55,24.2
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CE01,≤$1.25k/mo,10.1
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CE01,≤$1.25k/mo,10.7
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CE01,≤$1.25k/mo,10.7
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CE01,≤$1.25k/mo,10.8
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CE02,$1.25–3.33k/mo,14.3
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CE02,$1.25–3.33k/mo,14.8
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CE02,$1.25–3.33k/mo,14.8
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CE02,$1.25–3.33k/mo,15.3
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CE03,>$3.33k/mo,75.5
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CE03,>$3.33k/mo,74.5
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CE03,>$3.33k/mo,74.5
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CE03,>$3.33k/mo,73.9
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CS01,Male,33.0
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CS01,Male,35.4
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CS01,Male,33.1
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CS01,Male,33.1
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CS02,Female,67.0
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CS02,Female,64.6
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CS02,Female,66.9
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CS02,Female,66.9
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CR01,White alone,61.2
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CR01,White alone,64.7
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CR01,White alone,62.5
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CR01,White alone,63.3
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CR02,Black alone,11.5
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CR02,Black alone,10.1
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CR02,Black alone,11.1
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CR02,Black alone,11.2
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CR03,AIAN alone,0.9
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CR03,AIAN alone,0.9
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CR03,AIAN alone,0.9
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CR03,AIAN alone,1.0
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CR04,Asian alone,21.1
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CR04,Asian alone,19.2
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CR04,Asian alone,20.2
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CR04,Asian alone,19.3
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CR05,NHPI alone,0.7
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CR05,NHPI alone,0.6
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CR05,NHPI alone,0.6
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CR05,NHPI alone,0.6
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CR07,Two+ races,4.6
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CR07,Two+ races,4.5
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CR07,Two+ races,4.6
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CR07,Two+ races,4.6
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CT01,Not Hispanic,91.0
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CT01,Not Hispanic,90.6
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CT01,Not Hispanic,91.1
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CT01,Not Hispanic,90.6
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CT02,Hispanic,9.0
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CT02,Hispanic,9.4
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CT02,Hispanic,8.9
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CT02,Hispanic,9.4
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CD01,Less than HS,8.7
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CD01,Less than HS,8.6
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CD01,Less than HS,8.6
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CD01,Less than HS,8.7
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CD02,HS or equiv.,15.5
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CD02,HS or equiv.,15.8
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CD02,HS or equiv.,15.5
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CD02,HS or equiv.,15.7
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CD03,Some college / AA,24.5
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CD03,Some college / AA,24.0
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CD03,Some college / AA,24.1
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CD03,Some college / AA,24.5
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),CD04,Bachelor's or higher,34.3
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,CD04,Bachelor's or higher,34.0
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,CD04,Bachelor's or higher,34.0
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),CD04,Bachelor's or higher,33.4
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CA01,≤29,14.1
+Educational Services (CNS15 / NAICS 61),Out of state,CA01,≤29,14.2
+Educational Services (CNS15 / NAICS 61),Seattle,CA01,≤29,13.5
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CA01,≤29,14.7
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CA02,30–54,60.5
+Educational Services (CNS15 / NAICS 61),Out of state,CA02,30–54,60.7
+Educational Services (CNS15 / NAICS 61),Seattle,CA02,30–54,60.7
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CA02,30–54,60.4
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CA03,≥55,25.4
+Educational Services (CNS15 / NAICS 61),Out of state,CA03,≥55,25.0
+Educational Services (CNS15 / NAICS 61),Seattle,CA03,≥55,25.9
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CA03,≥55,24.9
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CE01,≤$1.25k/mo,9.5
+Educational Services (CNS15 / NAICS 61),Out of state,CE01,≤$1.25k/mo,8.8
+Educational Services (CNS15 / NAICS 61),Seattle,CE01,≤$1.25k/mo,9.1
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CE01,≤$1.25k/mo,10.1
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CE02,$1.25–3.33k/mo,9.9
+Educational Services (CNS15 / NAICS 61),Out of state,CE02,$1.25–3.33k/mo,9.4
+Educational Services (CNS15 / NAICS 61),Seattle,CE02,$1.25–3.33k/mo,9.5
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CE02,$1.25–3.33k/mo,10.1
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CE03,>$3.33k/mo,80.6
+Educational Services (CNS15 / NAICS 61),Out of state,CE03,>$3.33k/mo,81.8
+Educational Services (CNS15 / NAICS 61),Seattle,CE03,>$3.33k/mo,81.4
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CE03,>$3.33k/mo,79.8
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CS01,Male,38.8
+Educational Services (CNS15 / NAICS 61),Out of state,CS01,Male,39.4
+Educational Services (CNS15 / NAICS 61),Seattle,CS01,Male,37.7
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CS01,Male,39.5
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CS02,Female,61.2
+Educational Services (CNS15 / NAICS 61),Out of state,CS02,Female,60.6
+Educational Services (CNS15 / NAICS 61),Seattle,CS02,Female,62.3
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CS02,Female,60.5
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CR01,White alone,69.6
+Educational Services (CNS15 / NAICS 61),Out of state,CR01,White alone,69.7
+Educational Services (CNS15 / NAICS 61),Seattle,CR01,White alone,69.7
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CR01,White alone,70.2
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CR02,Black alone,7.7
+Educational Services (CNS15 / NAICS 61),Out of state,CR02,Black alone,7.0
+Educational Services (CNS15 / NAICS 61),Seattle,CR02,Black alone,8.0
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CR02,Black alone,7.2
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CR03,AIAN alone,0.7
+Educational Services (CNS15 / NAICS 61),Out of state,CR03,AIAN alone,0.7
+Educational Services (CNS15 / NAICS 61),Seattle,CR03,AIAN alone,0.7
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CR03,AIAN alone,0.7
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CR04,Asian alone,16.9
+Educational Services (CNS15 / NAICS 61),Out of state,CR04,Asian alone,17.6
+Educational Services (CNS15 / NAICS 61),Seattle,CR04,Asian alone,16.5
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CR04,Asian alone,16.9
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CR05,NHPI alone,0.4
+Educational Services (CNS15 / NAICS 61),Out of state,CR05,NHPI alone,0.4
+Educational Services (CNS15 / NAICS 61),Seattle,CR05,NHPI alone,0.4
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CR05,NHPI alone,0.4
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CR07,Two+ races,4.7
+Educational Services (CNS15 / NAICS 61),Out of state,CR07,Two+ races,4.6
+Educational Services (CNS15 / NAICS 61),Seattle,CR07,Two+ races,4.7
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CR07,Two+ races,4.7
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CT01,Not Hispanic,92.1
+Educational Services (CNS15 / NAICS 61),Out of state,CT01,Not Hispanic,92.2
+Educational Services (CNS15 / NAICS 61),Seattle,CT01,Not Hispanic,92.2
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CT01,Not Hispanic,92.1
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CT02,Hispanic,7.9
+Educational Services (CNS15 / NAICS 61),Out of state,CT02,Hispanic,7.8
+Educational Services (CNS15 / NAICS 61),Seattle,CT02,Hispanic,7.8
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CT02,Hispanic,7.9
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CD01,Less than HS,7.4
+Educational Services (CNS15 / NAICS 61),Out of state,CD01,Less than HS,7.2
+Educational Services (CNS15 / NAICS 61),Seattle,CD01,Less than HS,7.4
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CD01,Less than HS,7.4
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CD02,HS or equiv.,14.8
+Educational Services (CNS15 / NAICS 61),Out of state,CD02,HS or equiv.,14.6
+Educational Services (CNS15 / NAICS 61),Seattle,CD02,HS or equiv.,14.8
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CD02,HS or equiv.,14.8
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CD03,Some college / AA,22.7
+Educational Services (CNS15 / NAICS 61),Out of state,CD03,Some college / AA,22.4
+Educational Services (CNS15 / NAICS 61),Seattle,CD03,Some college / AA,22.8
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CD03,Some college / AA,22.6
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),CD04,Bachelor's or higher,41.0
+Educational Services (CNS15 / NAICS 61),Out of state,CD04,Bachelor's or higher,41.6
+Educational Services (CNS15 / NAICS 61),Seattle,CD04,Bachelor's or higher,41.6
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),CD04,Bachelor's or higher,40.5
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CA01,≤29,10.3
+Public Administration (CNS20 / NAICS 92),Out of state,CA01,≤29,11.0
+Public Administration (CNS20 / NAICS 92),Seattle,CA01,≤29,10.7
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CA01,≤29,10.0
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CA02,30–54,62.0
+Public Administration (CNS20 / NAICS 92),Out of state,CA02,30–54,62.6
+Public Administration (CNS20 / NAICS 92),Seattle,CA02,30–54,62.0
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CA02,30–54,62.5
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CA03,≥55,27.7
+Public Administration (CNS20 / NAICS 92),Out of state,CA03,≥55,26.4
+Public Administration (CNS20 / NAICS 92),Seattle,CA03,≥55,27.4
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CA03,≥55,27.5
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CE01,≤$1.25k/mo,4.4
+Public Administration (CNS20 / NAICS 92),Out of state,CE01,≤$1.25k/mo,6.3
+Public Administration (CNS20 / NAICS 92),Seattle,CE01,≤$1.25k/mo,4.5
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CE01,≤$1.25k/mo,4.9
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CE02,$1.25–3.33k/mo,4.9
+Public Administration (CNS20 / NAICS 92),Out of state,CE02,$1.25–3.33k/mo,5.2
+Public Administration (CNS20 / NAICS 92),Seattle,CE02,$1.25–3.33k/mo,5.0
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CE02,$1.25–3.33k/mo,5.0
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CE03,>$3.33k/mo,90.7
+Public Administration (CNS20 / NAICS 92),Out of state,CE03,>$3.33k/mo,88.5
+Public Administration (CNS20 / NAICS 92),Seattle,CE03,>$3.33k/mo,90.6
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CE03,>$3.33k/mo,90.1
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CS01,Male,55.1
+Public Administration (CNS20 / NAICS 92),Out of state,CS01,Male,54.4
+Public Administration (CNS20 / NAICS 92),Seattle,CS01,Male,55.3
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CS01,Male,52.8
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CS02,Female,44.9
+Public Administration (CNS20 / NAICS 92),Out of state,CS02,Female,45.6
+Public Administration (CNS20 / NAICS 92),Seattle,CS02,Female,44.7
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CS02,Female,47.2
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CR01,White alone,65.3
+Public Administration (CNS20 / NAICS 92),Out of state,CR01,White alone,66.8
+Public Administration (CNS20 / NAICS 92),Seattle,CR01,White alone,65.6
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CR01,White alone,65.8
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CR02,Black alone,11.9
+Public Administration (CNS20 / NAICS 92),Out of state,CR02,Black alone,10.9
+Public Administration (CNS20 / NAICS 92),Seattle,CR02,Black alone,11.5
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CR02,Black alone,12.0
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CR03,AIAN alone,0.9
+Public Administration (CNS20 / NAICS 92),Out of state,CR03,AIAN alone,0.9
+Public Administration (CNS20 / NAICS 92),Seattle,CR03,AIAN alone,0.9
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CR03,AIAN alone,1.0
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CR04,Asian alone,15.5
+Public Administration (CNS20 / NAICS 92),Out of state,CR04,Asian alone,15.2
+Public Administration (CNS20 / NAICS 92),Seattle,CR04,Asian alone,15.6
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CR04,Asian alone,14.9
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CR05,NHPI alone,1.1
+Public Administration (CNS20 / NAICS 92),Out of state,CR05,NHPI alone,1.0
+Public Administration (CNS20 / NAICS 92),Seattle,CR05,NHPI alone,1.1
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CR05,NHPI alone,1.1
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CR07,Two+ races,5.3
+Public Administration (CNS20 / NAICS 92),Out of state,CR07,Two+ races,5.2
+Public Administration (CNS20 / NAICS 92),Seattle,CR07,Two+ races,5.3
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CR07,Two+ races,5.3
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CT01,Not Hispanic,92.2
+Public Administration (CNS20 / NAICS 92),Out of state,CT01,Not Hispanic,92.2
+Public Administration (CNS20 / NAICS 92),Seattle,CT01,Not Hispanic,92.2
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CT01,Not Hispanic,92.0
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CT02,Hispanic,7.8
+Public Administration (CNS20 / NAICS 92),Out of state,CT02,Hispanic,7.8
+Public Administration (CNS20 / NAICS 92),Seattle,CT02,Hispanic,7.8
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CT02,Hispanic,8.0
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CD01,Less than HS,6.9
+Public Administration (CNS20 / NAICS 92),Out of state,CD01,Less than HS,6.8
+Public Administration (CNS20 / NAICS 92),Seattle,CD01,Less than HS,6.9
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CD01,Less than HS,7.0
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CD02,HS or equiv.,17.7
+Public Administration (CNS20 / NAICS 92),Out of state,CD02,HS or equiv.,17.8
+Public Administration (CNS20 / NAICS 92),Seattle,CD02,HS or equiv.,17.6
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CD02,HS or equiv.,18.0
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CD03,Some college / AA,26.4
+Public Administration (CNS20 / NAICS 92),Out of state,CD03,Some college / AA,25.5
+Public Administration (CNS20 / NAICS 92),Seattle,CD03,Some college / AA,26.2
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CD03,Some college / AA,26.5
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),CD04,Bachelor's or higher,38.6
+Public Administration (CNS20 / NAICS 92),Out of state,CD04,Bachelor's or higher,38.8
+Public Administration (CNS20 / NAICS 92),Seattle,CD04,Bachelor's or higher,38.6
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),CD04,Bachelor's or higher,38.5

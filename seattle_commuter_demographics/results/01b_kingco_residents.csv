@@ -1,0 +1,42 @@
+,category,workers,share_pct
+C000,All workers,1145256,100.0
+CA01,≤29,242436,21.2
+CA02,30–54,667757,58.3
+CA03,≥55,235063,20.5
+CE01,≤$1.25k/mo,126613,11.1
+CE02,$1.25–3.33k/mo,167419,14.6
+CE03,>$3.33k/mo,851224,74.3
+CS01,Male,605090,52.8
+CS02,Female,540166,47.2
+CR01,White alone,741557,64.8
+CR02,Black alone,83998,7.3
+CR03,AIAN alone,9156,0.8
+CR04,Asian alone,255406,22.3
+CR05,NHPI alone,7973,0.7
+CR07,Two+ races,47166,4.1
+CT01,Not Hispanic,1036248,90.5
+CT02,Hispanic,109008,9.5
+CD01,Less than HS,99615,8.7
+CD02,HS or equiv.,186172,16.3
+CD03,Some college / AA,255050,22.3
+CD04,Bachelor's or higher,361983,31.6
+CNS01,Agriculture/Forestry,3852,0.3
+CNS02,Mining,240,0.0
+CNS03,Utilities,4408,0.4
+CNS04,Construction,50080,4.4
+CNS05,Manufacturing,68540,6.0
+CNS06,Wholesale Trade,43983,3.8
+CNS07,Retail Trade,85932,7.5
+CNS08,Transportation/Warehousing,57483,5.0
+CNS09,Information,127017,11.1
+CNS10,Finance/Insurance,34492,3.0
+CNS11,Real Estate,23310,2.0
+CNS12,Professional/Scientific,122799,10.7
+CNS13,Management,64421,5.6
+CNS14,Admin/Waste mgmt,61539,5.4
+CNS15,Educational Services,83917,7.3
+CNS16,Health Care & Social Assistance,140500,12.3
+CNS17,Arts/Entertainment,23225,2.0
+CNS18,Accommodation/Food Services,82783,7.2
+CNS19,Other Services,35947,3.1
+CNS20,Public Administration,30788,2.7

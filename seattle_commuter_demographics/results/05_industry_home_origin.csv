@@ -1,0 +1,22 @@
+industry,home_origin,workers_est,share_pct
+Health Care & Social Assistance (CNS16 / NAICS 62),Seattle,32135,36.5
+Health Care & Social Assistance (CNS16 / NAICS 62),King Co. (outside Seattle),28141,32.0
+Health Care & Social Assistance (CNS16 / NAICS 62),WA (outside King Co.),26756,30.4
+Health Care & Social Assistance (CNS16 / NAICS 62),Out of state,923,1.0
+Health Care & Social Assistance (CNS16 / NAICS 62),Outside Seattle,55820,63.5
+Health Care & Social Assistance (CNS16 / NAICS 62),Outside King Co.,27679,31.5
+Health Care & Social Assistance (CNS16 / NAICS 62),TOTAL,87955,100.0
+Educational Services (CNS15 / NAICS 61),Seattle,24061,49.7
+Educational Services (CNS15 / NAICS 61),King Co. (outside Seattle),12356,25.5
+Educational Services (CNS15 / NAICS 61),WA (outside King Co.),11394,23.5
+Educational Services (CNS15 / NAICS 61),Out of state,640,1.3
+Educational Services (CNS15 / NAICS 61),Outside Seattle,24390,50.3
+Educational Services (CNS15 / NAICS 61),Outside King Co.,12034,24.8
+Educational Services (CNS15 / NAICS 61),TOTAL,48451,100.0
+Public Administration (CNS20 / NAICS 92),Seattle,6688,31.3
+Public Administration (CNS20 / NAICS 92),King Co. (outside Seattle),6987,32.7
+Public Administration (CNS20 / NAICS 92),WA (outside King Co.),7421,34.7
+Public Administration (CNS20 / NAICS 92),Out of state,264,1.2
+Public Administration (CNS20 / NAICS 92),Outside Seattle,14672,68.7
+Public Administration (CNS20 / NAICS 92),Outside King Co.,7685,36.0
+Public Administration (CNS20 / NAICS 92),TOTAL,21360,100.0
