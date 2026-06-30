@@ -180,6 +180,18 @@ alcoholic (not metabolic) fibrosis produces.
 - `fig7_fib4_sensspec_by_alcohol.png` — sens & spec (95% CI) for ≥F3 by cutoff & alcohol.
 - `fib4_sensspec_by_alcohol.csv` — full table (alcohol × target × cutoff + CIs).
 
+### LSM distribution by CAP × alcohol (`lsm_dist_by_alcohol.py`)
+Adds alcohol to the original LSM-distribution figures (adults 18+, weighted):
+- `fig8_lsm_by_cap_alcohol.png` — 3×3 grid of histogram+KDE with F-stage lines:
+  rows = without CAP threshold (All) and with it (CAP < 288 / ≥ 288);
+  columns = none / moderate / heavy alcohol.
+- `fig9_lsm_alcohol_overlay.png` — the three alcohol KDEs overlaid within each
+  CAP stratum, for direct comparison.
+
+Within each CAP stratum, alcohol shifts the LSM distribution only modestly
+(heavy drinkers carry a slightly heavier right/F3–F4 tail) — the CAP threshold
+moves the distribution far more than alcohol category does.
+
 ## Caveats
 - **The heavy stratum is small** (n=413; only 20 with LSM≥10, 12 with LSM≥15), so
   its AUROC/sensitivity are imprecise — CIs are wide (e.g. heavy sens @1.30
