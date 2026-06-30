@@ -33,9 +33,10 @@ done, and then computed the numbers for Washington State from public data.
   month-pairs of the 2024 basic monthly CPS, **1.14% of people in a continuing
   WA household leave it each month** (~13%/year). Foreign-born residents leave at
   **2.1%/month (~23%/year)** — but published foreign-born *emigration* is only
-  ~1–1.5%/year. **The observed signal is 15–20× too large to be emigration.** It
-  is dominated by ordinary domestic moves, deaths, and household change, and
-  none of it carries a destination.
+  ~1–3%/year (residual methods ~1–1.5%; the matched-CPS method ~2.9%).
+  **The observed signal is roughly an order of magnitude (~8–20×) too large to be
+  emigration.** It is dominated by ordinary domestic moves, deaths, and household
+  change, and none of it carries a destination.
 - **The honest method for a state-level emigration number is the residual /
   matched-CPS approach, not direct panel observation.**
 
@@ -131,9 +132,12 @@ U.S.-born rate. The tempting story writes itself: the extra departures are
 people going home. The data refuse that story.
 
 - **Magnitude.** A 2.1%/month household-departure rate annualizes to ~23%/year.
-  The published foreign-born *emigration* rate is ~1–1.5%/year (Van Hook et al.;
-  Census residual estimates). Emigration could account for, at most, **one
-  fifteenth to one twentieth** of the foreign-born departures the panel sees.
+  The published foreign-born *emigration* rate is ~1–3%/year — residual methods
+  put it near 0.9–1.5% (e.g., Mulder 2003 ≈ 0.9%), the matched-CPS method higher
+  at ~2.9% on average and up to ~3.8% for the most recent arrivals (Van Hook et
+  al.). Even taking the high end, emigration could account for only **about a
+  tenth** of the foreign-born departures the panel sees; on the residual figure,
+  a twentieth.
 - **Confounding.** The foreign-born are younger, more likely to rent, and more
   residentially mobile *within* the U.S. — exactly the people who change address
   often, domestically. The CPS cannot separate that from an international move.
@@ -189,9 +193,11 @@ If you cannot observe emigrants leaving, you infer them from who is *missing*.
   migration `m` comes from the "lived elsewhere a year ago" question, mortality
   `d` from NHIS-linked death models, and `r` from a same-rate assumption against
   the U.S.-born second generation. It matches residual methods for long-term
-  residents and does *better* for recent arrivals. Crucially, it works at the
-  **annual** link and never identifies an individual emigrant; it estimates a
-  proportion.
+  residents and runs *higher* for recent arrivals — where the authors argue it
+  is more accurate. Applied to 1995–2009 data it puts foreign-born emigration at
+  about **2.9%/year on average** (≈3.8%/year in the first five years after
+  arrival, falling toward ~0.8% later). Crucially, it works at the **annual**
+  link and never identifies an individual emigrant; it estimates a proportion.
 
 Both methods share a feature my month-to-month exercise lacks: they do not
 pretend the survey saw the emigration. They model it — and they get the monthly
@@ -203,12 +209,13 @@ otherwise swamp the signal.
 Putting the honest method to work at the back of an envelope: Washington's
 foreign-born population is roughly **1.25–1.3 million** (~16% of the state,
 weighted from the same CPS files; the monthly estimate bounces between ~14% and
-~18% on sampling noise). Applying the published foreign-born emigration rate of
-~1–1.5%/year gives a rough **13,000–19,000 foreign-born emigrants per year from
-Washington** — plus a smaller, lower-rate flow of U.S.-born emigrants. That is a
-*literature-anchored residual estimate*, not something the CPS panel measured.
-And it is dwarfed by the ~290,000 foreign-born WA residents (~23% of ~1.27M) the
-panel sees leave their households each year for reasons it cannot label.
+~18% on sampling noise). Applying the published foreign-born emigration rate —
+~1–1.5%/year (residual) up to ~2.9%/year (matched-CPS) — gives a rough
+**13,000–37,000 foreign-born emigrants per year from Washington**, plus a much
+smaller, lower-rate flow of U.S.-born emigrants. That is a *literature-anchored
+estimate*, not something the CPS panel measured. And even its high end is
+dwarfed by the ~290,000 foreign-born WA residents (~23% of ~1.27M) the panel
+sees leave their households each year for reasons it cannot label.
 
 ## Reproduce it
 

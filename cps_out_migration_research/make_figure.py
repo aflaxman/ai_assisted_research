@@ -23,8 +23,10 @@ def annualize(m):
     return 1.0 - (1.0 - m) ** 12
 
 
-# Published foreign-born emigration rate band (per year), from the literature.
-EMIG_LO, EMIG_HI = 0.010, 0.015
+# Published foreign-born emigration rate band (per year), from the literature:
+# residual methods give ~0.9-1.5%/yr; the matched-CPS method (Van Hook et al.)
+# gives higher, ~2.9%/yr on average and up to ~3.8%/yr for recent arrivals.
+EMIG_LO, EMIG_HI = 0.010, 0.029
 
 
 def main():
@@ -76,14 +78,14 @@ def main():
                  arrowprops=dict(arrowstyle="->", color="#a33"))
     axB.annotate(f"Published foreign-born EMIGRATION:\n"
                  f"~{EMIG_LO*100:.1f}-{EMIG_HI*100:.1f}% / yr\n"
-                 "(Van Hook et al.; Census residual method)",
-                 xy=(0, EMIG_HI * 100), xytext=(0.42, churn * 0.45),
+                 "(residual ~1-1.5%; matched-CPS ~2.9%)",
+                 xy=(0, EMIG_HI * 100), xytext=(0.40, churn * 0.45),
                  fontsize=9, color="#264d1f",
                  arrowprops=dict(arrowstyle="->", color="#264d1f"))
     axB.set_ylabel("Annual rate (% of foreign-born)")
     axB.set_ylim(0, churn * 1.15)
     axB.set_title("B. Why the panel can't isolate emigration\n"
-                  "The signal is ~15-20x too big",
+                  "The signal is ~8-20x too big",
                   fontsize=11, fontweight="bold")
     axB.set_xticks([0])
     axB.set_xticklabels(["Foreign-born household\ndepartures (observed)"],
