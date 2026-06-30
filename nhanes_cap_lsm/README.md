@@ -138,3 +138,55 @@ population where FIB-4 is clinically applied.
 - FIB-4's age term overlaps with age-related fibrosis risk; age-specific cutoffs
   (≥65 → 2.0) are not separately applied. LSM is itself an imperfect (non-biopsy)
   reference standard.
+
+---
+
+# FIB-4 vs LSM-fibrosis, stratified by alcohol consumption
+
+`fib4_lsm_by_alcohol.py` re-runs the diagnostic-accuracy analysis with **alcohol
+consumption** as the stratifier (adults 18+ only, since the alcohol questionnaire
+`P_ALQ` is adult-only). Average ethanol is derived as
+`(drinking days/yr from ALQ121) × (ALQ130 drinks/day) × 14 g ÷ 365`, then:
+
+| Category | Definition | n | wt % | median g/day |
+|---|---|---|---|---|
+| None | no alcohol in past 12 months | 1,996 | 22.7% | 0 |
+| Moderate | >0, below heavy | 4,453 | 70.2% | 1.4 |
+| Heavy | ≥30 g/day (men) / ≥20 g/day (women) | 413 | 7.1% | 42 |
+
+(348 adults with refused/missing intake were dropped. Read XPTs with `pyreadstat`,
+not `pandas.read_sas` — this pandas build decodes `0` as ~5.4e-79, which would
+break the `ALQ121 == 0` "none" test.)
+
+## Headline results (advanced fibrosis ≥F3, LSM ≥ 10 kPa; weighted)
+
+| Alcohol | AUROC | Sens @1.30 | Spec @1.30 | Sens @2.67 | Spec @2.67 |
+|---|---|---|---|---|---|
+| None | 0.57 | 37% | 65% | 15% | 98% |
+| Moderate | 0.61 | 36% | 82% | 7% | 99% |
+| **Heavy** | **0.92** | **90%** | 74% | **43%** | 97% |
+
+**FIB-4 works far better in heavy drinkers.** AUROC jumps to ~0.9 for ≥F2/≥F3
+versus ~0.6 in none/moderate. Mechanism (confirmed in the data): heavy drinkers
+*with* advanced fibrosis show the alcoholic-injury pattern — median AST 62 (vs 22
+in non-fibrotic heavy drinkers), platelets 176 (vs 242), median FIB-4 **2.78**,
+already above the rule-in cutoff. Moderate-drinker fibrosis sits at FIB-4 ~1.2
+with a metabolic AST/ALT ratio, so FIB-4 barely separates it. This is the
+flip-side of the CAP finding: FIB-4 keys on exactly the derangement that
+alcoholic (not metabolic) fibrosis produces.
+
+## Outputs
+- `fig6_fib4_roc_by_alcohol.png` — weighted ROC per target, three alcohol strata.
+- `fig7_fib4_sensspec_by_alcohol.png` — sens & spec (95% CI) for ≥F3 by cutoff & alcohol.
+- `fib4_sensspec_by_alcohol.csv` — full table (alcohol × target × cutoff + CIs).
+
+## Caveats
+- **The heavy stratum is small** (n=413; only 20 with LSM≥10, 12 with LSM≥15), so
+  its AUROC/sensitivity are imprecise — CIs are wide (e.g. heavy sens @1.30
+  [60–98%]) and F4 sensitivity is suppressed (n<20). The *direction* is robust
+  (two independent AUROC methods agree; mechanism is clear) but the magnitudes are
+  uncertain.
+- Alcohol intake is self-reported (recall/social-desirability bias, typically
+  under-reporting → some true heavy drinkers misclassified as moderate).
+- Alcohol stratum is **not** crossed with CAP here: heavy × CAP × fibrosis cells
+  (~10 each) are too small for stable estimates.
