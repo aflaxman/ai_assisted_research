@@ -78,3 +78,63 @@ parentheses):
 - In `fig3`, 5-year age × CAP cells with n < 25 *observations* are suppressed
   (suppression uses the unweighted count, not the weighted total); the
   youngest CAP ≥ 288 points still rest on small cells and are noisy.
+
+---
+
+# FIB-4 vs LSM-defined fibrosis (with / without CAP threshold)
+
+`fib4_lsm_analysis.py` evaluates the diagnostic accuracy of **FIB-4** (a
+lab-based fibrosis index) against the **LSM/FibroScan** fibrosis reference
+standard, for the whole sample and restricted to the CAP ≥ 288 (steatosis)
+population where FIB-4 is clinically applied.
+
+## Method
+
+- **Index test:** FIB-4 = (age × AST) / (platelets × √ALT). AST=`LBXSASSI`,
+  ALT=`LBXSATSI` (P_BIOPRO), platelets=`LBXPLTSI` (10⁹/L, P_CBC). Cutoffs
+  **1.30** (rule-out), **2.67** (rule-in), **3.25** (Sterling).
+- **Reference standard (LSM):** ≥F2 = LSM≥8; **≥F3 = LSM≥10 (primary)**; F4 = LSM≥15.
+- **Populations:** *without* CAP threshold (all, n=8,282); *with* CAP threshold
+  (CAP≥288, n=2,623); plus CAP<288 (n=5,659) for contrast.
+- **Survey-weighted** (`WTMECPRP`). 95% CIs are **design-based** — Taylor
+  linearization of the domain ratio estimator over `SDMVSTRA`/`SDMVPSU`
+  (with-replacement PSU approximation, logit-transformed; design df = 25).
+
+## Headline results (primary target ≥F3, LSM ≥ 10 kPa; weighted)
+
+| Population | AUROC | Sens @1.30 | Spec @1.30 | Sens @2.67 | Spec @2.67 |
+|---|---|---|---|---|---|
+| All (no CAP threshold) | 0.65 | 40% | 80% | 12% | 99% |
+| CAP < 288 | 0.72 | 55% | 80% | 26% | 99% |
+| CAP ≥ 288 (steatosis) | 0.59 | 35% | 77% | 7% | 99% |
+
+- At the rule-in cutoff (≥2.67) FIB-4 is highly **specific (~99%)** but very
+  **insensitive** — it misses ~88% of LSM-defined advanced fibrosis overall and
+  ~93% within the steatosis group.
+- Even the rule-out cutoff (1.30) leaves sensitivity at 35–55%, so a low FIB-4
+  does not confidently exclude advanced fibrosis at the population level.
+- FIB-4 discriminates **worse in CAP ≥ 288 steatosis** (AUROC 0.59) than below
+  the threshold (0.72) — consistent with FIB-4's known weakness in MASLD, where
+  platelets stay normal and ALT (in the denominator) is often elevated.
+- These population-based, weighted operating characteristics are weaker than the
+  clinic-based studies that defined the cutoffs (spectrum + prevalence effects).
+
+## Outputs
+
+- `fig4_fib4_roc.png` — weighted ROC, one panel per target, three populations overlaid.
+- `fig5_fib4_sensspec.png` — sens & spec (95% design-based CI) for ≥F3 by cutoff & population.
+- `fib4_sensspec.csv` — full table (population × target × cutoff: sens/spec/PPV/NPV/AUROC + CIs).
+- `fib4_zones.csv` — FIB-4 risk-zone distribution (low / indeterminate / high) per population.
+
+## Caveats
+
+- **Complete-case:** 8,282 of 9,021 valid-elastography participants had all FIB-4
+  labs (~8% dropped for missing AST/ALT/platelets). The dropped group skews
+  slightly younger (mean age 40 vs 45) and lower-CAP, but the fibrosis outcome is
+  balanced across kept vs. dropped (LSM≥10 in 4.9% vs 4.7%), so selection bias on
+  the advanced-fibrosis endpoint is low.
+- **Cohort includes minors (age 12+)**, matching the rest of this project, but
+  FIB-4 is an adult tool; adolescents add low-FIB-4 / low-LSM true negatives.
+- FIB-4's age term overlaps with age-related fibrosis risk; age-specific cutoffs
+  (≥65 → 2.0) are not separately applied. LSM is itself an imperfect (non-biopsy)
+  reference standard.
