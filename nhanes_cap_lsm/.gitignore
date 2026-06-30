@@ -1,0 +1,7 @@
+# Raw NHANES files (public; re-downloaded by analysis.py)
+data/*.xpt
+
+# uv / Python
+.venv/
+__pycache__/
+*.pyc
