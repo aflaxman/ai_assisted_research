@@ -25,6 +25,30 @@ I would like to keep the environments easy to create and isolated, e.g. for mpld
 
 - for mpld3_notes: Test scripts follow the pattern `test_pr<NUMBER>_<description>.py`
 
+## NHANES Data Analysis
+
+**Always apply NHANES survey weights.** NHANES uses a complex, multistage probability
+sample with oversampling of subgroups, so unweighted statistics are *not*
+nationally representative and can be biased. Weighting is rarely cosmetic — it
+routinely shifts prevalences and distribution shapes (e.g., in
+`nhanes_cap_lsm/`, weighting changed below-threshold F4 prevalence from 0.9% to
+0.5%).
+
+- **Pick the weight that matches the rarest component used.** For exam (MEC)
+  variables such as elastography or labs, use the MEC weight, not the interview
+  weight. For the 2017–2020 pre-pandemic file, that is `WTMECPRP` (interview:
+  `WTINTPRP`); for two-year cycles it is `WTMEC2YR` / `WTINT2YR`. Subsample
+  files (e.g., fasting labs) carry their own special weights — use those.
+- **2017–2020 is a special combined cycle.** Use the pre-pandemic `WTMECPRP` /
+  `WTINTPRP` weights built for the ~3.5-year period; do not pool two-year
+  weights yourself. When combining multiple two-year cycles, divide each cycle's
+  weight per the NHANES analytic guidelines instead.
+- **Weight every estimate**, including histograms (`weights=`), KDEs
+  (`gaussian_kde(..., weights=)`), and prevalences (ratio of weighted sums).
+- **Design-based variance** (standard errors, CIs) additionally needs the design
+  variables `SDMVPSU` and `SDMVSTRA` via Taylor linearization (or a survey
+  package). Suppress/flag small cells by the *unweighted* count.
+
 ## Technical Blog Post Guidelines
 
 When writing technical blog posts for healthyalgorithms.com:
