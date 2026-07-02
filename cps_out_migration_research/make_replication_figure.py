@@ -47,10 +47,12 @@ def main():
     axA.set_title("A. The method replicates — and the answer moved",
                   fontsize=11, fontweight="bold")
     axA.legend(fontsize=8.5, loc="upper left")
-    axA.text(0.5, -0.22,
-             "2023→2024: statistically ~zero (negative point estimate) "
-             "during the immigration surge.\n2024→2025: elevated — real "
-             "departures plus falling immigrant survey response (upper bound).",
+    axA.text(0.5, -0.24,
+             "Honest SEs ≈ ±2pp per pair. 2023→2024: ≈0 during the "
+             "immigration surge.\n2024→2025: elevated — but foreign-born "
+             "attrition itself was flat (34.9% both pairs); the signal is the\n"
+             "foreign-born diverging from the second-generation control, "
+             "mixing real departures with response shifts.",
              transform=axA.transAxes, ha="center", fontsize=8,
              style="italic", color="#444")
 
@@ -72,13 +74,16 @@ def main():
     axB.set_xticks(x)
     axB.set_xticklabels(cats)
     axB.set_ylabel("Annual gross emigration rate (%)")
-    axB.set_title("B. The duration gradient has inverted",
+    axB.set_title("B. The standardized duration gradient flipped\n"
+                  "(suggestive, not conclusive — see text)",
                   fontsize=11, fontweight="bold")
     axB.legend(fontsize=8.5)
-    axB.text(0.5, -0.22,
+    axB.text(0.5, -0.26,
              "In 2000, recently arrived immigrants left at 2.6× the rate of "
-             "settled ones (circular migration).\nIn 2024→2025, settled "
-             "immigrants (10+ years) show the highest departure signal.",
+             "settled ones (circular migration).\nIn 2024→2025 the "
+             "standardized rates flip — but raw panel attrition is still far "
+             "higher for recent arrivals\n(52% vs 31%), and the contrast is "
+             "within the ~±2pp error bars.",
              transform=axB.transAxes, ha="center", fontsize=8,
              style="italic", color="#444")
 

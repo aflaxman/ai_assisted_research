@@ -62,9 +62,13 @@ def main():
                  f"u_s={fmt_pct(raw['u_s'])} (n={raw['n_sg_adults']})  "
                  f"m_f={fmt_pct(raw['m_f'])} (n={raw['n_mig_f']})  "
                  f"m_s={fmt_pct(raw['m_s'])} (n={raw['n_mig_s']})"),
-                (f"GROSS emigration e = {fmt_pct(res['gross_e'])} "
-                 f"(boot SE {fmt_pct(res['gross_se'])})   "
-                 f"[paper circa-2000: {PAPER['gross']}%]"),
+                (f"GROSS emigration e = {fmt_pct(res['gross_e'])} adjusted / "
+                 f"{fmt_pct(res['raw_gross_e'])} raw"),
+                (f"  honest SE (full component bootstrap): "
+                 f"{fmt_pct(res['gross_se_full'])}  "
+                 f"(fixed-coefficient FB-only bootstrap: "
+                 f"{fmt_pct(res['gross_se'])} -- understated, kept for "
+                 f"paper comparability)   [paper circa-2000: {PAPER['gross']}%]"),
                 (f"return ratio = {fmt_pct(res['ret_ratio'])} "
                  f"(raw {fmt_pct(res['ret_ratio_raw'])}, "
                  f"n_unwt={res['n_return_unwt']})   "
@@ -85,18 +89,27 @@ def main():
                 bench = PAPER.get(k)
                 bench_s = f"   [paper: {bench}%]" if bench else ""
                 lines.append(f"  {label:>14}: e = {fmt_pct(r)} (n={n}){bench_s}")
+            lines.append(
+                "  RAW u_f by duration (direct panel-attrition evidence): "
+                + "  ".join(f"{k}: {fmt_pct(v[0])} (n={v[1]})"
+                            for k, v in res["raw_u_f_by_dur"].items()))
             wa_e = res["subgroups"]["washington"][0]
             if not pd.isna(wa_e):
                 wa_net = wa_e - res["ret_ratio"]
                 lines.append(
                     f"  WA: FB stock {res['wa_fb_stock']/1e3:,.0f}k; gross rate "
-                    f"{fmt_pct(wa_e)}; net {fmt_pct(wa_net)} -> "
+                    f"{fmt_pct(wa_e)}; net {fmt_pct(wa_net)} "
+                    f"(national return ratio applied) -> "
                     f"~{wa_net*res['wa_fb_stock']/1e3:,.1f}k net emigrants/yr")
             lines.append("")
             rows.append({
                 "pair": f"{t}->{t1}", "scope": scope,
                 **{f"raw_{k}": v for k, v in raw.items()},
                 "gross_e": res["gross_e"], "gross_se": res["gross_se"],
+                "gross_se_full": res["gross_se_full"],
+                "raw_gross_e": res["raw_gross_e"],
+                **{f"raw_u_f_{k}": v[0]
+                   for k, v in res["raw_u_f_by_dur"].items()},
                 "ret_ratio": res["ret_ratio"], "net_e": res["net_e"],
                 "fb_pop": res["fb_pop"], "wa_fb_pop": res["wa_fb_pop"],
                 "fb_stock": res["fb_stock"], "wa_fb_stock": res["wa_fb_stock"],

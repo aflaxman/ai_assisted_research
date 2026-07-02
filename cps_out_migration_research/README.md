@@ -41,12 +41,14 @@ done, and then computed the numbers for Washington State from public data.
   matched-CPS approach, not direct panel observation.**
 - **Update: I replicated Van Hook et al.'s method on ASEC 2023→24 and
   2024→25.** The machinery works on modern public files (after dodging a
-  genuine Census data bug — the 2024 ASEC's month-in-sample field is
-  reverse-coded). Results: **≈0 net emigration in the 2023→24 surge year;
-  gross 5.1% / net 4.7% in 2024→25** — above the circa-2000 benchmark, with
-  the caveat that 2025's collapse in immigrant survey response is entangled
-  in the estimate (upper bound). For Washington: **~43,000 net foreign-born
-  emigrants/yr in the 2024→25 window (upper bound), vs ≈0 the year before.**
+  genuine, apparently undocumented Census data bug — the 2024 ASEC's
+  month-in-sample field is reverse-coded). Results, with honest error bars of
+  ±2 points per pair: **2023→24 ≈ 0; 2024→25 gross 5.1% / net 4.7%,
+  elevated** — but driven by the foreign-born *diverging from the control
+  group* (their own attrition was flat), so the estimate bundles real
+  departures with 2025's immigrant survey-response shifts. For Washington:
+  point estimate **~43,000 net foreign-born emigrants/yr in the 2024→25
+  window (plausibly 0–90k), vs ≈0 the year before.**
 
 ## The problem: emigration is the hardest number in demography
 
@@ -253,55 +255,80 @@ by household ID.
 
 | Quantity | Van Hook circa 2000 | 2023→2024 | 2024→2025 |
 |---|---|---|---|
-| Non-follow-up, foreign-born `u_f` | ~29–35% (era: 29%) | 34.9% | 34.9% |
+| Non-follow-up, foreign-born `u_f` | (era benchmark: 29%) | 34.9% | 34.9% |
 | Non-follow-up, second-gen `u_s` | — | 35.2% | 33.7% |
-| Internal migration `m_f` | ~16% (era) | 10.8% | 9.6% |
-| **Gross emigration** | **3.8%** | **−0.8%** | **5.1%** |
+| Internal migration `m_f` / `m_s` | ~16% (era) | 10.8% / 9.0% | 9.6% / 11.1% |
+| Gross emigration, raw components | — | −2.4% | +3.0% |
+| **Gross emigration, standardized** | **3.8%** | **−0.8%** | **5.1%** |
+| Honest SE (full component bootstrap) | (0.06% reported) | ±2.1pp | ±1.9pp |
 | Return immigration | 0.9% | 0.4% | 0.4% |
 | **Net emigration** | **2.9%** | **−1.2%** | **4.7%** |
-| Implied net emigrants | 875k/yr | ~0 | ~2.4M/yr (upper bound) |
 
 The components land where they should: non-follow-up near 35% (response rates
 have slipped since the 1990s' 29%), internal migration near 10% (U.S.
-residential mobility has famously halved since the 1990s). The machinery
-works. What changed is the world:
+residential mobility has famously halved since the 1990s). Both headline
+gross figures were independently re-derived by an adversarial code audit
+(no blocker or major defects). The machinery works. Interpreting the output
+takes more care:
 
-- **2023→2024 (the immigration-surge year): essentially zero.** The point
-  estimate is slightly negative — foreign-born attrition was *no higher* than
-  second-generation attrition. Negative estimates are a familiar feature of
-  residual-style methods when the true rate is small (Mulder's 1990s residuals
-  went negative for Mexico); read it as "≈0, within assumption noise."
-- **2024→2025: elevated — gross 5.1%, net 4.7%, above the circa-2000 rate.**
-  On a 51.3M foreign-born stock that implies ~2.4M net emigrants/year, a pace
-  consistent with Pew's CPS-based report that the foreign-born population fell
-  by ~1.4M in the first half of 2025. Two forces are confounded in that
-  number, exactly as Pew warned: genuinely elevated departures/removals, and
-  a *differential decline in immigrant survey response*, which this method
-  reads as emigration. Treat 4.7% as an upper bound.
-- **The duration gradient inverted.** Circa 2000, recent arrivals emigrated at
-  2.6× the rate of settled immigrants (6.5% vs 2.5%) — circular migration. In
-  2024→2025, **settled immigrants (10+ years) show the highest signal (5.5%)**
-  — the fingerprint of enforcement-era departures and survey withdrawal among
-  long-resident populations, not work-and-return circulation.
+- **Honest error bars are ±2 points, not the paper-style ±0.1.** A
+  fixed-coefficient bootstrap like the paper's (which we also report, for
+  comparability) resamples only the foreign-born side and returns ±0.13–0.16pp
+  — self-refutingly tight, since it would make the *negative* 2023→24 estimate
+  "significantly negative emigration." Resampling all four component samples
+  (foreign-born and second-generation, follow-up and migration) gives ±2.1pp (2023→24) and ±1.9pp (2024→25).
+  One year-pair simply cannot pin the level the way seven pooled pairs could.
+- **2023→2024: −0.8% ± 2.1 — consistent with zero *and* with the historical
+  2–3%.** The negative point estimate says foreign-born attrition ran no
+  higher than the control's; negative point estimates are a familiar feature
+  of residual-style methods when the true rate is small (Mulder's 1990s
+  residuals went negative for Mexico).
+- **2024→2025: 5.1% ± 1.9 standardized (3.0% raw) — elevated, but look at
+  what moved.** Foreign-born non-follow-up itself was *flat* across the two
+  pairs (34.87% → 34.91%). The 5.9-point swing decomposes into: the
+  second-generation control *improving* (−1.45pp), the internal-migration
+  terms flipping (m_f fell, m_s rose), and the logit standardization
+  amplifying the raw gap. If ~2.4M people/year had truly vanished from the
+  frame, the direct signal — u_f rising — should be visible; it is not. So
+  read 2024→25 as: *the foreign-born stopped looking like the control group*,
+  a real and unusual signal whose split between actual departures and
+  survey-response shifts this method cannot determine. The implied count
+  (4.7% × 51.3M ≈ 2.4M/yr) also inherits the Census Vintage-2024 upward
+  revision of the population controls, and DHS removals run an order of
+  magnitude smaller — treat the count as a loose upper bound, not an
+  estimate. (Pew's CPS-based 2025 decline is the same instrument, so it
+  corroborates nothing independently.)
+- **The "inverted duration gradient" is a standardized-composition pattern,
+  not raw evidence.** In the raw data, recently arrived immigrants still
+  disappear from the panel at far higher rates than settled ones (u_f ≈ 52%
+  for 0–4 years vs 31% for 10+ — in *both* pairs). Duration is not a model
+  covariate (matching the paper), so the standardized subgroup rates reflect
+  how the foreign-born-vs-control gap distributes over age/tenure/education
+  profiles. The 10+ vs 0–4 contrast (5.5% vs 4.7%) is inside the error bars.
+  It is *suggestive* of the departure signal concentrating among settled
+  immigrants in 2025 — but no more than suggestive.
 
-So the paper's optimism replicates: the CPS panel, plus the decomposition,
-*can* measure emigration — it turns my earlier "you cannot get it out" into
-"you can get it out, with a model and error bars, one year at a time." What it
-measures in 2025, though, is emigration *entangled with survey avoidance*, and
-the method cannot split those without outside information.
+So the paper's optimism replicates with an asterisk: the CPS panel plus the
+decomposition *can* measure emigration — turning my earlier "you cannot get
+it out" into "you can get it out, with a model, honest error bars of about
+±2 points, and assumptions that must hold." The method's load-bearing
+assumption — equal residual nonresponse for foreign-born and
+second-generation adults — is precisely what the 2025 immigration climate
+stresses, and when it bends, the method reads survey avoidance as emigration.
 
 ### Washington, by the honest method
 
 Averaging the person-level emigration probabilities over Washington's
-foreign-born records (composition-standardized, small sample: n≈170):
+foreign-born records (composition-standardized, n≈170, national return ratio
+applied — state-level CIs span several points):
 
 | Window | WA gross rate | WA net rate | Net emigrants (on ~1.2M FB stock) |
 |---|---|---|---|
 | 2023→2024 | −1.3% (≈0) | ≈0 | ≈0 |
-| 2024→2025 | 3.9% | 3.5% | **~43,000/yr (upper bound)** |
+| 2024→2025 | 3.9% | 3.5% | **~43,000/yr point estimate; plausibly 0–90k** |
 
-That ~43k/yr sits far above the pre-2025 literature-anchored 13k–37k range —
-and carries every caveat above, plus state-level sampling noise.
+The 2024→25 point estimate sits above the pre-2025 literature-anchored
+13k–37k range, with all the national-level caveats plus state sampling noise.
 
 ### An order-of-magnitude figure for Washington (pre-2025 baseline)
 

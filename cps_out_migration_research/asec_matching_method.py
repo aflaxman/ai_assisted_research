@@ -286,6 +286,10 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
     net_e = gross_e - ret_ratio
 
     # --- cluster bootstrap (households; coefficients fixed) --------------
+    # NOTE: this resamples FB households only, holding the second-generation
+    # components and logit coefficients fixed, so it understates uncertainty
+    # by roughly an order of magnitude. Kept for comparability with the
+    # paper's fixed-coefficient bootstrap; use `gross_se_full` for inference.
     rng = np.random.default_rng(20260702)
     hh_ids = fb_all["hhkey"].unique()
     grouped = dict(tuple(fb_all.groupby("hhkey")))
@@ -295,6 +299,36 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
         s = pd.concat([grouped[h] for h in draw], ignore_index=True)
         boots.append(np.average(s["e_i"], weights=s["MARSUPWT"]))
     gross_se = float(np.std(boots, ddof=1))
+
+    # --- full-uncertainty bootstrap on the RAW components ------------------
+    # Resamples households in ALL FOUR component samples (FB and second-gen,
+    # non-follow-up and migration) and propagates through the raw (mean-level)
+    # Eq. 9. Captures the control-group variance the fixed bootstrap misses;
+    # does not refit the standardization logits (raw and adjusted estimates
+    # move together at the mean).
+    def _raw_e(u_f_, m_f_, u_s_, m_s_, d_):
+        return (u_f_ - m_f_ + m_f_ * d_ - d_ - u_s_ + m_s_ - m_s_ * d_ + d_) \
+            / (1.0 - m_f_)
+
+    comp_frames = {
+        "u_f": (fb_ad, "nonfollowup"), "u_s": (sg_ad, "nonfollowup"),
+        "m_f": (mig_f, "mover"), "m_s": (mig_s, "mover"),
+    }
+    comp_groups = {k: dict(tuple(d.groupby("hhkey")))
+                   for k, (d, _) in comp_frames.items()}
+    raw_boots = []
+    for _ in range(400):
+        vals = {}
+        for k, (d, col) in comp_frames.items():
+            hhs = list(comp_groups[k])
+            draw = rng.choice(len(hhs), size=len(hhs), replace=True)
+            parts = [comp_groups[k][hhs[i]] for i in draw]
+            s = pd.concat(parts, ignore_index=True)
+            vals[k] = np.average(s[col].astype(float), weights=s["MARSUPWT"])
+        raw_boots.append(_raw_e(vals["u_f"], vals["m_f"], vals["u_s"],
+                                vals["m_s"], d_bar))
+    gross_se_full = float(np.std(raw_boots, ddof=1))
+    raw_gross_e = _raw_e(raw["u_f"], raw["m_f"], raw["u_s"], raw["m_s"], d_bar)
 
     # --- subgroup rates ----------------------------------------------------
     def sub(mask):
@@ -314,6 +348,24 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
         "washington": sub(fb_all["GESTFIPS"] == 53),
     }
 
+    # RAW (unstandardized) non-follow-up by duration, FB adults -- the direct
+    # evidence on who actually disappears from the panel. The standardized
+    # subgroup e_i above are composition-mediated (duration is not a model
+    # covariate, matching the paper); these raw rates are the honest check.
+    def _raw_u(mask):
+        d = fb_ad[mask]
+        if len(d) == 0:
+            return np.nan, 0
+        return (float(np.average(d["nonfollowup"].astype(float),
+                                 weights=d["MARSUPWT"])), len(d))
+
+    raw_u_f_by_dur = {
+        "0-4": _raw_u(fb_ad["PEINUSYR"].isin(dur_0_4_cats)),
+        "5-9": _raw_u(fb_ad["PEINUSYR"].isin(dur_5_9_cats)),
+        "10plus": _raw_u((fb_ad["PEINUSYR"] > 0)
+                         & (fb_ad["PEINUSYR"] < min_5_9)),
+    }
+
     fb_pop = float(fb_all["MARSUPWT"].sum())
     wa_pop = float(fb_all.loc[fb_all["GESTFIPS"] == 53, "MARSUPWT"].sum())
     # Full foreign-born stock (all MIS/oversample) for scaling rates to counts.
@@ -324,6 +376,8 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
     return {
         "raw": raw,
         "gross_e": gross_e, "gross_se": gross_se,
+        "gross_se_full": gross_se_full, "raw_gross_e": raw_gross_e,
+        "raw_u_f_by_dur": raw_u_f_by_dur,
         "ret_ratio_raw": ret_ratio_raw, "ret_ratio": ret_ratio,
         "net_e": net_e, "d_bar": d_bar,
         "subgroups": subgroups,
