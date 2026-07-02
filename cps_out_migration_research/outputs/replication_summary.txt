@@ -1,0 +1,27 @@
+===== ASEC 2023 -> 2024  [march_basic, true-MIS from basic files] =====
+raw components (adults 15+): u_f=34.87% (n=5876)  u_s=35.17% (n=3666)  m_f=10.82% (n=5609)  m_s=8.97% (n=3408)
+GROSS emigration e = -0.78% (boot SE 0.16%)   [paper circa-2000: 3.8%]
+return ratio = 0.37% (raw 0.38%, n_unwt=67)   [paper: 0.9%]
+NET emigration = -1.15%   [paper: 2.9%]
+FB stock (full ASEC year-t, weighted): 48.8M -> implied gross emigrants -380k/yr, net -563k/yr
+            male: e = 0.76% (n=2925)   [paper: 5.3%]
+          female: e = -2.26% (n=3205)   [paper: 2.3%]
+   0-4 yrs in US: e = -4.05% (n=1018)   [paper: 6.5%]
+   5-9 yrs in US: e = -3.18% (n=643)   [paper: 5.0%]
+   10+ yrs in US: e = 0.39% (n=4469)   [paper: 2.5%]
+      WASHINGTON: e = -1.25% (n=116)
+  WA: FB stock 1,040k; gross rate -1.25%; net -1.63% -> ~-16.9k net emigrants/yr
+
+===== ASEC 2024 -> 2025  [march_basic, true-MIS from basic files] =====
+raw components (adults 15+): u_f=34.91% (n=6214)  u_s=33.72% (n=3666)  m_f=9.62% (n=6054)  m_s=11.11% (n=3626)
+GROSS emigration e = 5.14% (boot SE 0.13%)   [paper circa-2000: 3.8%]
+return ratio = 0.40% (raw 0.43%, n_unwt=75)   [paper: 0.9%]
+NET emigration = 4.73%   [paper: 2.9%]
+FB stock (full ASEC year-t, weighted): 51.3M -> implied gross emigrants 2,634k/yr, net 2,427k/yr
+            male: e = 6.65% (n=3159)   [paper: 5.3%]
+          female: e = 3.64% (n=3386)   [paper: 2.3%]
+   0-4 yrs in US: e = 4.65% (n=1018)   [paper: 6.5%]
+   5-9 yrs in US: e = 3.88% (n=774)   [paper: 5.0%]
+   10+ yrs in US: e = 5.47% (n=4753)   [paper: 2.5%]
+      WASHINGTON: e = 3.94% (n=169)
+  WA: FB stock 1,224k; gross rate 3.94%; net 3.53% -> ~43.3k net emigrants/yr

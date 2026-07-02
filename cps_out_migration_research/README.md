@@ -39,6 +39,14 @@ done, and then computed the numbers for Washington State from public data.
   change, and none of it carries a destination.
 - **The honest method for a state-level emigration number is the residual /
   matched-CPS approach, not direct panel observation.**
+- **Update: I replicated Van Hook et al.'s method on ASEC 2023→24 and
+  2024→25.** The machinery works on modern public files (after dodging a
+  genuine Census data bug — the 2024 ASEC's month-in-sample field is
+  reverse-coded). Results: **≈0 net emigration in the 2023→24 surge year;
+  gross 5.1% / net 4.7% in 2024→25** — above the circa-2000 benchmark, with
+  the caveat that 2025's collapse in immigrant survey response is entangled
+  in the estimate (upper bound). For Washington: **~43,000 net foreign-born
+  emigrants/yr in the 2024→25 window (upper bound), vs ≈0 the year before.**
 
 ## The problem: emigration is the hardest number in demography
 
@@ -204,7 +212,98 @@ pretend the survey saw the emigration. They model it — and they get the monthl
 churn out of the way first, exactly because, as Panel B shows, that churn would
 otherwise swamp the signal.
 
-### An order-of-magnitude figure for Washington
+## Replicating the matched-CPS method on 2023–2025 data
+
+Reading Van Hook et al. closely, their optimism is earned — so I replicated
+their method end-to-end on the two most recent ASEC pairs (March 2023→2024 and
+2024→2025), from public files, no API key. The pipeline
+([`asec_matching_method.py`](asec_matching_method.py),
+[`run_replication.py`](run_replication.py)) follows the paper: match March year
+*t* (month-in-sample 1–4) to March *t+1* (5–8) by household ID + line number,
+validated on sex and age; measure non-follow-up `u` for foreign-born vs
+**second-generation** adults; internal migration `m` from the "lived here a
+year ago" question; mortality `d` from a life table; composition-adjust with
+weighted logits; apply their Eq. 9; subtract a return-immigration ratio.
+
+![Replication of the CPS matching method](outputs/figure_replication.png)
+
+### A data bug worth knowing about
+
+The replication initially produced **zero** cross-year matches. The cause is a
+genuine bug in a published Census file: **in the 2024 ASEC public-use file,
+`H_MIS` (month-in-sample) is reverse-coded — households labeled 1–4 are
+actually 5–8 and vice versa** — while the 2023 and 2025 files are correct. I
+verified this by cross-tabbing ASEC `H_MIS` against the authoritative `HRMIS`
+in the March basic monthly file (perfect swap for 2024 — every one of ~95,000
+matched records lands exactly 4 off, zero on the diagonal — and perfect
+diagonals for 2023/2025).
+
+It turns out this is a *recurring* Census processing error: IPUMS documents
+the identical 1–4↔5–8 swap in the **2016, 2018, 2020, and 2022** ASEC files
+(every even year), and corrects it in their releases. As far as an independent
+check could find, **the 2024 instance is not yet publicly documented
+anywhere** — no Census erratum, no IPUMS revision note. Van Hook et al.'s own
+footnote 7 fought the same species of error two decades ago. Anyone linking
+the raw 2024 ASEC by its own `H_MIS` gets zero (or garbage) links; the fix is
+either `H_MIS_corrected = ((H_MIS + 3) % 8) + 1` for March-basic records or —
+what this project does — take the true MIS from the March basic monthly file
+by household ID.
+
+### Results
+
+| Quantity | Van Hook circa 2000 | 2023→2024 | 2024→2025 |
+|---|---|---|---|
+| Non-follow-up, foreign-born `u_f` | ~29–35% (era: 29%) | 34.9% | 34.9% |
+| Non-follow-up, second-gen `u_s` | — | 35.2% | 33.7% |
+| Internal migration `m_f` | ~16% (era) | 10.8% | 9.6% |
+| **Gross emigration** | **3.8%** | **−0.8%** | **5.1%** |
+| Return immigration | 0.9% | 0.4% | 0.4% |
+| **Net emigration** | **2.9%** | **−1.2%** | **4.7%** |
+| Implied net emigrants | 875k/yr | ~0 | ~2.4M/yr (upper bound) |
+
+The components land where they should: non-follow-up near 35% (response rates
+have slipped since the 1990s' 29%), internal migration near 10% (U.S.
+residential mobility has famously halved since the 1990s). The machinery
+works. What changed is the world:
+
+- **2023→2024 (the immigration-surge year): essentially zero.** The point
+  estimate is slightly negative — foreign-born attrition was *no higher* than
+  second-generation attrition. Negative estimates are a familiar feature of
+  residual-style methods when the true rate is small (Mulder's 1990s residuals
+  went negative for Mexico); read it as "≈0, within assumption noise."
+- **2024→2025: elevated — gross 5.1%, net 4.7%, above the circa-2000 rate.**
+  On a 51.3M foreign-born stock that implies ~2.4M net emigrants/year, a pace
+  consistent with Pew's CPS-based report that the foreign-born population fell
+  by ~1.4M in the first half of 2025. Two forces are confounded in that
+  number, exactly as Pew warned: genuinely elevated departures/removals, and
+  a *differential decline in immigrant survey response*, which this method
+  reads as emigration. Treat 4.7% as an upper bound.
+- **The duration gradient inverted.** Circa 2000, recent arrivals emigrated at
+  2.6× the rate of settled immigrants (6.5% vs 2.5%) — circular migration. In
+  2024→2025, **settled immigrants (10+ years) show the highest signal (5.5%)**
+  — the fingerprint of enforcement-era departures and survey withdrawal among
+  long-resident populations, not work-and-return circulation.
+
+So the paper's optimism replicates: the CPS panel, plus the decomposition,
+*can* measure emigration — it turns my earlier "you cannot get it out" into
+"you can get it out, with a model and error bars, one year at a time." What it
+measures in 2025, though, is emigration *entangled with survey avoidance*, and
+the method cannot split those without outside information.
+
+### Washington, by the honest method
+
+Averaging the person-level emigration probabilities over Washington's
+foreign-born records (composition-standardized, small sample: n≈170):
+
+| Window | WA gross rate | WA net rate | Net emigrants (on ~1.2M FB stock) |
+|---|---|---|---|
+| 2023→2024 | −1.3% (≈0) | ≈0 | ≈0 |
+| 2024→2025 | 3.9% | 3.5% | **~43,000/yr (upper bound)** |
+
+That ~43k/yr sits far above the pre-2025 literature-anchored 13k–37k range —
+and carries every caveat above, plus state-level sampling noise.
+
+### An order-of-magnitude figure for Washington (pre-2025 baseline)
 
 Putting the honest method to work at the back of an envelope: Washington's
 foreign-born population is roughly **1.25–1.3 million** (~16% of the state,
@@ -234,17 +333,26 @@ uv venv .venv && uv pip install -r requirements.txt
 # 4. (re)build the figure, run the tests
 .venv/bin/python make_figure.py
 .venv/bin/python test_link_months.py
+
+# 5. Van Hook replication: download ASEC 2023-2025 (~150 MB each zip) +
+#    March basic files, then run (also needs statsmodels/scipy)
+#    curl the asecpubYYcsv.zip files from census.gov into cps_data/asecYY/
+.venv/bin/python run_replication.py cps_data
+.venv/bin/python make_replication_figure.py
 ```
 
-Outputs land in `outputs/`: per-pair and pooled summaries, and the figure above.
+Outputs land in `outputs/`: per-pair and pooled summaries, and the figures above.
 
 | File | What it does |
 |---|---|
 | [`cps_parse.py`](cps_parse.py) | Read a monthly fixed-width file into the columns needed |
 | [`link_months.py`](link_months.py) | Link month *t* → *t+1*; classify stayers/leavers/households |
 | [`analyze_wa.py`](analyze_wa.py) | Pool all 2024 month-pairs; weighted rates by nativity |
-| [`make_figure.py`](make_figure.py) | The two-panel figure |
+| [`make_figure.py`](make_figure.py) | The two-panel monthly-churn figure |
 | [`test_link_months.py`](test_link_months.py) | Synthetic-fixture tests of the linkage logic |
+| [`asec_matching_method.py`](asec_matching_method.py) | Van Hook et al. (2006) CPS matching method on modern ASEC pairs |
+| [`run_replication.py`](run_replication.py) | Driver: 2023→24 and 2024→25 replication vs the paper's Table 2 |
+| [`make_replication_figure.py`](make_replication_figure.py) | The replication figure |
 
 ## Caveats (read these)
 
@@ -262,12 +370,23 @@ Outputs land in `outputs/`: per-pair and pooled summaries, and the figure above.
 - **Temporary absence ≈ departure here.** A usual resident away for one month can
   look like a leaver, inflating the rate — another reason it overstates true
   out-mobility, let alone emigration.
+- **Replication-specific caveats.** One year-pair per estimate (the paper pooled
+  seven); mortality from a 2022 life table applied identically to both
+  generations instead of NHIS-linked models; one pooled logit per generation
+  (sex and Mexican origin as covariates) instead of eight stratified models;
+  children inherit their household's mean adult emigration probability rather
+  than a specific parent's; the return-immigrant "entered >2 years ago" cutoff
+  is approximated with 2-year entry cohorts. The method's core assumptions —
+  second-generation emigration ≈ 0 and equal *residual* nonresponse for
+  foreign-born and second-generation adults — are load-bearing, and the second
+  one is exactly what 2025's immigration climate stresses.
 
 ## Further reading
 
 - Van Hook, J., Zhang, W., Bean, F. D., & Passel, J. S. (2006). *Foreign-born
   emigration: A new approach and estimates based on matched CPS files.*
-  **Demography**, 43(2), 361–382. doi:10.1353/dem.2006.0013
+  **Demography**, 43(2), 361–382. doi:10.1353/dem.2006.0013 — replicated above
+  on ASEC 2023→24 and 2024→25.
 - U.S. Census Bureau population estimates methodology for **net international
   migration** (ACS-based residual approach; CPS as benchmark).
 - Fernandez, E. W. (1995). *Estimation of the annual emigration of U.S.-born
