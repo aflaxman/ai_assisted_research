@@ -437,6 +437,17 @@ subgroup. Standardized gross rates for 2024→25:
 
 ![Occupation and industry](outputs/figure_occind.png)
 
+- **Students** (school enrollment, ages 16–54, so undergraduate *and*
+  graduate ages): foreign-born **college students show no departure signal —
+  −2.4% in 2024→25** (n=290), against **+3.3% for their non-enrolled
+  peers**, and −12.3% in the 2023→24 surge year (baseline −1.4%). Their raw
+  attrition is high (~48%, campus-life churn) but no higher than their
+  profile predicts. Three caveats for higher ed: the window ends in
+  **March 2025 — before the SEVIS terminations (April) and entry
+  proclamations (June)**, so this is "no exodus *yet*," not "no exodus";
+  the CPS covers households only, so dorm residents without a U.S. parental
+  home are largely invisible; and n≈250–330 per pair means wide intervals.
+
 ### Making duration real: PEINUSYR in the models
 
 The baseline models (like the paper's) exclude time-in-U.S., so duration
