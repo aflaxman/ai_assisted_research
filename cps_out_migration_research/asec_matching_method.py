@@ -125,6 +125,11 @@ def load_asec(data_dir: str, year: int) -> pd.DataFrame:
     # (employed persons; 0 = not employed / NIU).
     df["occ_major"] = df["A_MJOCC"].map(OCC_LABELS)
     df["ind_major"] = df["A_MJIND"].map(IND_LABELS)
+    # School enrollment (A_HSCOL universe is ages 16-54, so college
+    # enrollment captures undergraduate AND graduate ages).
+    df["student"] = np.select(
+        [df["A_HSCOL"] == 2, df["A_HSCOL"] == 1],
+        ["college", "high_school"], default="not_enrolled")
     return df
 
 
@@ -369,7 +374,7 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
     STRAT_COLS = ["hhkey", "A_AGE", "male", "GESTFIPS", "MARSUPWT", "PEINUSYR",
                   "e_i", "e_i_dur", "agegrp", "educ4", "citizenship",
                   "region_birth", "race_eth", "HTOTVAL", "occ_major",
-                  "ind_major"]
+                  "ind_major", "student"]
     fb_ad["raw_nonfollowup"] = fb_ad["nonfollowup"].astype(float)
     fb_kids["raw_nonfollowup"] = fb_kids["nonfollowup"].astype(float)
     fb_all = pd.concat(
