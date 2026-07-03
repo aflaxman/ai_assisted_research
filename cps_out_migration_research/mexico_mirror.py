@@ -52,6 +52,10 @@ MIRROR = pd.DataFrame([
      "same; Jan-May ran -30% y/y; ~15k voluntary per Segob"),
     ("DHS removals of Mexicans", "FY2024", 140,
      "removal events, mostly border-adjacent (not settled residents)"),
+    ("EMIF Norte (status note)", "2019 last full year", 809,
+     "border-crossing EVENTS 'procedentes de EUA' incl. ~65-77% temporary "
+     "US-resident visits; survey suspended 2021, partial 2022-23, none "
+     "2024-25 -- cannot speak to the 2025 question"),
     ("Brookings voluntary-departure est.", "2025", 310,
      "midpoint 210-405k enforcement-induced departures, ALL nationalities; "
      "CPS-independent but an assumption construct (15-50% of removals, "
