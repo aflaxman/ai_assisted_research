@@ -226,6 +226,21 @@ def build_match(df_t: pd.DataFrame, df_t1: pd.DataFrame,
 U_FORMULA = ("nonfollowup ~ C(agegrp) + male + mexican + C(educ4) "
              "+ enrolled + owner")
 M_FORMULA = "mover ~ C(agegrp) + male + mexican + enrolled + owner"
+# Duration-aware variants (foreign-born models only; the second-generation
+# control is U.S.-born, so PEINUSYR has no counterpart there).
+U_FORMULA_DUR = U_FORMULA + " + C(dur3)"
+M_FORMULA_DUR = M_FORMULA + " + C(dur3)"
+
+
+def duration3(peinusyr: pd.Series, dur_0_4: set, dur_5_9: set) -> pd.Series:
+    """0-4 / 5-9 / 10+ years-in-U.S. bands from PEINUSYR entry cohorts.
+    Unknown/unreported entry years are grouped with 10+ (they are
+    overwhelmingly long-term residents)."""
+    return pd.Series(
+        np.select(
+            [peinusyr.isin(list(dur_0_4)), peinusyr.isin(list(dur_5_9))],
+            ["0-4", "5-9"], default="10plus"),
+        index=peinusyr.index)
 
 
 def _fit_predict(train: pd.DataFrame, formula: str, target: pd.DataFrame,
@@ -256,6 +271,8 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
                     mis_t: dict, mis_t1: dict,
                     dur_0_4_cats: set, dur_5_9_cats: set,
                     ret_cutoff_cat: int,
+                    dur_0_4_cats_t1: set | None = None,
+                    dur_5_9_cats_t1: set | None = None,
                     fb_mort_factor: float = 1.0) -> dict:
     """Run the full CPS matching method for one ASEC pair.
 
@@ -264,6 +281,10 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
     0-4 and 5-9 years in the U.S. (2-year entry cohorts; see driver).
     ret_cutoff_cat: max t+1 PEINUSYR category counted as "came to the U.S.
     more than two years before" for the return-immigrant definition.
+    dur_*_cats_t1: the same duration bands in the t+1 file's coding (needed
+    to put duration into the internal-migration models, which are fit on the
+    t+1 file); when provided, a duration-aware variant (PEINUSYR bands in the
+    foreign-born models) is estimated alongside the baseline.
     """
     matched = build_match(df_t, df_t1, mis_t, mis_t1)
     adults = matched[matched["A_AGE"] >= 15]
@@ -297,6 +318,23 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
                          m_f=mf.values, m_s=ms.values, d_f=df_.values,
                          d_s=ds_.values)
 
+    # --- duration-aware variant: PEINUSYR bands in the FB models only -----
+    # u_s / m_s (the control predictions) are unchanged: the second
+    # generation has no entry year, so the control nets out nonresponse at
+    # the covariates both groups share, while the FB side varies by cohort.
+    e_i_dur = None
+    if dur_0_4_cats_t1 is not None:
+        fb_ad = fb_ad.assign(
+            dur3=duration3(fb_ad["PEINUSYR"], dur_0_4_cats, dur_5_9_cats))
+        mig_f_d = mig_f.assign(
+            dur3=duration3(mig_f["PEINUSYR"], dur_0_4_cats_t1,
+                           dur_5_9_cats_t1))
+        uf_d = _fit_predict(fb_ad, U_FORMULA_DUR, fb_ad)
+        mf_d = _fit_predict(mig_f_d, M_FORMULA_DUR, fb_ad)
+        e_i_dur = ((uf_d - mf_d + mf_d * df_ - df_ - us + ms - ms * ds_ + ds_)
+                   / (1.0 - mf_d))
+        fb_ad = fb_ad.assign(e_i_dur=e_i_dur.values)
+
     # --- children 0-14: inherit household mean of FB-adult e_i -----------
     fb_kids = matched[(matched["A_AGE"] <= 14) & matched["foreign_born"]].copy()
     hh_e = fb_ad.groupby("hhkey").apply(
@@ -304,10 +342,20 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
         include_groups=False)
     overall_adult_e = float(np.average(fb_ad["e_i"], weights=fb_ad["MARSUPWT"]))
     fb_kids["e_i"] = fb_kids["hhkey"].map(hh_e).fillna(overall_adult_e)
+    if e_i_dur is not None:
+        hh_ed = fb_ad.groupby("hhkey").apply(
+            lambda g: np.average(g["e_i_dur"], weights=g["MARSUPWT"]),
+            include_groups=False)
+        overall_d = float(np.average(fb_ad["e_i_dur"],
+                                     weights=fb_ad["MARSUPWT"]))
+        fb_kids["e_i_dur"] = fb_kids["hhkey"].map(hh_ed).fillna(overall_d)
+    else:
+        fb_kids["e_i_dur"] = np.nan
+        fb_ad = fb_ad.assign(e_i_dur=np.nan)
 
     STRAT_COLS = ["hhkey", "A_AGE", "male", "GESTFIPS", "MARSUPWT", "PEINUSYR",
-                  "e_i", "agegrp", "educ4", "citizenship", "region_birth",
-                  "race_eth", "HTOTVAL"]
+                  "e_i", "e_i_dur", "agegrp", "educ4", "citizenship",
+                  "region_birth", "race_eth", "HTOTVAL"]
     fb_ad["raw_nonfollowup"] = fb_ad["nonfollowup"].astype(float)
     fb_kids["raw_nonfollowup"] = fb_kids["nonfollowup"].astype(float)
     fb_all = pd.concat(
@@ -316,6 +364,9 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
         ignore_index=True)
 
     gross_e = float(np.average(fb_all["e_i"], weights=fb_all["MARSUPWT"]))
+    gross_e_dur = (float(np.average(fb_all["e_i_dur"],
+                                    weights=fb_all["MARSUPWT"]))
+                   if e_i_dur is not None else np.nan)
     d_bar = float(np.average(
         qx(fb_all["A_AGE"], fb_all["male"], fb_mort_factor),
         weights=fb_all["MARSUPWT"]))
@@ -420,7 +471,8 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
 
     return {
         "raw": raw,
-        "gross_e": gross_e, "gross_se": gross_se,
+        "gross_e": gross_e, "gross_e_dur": gross_e_dur,
+        "gross_se": gross_se,
         "gross_se_full": gross_se_full, "raw_gross_e": raw_gross_e,
         "raw_u_f_by_dur": raw_u_f_by_dur,
         "ret_ratio_raw": ret_ratio_raw, "ret_ratio": ret_ratio,

@@ -363,6 +363,42 @@ nationwide phenomena). State cells are small (CA n≈1,300 down to n≈100), so
 treat cross-state differences as noise; the state-vs-own-baseline contrast is
 the meaningful read. Washington is middle-of-the-pack, not exceptional.
 
+**Important caveat on these state numbers:** they average nationally-fit
+predictions over each state's records, so they capture state differences in
+*composition* (age, tenure, origin mix), not state-specific departure
+behavior. The small-area model next fixes that.
+
+### All fifty states: a small-area model
+
+A state's *own* departure signal lives in its raw panel attrition — but with
+20–1,300 records per state, direct estimates are hopelessly noisy for most.
+The standard answer is small-area estimation: anchor each state's direct
+estimate to its own raw foreign-born attrition (national rate + the state's
+attrition deviation, passed through the migration denominator), then shrink
+toward the national mean with an empirical-Bayes random-effects model
+(Fay–Herriot form; DerSimonian–Laird between-state variance). Small states
+keep 15–30% of their own signal; California keeps 92%.
+
+![Small-area state estimates](outputs/figure_smallarea.png)
+
+Highlights for 2024→25 (shrunk estimate ± posterior SD): the top of the
+ranking is TX +12.6 ± 2.6, VA +13.8 ± 4.6, MD +12.7 ± 4.7, NJ +11.0 ± 3.7;
+the bottom is NY **−3.0 ± 2.8**, CA **−1.0 ± 1.8**, NV −0.8 ± 4.1;
+**WA +3.6 ± 4.0** (vs +3.0 ± 2.6 in its 2019→24 baseline — Washington's own
+attrition barely moved). The between-state spread (τ ≈ 6pp) is genuinely
+large — and the reordering relative to the composition indices (CA falls
+from +5.9 to −1.0; TX rises) shows the two estimators measure different
+things.
+
+Read with care: the model must *assume* that a state's excess attrition over
+the national level reflects emigration rather than local survey-response
+culture or field operations — at the state level there is no second-
+generation control to net that out (state second-generation cells are far
+too small). The CA/NY negatives and the TX/VA/MD highs are consistent with
+either differential enforcement exposure *or* differential response shifts
+by state. These are the best state numbers this method can produce, and
+their honest reading is "state departure-plus-response signal."
+
 ### More strata: what the ASEC supports
 
 Because every year-*t* characteristic rides along with the match, the method
@@ -385,9 +421,36 @@ subgroup. Standardized gross rates for 2024→25:
   *after* standardization (raw attrition is much higher for noncitizens, 40%
   vs 31%, but so is their baseline mobility). A surprise worth flagging: the
   2025 signal is *not* confined to noncitizens.
-- **Age and duration**: composition-mediated (see the audit caveat) — raw
-  attrition still falls steeply with time in the U.S. (52% for 0–4 years vs
-  31% for 10+) in every pair.
+- **Age and duration**: in the baseline models these are composition-mediated
+  (see the audit caveat). The duration-aware variant below resolves this
+  properly.
+
+### Making duration real: PEINUSYR in the models
+
+The baseline models (like the paper's) exclude time-in-U.S., so duration
+"estimates" only echo covariate composition. Adding PEINUSYR entry-cohort
+bands to the **foreign-born** non-follow-up and migration models (the
+second-generation control has no entry year — it nets out nonresponse at the
+covariates both groups share) lets the estimates vary directly with duration.
+The national gross barely moves (5.1% → 5.3% in 2024→25, as expected), but
+the duration story transforms:
+
+| 2024→25 gross | Composition-based | **Duration-aware** |
+|---|---|---|
+| 0–4 years in U.S. | 4.7% | **14.8%** |
+| 5–9 years | 3.9% | 0.4% |
+| 10+ years | 5.5% | 3.9% |
+
+The apparent "inversion" un-inverts: with the models allowed to see duration,
+the 2024→25 departure signal **concentrates overwhelmingly in the 2020–2024
+arrival cohorts** — the immigration-surge population, many with parole or
+pending-asylum status revoked or under threat in 2025 — at roughly 15%/year,
+versus ~4% for settled immigrants. The same cohort showed ≈0 (−2.4%) in
+2023→24. This matches the raw attrition gradient (52% vs 31%) and restores
+the *qualitative* shape Van Hook found circa 2000 (recent arrivals leave
+most), at a far higher level. Caveat: duration-specific *nonresponse* has no
+control-side counterpart, so cohort-specific survey withdrawal loads into
+these numbers with even less protection than the national estimate has.
 
 Caveats scale with ambition: subgroup rates inherit the national ±2pp
 uncertainty *plus* subgroup sampling noise, and stratifiers outside the
@@ -449,6 +512,10 @@ uv venv .venv && uv pip install -r requirements.txt
 .venv/bin/python run_multiyear.py cps_data
 .venv/bin/python make_multiyear_figure.py
 .venv/bin/python make_strata_figure.py
+
+# 7. small-area state estimates (all states, empirical-Bayes)
+.venv/bin/python small_area_states.py
+.venv/bin/python make_smallarea_figure.py
 ```
 
 Outputs land in `outputs/`: per-pair and pooled summaries, and the figures above.
@@ -463,9 +530,11 @@ Outputs land in `outputs/`: per-pair and pooled summaries, and the figures above
 | [`asec_matching_method.py`](asec_matching_method.py) | Van Hook et al. (2006) CPS matching method on modern ASEC pairs |
 | [`run_replication.py`](run_replication.py) | Driver: 2023→24 and 2024→25 replication vs the paper's Table 2 |
 | [`make_replication_figure.py`](make_replication_figure.py) | The replication figure |
-| [`run_multiyear.py`](run_multiyear.py) | Six pairs 2019→2025 + state and stratified tables |
+| [`run_multiyear.py`](run_multiyear.py) | Six pairs 2019→2025 + state and stratified tables (incl. duration-aware models) |
 | [`make_multiyear_figure.py`](make_multiyear_figure.py) | Time-series + state dumbbell figure |
 | [`make_strata_figure.py`](make_strata_figure.py) | Eight-panel subgroup figure |
+| [`small_area_states.py`](small_area_states.py) | Empirical-Bayes (Fay–Herriot) state estimates, all states |
+| [`make_smallarea_figure.py`](make_smallarea_figure.py) | The 48-state shrinkage figure |
 
 ## Caveats (read these)
 

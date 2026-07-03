@@ -57,22 +57,27 @@ def main():
     for t in range(t0, t1_last + 1):
         t1 = t + 1
         top_t = int(asec[t].loc[asec[t]["foreign_born"], "PEINUSYR"].max())
+        top_t1 = int(asec[t1].loc[asec[t1]["foreign_born"], "PEINUSYR"].max())
         dur04, dur59, _ = entry_cats(t, top_t)
-        _, _, ret_cut = entry_cats(t1, 0)
+        dur04_t1, dur59_t1, ret_cut = entry_cats(t1, top_t1)
         print(f"pair {t}->{t1}: top_cat={top_t}, dur04={sorted(dur04)}, "
               f"dur59={sorted(dur59)}, ret_cutoff={ret_cut}", flush=True)
         res = matching_method(asec[t], asec[t1], mis[t], mis[t1],
-                              dur04, dur59, ret_cut)
+                              dur04, dur59, ret_cut,
+                              dur_0_4_cats_t1=dur04_t1,
+                              dur_5_9_cats_t1=dur59_t1)
         fb = res["fb_all"]
         pair = f"{t}->{t1}"
         nat_rows.append({
             "pair": pair, **{f"raw_{k}": v for k, v in res["raw"].items()},
-            "gross_e": res["gross_e"], "raw_gross_e": res["raw_gross_e"],
+            "gross_e": res["gross_e"], "gross_e_dur": res["gross_e_dur"],
+            "raw_gross_e": res["raw_gross_e"],
             "gross_se_full": res["gross_se_full"], "gross_se_fixed": res["gross_se"],
             "ret_ratio": res["ret_ratio"], "net_e": res["net_e"],
             "fb_stock": res["fb_stock"], "n_fb_all": res["n_fb_all"],
         })
-        print(f"  gross={res['gross_e']*100:.2f}% (raw {res['raw_gross_e']*100:.2f}%) "
+        print(f"  gross={res['gross_e']*100:.2f}% (raw {res['raw_gross_e']*100:.2f}%, "
+              f"duration-aware {res['gross_e_dur']*100:.2f}%) "
               f"+/-{res['gross_se_full']*100:.2f}  net={res['net_e']*100:.2f}%",
               flush=True)
 
@@ -82,9 +87,13 @@ def main():
             stock = float(asec[t].loc[asec[t]["foreign_born"]
                                       & (asec[t]["GESTFIPS"] == fips),
                                       "MARSUPWT"].sum())
+            g_ad = g[g["A_AGE"] >= 15]
             state_rows.append({
                 "pair": pair, "state": st, "n": len(g),
-                "e_adj": wavg(g, "e_i"), "raw_u_f": wavg(g, "raw_nonfollowup"),
+                "n_adults": len(g_ad),
+                "e_adj": wavg(g, "e_i"), "e_adj_dur": wavg(g, "e_i_dur"),
+                "raw_u_f": wavg(g, "raw_nonfollowup"),
+                "raw_u_f_adults": wavg(g_ad, "raw_nonfollowup"),
                 "fb_stock": stock,
             })
 
@@ -112,6 +121,7 @@ def main():
                 strata_rows.append({
                     "pair": pair, "stratifier": s, "level": str(lvl),
                     "n": len(g), "e_adj": wavg(g, "e_i"),
+                    "e_adj_dur": wavg(g, "e_i_dur"),
                     "raw_u_f": wavg(g, "raw_nonfollowup"),
                     "wpop": float(g["MARSUPWT"].sum()),
                 })
