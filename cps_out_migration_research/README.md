@@ -316,6 +316,84 @@ assumption — equal residual nonresponse for foreign-born and
 second-generation adults — is precisely what the 2025 immigration climate
 stresses, and when it bends, the method reads survey avoidance as emigration.
 
+### More years: six pairs, 2019→2025
+
+Running the same pipeline over every ASEC pair back to the first CSV-format
+year (data-quality note: the `H_MIS` reverse-coding bug turns out to afflict
+**every even-year ASEC we checked — 2020, 2022, and 2024** — matching IPUMS's
+report for 2016–2022; the true-MIS fix neutralizes all of them):
+
+![Multi-year and state estimates](outputs/figure_multiyear.png)
+
+| Pair | Gross (standardized) | Raw | Net | Context |
+|---|---|---|---|---|
+| 2019→20 | **5.4% ± 2.1** | 4.3% | 5.0% | COVID collapsed March-2020 field collection |
+| 2020→21 | −2.7% ± 1.7 | −2.4% | −2.9% | pandemic-distorted base year |
+| 2021→22 | 3.2% ± 2.0 | 1.7% | 2.8% | recovery |
+| 2022→23 | 0.2% ± 1.9 | 0.0% | −0.1% | immigration surge |
+| 2023→24 | −0.8% ± 2.0 | −2.4% | −1.2% | immigration surge |
+| 2024→25 | **5.1% ± 1.8** | 3.0% | 4.7% | enforcement era, falling immigrant response |
+
+Two lessons. First, the six-pair average is ~1.7%/year — landing between the
+residual-method range (~1–1.5%) and Van Hook's matched-CPS estimates (2.9–3.8%),
+which is reassuring for the machinery. Second, and more sobering: **the two
+big spikes coincide exactly with the two survey-disruption events** (COVID's
+field-collection collapse in the March 2020 file; the 2025 enforcement
+climate). The method reads any shock to *who answers the survey* as
+migration. A single year-pair is a noisy, regime-sensitive instrument; the
+multi-year view is what makes the 2024→25 reading interpretable — elevated,
+yes, but by an amount that history says can be produced by response
+disruption alone.
+
+### More states
+
+Person-level emigration probabilities average cleanly over any geography.
+For the 17 states with ≥100 eligible foreign-born records in 2024→25
+(standardized gross rates; pooled 2019→24 baseline in parentheses):
+
+CA 5.9% (1.3) · TX 5.8% (1.5) · FL 5.4% (1.1) · NY 5.3% (1.4) · NJ 4.6%
+(0.8) · IL 5.4% (1.2) · **WA 3.9% (1.5)** · MA 3.6% (0.3) · GA 4.6% (1.4) ·
+AZ 5.5% (1.9) · VA 3.7% (1.0) · MD 3.6% (2.0) · NC 3.7% (0.7) · PA 3.7%
+(0.5) · MI 4.4% (0.6) · NV 6.1% (0.7) · HI 6.6% (0.8)
+
+Every large immigrant state sits 2–6 points above its own 2019→24 baseline
+in 2024→25 — the elevation is national and uniform in direction, which fits
+both candidate explanations (departures and response decline are both
+nationwide phenomena). State cells are small (CA n≈1,300 down to n≈100), so
+treat cross-state differences as noise; the state-vs-own-baseline contrast is
+the meaningful read. Washington is middle-of-the-pack, not exceptional.
+
+### More strata: what the ASEC supports
+
+Because every year-*t* characteristic rides along with the match, the method
+stratifies by anything the ASEC measures — the paper itself did age, sex,
+origin, and duration; the same person-level probabilities average over any
+subgroup. Standardized gross rates for 2024→25:
+
+![Stratified estimates](outputs/figure_strata.png)
+
+- **Sex**: male 6.7% vs female 3.6% — the same ~2:1 male excess the paper
+  found circa 2000. The most robust subgroup pattern in both eras.
+- **Region of birth**: Mexico 8.3% (baseline 1.8%) leads, then other
+  Americas 5.3%, Europe 4.8%, Africa 3.8%, Asia 3.3% — the same ordering Van
+  Hook et al. found circa 2000 (Mexico highest at 5.5%), now amplified.
+- **Education (25+)**: <HS 6.5%, HS 6.6%, some college 6.2%, **BA+ 3.7%** —
+  the departure signal concentrates in less-educated groups.
+- **Household income**: monotone gradient, Q1 5.7% → Q4 3.9%.
+- **Race/ethnicity**: Hispanic 6.9% highest; non-Hispanic Asian 3.0% lowest.
+- **Citizenship**: naturalized 5.1% vs noncitizen 5.2% — essentially equal
+  *after* standardization (raw attrition is much higher for noncitizens, 40%
+  vs 31%, but so is their baseline mobility). A surprise worth flagging: the
+  2025 signal is *not* confined to noncitizens.
+- **Age and duration**: composition-mediated (see the audit caveat) — raw
+  attrition still falls steeply with time in the U.S. (52% for 0–4 years vs
+  31% for 10+) in every pair.
+
+Caveats scale with ambition: subgroup rates inherit the national ±2pp
+uncertainty *plus* subgroup sampling noise, and stratifiers outside the
+standardization models (income, race, region) are partly composition
+artifacts. Read contrasts and consistent patterns, not levels.
+
 ### Washington, by the honest method
 
 Averaging the person-level emigration probabilities over Washington's
@@ -366,6 +444,11 @@ uv venv .venv && uv pip install -r requirements.txt
 #    curl the asecpubYYcsv.zip files from census.gov into cps_data/asecYY/
 .venv/bin/python run_replication.py cps_data
 .venv/bin/python make_replication_figure.py
+
+# 6. multi-year extension (ASEC 2019-2025, states, strata)
+.venv/bin/python run_multiyear.py cps_data
+.venv/bin/python make_multiyear_figure.py
+.venv/bin/python make_strata_figure.py
 ```
 
 Outputs land in `outputs/`: per-pair and pooled summaries, and the figures above.
@@ -380,6 +463,9 @@ Outputs land in `outputs/`: per-pair and pooled summaries, and the figures above
 | [`asec_matching_method.py`](asec_matching_method.py) | Van Hook et al. (2006) CPS matching method on modern ASEC pairs |
 | [`run_replication.py`](run_replication.py) | Driver: 2023→24 and 2024→25 replication vs the paper's Table 2 |
 | [`make_replication_figure.py`](make_replication_figure.py) | The replication figure |
+| [`run_multiyear.py`](run_multiyear.py) | Six pairs 2019→2025 + state and stratified tables |
+| [`make_multiyear_figure.py`](make_multiyear_figure.py) | Time-series + state dumbbell figure |
+| [`make_strata_figure.py`](make_strata_figure.py) | Eight-panel subgroup figure |
 
 ## Caveats (read these)
 

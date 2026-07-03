@@ -60,8 +60,9 @@ import statsmodels.api as sm
 
 PP_COLS = ["PERIDNUM", "PH_SEQ", "A_LINENO", "A_AGE", "A_SEX", "PENATVTY",
            "PEFNTVTY", "PEMNTVTY", "PRCITSHP", "PEINUSYR", "MARSUPWT",
-           "MIGSAME", "MIG_REG", "A_HGA", "A_HSCOL", "PRDTHSP"]
-HH_COLS = ["H_SEQ", "H_IDNUM", "H_MIS", "GESTFIPS", "H_TENURE"]
+           "MIGSAME", "MIG_REG", "A_HGA", "A_HSCOL", "PRDTHSP", "PEHSPNON",
+           "PRDTRACE"]
+HH_COLS = ["H_SEQ", "H_IDNUM", "H_MIS", "GESTFIPS", "H_TENURE", "HTOTVAL"]
 
 
 def load_asec(data_dir: str, year: int) -> pd.DataFrame:
@@ -86,7 +87,48 @@ def load_asec(data_dir: str, year: int) -> pd.DataFrame:
     df["agegrp"] = pd.cut(df["A_AGE"], [-1, 14, 24, 34, 44, 54, 64, 74, 200],
                           labels=["0-14", "15-24", "25-34", "35-44", "45-54",
                                   "55-64", "65-74", "75+"])
+    # Migration flags robust to coding differences across ASEC years:
+    # "lived abroad one year ago" is MIGSAME==3 in recent files (MIG_REG==5);
+    # accept either signal. Internal movers are within-U.S. movers only.
+    df["abroad_1yr"] = (df["MIGSAME"] == 3) | (
+        (df["MIGSAME"] == 2) & (df["MIG_REG"] == 5))
+    df["internal_mover"] = (df["MIGSAME"] == 2) & df["MIG_REG"].isin([1, 2, 3, 4])
+    df["at_risk_internal"] = (df["MIGSAME"] == 1) | df["internal_mover"]
+    # Stratifiers for subgroup emigration tables.
+    df["citizenship"] = np.select(
+        [df["PRCITSHP"] == 4, df["PRCITSHP"] == 5],
+        ["naturalized", "noncitizen"], default="native")
+    nat = df["PENATVTY"]
+    df["region_birth"] = np.select(
+        [nat == 303,                      # Mexico (verified empirically)
+         nat.between(300, 399),           # other Americas (incl. Canada 301)
+         nat.between(200, 299),           # Asia
+         nat.between(100, 199),           # Europe
+         nat.between(400, 499),           # Africa
+         nat.between(500, 554)],          # Oceania
+        ["mexico", "other_americas", "asia", "europe", "africa", "oceania"],
+        default="other_unknown")
+    hisp = df["PEHSPNON"] == 1
+    df["race_eth"] = np.select(
+        [hisp, df["PRDTRACE"] == 1, df["PRDTRACE"] == 2, df["PRDTRACE"] == 4],
+        ["hispanic", "nh_white", "nh_black", "nh_asian"], default="nh_other")
     return df
+
+
+def entry_cats(year_t: int, top_cat: int) -> tuple[set, set, int]:
+    """PEINUSYR 2-year entry-cohort sets for a year-t file.
+
+    Bands follow band_start(k) = 1966 + 2k for recent categories (verified
+    against the 2023-2025 dictionaries); the file's top category is truncated
+    at the survey year. Returns (dur_0_4_cats, dur_5_9_cats, ret_cutoff_cat)
+    where ret_cutoff is for a file used as year t+1 (entered > 2 years before).
+    """
+    k_min_04 = (year_t - 4 - 1966) // 2
+    dur_0_4 = set(range(k_min_04, top_cat + 1))
+    k_min_59 = -(-(year_t - 9 - 1966) // 2)  # ceil
+    dur_5_9 = set(range(k_min_59, k_min_04))
+    ret_cutoff = (year_t - 3 - 1967) // 2
+    return dur_0_4, dur_5_9, ret_cutoff
 
 
 def load_march_true_mis(data_dir: str, year: int) -> dict:
@@ -201,12 +243,12 @@ def _fit_predict(train: pd.DataFrame, formula: str, target: pd.DataFrame,
 
 def internal_migration_frame(df_t1: pd.DataFrame, mis_t1: dict) -> pd.DataFrame:
     """Adults 15+ in the t+1 returning half (true MIS 5-8) who lived in the
-    U.S. a year ago. mover = moved within the U.S. (MIGSAME 2 vs 1); movers
-    from abroad (MIGSAME 3) are excluded (not at risk of internal migration)."""
+    U.S. a year ago. mover = moved within the U.S.; movers from abroad are
+    excluded (not at risk of internal migration)."""
     true_mis = df_t1["hhkey"].map(mis_t1)
     d = df_t1[true_mis.isin([5, 6, 7, 8]) & (df_t1["A_AGE"] >= 15)
-              & (df_t1["MIGSAME"].isin([1, 2]))].copy()
-    d["mover"] = (d["MIGSAME"] == 2)
+              & df_t1["at_risk_internal"]].copy()
+    d["mover"] = d["internal_mover"]
     return d
 
 
@@ -263,11 +305,14 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
     overall_adult_e = float(np.average(fb_ad["e_i"], weights=fb_ad["MARSUPWT"]))
     fb_kids["e_i"] = fb_kids["hhkey"].map(hh_e).fillna(overall_adult_e)
 
+    STRAT_COLS = ["hhkey", "A_AGE", "male", "GESTFIPS", "MARSUPWT", "PEINUSYR",
+                  "e_i", "agegrp", "educ4", "citizenship", "region_birth",
+                  "race_eth", "HTOTVAL"]
+    fb_ad["raw_nonfollowup"] = fb_ad["nonfollowup"].astype(float)
+    fb_kids["raw_nonfollowup"] = fb_kids["nonfollowup"].astype(float)
     fb_all = pd.concat(
-        [fb_ad[["hhkey", "A_AGE", "male", "GESTFIPS", "MARSUPWT", "PEINUSYR",
-                "e_i"]],
-         fb_kids[["hhkey", "A_AGE", "male", "GESTFIPS", "MARSUPWT",
-                  "PEINUSYR", "e_i"]]],
+        [fb_ad[STRAT_COLS + ["raw_nonfollowup"]],
+         fb_kids[STRAT_COLS + ["raw_nonfollowup"]]],
         ignore_index=True)
 
     gross_e = float(np.average(fb_all["e_i"], weights=fb_all["MARSUPWT"]))
@@ -277,9 +322,9 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
 
     # --- return immigration ratio (from full t+1 file) --------------------
     fb1 = df_t1[df_t1["foreign_born"]]
-    ret = fb1[(fb1["MIGSAME"] == 3) & (fb1["PEINUSYR"] > 0)
+    ret = fb1[fb1["abroad_1yr"] & (fb1["PEINUSYR"] > 0)
               & (fb1["PEINUSYR"] <= ret_cutoff_cat)]
-    at_risk = fb1[fb1["MIGSAME"].isin([1, 2])]
+    at_risk = fb1[fb1["at_risk_internal"]]
     ret_ratio_raw = float(ret["MARSUPWT"].sum() / at_risk["MARSUPWT"].sum())
     ret_ratio = ret_ratio_raw * (1.0 - gross_e - d_bar)
 
@@ -317,7 +362,7 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
     comp_groups = {k: dict(tuple(d.groupby("hhkey")))
                    for k, (d, _) in comp_frames.items()}
     raw_boots = []
-    for _ in range(400):
+    for _ in range(200):
         vals = {}
         for k, (d, col) in comp_frames.items():
             hhs = list(comp_groups[k])
