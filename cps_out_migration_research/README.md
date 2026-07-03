@@ -549,6 +549,79 @@ Outputs land in `outputs/`: per-pair and pooled summaries, and the figures above
 | [`small_area_states.py`](small_area_states.py) | Empirical-Bayes (Fay–Herriot) state estimates, all states |
 | [`make_smallarea_figure.py`](make_smallarea_figure.py) | The 48-state shrinkage figure |
 | [`make_occind_figure.py`](make_occind_figure.py) | Occupation and industry dumbbell figure |
+| [`mirror_checks.py`](mirror_checks.py) | Mexico + Europe mirror-statistics comparison (primary-source data) |
+
+## External validation: mirror statistics
+
+The critics' hardest objection (no ground truth) has a partial answer:
+compare against what receiving countries record. Two checks, chosen as
+opposite extremes ([`mirror_checks.py`](mirror_checks.py), all primary
+sources cited there).
+
+### Mexico — the worst case (heavy undocumented share, unregistered returns)
+
+My Mexico-born implied gross outflows: +579k (2019→20), −113k, +354k,
++297k, −360k, **+862k/yr (2024→25)**. Against every Mexico-side source:
+
+| Mirror source | Annualized | What it counts |
+|---|---|---|
+| Censo 2020 (2015–20) | ~59k/yr | Mexico-born returnees resident in MX |
+| ENADID 2023 (2018–23) | ~55k/yr | emigrants returned to origin household |
+| UPM/Segob events, CY2019–24 | 161–258k/yr | removal/return *events* at INM points |
+| UPM/Segob events, CY2025 | ~160k (Jan–May **−30%** y/y) | same; only ~15k voluntary |
+| DHS removals of Mexicans FY2024 | ~140k | events, mostly border-adjacent |
+
+Mexican registers ran *lower* in 2025 than 2024, remittances fell only 4.6%,
+and BBVA's conclusion matches Pew's caveat: the 2025 shock ran through
+*fear*, not mass physical return. Van Hook et al.'s circa-2000 Mexico
+estimate exceeded mirror sources by roughly 2× after coverage adjustments —
+an expected gap. My 2024→25 Mexico figure exceeds the best mirror by ~5×
+(and the *voluntary* component by ~50×). Verdict: **the Mexico 2024→25
+estimate (8.3%) is substantially survey-withdrawal, not departure** — though
+officials and academics acknowledge unregistered self-returns that no
+Mexican source counts.
+
+### Europe — the best case (register countries, low undocumented share)
+
+European population registers record every immigration by previous country
+of residence (Eurostat `migr_imm5prv`), including their own citizens
+returning from the U.S. Three findings:
+
+1. **The pooled level validates.** My Europe-born outflow estimates average
+   **~+41k/yr over the five pre-2025 pairs**; register-visible Europe-born
+   returnee flows are ~30–45k/yr (20–30k in reporting countries + the
+   non-reporters France/Ireland/Poland/Portugal/Greece). For a clean
+   population, the method's multi-year level lands on the registers.
+2. **The single-pair swings are noise.** My pairs oscillate ±250k/yr; the
+   registers are nearly flat every year (ex-Spain: 37–41k, 2019–2024).
+3. **2024→25: sign corroborated, magnitude not (yet).** Every
+   2025-reporting European register ticks up — Ireland +96%, Norway +23%,
+   Sweden +18%, UK +11%, Germany flipping to net *inflow* vs the U.S. for
+   the first time since 2021 — while Canada, Australia, and Korea stay flat
+   (a Europe-specific return signal, not a general exodus). But the visible
+   combined uptick is +3–6k persons against my implied +306k. Eurostat 2025
+   loads next year, and registration lags departures.
+
+### Brookings — the independent U.S.-side scenario
+
+Edelberg, Veuger & Watson (Brookings/AEI, Jan 2026) build 2025 outflows
+from administrative data plus assumptions: removals ~310–315k (measured);
+enforcement-induced voluntary departures 210–405k (*assumed* proportional
+to removals; anchored only by ~40k court voluntary-departure grants). It is
+CPS-independent — they explicitly reject CPS stocks — but entry-channel
+granularity only, so it cannot validate origin- or state-specific numbers.
+Their *total* 2025 gross outflow accounting (~1.8–2.0M including baseline
+emigration) puts my all-origin gross (~2.6M) at **1.3–1.4×** — much closer
+than the country mirrors, because most emigration is never registered
+anywhere. For calibration: the field disagrees on even the sign of 2025 net
+migration (Brookings −295k to −10k; Census Vintage-2025 **+1.3M**; SF Fed
+~+1.0M; Goldman +500k).
+
+**Combined mirror verdict:** pooled multi-year levels are credible (Europe
+confirms); single-pair estimates are noise; and the 2024→25 elevation is
+real in *sign* (European registers, Brookings, court grants all tick up)
+but its *magnitude* is inflated by survey withdrawal — most extremely for
+Mexico-origin populations, the group facing the most enforcement pressure.
 
 ## What a critic would say
 

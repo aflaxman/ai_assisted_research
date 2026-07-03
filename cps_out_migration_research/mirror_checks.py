@@ -1,5 +1,7 @@
-"""Mirror-statistics check: CPS-matching Mexico-born emigration estimates vs
-Mexico-side and U.S. administrative data on returns to Mexico, 2019-2025.
+"""Mirror-statistics checks: CPS-matching emigration estimates vs receiving-
+country data, 2019-2025. Two checks: MEXICO (worst case: heavy undocumented
+share, unregistered self-returns) and EUROPE (best case: register countries,
+low undocumented share).
 
 The point: gross emigration of the Mexico-born from the U.S. *resident
 population* (what the CPS matching method estimates) should be loosely
@@ -74,6 +76,43 @@ MIRROR = pd.DataFrame([
 # disagrees on even the sign of 2025 net migration.
 BROOKINGS_2025 = {"gross_outflow_lo_k": 1800, "gross_outflow_hi_k": 2000,
                   "this_work_gross_k": 2634}
+
+# --- EUROPE mirror (registers; low undocumented share) ----------------------
+# This project's Europe-born implied outflows (k/yr):
+EUROPE_CPS = pd.DataFrame([
+    ("2019->2020", 247), ("2020->2021", -227), ("2021->2022", 84),
+    ("2022->2023", -45), ("2023->2024", 146), ("2024->2025", 306),
+], columns=["pair", "implied_outflow_k"])
+# Eurostat migr_imm5prv, immigration with previous residence = US, balanced
+# 15-country panel (AT,BG,DE,EE,ES,FI,HR,IS,IT,LT,NL,NO,SE,SI,SK), persons:
+EUROSTAT_FROM_US = {2019: 55990, 2020: 47309, 2021: 59774, 2022: 58761,
+                    2023: 61422, 2024: 62888}   # ex-Spain: flat 37-41k
+# Non-US-citizen arrivals from the US (returnees + third-country nationals),
+# ~20-30k/yr across reporting countries (migr_imm1ctz differencing); with
+# non-reporting countries (FR, IE, PL, PT, EL) plausibly 30-45k/yr total.
+#
+# VERDICT: (1) the 5-pair pre-2025 MEAN of this project's Europe-born
+# outflow (~+41k/yr) matches register-visible returnee flows (30-45k/yr) --
+# for a clean, low-undocumented population the method's pooled LEVEL is
+# right. (2) The single-pair swings (+/-250k) have no register counterpart:
+# noise. (3) 2024->25 sign is corroborated -- every 2025-reporting European
+# register ticks up (Ireland +96%, Norway +23%, Sweden +18%, UK +11%,
+# Germany net-inflow flip) while Canada/Australia/Korea stay flat -- but the
+# visible uptick is +3-6k persons vs the implied +306k (2025 Eurostat not
+# yet loaded; registration lags departures).
+EUROPE_SOURCES = {
+    "Eurostat migr_imm5prv": "https://ec.europa.eu/eurostat/databrowser/view/migr_imm5prv/default/table",
+    "Eurostat migr_imm1ctz": "https://ec.europa.eu/eurostat/databrowser/view/migr_imm1ctz/default/table",
+    "Denmark INDVAN": "https://www.statbank.dk/INDVAN",
+    "Sweden SCB": "https://www.statistikdatabasen.scb.se/pxweb/en/ssd/START__BE__BE0101__BE0101J/",
+    "Norway SSB 07822": "https://www.ssb.no/en/statbank/table/07822",
+    "Ireland CSO PEA18": "https://data.cso.ie/table/PEA18",
+    "Germany Destatis": "https://www.destatis.de/DE/Presse/Pressemitteilungen/2025/11/PD25_N064_12.html",
+    "UK ONS LTIM": "https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/internationalmigration/datasets/longterminternationalimmigrationemigrationandnetmigrationflowsprovisional",
+    "Australia ABS": "https://www.abs.gov.au/statistics/people/population/overseas-migration/latest-release",
+    "Canada IRCC": "https://open.canada.ca/data/en/dataset/f7e5498e-0ad8-4417-85c9-9b8aff9b9eda",
+    "Korea KOSTAT": "https://kostat.go.kr/board.es?act=view&bid=11745&list_no=437833&mid=a20108010000",
+}
 
 # Van Hook et al. (2006) benchmark for the method-vs-mirror ratio circa 2000:
 # their Mexico gross estimate ~5.5%/yr on ~8.6M stock ~= 470k/yr, vs Censo
