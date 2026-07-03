@@ -53,8 +53,23 @@ MIRROR = pd.DataFrame([
     ("DHS removals of Mexicans", "FY2024", 140,
      "removal events, mostly border-adjacent (not settled residents)"),
     ("Brookings voluntary-departure est.", "2025", 310,
-     "midpoint 210-405k enforcement-induced departures, ALL nationalities"),
+     "midpoint 210-405k enforcement-induced departures, ALL nationalities; "
+     "CPS-independent but an assumption construct (15-50% of removals, "
+     "anchored by ~40k TRAC court grants)"),
 ], columns=["source", "period", "annual_k", "counts_what"])
+
+# All-origin cross-check vs Brookings (Edelberg-Veuger-Watson, Jan 2026):
+# their full 2025 outflow accounting = baseline mechanical emigration
+# (2.5-4%/20% by entry channel on a ~48M stock, ~1.4M) + removals ~315k +
+# enforcement-induced voluntary 210-405k  ~=  1.8-2.0M gross outflow.
+# This project's all-origin gross (5.14% x 51.3M ~= 2.6M) runs ~1.3-1.4x
+# that scenario -- far closer than the Mexico-specific mirror gap, because
+# most emigration is never registered anywhere; receiving-country registers
+# only see a slice. Their net-migration 2025: -295k to -10k; for contrast,
+# Census Vintage-2025 NIM is +1.3M and SF Fed ~+1.0M -- the field itself
+# disagrees on even the sign of 2025 net migration.
+BROOKINGS_2025 = {"gross_outflow_lo_k": 1800, "gross_outflow_hi_k": 2000,
+                  "this_work_gross_k": 2634}
 
 # Van Hook et al. (2006) benchmark for the method-vs-mirror ratio circa 2000:
 # their Mexico gross estimate ~5.5%/yr on ~8.6M stock ~= 470k/yr, vs Censo
