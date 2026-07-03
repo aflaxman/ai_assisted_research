@@ -137,10 +137,13 @@ Take the public complications engine as-is and add the missing prevention layer 
    this is **three standalone two-year cycles**, so use **`WTSAF2YR/3`** (fasting) or **`WTMEC2YR/3`**
    (MEC) — *not* `WTMECPRP`, which is for the 2017–2020 combined file (a correction to our house NHANES
    rule, which applies to that combined file only). OGTT existed only in 2013–16 (no `OGTT_J`).
-2. **Implement the onset layer**: a prediabetes→diabetes annual hazard (baseline from the CDC/RTI
-   prevention module if shared, else calibrated to observed US progression ~8–10%/yr context and to the
-   paper's cumulative incidence of 32.35/100 lifetime), with vitamin D applying HR 0.85 to that hazard
-   for eligible person-years at 85% adherence.
+2. **Implement the onset layer.** ✅ **Done — see [`simulation/`](./simulation/).** A transparent
+   3-state (prediabetes→diabetes→death) microsimulation, calibrated to the paper's control-arm Table 3,
+   reproduces the headline result as an *emergent* output: lifetime incremental cost **−$3,318** (paper
+   −$3,208), +0.149 QALY (+0.120), ICER **−$22,270** (−$26,134), NMB $18,218 ($15,483) — i.e. vitamin D
+   is **cost-saving/dominant**, matching the paper. It under-predicts life-years gained (0.04 vs 0.27)
+   and the lifetime incidence reduction (2.2% vs 8%) because the reduced form mostly *delays* onset and
+   omits the reversion-to-normoglycemia channel — honest limitations documented in the sub-README.
 3. **Wire in the published inputs** from [`paper_parameters.md`](./paper_parameters.md): $60/yr
    supplement, 3% discount, $100k WTP, Yang/Wang complication costs, Neuwahl utilities.
 4. **Run the Monte Carlo harness** (100 × 10,000) and compute ICER + NMB with 2.5/97.5 empirical UIs.
