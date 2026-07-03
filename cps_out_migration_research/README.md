@@ -424,6 +424,18 @@ subgroup. Standardized gross rates for 2024→25:
 - **Age and duration**: in the baseline models these are composition-mediated
   (see the audit caveat). The duration-aware variant below resolves this
   properly.
+- **Occupation and industry** (employed adults; job measured in year *t*,
+  i.e., pre-departure): the 2024→25 signal concentrates in the classic
+  enforcement-exposed immigrant-labor sectors — **agriculture 9.6%
+  (industry) / farming occupations 9.4%, construction ~7%, transportation
+  ~7%** — versus 3.2–3.5% for professional, management, financial, and
+  education/health workers, and 2.1% for information. The ordering tracks
+  the unauthorized share by industry, and the raw attrition agrees (52% for
+  farm occupations, 45% construction vs ~30% professional). Caveats: cells
+  are 60–900 records; job loss between waves can masquerade as subgroup
+  differences; the unemployed and out-of-labor-force are excluded.
+
+![Occupation and industry](outputs/figure_occind.png)
 
 ### Making duration real: PEINUSYR in the models
 
@@ -516,6 +528,7 @@ uv venv .venv && uv pip install -r requirements.txt
 # 7. small-area state estimates (all states, empirical-Bayes)
 .venv/bin/python small_area_states.py
 .venv/bin/python make_smallarea_figure.py
+.venv/bin/python make_occind_figure.py
 ```
 
 Outputs land in `outputs/`: per-pair and pooled summaries, and the figures above.
@@ -535,6 +548,70 @@ Outputs land in `outputs/`: per-pair and pooled summaries, and the figures above
 | [`make_strata_figure.py`](make_strata_figure.py) | Eight-panel subgroup figure |
 | [`small_area_states.py`](small_area_states.py) | Empirical-Bayes (Fay–Herriot) state estimates, all states |
 | [`make_smallarea_figure.py`](make_smallarea_figure.py) | The 48-state shrinkage figure |
+| [`make_occind_figure.py`](make_occind_figure.py) | Occupation and industry dumbbell figure |
+
+## What a critic would say
+
+A fair skeptic could attack these estimates on several fronts. The strongest
+objections, in rough order of severity:
+
+1. **The identifying assumption is least credible exactly when the estimate
+   is most interesting.** Everything rests on foreign-born and
+   second-generation adults having equal *residual* nonresponse. The method
+   attributes any excess foreign-born disappearance to emigration — it has no
+   internal way to distinguish "left the country" from "stopped answering the
+   door." 2025 is precisely when immigrant survey avoidance plausibly
+   diverged. A critic can describe the 2024→25 estimate as a measurement of
+   *fear*, not departure, and nothing in the data refutes them.
+2. **The direct evidence of mass departure is missing.** Foreign-born
+   attrition itself was flat across pairs (34.87% → 34.91%); the swing came
+   from the control group improving and the mover terms flipping, amplified
+   ~2× by standardization (raw 3.0% → adjusted 5.1%). If ~2.4M people/year
+   had left, u_f should visibly rise. It did not.
+3. **The instrument spikes whenever fieldwork breaks.** Across six pairs, the
+   two elevated readings (2019→20, 2024→25) coincide with the two
+   survey-disruption events, and the series swings ±3–5pp year to year —
+   including *impossible* negative values — while true emigration cannot
+   plausibly move that fast. The honest ±2pp SEs still understate total
+   error, since they capture sampling noise but not regime shifts.
+4. **Standardization is out-of-support extrapolation.** Second-generation
+   coefficients are evaluated at foreign-born covariate profiles (far more
+   Mexican-origin, renter, less-educated) — a model-dependent counterfactual
+   that nearly doubles the raw gap in 2024→25.
+5. **The counts inherit extra artifacts.** The ~2.4M/yr figure multiplies an
+   upper-bound rate by a stock that the Vintage-2024 weighting revision
+   itself revised upward; and corroborating it with Pew's CPS-based decline
+   is circular (same instrument, same artifact). External anchors point much
+   lower: DHS removals run in the hundreds of thousands.
+6. **Subnational and subgroup layers stack assumptions.** State estimates
+   have no state-level control group, so state attrition deviations mix
+   emigration with local response culture and field operations (the CA/NY
+   negatives are as consistent with outreach effects as with staying). The
+   duration-aware 14.8% for 2020–24 arrivals has no cohort-specific
+   nonresponse control at all — and the surge population most likely to
+   leave was also least likely to be in the sampling frame to begin with.
+   Occupation and industry are measured at year *t* for the employed only,
+   so job loss between waves masquerades as subgroup differences.
+7. **There is no ground truth.** Replicating a published method validates
+   the machinery, not the estimand. The genuine external check — mirror
+   statistics from receiving countries (Mexican census/ENOE return-migrant
+   counts, other national registers) — has not been done here.
+8. **The implications cut both ways politically.** These numbers could be
+   read as "self-deportation policy is working" (overstating confidence in
+   an upper bound) or dismissed as "just survey artifacts" (ignoring that
+   removals, visa revocations, and voluntary departures are real and
+   rising). Both readings outrun the evidence. The defensible claim is
+   narrow: *the foreign-born stopped behaving like their control group in
+   2024→25, by an amount unprecedented in the six-pair record outside the
+   COVID disruption, concentrated among recent arrivals and
+   Spanish-speaking-origin populations — some unknown mix of leaving the
+   country and leaving the survey.*
+
+Mitigations already built in: raw components reported alongside standardized
+estimates, full-uncertainty SEs, the six-pair context, upper-bound language,
+and adversarial audits of code, fidelity, and interpretation. The
+un-mitigated residual is items 1 and 7 — they require data this method does
+not have.
 
 ## Caveats (read these)
 

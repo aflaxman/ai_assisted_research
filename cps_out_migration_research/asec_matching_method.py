@@ -61,7 +61,16 @@ import statsmodels.api as sm
 PP_COLS = ["PERIDNUM", "PH_SEQ", "A_LINENO", "A_AGE", "A_SEX", "PENATVTY",
            "PEFNTVTY", "PEMNTVTY", "PRCITSHP", "PEINUSYR", "MARSUPWT",
            "MIGSAME", "MIG_REG", "A_HGA", "A_HSCOL", "PRDTHSP", "PEHSPNON",
-           "PRDTRACE"]
+           "PRDTRACE", "A_MJOCC", "A_MJIND"]
+
+OCC_LABELS = {1: "mgmt_biz_fin", 2: "professional", 3: "service", 4: "sales",
+              5: "office_admin", 6: "farm_fish_forest", 7: "construction",
+              8: "install_repair", 9: "production", 10: "transport_moving"}
+IND_LABELS = {1: "agriculture", 2: "mining", 3: "construction",
+              4: "manufacturing", 5: "trade", 6: "transport_utilities",
+              7: "information", 8: "financial", 9: "prof_biz_services",
+              10: "educ_health", 11: "leisure_hospitality",
+              12: "other_services", 13: "public_admin"}
 HH_COLS = ["H_SEQ", "H_IDNUM", "H_MIS", "GESTFIPS", "H_TENURE", "HTOTVAL"]
 
 
@@ -112,6 +121,10 @@ def load_asec(data_dir: str, year: int) -> pd.DataFrame:
     df["race_eth"] = np.select(
         [hisp, df["PRDTRACE"] == 1, df["PRDTRACE"] == 2, df["PRDTRACE"] == 4],
         ["hispanic", "nh_white", "nh_black", "nh_asian"], default="nh_other")
+    # Major occupation / industry group of current or most recent job
+    # (employed persons; 0 = not employed / NIU).
+    df["occ_major"] = df["A_MJOCC"].map(OCC_LABELS)
+    df["ind_major"] = df["A_MJIND"].map(IND_LABELS)
     return df
 
 
@@ -355,7 +368,8 @@ def matching_method(df_t: pd.DataFrame, df_t1: pd.DataFrame,
 
     STRAT_COLS = ["hhkey", "A_AGE", "male", "GESTFIPS", "MARSUPWT", "PEINUSYR",
                   "e_i", "e_i_dur", "agegrp", "educ4", "citizenship",
-                  "region_birth", "race_eth", "HTOTVAL"]
+                  "region_birth", "race_eth", "HTOTVAL", "occ_major",
+                  "ind_major"]
     fb_ad["raw_nonfollowup"] = fb_ad["nonfollowup"].astype(float)
     fb_kids["raw_nonfollowup"] = fb_kids["nonfollowup"].astype(float)
     fb_all = pd.concat(

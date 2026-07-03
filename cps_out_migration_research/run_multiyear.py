@@ -110,11 +110,14 @@ def main():
                                 [-np.inf, *qs, np.inf],
                                 labels=["q1_low", "q2", "q3", "q4_high"])
         strats = ["sex", "agegrp", "citizenship", "region_birth", "race_eth",
-                  "educ4", "income_q", "duration"]
+                  "educ4", "income_q", "duration", "occ_major", "ind_major"]
         for s in strats:
             frame = fb
             if s == "educ4":
                 frame = fb[fb["A_AGE"] >= 25]
+            elif s in ("occ_major", "ind_major"):
+                # employed adults with an occupation/industry code
+                frame = fb[(fb["A_AGE"] >= 15) & fb[s].notna()]
             for lvl, g in frame.groupby(s, observed=True):
                 if len(g) == 0:
                     continue
