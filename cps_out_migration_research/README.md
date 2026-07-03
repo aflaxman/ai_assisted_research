@@ -724,6 +724,58 @@ not have.
   foreign-born and second-generation adults — are load-bearing, and the second
   one is exactly what 2025's immigration climate stresses.
 
+## How Van Hook et al. (2006) has been received
+
+A literature sweep (extensions, critiques, institutional uptake — full
+citations below) gives a clear picture: **canonical method, respected
+critique of residual approaches, contested magnitude, adopted in production
+only at Pew** (where Passel, a co-author, builds its emigration rates into
+every unauthorized-population estimate).
+
+- **The team extended it.** Van Hook & Zhang (2011, *PRPR*) reapplied it to
+  1996–2009 (2.9%/yr confirmed; emigration deterred by homeownership,
+  citizenship, children). Van Hook et al. (2021, *Demography*) showed
+  emigration-rate uncertainty is the *largest* variance component in
+  unauthorized-population estimates (95% CI 7.0–15.7M) — and, notably,
+  conceded the matched-CPS attrition rates are "some of the highest
+  estimated rates of emigration in the literature."
+- **The Census Bureau engaged but never adopted it.** Jensen (2013, WP-101)
+  named the two upward biases — the equal-residual-nonresponse assumption
+  and zero second-generation emigration. Leach & Jensen (2013) built
+  short-window ACS-to-ACS residuals specifically to answer the paper's
+  critique and landed at 0.25–0.95%/yr — a third to a fifth of the
+  matched-CPS level. Production estimates remain ACS-residual-based.
+- **Administrative data sided with the skeptics on levels.** Schwabish
+  (CBO/2011), using SSA earnings histories (immune to survey nonresponse),
+  found 1.0–1.5%/yr. Our Europe-register mirror check reproduces this
+  pattern: pooled multi-year levels validate at the low end; the elevated
+  single-pair estimates do not.
+- **Post-2020 evidence undermined the identifying assumption.** Census CES
+  working papers document large, climate-sensitive nativity differentials in
+  survey response (19.8% of noncitizens at unlinkable addresses vs 5.7% of
+  citizens; response ranging 70%→28% by household status mix). Bick &
+  Bloodworth (St. Louis Fed, Dec 2025) found non-naturalized-immigrant CPS
+  participation fell 16.6% in 2025 (~10pp more than others), concentrated in
+  first interviews — concluding the 2025 CPS foreign-born decline "mostly
+  reflects a decrease in the participation of immigrants in the CPS." That
+  is the same decomposition this project found (foreign-born attrition flat;
+  the gap driven by control-group and response dynamics).
+- **The 2025 departures debate is the method's identification problem gone
+  public** — CIS reading CPS declines as real emigration, PIIE/Brookings/
+  St. Louis Fed reading them as nonresponse — yet conducted with aggregate
+  CPS counts, not person-level matching. As far as the sweep could find,
+  this project is the only application of the actual matched-CPS method
+  (with its second-generation control) to the 2024→25 window.
+
+Key reception literature: Jensen (2013) Census WP-101; Leach & Jensen
+(2013) FCSM; Schwabish (2011) *IJPR*/CBO WP 2009-01; Van Hook & Zhang
+(2011) *PRPR* 30(1); Van Hook, Morse, Capps & Gelatt (2021) *Demography*
+58(6); Bhaskar et al. (2013) Census WP-98; Rivera Drew, Flood & Warren
+(2014) *JESM* (the IPUMS linking infrastructure); Pacas & Rodgers (2023)
+*PRPR* (ASEC linking improvements); Brown et al. (2023, 2024) Census CES
+WP-23-42, WP-24-31; Bick & Bloodworth (2025) St. Louis Fed; Solignac (2018)
+*Population* 73(4).
+
 ## Further reading
 
 - Van Hook, J., Zhang, W., Bean, F. D., & Passel, J. S. (2006). *Foreign-born
