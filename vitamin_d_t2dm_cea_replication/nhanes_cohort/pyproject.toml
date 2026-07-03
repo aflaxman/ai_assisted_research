@@ -1,0 +1,12 @@
+[project]
+name = "nhanes-cohort-reconstruction"
+version = "0.1.0"
+description = "Reconstruct the Briody 2026 NHANES 2013-2018 prediabetes cohort (Table 1)"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.2",
+    "numpy>=2.0",
+]
+
+# Run with:  uv run python reconstruct_cohort.py
+# Data are downloaded from wwwn.cdc.gov and cached under ./nhanes_data/ (gitignored).

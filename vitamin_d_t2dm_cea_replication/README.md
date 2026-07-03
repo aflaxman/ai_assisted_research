@@ -127,13 +127,16 @@ Tables 3–4 directly. This is the honest definition of "replication."
 
 **Route B — Rebuild the prevention front-end on the public engine (~6–12 weeks).**
 Take the public complications engine as-is and add the missing prevention layer from the paper's methods:
-1. **Reconstruct the NHANES 2013–2018 prediabetes cohort** (§ variable map in
-   [`brief_nhanes-cohort`](#8-appendix-source-briefings) below and the notes file). Validate against
-   Table 1 (mean age 53.3, 49% female, N=4176). Weighting subtlety: this is **three standalone two-year
-   cycles**, so use the **fasting-subsample weight `WTSAF2YR` divided by 3** — *not* `WTMECPRP`, which is
-   for the 2017–2020 combined file (a correction to our house NHANES rule, which applies to that combined
-   file only). OGTT existed only in 2013–16 (no `OGTT_J`), so pin down how the paper handled the 2-hour
-   criterion.
+1. **Reconstruct the NHANES 2013–2018 prediabetes cohort.** ✅ **Done — see
+   [`nhanes_cohort/`](./nhanes_cohort/).** A working pipeline downloads the public microdata, applies the
+   paper's prediabetes definition, weights every estimate, and reproduces most of Table 1 (BMI 30.3,
+   fasting glucose 5.9, race/ethnicity and albuminuria near-exact). It also uncovered the one real
+   definitional fork — how the three prediabetes criteria are combined across cycles — whose two
+   defensible readings *bracket* the paper's N (3563 ↔ 5603 vs 4176); the exact recipe (and the
+   family-history/eGFR choices) awaits the authors' deposit. Weighting subtlety confirmed in practice:
+   this is **three standalone two-year cycles**, so use **`WTSAF2YR/3`** (fasting) or **`WTMEC2YR/3`**
+   (MEC) — *not* `WTMECPRP`, which is for the 2017–2020 combined file (a correction to our house NHANES
+   rule, which applies to that combined file only). OGTT existed only in 2013–16 (no `OGTT_J`).
 2. **Implement the onset layer**: a prediabetes→diabetes annual hazard (baseline from the CDC/RTI
    prevention module if shared, else calibrated to observed US progression ~8–10%/yr context and to the
    paper's cumulative incidence of 32.35/100 lifetime), with vitamin D applying HR 0.85 to that hazard
