@@ -40,7 +40,7 @@ BASE = "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/{year}/DataFiles/{stem}_{su
 
 # file stem -> columns we need (SEQN always kept)
 NEEDED = {
-    "DEMO":   ["RIDAGEYR", "RIAGENDR", "RIDRETH3", "DMDEDUC2",
+    "DEMO":   ["RIDAGEYR", "RIAGENDR", "RIDRETH3", "DMDEDUC2", "RIDEXPRG",
                "WTMEC2YR", "WTINT2YR", "SDMVPSU", "SDMVSTRA"],
     "GHB":    ["LBXGH"],                       # HbA1c %
     "GLU":    ["LBXGLU", "WTSAF2YR"],          # fasting glucose mg/dL + fasting subsample weight

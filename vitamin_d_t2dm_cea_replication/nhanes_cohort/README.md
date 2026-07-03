@@ -18,14 +18,20 @@ uv run python reconstruct_cohort.py
   (5.9 mmol/L), race/ethnicity (NH White 62.6% vs 62%, NH Black 12.0% vs 12%),
   smoking (18.6% vs 18%), and albuminuria (micro 8.2%, macro 0.8%) match Table 1
   almost exactly.
-- **The exact N and a few rows do not reproduce from public data alone**, and that is
-  expected: the paper's precise recipe for combining the three prediabetes criteria
-  across cycles (and its family-history and eGFR choices) is not fully published. The
-  authors have said they will deposit their analytic dataset and scripts on Mendeley
-  Data; those will close the gap. My two defensible interpretations **bracket** the
-  paper's N (3563 and 5603 vs 4176).
-- **Net:** a working, transparent reconstruction that is close enough to parameterize
-  a simulation, with the residual differences understood and localized.
+- **The exact N does not fall out of any single rule** — a full grid search (below)
+  proved N=4176 sits in a *dead zone* between HbA1c-driven definitions (~3800–3990)
+  and FPG-inclusive ones (~5150–5930); the fasting-FPG criterion adds ~1,160 people
+  at once. The paper's precise criterion-combination recipe (and its family-history
+  and eGFR choices) is not fully published; the authors' forthcoming Mendeley deposit
+  will pin it down.
+- **Resolution — a canonical N=4176 cohort is now locked.** As instructed, we take the
+  paper's literal definition (HbA1c 5.7–6.4 OR FPG 100–125 OR OGTT 140–199 on the full
+  exam sample; best profile + age match, N=5603) and draw a uniform random subsample of
+  exactly **4176** keeping each person's survey weight (`build_canonical_cohort.py`,
+  seed 2026). The weighted profile is preserved: female 48.7%, NH White 61.7%, NH Black
+  12.1%, BMI 30.3, FPG 5.9, smoking 18.6% — all within ~1 point of the paper. Output:
+  [`outputs/cohort_canonical_n4176.csv`](./outputs/cohort_canonical_n4176.csv), ready
+  to parameterize the simulation.
 
 ## How it's done (method)
 
@@ -85,6 +91,41 @@ The residual almost certainly comes from unpublished specifics — how OGTT was 
 two cycles that have it, whether a complete-covariate filter was applied, and the exact
 subsample/weight domain. The script prints a diagnostics table of eight candidate definitions
 (A–H) so the sensitivity is explicit.
+
+### Locking N=4176 (resolution)
+
+`find_definition.py` grid-searches the full definitional space — sample domain (MEC vs
+fasting) × criteria (HbA1c / +FPG / +OGTT) × exclusion strictness × pregnancy × complete-case
+= 96 combinations — and ranks them by distance to N=4176 (full grid:
+[`outputs/definition_search.csv`](./outputs/definition_search.csv)). The verdict:
+
+- Achievable N values jump straight from **3987 → 5149** — there is a genuine dead zone,
+  so **no rule-based public-data definition equals 4176**. Adding the fasting-FPG criterion
+  pulls in ~1,160 people in one step.
+- The one bridge is **HbA1c OR OGTT on the full MEC sample** (dropping the large fasting-FPG
+  group, keeping the small OGTT group): N = 4101 (strict exclusions) to 4343 (diagnosed-only),
+  which brackets 4176 — but that omits FPG, which the paper explicitly uses, so it is not a
+  faithful rule.
+
+Rather than keep hunting an unpublished recipe, `build_canonical_cohort.py` locks the cohort at
+the paper's N: take the **literal-definition MEC union** (the paper's stated criteria, and the
+best match to its risk-factor profile and age) and draw a **uniform random subsample of exactly
+4176** (seed 2026) that keeps each person's `WTMEC2YR/3` weight. A uniform draw with retained
+weights is an unbiased representative subset, so the weighted profile is preserved:
+
+| Variable | Canonical N=4176 (weighted) | Paper |
+|---|---|---|
+| Age, years | 51.7 (16.5) | 53.3 (17.0) |
+| Female | 48.7% | 49% |
+| NH White / Black / Hispanic | 61.7% / 12.1% / 15.5% | 62% / 12% / 16% |
+| BMI, kg/m² | 30.3 (7.1) | 30.3 (7.3) |
+| Fasting glucose, mmol/L | 5.9 | 5.9 |
+| Microalbuminuria | 8.0% | 8.2% |
+| Current smoker | 18.6% | 18% |
+
+This is the cohort carried forward to the simulation step. (It remains a size-matched
+representative subset, not a claim to have recovered the paper's exact individuals; the
+authors' deposit would let us swap in their precise inclusion logic later.)
 
 ## Result — reconstruction vs. paper Table 1
 
@@ -165,18 +206,26 @@ Neuropathy is intentionally omitted — NHANES discontinued the monofilament exa
 so there is no clean 2013–2018 source (the paper's neuropathy row must rest on a self-report
 proxy we would need their definition to match).
 
-## Outputs
+## Scripts and outputs
 
-- `outputs/table1_reconstructed.csv` — the comparison table above.
-- `outputs/cohort_fasting_union.csv`, `outputs/cohort_mec_union.csv` — the two analytic
-  cohorts with all derived per-person variables and weights, ready to feed a simulation.
+Scripts:
+- `reconstruct_cohort.py` — download, derive, and compare the two bracketing definitions.
+- `find_definition.py` — 96-combination grid search over the definitional degrees of freedom.
+- `build_canonical_cohort.py` — lock the canonical N=4176 simulation cohort.
 
-## Next steps to close the gap
+Outputs:
+- `outputs/table1_reconstructed.csv` — Table 1 comparison (fasting-union vs MEC-union vs paper).
+- `outputs/definition_search.csv` — the full 96-definition grid, ranked by |N − 4176|.
+- `outputs/cohort_fasting_union.csv`, `outputs/cohort_mec_union.csv` — the two bracketing cohorts.
+- **`outputs/cohort_canonical_n4176.csv`** — the locked N=4176 simulation cohort (all
+  per-person variables + survey weight).
 
-1. Obtain the authors' analytic dataset/scripts (Mendeley deposit or corresponding author)
-   and diff their inclusion logic against the diagnostics table — this pins the exact
-   criterion-combination rule and should snap N to 4176.
-2. Confirm the eGFR equation (CKD-EPI 2009 vs 2021) and the family-history variable; both
-   are localized one-line fixes.
-3. Feed the validated cohort into the prevention-module reconstruction (the microsimulation
-   front-end) described in the parent [`README.md`](../README.md).
+## Next steps
+
+1. **Move to the prevention-module reconstruction** — feed `cohort_canonical_n4176.csv` into
+   the microsimulation front-end (prediabetes→diabetes onset + vitamin-D effect) described in
+   the parent [`README.md`](../README.md).
+2. When the authors' analytic dataset/scripts appear (Mendeley deposit or corresponding
+   author), diff their inclusion logic against `definition_search.csv` to swap in their exact
+   criterion-combination rule, and confirm the eGFR equation (CKD-EPI 2009 vs 2021) and
+   family-history variable — all localized one-line fixes.
