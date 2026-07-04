@@ -98,7 +98,28 @@ Either path yields per-age (and per-draw, for PSA) incidence + mortality by `loc
 into `gbd_inputs.csv` (one block per location) and rerun. For any real country/subnational unit, just
 change `location_id`; the pipeline already loops over locations.
 
+## Making it real: run `export_gbd_inputs.py` on the IHME cluster
+
+`export_gbd_inputs.py` turns this into a genuine GBD re-base with **no model changes** — it writes
+`gbd_inputs.csv` in the exact schema above, pulling real draws:
+
+```
+# on a cluster node with a central-comp env active (get_draws / db_queries):
+#   1. confirm RELEASE_ID (GBD 2021), CAUSE_T2D (verification block prints the name), and locations
+#   2. python export_gbd_inputs.py        # writes gbd_inputs.csv (both-sex, posterior mean)
+#   3. git commit gbd_inputs.csv
+# then, anywhere (no cluster needed):
+#   uv run python gbd_rebase_model.py
+```
+
+It exports general-population **T2D incidence** (COMO, measure 6) and **all-cause mortality**
+(CoDCorrect deaths ÷ population) by GBD 5-year adult age band, both-sex, for any `location_id`s you
+list — add real countries/subnationals by editing the `LOCATIONS` dict. Three things to confirm for
+your release are flagged at the top of the script (release id, the T2D cause id, and `metric_id`
+support). To extend to PSA later, keep the draws instead of collapsing to the mean.
+
 ## Files
-- `gbd_inputs.csv` — location × age epidemiology inputs (illustrative; replace with real draws).
+- `gbd_inputs.csv` — location × age epidemiology inputs (illustrative now; overwritten with real draws by the exporter).
+- `export_gbd_inputs.py` — **run on the IHME cluster** to pull real GBD draws into `gbd_inputs.csv`.
 - `gbd_rebase_model.py` — the re-base model, US calibration, and location comparison.
 - `outputs/gbd_rebase_results.csv` — per-location incidence, life-years, Δcost, ΔQALY, ICER, NMB.
