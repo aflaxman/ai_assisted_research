@@ -1,7 +1,12 @@
-# Can the Current Population Survey measure who *leaves* the country?
+# Leaving the Country or Leaving the Survey?
 
-> **The short answer:** The CPS sees who leaves a household. It never sees where
-> they go. That one gap is the whole story.
+### Measuring emigration — and fear of government — in the Current Population Survey's rotating panel
+
+> **The short answer:** The CPS sees who leaves a household. It never sees
+> where they go — or why. Everything in this project is about splitting that
+> three-way ambiguity: departure abroad, departure elsewhere, or withdrawal
+> from the survey itself. The ambiguity is not just noise; its second branch
+> is a measurable social fact — avoidance of the state.
 
 The Current Population Survey (CPS) re-interviews the same addresses month after
 month, so it is tempting to think you could spot international out-migration
@@ -49,6 +54,15 @@ done, and then computed the numbers for Washington State from public data.
   departures with 2025's immigrant survey-response shifts. For Washington:
   point estimate **~43,000 net foreign-born emigrants/yr in the 2024→25
   window (plausibly 0–90k), vs ≈0 the year before.**
+- **Prototype: a monthly "fear thermometer"** (below) tracks foreign-born
+  excess panel attrition at monthly frequency, 2023–2026, decomposed with
+  family pointers and noninterview reason codes into *leaving the survey*
+  (refusal) vs *leaving the address* (departure). The surprise: the
+  within-panel index did **not** spike after January 2025 — the refusal
+  component actually fell. The 2025 signal shows up instead at the
+  **recruitment margin** (fresh rotation groups have relatively fewer
+  foreign-born than continuing ones) and in **spouse-reported departures**,
+  which nearly doubled.
 
 ## The problem: emigration is the hardest number in demography
 
@@ -866,6 +880,106 @@ Nothing in the literature combines the matched-CPS estimator with these
 within-household informant signals — confirmed by targeted search across
 published work, working papers, and conference programs. It is a feasible
 next project with the pipeline already in this repository.
+
+## The prototype: a high-frequency fear thermometer
+
+The two research directions above are not hypothetical — this repository now
+contains a working prototype (`fear_thermometer.py`, `make_fear_figure.py`)
+that links every consecutive pair of basic monthly CPS files from January
+2023 through May 2026 and computes, for each month:
+
+```
+fear_index = u_fb − u_2g
+```
+
+the share of foreign-born adults (15+) in continuing-eligible households who
+fail person-level follow-up the next month, minus the same share for
+**second-generation adults** (U.S.-born with a foreign-born parent) — the
+identical control-group logic as Van Hook et al., but at monthly frequency.
+Shared nonresponse (panel fatigue, field problems, seasonality common to
+both groups) cancels; the index moves only when the foreign-born diverge
+from demographically similar households.
+
+![The fear thermometer, monthly, 2023–2026](outputs/figure_fear.png)
+
+### The family-pointer decomposition
+
+Each disappearing person is classified into tiers using the household's
+interview outcome, the roster, and family pointers:
+
+| Tier | Signal | Reading |
+|---|---|---|
+| **T1 spouse-reported** | matched stayer whose spouse (via `PESPOUSE` pointer) vanished from the roster *and* whose own marital status flipped "married, spouse present" → "married, spouse **absent**" | an affirmative informant report of a specific person's departure — resists concealment |
+| **T2 roster-confirmed** | person absent from a household that *was* re-interviewed | cannot be their own refusal; the family implicitly reports the departure |
+| **T3 moved** | whole unit vacant, gone from the sample, or Type A "unable to locate" | the address emptied — departure (somewhere), not refusal |
+| **T4 refusal** | whole unit Type A refused / no one home / temporarily absent | evidence of *presence* plus avoidance — the purest fear signal |
+
+The **refusal gap** (T4, foreign-born minus second-generation) is the
+avoidance thermometer; the **departure gap** (T2+T3) contains emigration.
+
+### What it shows — and the surprise
+
+Averages of the monthly gaps (percentage points per month):
+
+| period | fear index | refusal gap (T4) | departure gap (T2+T3) | FB spouse-reported (T1) |
+|---|---|---|---|---|
+| 2023–24 baseline | **+0.77** | +0.43 | +0.34 | 0.032% |
+| 2025–26 | **+0.46** | +0.14 | +0.32 | 0.052% |
+
+Three findings, in decreasing order of expectedness:
+
+1. **The departure gap peaked exactly at the policy shock.** The
+   February→March 2025 pair shows the largest departure gap of the whole
+   series (+1.11pp) while its refusal gap went *negative* — foreign-born
+   households were physically leaving addresses, not slamming doors.
+2. **Spouse-reported departures (T1) — the concealment-resistant tier —
+   nearly doubled** for the foreign-born (0.032% → 0.052% of adults per
+   month) while staying flat for the second generation (0.024% → 0.022%).
+   Small numbers, but it is the one tier where a family member affirmatively
+   states that a specific person left.
+3. **The within-panel fear index did *not* rise after January 2025 — it
+   fell.** The biggest index months are seasonal (December→January) and
+   2023 field-period artifacts, not enforcement dates. If 2025 produced
+   mass survey avoidance, it is not happening *inside* continuing panels.
+
+So where did the missing foreign-born respondents that Pew and the Fed
+noticed actually go? The **entry margin**. Comparing rotation groups
+(`outputs/entry_margin.csv`): post-2025, the foreign-born share of adults in
+*fresh* panels (month-in-sample 1, first contact) slipped to 17.2%, while in
+*old* panels recruited back in 2023–24 (MIS 5–8) it rose to 18.1–18.3%. The
+fresh-minus-old wedge widened from ~0.3pp to ~1.2pp, and overall Type A
+noninterview rates rose ~2.6pp across every rotation group. Households
+already in a trust relationship with their interviewer keep responding;
+avoidance operates on **first contact** — consistent with Bick & Bloodworth's
+conjecture, and invisible to any within-panel attrition measure, including
+Van Hook's. A CPS-based avoidance index therefore needs *both* margins:
+continuation (this section) and recruitment (the entry-margin wedge).
+
+### Where the thermometer moved, by state
+
+![State change in the fear index](outputs/figure_fear_map.png)
+
+Pooling 2025–26 minus the 2023–24 baseline, for states with enough
+foreign-born sample: increases concentrate in **DC (+2.3pp), Texas (+1.4),
+New Jersey (+1.2)**; decreases in **Maryland (−3.2), Hawaii (−3.7),
+Washington (−1.8)** (Utah's −5.4 is a small-cell artifact). The mixed
+geography is itself informative: with monthly SEs near ±0.5pp nationally and
+far larger by state, the within-panel index is a national-frequency
+instrument, not (yet) a state-monthly one.
+
+Caveats: the October 2025 CPS was **never collected** (government
+shutdown) — the published file is a 376-row stub — so the
+September→November pair bridges two months using the rotation groups
+scheduled for both (MIS 1, 2, 5, 6), divided by two for a monthly
+equivalent. T3 "moved" includes ordinary domestic movers; T1 flips include
+separations and institutionalization; and all tiers inherit the CPS's
+address-based design. Reproduce with:
+
+```bash
+uv run python fear_thermometer.py cps_data jan23 may26
+uv run python entry_margin.py cps_data jan23 may26
+uv run python make_fear_figure.py
+```
 
 ## Further reading
 
