@@ -1,6 +1,0 @@
-==== Reversion-rate sweep (lifetime increments vs paper) ====
-  paper: incid.red -8.0%  dCost -$3,208  dQALY 0.120  dLY 0.270  ICER -$26,134  NMB $15,483
-
-   r_rev   HET incid.red    dCost  dQALY    dLY     ICER      NMB
-    0.05  6.08     -4.1%   -4,666  0.196  0.077  -23,749   24,312
-    0.10  5.96     -5.3%   -5,997  0.244  0.097  -24,622   30,351
