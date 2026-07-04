@@ -1,0 +1,29 @@
+# Age-specific epidemiology inputs for the GBD re-base, by location.
+# ---------------------------------------------------------------------------
+# PROVENANCE / HONESTY NOTE. Draw-level GBD 2021 estimates are NOT reachable from
+# this sandbox: the vivarium_nih_us_cvd artifacts are Git-LFS stubs gated by the
+# proxy, building an artifact needs IHME cluster access (get_draws), and the GBD
+# Results Tool is interactive. So the numbers below are ILLUSTRATIVE, anchored to
+# published GBD-2021 / US-surveillance MAGNITUDES (diabetes incidence rises with
+# age to a peak ~60-70 then declines; GBD prevalence peaks at 75-79). They exist
+# to demonstrate the re-base MECHANISM and are meant to be REPLACED by real GBD
+# draws (see README "Drop-in seam"). "HighBurden" is a scaled illustration of a
+# higher-, younger-onset diabetes location, not a specific country's GBD result.
+#
+# t2d_incidence_per1000 = general-population annual type-2 diabetes incidence (/1000)
+# acmr_per1000          = all-cause mortality rate (/1000/yr)
+location,age_start,t2d_incidence_per1000,acmr_per1000
+USA,20,1.5,0.9
+USA,30,3.0,1.4
+USA,40,6.0,2.4
+USA,50,9.0,4.8
+USA,60,11.0,10.5
+USA,70,10.0,24.0
+USA,80,7.0,70.0
+HighBurden,20,3.0,1.4
+HighBurden,30,6.5,2.2
+HighBurden,40,12.0,3.8
+HighBurden,50,16.0,7.5
+HighBurden,60,16.0,14.0
+HighBurden,70,12.5,30.0
+HighBurden,80,9.0,80.0

@@ -171,6 +171,16 @@ so you are not blocked and you get an independent cross-check of their numbers.
 
 ## 4. Goal 2 — Re-base the evidence on GBD
 
+> **▶ Started — see [`gbd_rebase/`](./gbd_rebase/).** A working pipeline drives diabetes onset (age
+> pattern + level) and mortality from a location's GBD-style epidemiology curve and compares locations.
+> Findings: the vitamin-D **ICER is stable (~−$25.7k) and stays cost-saving/dominant** under the re-base
+> (even with realistic GBD mortality, US remaining LY 29 vs the paper's 36), and **higher-burden
+> locations get a larger absolute benefit** (NMB $38k vs $31k) — the conclusion transports, the value
+> scales with local burden. Caveat: draw-level GBD is not reachable from the sandbox (the
+> `vivarium_nih_us_cvd` artifacts are LFS-gated stubs; building needs the IHME cluster), so the inputs
+> are GBD-anchored *illustrative* magnitudes with a documented drop-in seam for real draws
+> (`get_draws` / a resolved vivarium artifact). Costs are held at US values (location costing is §5).
+
 **Verdict: feasible, and this is where IHME has the comparative advantage.** The move is to replace the
 model's *epidemiologic* layers (incidence, complication rates, mortality) with GBD estimates while keeping
 the economic layers, then see how the cost-effectiveness shifts. What matters is that GBD changes the
