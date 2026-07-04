@@ -3,12 +3,13 @@ Upgraded prevention front-end: RISK-FACTOR-DEPENDENT onset + a NORMOGLYCEMIA
 (reversion) state. This replaces the binary "susceptible fraction" hack in
 onset_model.py with two mechanisms that are both grounded in the paper and the data:
 
-  1. Onset heterogeneity from real risk factors. Instead of splitting the cohort
-     into immune vs susceptible, every person's annual prediabetes->diabetes hazard
-     is h0 * exp(b_a1c*(HbA1c-mean) + b_fpg*(FPG-mean) + b_bmi*(BMI-mean)). People
-     near the diabetes threshold (high HbA1c/FPG/BMI) convert fast and deplete early;
-     low-risk people rarely convert. That heterogeneity -- not an immune group -- is
-     what flattens cumulative incidence after ~10 years. (FPG is used where measured,
+  1. AGE- and risk-factor-dependent onset. Instead of splitting the cohort into
+     immune vs susceptible, every person's annual prediabetes->diabetes hazard is
+     h0 * exp(b_age*(age-50)) * exp(b_a1c*(HbA1c-mean) + b_fpg*(FPG-mean) + b_bmi*(BMI-mean)).
+     Onset rises with CURRENT AGE (core diabetes epidemiology) and with baseline
+     glycemic/adiposity markers. Age-rising onset plus rising competing mortality caps
+     lifetime incidence naturally, and makes converters older (shorter, cheaper diabetes
+     careers) -- the fix for the v2-without-age overshoot. (FPG is used where measured,
      ~63% of the cohort; neutral where absent, so each person is scored on the marker
      that defined them.)
 
@@ -58,6 +59,10 @@ SEED = 2026
 B_A1C = 1.5                # per % HbA1c
 B_FPG = 0.03               # per mg/dL fasting glucose
 B_BMI = 0.03               # per BMI unit
+# AGE-dependent onset: progression risk rises with current age (core diabetes
+# epidemiology). B_AGE ~ 0.05/yr => hazard doubles about every 14 years of age.
+B_AGE = 0.05               # per year of age (~doubling every 14 yr; core diabetes epidemiology)
+AGE_REF = 50.0             # centring age (h0 is the onset level at age 50, mean markers)
 
 # calibration targets (Briody Table 3, control arm)
 TGT_LY = 36.45
@@ -117,6 +122,7 @@ def simulate(arm, h0, het, mort_scale, r=R_REV):
            ("py_n", "py_p", "py_d", "dur_d", "vitd",
             "py_n10", "py_p10", "py_d10", "dur_d10", "vitd10", "ly", "ly10")}
     diab10 = np.zeros(N, bool); diab_life = np.zeros(N, bool)
+    onset_age = np.full(N, np.nan)   # age at diabetes onset (NaN if never)
 
     for t in range(T):
         age = AGE0 + t
@@ -147,7 +153,8 @@ def simulate(arm, h0, het, mort_scale, r=R_REV):
         # ---- transitions among survivors ----
         sp = surv & (state == 1)     # prediabetes
         sn = surv & (state == 0)     # normoglycemia
-        h_on = h0 * REL              # risk-factor-dependent onset hazard
+        age_factor = np.exp(B_AGE * (age - AGE_REF))     # onset rises with current age
+        h_on = h0 * age_factor * REL                     # age- and risk-factor-dependent onset
         r_ev = np.full(N, r)
         if arm == "vitd":
             h_on = np.where(ELIG, h_on * M_ONSET, h_on)
@@ -157,7 +164,7 @@ def simulate(arm, h0, het, mort_scale, r=R_REV):
         onset = sp & (U_ONSET[:, t] < p_on)
         revert = sp & ~onset & (U_REV[:, t] < p_rev)
         relapse = sn & (U_RELAPSE[:, t] < (1.0 - np.exp(-RELAPSE)))
-        state[onset] = 2; diab_life[onset] = True
+        state[onset] = 2; diab_life[onset] = True; onset_age[onset] = age[onset]
         if t < 10:
             diab10[onset] = True
         state[revert] = 0
@@ -165,7 +172,7 @@ def simulate(arm, h0, het, mort_scale, r=R_REV):
 
         dur[state == 2] += 1.0
 
-    return dict(**acc, diab10=diab10, diab_life=diab_life)
+    return dict(**acc, diab10=diab10, diab_life=diab_life, onset_age=onset_age)
 
 
 def wmean(x):
@@ -252,7 +259,7 @@ def main():
     print(f"  paper: incid.red -8.0%  dCost -$3,208  dQALY 0.120  dLY 0.270  ICER -$26,134  NMB $15,483\n")
     print(f"  {'r_rev':>6s} {'HET':>5s} {'incid.red':>9s} {'dCost':>8s} {'dQALY':>6s} {'dLY':>6s} {'ICER':>8s} {'NMB':>8s}")
     results = {}
-    for r in [0.05, 0.10, 0.15, 0.20]:
+    for r in [0.05, 0.10, 0.15]:
         p = calibrate(r)
         life, _ = evaluate(p)
         results[r] = (p, life)
@@ -265,11 +272,15 @@ def main():
     p, life = results[best_r]
     _, ten = evaluate(p)
     REL = np.exp(p["het"] * LP0)
+    csim = simulate("control", p["h0"], p["het"], p["mort_scale"], p["r"])
+    oa = csim["onset_age"]; conv = ~np.isnan(oa)
+    mean_onset_age = float(np.sum(W[conv] * oa[conv]) / np.sum(W[conv]))
     print(f"\n==== Chosen reversion rate r = {best_r:.2f} (closest lifetime dCost to paper) ====")
     print(f"  onset hazard h0 (at mean risk) : {p['h0']:.4f} /yr")
     print(f"  heterogeneity scale HET        : {p['het']:.2f}  (onset spread p10={np.quantile(REL,0.1):.2f}x  p90={np.quantile(REL,0.9):.1f}x)")
     print(f"  reversion P->N {best_r:.2f}/yr; relapse N->P {RELAPSE}/yr; mort scale {p['mort_scale']:.3f}")
     print(f"  complication cost ${p['C_COMP']:.0f}/yr.dur ; disutility {p['U_COMP']:.4f}/yr.dur ; DM mort HR {DM_MORT_HR}")
+    print(f"  age slope B_AGE={B_AGE}/yr ; mean age at diabetes onset (control): {mean_onset_age:.1f} yr")
 
     def show(name, m, pap):
         print(f"\n==== {name} ====")

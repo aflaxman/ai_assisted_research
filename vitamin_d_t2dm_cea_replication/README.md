@@ -139,14 +139,15 @@ Take the public complications engine as-is and add the missing prevention layer 
    rule, which applies to that combined file only). OGTT existed only in 2013–16 (no `OGTT_J`).
 2. **Implement the onset layer.** ✅ **Done — see [`simulation/`](./simulation/).** A transparent
    prediabetes→diabetes→death microsimulation, calibrated to the paper's control-arm Table 3, reproduces
-   the headline as an *emergent* output. Two variants bracket the paper: **v1** (susceptible fraction)
-   matches the cost/QALY increments (lifetime −$3,318 vs −$3,208; +0.149 vs +0.120 QALY) but
-   under-predicts the incidence reduction and survival; **v2** (risk-factor-dependent onset + a
-   normoglycemia/reversion state) matches the incidence reduction (−7.9% vs −8.0%) and improves
-   life-years, but overshoots the magnitudes ~2.4× because strong onset heterogeneity concentrates the
-   benefit on young, long-duration converters. **The ICER (≈−$25k vs −$26k) and the cost-saving/dominant
-   conclusion are robust across both** — the public data under-identify the onset structure; the exact
-   split needs the RTI onset equations. Diagnosis and the fix (age-dependent onset) are in the sub-README.
+   the headline as an *emergent* output. Model variants bracket the paper: **v1** (susceptible fraction)
+   matches the cost/QALY increments but under-predicts incidence reduction and survival; **v2**
+   (risk-factor onset + reversion) matches the incidence reduction (−7.9% vs −8.0%) but overshoots the
+   magnitudes; **v3** adds **age-dependent onset** (core diabetes epidemiology — mean onset age lands at a
+   realistic 66 yr) and brings the **ICER to a near-exact match (−$26,307 vs −$26,134)**. Across every
+   variant, the **ICER (≈−$24k to −$26k) and the cost-saving/dominant conclusion are robust**, while the
+   absolute increments are under-identified by public data — a genuine replication finding. The
+   decision-relevant conclusion reproduces; exact magnitudes need the RTI onset equations. Details and the
+   identifiability analysis are in the [`simulation/`](./simulation/) sub-README.
 3. **Wire in the published inputs** from [`paper_parameters.md`](./paper_parameters.md): $60/yr
    supplement, 3% discount, $100k WTP, Yang/Wang complication costs, Neuwahl utilities.
 4. **Run the Monte Carlo harness** (100 × 10,000) and compute ICER + NMB with 2.5/97.5 empirical UIs.

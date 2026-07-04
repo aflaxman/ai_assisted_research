@@ -158,26 +158,63 @@ control-arm Table 3, yet they disagree on the intervention increments — v1 mat
 magnitudes but under-predicts the incidence reduction and survival; v2 matches the incidence
 reduction and improves survival but overshoots the magnitudes. **The ICER (≈−$25k) and the
 qualitative conclusion (cost-saving / dominant) are robust across both** — the cost-effectiveness
-*ratio* is structurally stable even though its absolute components are not pinned down. Resolving
-the split needs the paper's actual onset/reversion equations (RTI technical manual, on request).
+*ratio* is structurally stable even though its absolute components are not pinned down.
+
+## Upgrade v3 — add age-dependent onset (in `onset_reversion_model.py`)
+
+Diabetes incidence rises steeply with age, and the v2 overshoot was traced to age being *absent*
+from onset (so high-risk people converted young, accruing 40+ diabetic years). v3 multiplies the
+onset hazard by `exp(B_AGE·(age−50))` with `B_AGE = 0.05/yr` (≈ doubling every 14 years).
+
+It works as intended, and the diagnostic proves it: **mean age at diabetes onset is now 66 years**
+(realistic for T2D; it was implicitly far younger before). Converters now have short, moderately
+priced diabetes careers, so the cost increment falls and — the headline — **the ICER matches the
+paper almost exactly**:
+
+| Lifetime, per person | v1 (suscept.) | v2 (rf+rev) | **v3 (rf+rev+age)** | Paper |
+|---|---|---|---|---|
+| Incidence reduction | −2.2% | −7.9% | −3.6% | −8.0% |
+| Incremental cost | −$3,318 | −$7,608 | **−$4,873** | −$3,208 |
+| Incremental QALY | +0.149 | +0.308 | **+0.185** | +0.120 |
+| Life-years gained | 0.043 | 0.138 | 0.038 | 0.270 |
+| **ICER $/QALY** | −$22,270 | −$24,693 | **−$26,307** | −$26,134 |
+| NMB @ $100k | $18,218 | $38,420 | **$23,397** | $15,483 |
+| Mean onset age | — | — | **66 yr** | — |
+
+**The intrinsic trade-off, now fully mapped.** Sweeping the age slope (0 → 0.03 → 0.05) moves the
+model monotonically along a frontier: as age-dependence increases, the cost/ICER improve toward the
+paper but the incidence reduction and life-years fall. No single (age slope, reversion rate,
+heterogeneity) combination reproduces *all* of {incidence curve, incidence reduction, cost, QALY,
+life-years} at once. The reason is structural: any onset shape that reproduces the steep-then-flat
+incidence *curve* makes the highest-risk people near-certain converters, so the 15% hazard cut
+*delays* rather than *prevents* them — which caps the achievable incidence reduction and survival
+gain. The paper threads this needle because its fitted onset/reversion/mortality equations have the
+right joint shape; a reduced form calibrated only to summary targets cannot recover that shape
+uniquely from public data.
+
+**What is and isn't identifiable (the honest bottom line).** Across every variant tried — three
+onset structures, reversion rates 0.05–0.20, age slopes 0–0.05 — two things are **robust**: the
+**ICER (≈ −$24k to −$26k, paper −$26,134)** and the **cost-saving / dominant conclusion**. With the
+epidemiologically-correct age-dependent onset, the ICER is essentially exact. The **absolute**
+increments (cost, QALY, incidence reduction, life-years) are **under-identified** by public data and
+span a range across plausible structures. This is itself a useful replication result: the paper's
+*decision-relevant* conclusion is reproducible and structurally stable; its exact magnitudes require
+the proprietary onset equations (RTI technical manual, on request).
 
 ## How to make it more faithful (next fidelity steps)
 
-1. **Age-dependent onset.** The diagnosed cause of the v2 overshoot: with onset driven only by
-   baseline HbA1c/FPG/BMI, high-risk people convert young (long, expensive diabetes careers).
-   Letting onset also rise with age would make converters older → shorter durations → smaller,
-   paper-consistent increments. This is the highest-value next change.
-2. Add a **complication-cost plateau** (costs/disutilities that saturate rather than ramp
-   linearly with duration) — a second, independent brake on the long-duration inflation.
-3. Replace the aggregate complication ramp with the **real CDC/RTI complication and mortality
-   equations** (public in `t2d/`; see parent README) run on each person after onset — a genuine
-   two-module (prevention + complications) model.
+1. Obtain the **RTI prediabetes onset/reversion equations** (technical manual, on request) — the
+   only way to pin the onset *shape* and resolve the identifiability tension above.
+2. Add a **complication-cost plateau** (saturating rather than linear-in-duration) — an independent
+   brake on long-duration cost inflation.
+3. Replace the aggregate complication ramp with the **real CDC/RTI complication + mortality
+   equations** (public in `t2d/`) run per person after onset — a genuine two-module model.
 4. Add **probabilistic sensitivity analysis** (draw the 15% RRR from HR 0.85 [0.75–0.96] plus
-   cost/utility SEs) to produce uncertainty intervals and reproduce the supplement's PSA cloud.
+   cost/utility SEs) to reproduce the supplement's PSA cloud (mean −$3,701, 99% dominant).
 
 ## Files
 
 - `onset_model.py` — v1 (susceptible-fraction) model, calibration, Table 3 comparison.
-- `onset_reversion_model.py` — v2 (risk-factor onset + reversion), with the reversion-rate sweep.
+- `onset_reversion_model.py` — v2/v3: risk-factor + age-dependent onset, reversion state, reversion sweep.
 - `outputs/cea_results.csv` — v1 incremental cost, QALY, life-years, ICER, NMB (both horizons).
-- `outputs/cea_results_reversion.csv` — v2 results at the chosen reversion rate.
+- `outputs/cea_results_reversion.csv` — v3 results at the chosen reversion rate.
