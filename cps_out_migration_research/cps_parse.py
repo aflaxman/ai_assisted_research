@@ -20,6 +20,9 @@ LAYOUT = {
     "HRHHID": (1, 15),      # household identifier part 1
     "HRMONTH": (16, 17),    # month of interview
     "HRYEAR4": (18, 21),    # year of interview
+    "HUTYPEA": (41, 42),    # Type A reason: 1 NOH,2 temp abs,3 REFUSED,5 unable to locate
+    "HUTYPB": (43, 44),     # Type B reason (vacancy states)
+    "HUTYPC": (45, 46),     # Type C reason (demolished etc.)
     "HRINTSTA": (57, 58),   # interview status: 1=interview, 2=Type A, 3=B, 4=C
     "HRMIS": (63, 64),      # month-in-sample 1-8
     "HRLONGLK": (69, 70),   # longitudinal link: 0=no link, 2=MIS2-4/6-8, 3=MIS5
@@ -28,11 +31,15 @@ LAYOUT = {
     "GTCO": (101, 103),     # county FIPS (0 if not identified)
     "PERRP": (118, 119),    # relationship to reference person
     "PRTAGE": (122, 123),   # age (topcoded 85)
+    "PEMARITL": (125, 126), # marital status: 1 married sp present, 2 married sp ABSENT
+    "PESPOUSE": (127, 128), # line number of spouse (-1 none)
     "PESEX": (129, 130),    # sex 1=male 2=female
     "PTDTRACE": (139, 140), # race recode
     "PULINENO": (147, 148), # person line number (stable within household)
     "PRPERTYP": (161, 162), # 1=child,2=adult civilian,3=adult armed forces
     "PENATVTY": (163, 165), # country of birth
+    "PEMNTVTY": (166, 168), # mother's country of birth
+    "PEFNTVTY": (169, 171), # father's country of birth
     "PRCITSHP": (172, 173), # citizenship: 4,5 = foreign born
     "PRINUYER": (176, 177), # immigrant year-of-entry recode
     "PEMLR": (180, 181),    # monthly labor force recode
