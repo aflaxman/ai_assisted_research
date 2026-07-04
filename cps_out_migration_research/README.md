@@ -776,6 +776,97 @@ Key reception literature: Jensen (2013) Census WP-101; Leach & Jensen
 WP-23-42, WP-24-31; Bick & Bloodworth (2025) St. Louis Fed; Solignac (2018)
 *Population* 73(4).
 
+## Two research directions this project opens
+
+### 1. The attrition gap as a *system-avoidance* measure
+
+What this method measures may be more interesting than what it fails to
+measure. Sociology has a name for fear-driven disengagement from
+record-keeping institutions: **system avoidance** (Brayne 2014, *ASR* —
+people with criminal-justice contact avoid hospitals, banks, schools, and
+employment records, but not civic/religious life). The immigrant-facing
+literature shows the same behavior under enforcement pressure: benefit
+chilling with spillovers onto citizen family members (Watson 2014; Alsan &
+Yang 2024), health-system avoidance among Latino *citizens* when
+immigration is salient ("cautious citizenship," Pedraza et al. 2017), and
+Asad's *Engage and Evade* (2023) corrective that avoidance is selective —
+families engage record systems that document deservingness (taxes, schools)
+and evade purely extractive ones. A federal survey interview generates a
+record with no deservingness payoff: it is a nearly pure "evade-side" state
+contact.
+
+Survey response has been used as a substantive measure before — but of
+*civic cooperation* (Knack & Kropf 1998 used census mail-back rates as
+civic norms; Singer et al. 2003 showed privacy concern predicts census
+nonresponse; the Census Bureau's own CBAMS names government distrust as a
+participation barrier; the citizenship-question experiments even found
+strategic concealment of Hispanic household members). What does not exist —
+confirmed by targeted search — is any peer-reviewed work treating
+household-panel attrition as a *measure of state avoidance*, or jointly
+modeling emigration and survey withdrawal as manifestations of one latent
+fear. The closest thing is a Fed blog note (Bick & Bloodworth 2025). The
+foreign-born-minus-second-generation excess-attrition gap this project
+computes is a candidate **avoidance index**: near zero in calm years,
+spiking under COVID and the 2025 enforcement climate, concentrated among
+recent arrivals and enforcement-exposed sectors, spilling onto naturalized
+citizens — every signature the avoidance literature predicts. Monthly CPS
+linkage could turn it into a high-frequency "fear thermometer" correlated
+with enforcement events by state and month, with mirror statistics used to
+subtract the physical-departure component rather than the other way around.
+
+### 2. Family structure as the missing identification
+
+Mexico's ENOE shows what the CPS lacks: at each reinterview, remaining
+household members report a *reason for each roster absence* — international
+migration is an explicit code. That informant design powers emigrant-
+selection studies with pre-departure characteristics (Fernández-Huertas
+Moraga 2011, *REStat*) and is now used by the Census Bureau itself (Vintage
+2025 adjusts Mexico emigration with ENOE). Its known blind spot — whole
+households leave no informant — is the same one the 1987–89 CPS
+multiplicity supplements and the UN's emigration-module guidance document.
+
+The CPS never asks why someone left the roster, but its panel structure and
+family pointers let us *infer* the informant signal:
+
+- **Roster-confirmed departures**: a person absent at t+1 from a household
+  that responded (family members present and interviewed, person not
+  listed) cannot be their own survey refusal — the household implicitly
+  reports the departure. Estimating emigration from these events only, with
+  whole-household nonresponse bounded separately, would split the
+  emigration/refusal confound at its joint.
+- **Spouse-absent transitions**: "married, spouse present" → "married,
+  spouse absent" among matched stayers is an informant-reported departure
+  of a specific person (Van Hook & Zhang 2011 used spouse absence as a
+  *predictor*; as far as the search found, no one has used the *transition*
+  as an emigration outcome in the CPS).
+- **Mixed-nativity anchoring**: households containing U.S.-born adults have
+  response propensities less sensitive to enforcement; comparing
+  foreign-born disappearance in anchored vs unanchored households
+  difference-out household-level refusal (selection caveat: the
+  foreign-born in mixed households are more integrated).
+- **Noninterview reason codes**: the basic monthly file's `HUTYPEA` (refused
+  / no one home / unable to locate) partitions the ambiguous whole-household
+  bucket — a *refusal* is evidence of continued presence plus avoidance; a
+  *vacant unit* is evidence of departure. Merging ASEC nonrespondents to
+  next-March basic-file reason codes would convert the worst identification
+  gap into three-way information.
+
+Two honest complications from the literature. First, *roster omission as
+concealment*: Brown & Heggeness (Census CES) find survey sensitivity
+operates partly through households responding but omitting members — so a
+"roster-confirmed departure" can also be a hidden member. Affirmative
+signals (a respondent *stating* "married, spouse absent") resist this
+better than silent omissions. Second, the **SIPP already solves part of
+this**: classic SIPP leaver codes include an explicit "Moved outside of
+U.S." reason reported by remaining household members — making SIPP the
+strongest existing U.S. roster-based emigration instrument, apparently
+never exploited for emigration estimation.
+
+Nothing in the literature combines the matched-CPS estimator with these
+within-household informant signals — confirmed by targeted search across
+published work, working papers, and conference programs. It is a feasible
+next project with the pipeline already in this repository.
+
 ## Further reading
 
 - Van Hook, J., Zhang, W., Bean, F. D., & Passel, J. S. (2006). *Foreign-born
