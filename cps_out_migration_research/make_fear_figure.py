@@ -108,6 +108,10 @@ def main():
     # ---- figure_fear_map.png ---------------------------------------------
     st = pd.read_csv("outputs/fear_monthly_states.csv", parse_dates=["date"])
     st["era"] = np.where(st["date"] >= "2025-01-01", "post", "base")
+    # Monthly-equivalent rates for bridged pairs (sep25->nov25 spans 2 months)
+    sspan = st.get("months_span", pd.Series(1, index=st.index)).fillna(1)
+    for col in ["fb_u", "2g_u"]:
+        st[col] = st[col] / sspan
 
     def pool(g):
         wf, w2 = g["n_fb"].sum(), g["n_2g"].sum()

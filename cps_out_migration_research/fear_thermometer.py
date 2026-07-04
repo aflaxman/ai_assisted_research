@@ -186,6 +186,9 @@ def run(data_dir: str, start: str, end: str,
             mi_prev = MONTHS.index(prev_tok[:3]) + 12 * int(prev_tok[3:])
             mi_cur = MONTHS.index(tok[:3]) + 12 * int(tok[3:])
             span = mi_cur - mi_prev
+            if span > 2:
+                raise ValueError(f"gap {prev_tok}->{tok} spans {span} months;"
+                                 " only 1- and 2-month links are supported")
             emis = {1, 2, 5, 6} if span == 2 else None
             m = link_pair_tiers(prev, cur, eligible_mis=emis)
             s = pair_summary(m)

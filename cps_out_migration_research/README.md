@@ -57,12 +57,15 @@ done, and then computed the numbers for Washington State from public data.
 - **Prototype: a monthly "fear thermometer"** (below) tracks foreign-born
   excess panel attrition at monthly frequency, 2023–2026, decomposed with
   family pointers and noninterview reason codes into *leaving the survey*
-  (refusal) vs *leaving the address* (departure). The surprise: the
-  within-panel index did **not** spike after January 2025 — the refusal
-  component actually fell. The 2025 signal shows up instead at the
-  **recruitment margin** (fresh rotation groups have relatively fewer
-  foreign-born than continuing ones) and in **spouse-reported departures**,
-  which nearly doubled.
+  (refusal) vs *leaving the address* (departure). After adversarial
+  auditing, one finding survives robustly: the within-panel index did
+  **not** rise after January 2025 — foreign-born respondents were, if
+  anything, *retained slightly better* than natives inside continuing
+  panels, while refusal rose most for the third generation. The
+  post-2025 CPS problem looks like an **everyone problem** (a survey-climate
+  deterioration), not a within-panel immigrant-flight problem. A doubling of
+  spouse-reported departures is suggestive but not significant against the
+  control group.
 
 ## The problem: emigration is the hardest number in demography
 
@@ -926,60 +929,143 @@ Averages of the monthly gaps (percentage points per month):
 | 2023–24 baseline | **+0.77** | +0.43 | +0.34 | 0.032% |
 | 2025–26 | **+0.46** | +0.14 | +0.32 | 0.052% |
 
-Three findings, in decreasing order of expectedness:
+These numbers went through the same adversarial audit as the replication
+(code audit, statistical stress-test, claim-by-claim recomputation). Two
+seductive first readings did **not** survive; what remains is stated below
+with the autopsy of what died.
 
-1. **The departure gap peaked exactly at the policy shock.** The
-   February→March 2025 pair shows the largest departure gap of the whole
-   series (+1.11pp) while its refusal gap went *negative* — foreign-born
-   households were physically leaving addresses, not slamming doors.
+**What survives:**
+
+1. **The within-panel fear index did *not* rise after January 2025.** This
+   is robust: it holds in calendar-matched comparisons (January–May 2025–26
+   vs the same months of 2023–24), and it holds excluding the
+   shutdown-contaminated September→November 2025 bridge pair (which is the
+   post-era's largest value). The biggest index months are seasonal
+   (December→January) and 2023 field-period artifacts, not enforcement
+   dates. If 2025 produced mass survey avoidance, it is not happening
+   *inside* continuing panels. Do **not** read the refusal-gap decline as
+   avoidance *easing*, though: the era difference is statistically
+   insignificant (p≈0.25), continues a downtrend already present in
+   2023–24, and happened mechanically because *native* refusal rose more
+   (third-generation Type A up +1.1pp, p=0.003) than foreign-born refusal
+   (+0.6pp, n.s.). Detrended, the post-2025 refusal gap sits marginally
+   *above* its pre-trend (p=0.075).
 2. **Spouse-reported departures (T1) — the concealment-resistant tier —
-   nearly doubled** for the foreign-born (0.032% → 0.052% of adults per
-   month) while staying flat for the second generation (0.024% → 0.022%).
-   Small numbers, but it is the one tier where a family member affirmatively
-   states that a specific person left.
-3. **The within-panel fear index did *not* rise after January 2025 — it
-   fell.** The biggest index months are seasonal (December→January) and
-   2023 field-period artifacts, not enforcement dates. If 2025 produced
-   mass survey avoidance, it is not happening *inside* continuing panels.
+   roughly doubled** for the foreign-born (0.032% → 0.052% of adults per
+   month; ~145 events total) while staying flat for the second generation
+   (0.024% → 0.022%). Against its own baseline the rise is significant
+   (p<0.001); against the control group it is not (difference-in-differences
+   p≈0.10), and it sits on a pre-2025 upward drift (0.028% in 2023 → 0.036%
+   in 2024). Suggestive, not probative.
 
-So where did the missing foreign-born respondents that Pew and the Fed
-noticed actually go? The **entry margin**. Comparing rotation groups
-(`outputs/entry_margin.csv`): post-2025, the foreign-born share of adults in
-*fresh* panels (month-in-sample 1, first contact) slipped to 17.2%, while in
-*old* panels recruited back in 2023–24 (MIS 5–8) it rose to 18.1–18.3%. The
-fresh-minus-old wedge widened from ~0.3pp to ~1.2pp, and overall Type A
-noninterview rates rose ~2.6pp across every rotation group. Households
-already in a trust relationship with their interviewer keep responding;
-avoidance operates on **first contact** — consistent with Bick & Bloodworth's
-conjecture, and invisible to any within-panel attrition measure, including
-Van Hook's. A CPS-based avoidance index therefore needs *both* margins:
-continuation (this section) and recruitment (the entry-margin wedge).
+**What died in the audit:**
+
+- *"The departure gap peaked exactly at the policy shock."* The
+  February→March 2025 pair does show the series-max departure gap
+  (+1.11pp) — but decomposition shows it is driven by the second-generation
+  **control group** having an anomalously *low* move rate that month
+  (−1.8 sd; ~33 moves observed vs ~63 expected in a ~5,500-person cell),
+  not by foreign-born behavior (+0.4 sd). Measured against the larger
+  third-generation control, the same month is unremarkable (+0.26pp). A
+  series maximum at z≈2.2, with 39 chances to be the maximum, is what noise
+  looks like.
+- *"Avoidance operates at the recruitment margin."* The fresh-vs-old
+  rotation-group wedge in foreign-born share is real (~0.3pp → ~1.1pp,
+  `outputs/entry_margin.csv`), but the decomposition assigns it to the
+  wrong margin: the foreign-born share of **fresh** panels (first
+  interview) did not fall (17.3% → 17.2%, p=0.45); the share in **old**
+  panels *rose* (17.6% → 18.3%, p<0.001). Cohort tracking shows why:
+  within a given rotation cohort, foreign-born share rises ~+1pp as the
+  panel ages — foreign-born respondents are *retained better than natives*
+  inside continuing panels, a pattern already visible in 2024. That is the
+  opposite of an avoidance signature. Two design confounds also apply to
+  any post-April-2025 fresh-vs-old comparison: the 2020-census **sample
+  redesign** phases in one incoming rotation group per month from April
+  2025 through July 2026, and the October 2025 shutdown degraded November
+  fieldwork (response down ~5pp).
+
+What *is* unambiguous at the entry margin: **Type A noninterview rose
+~2.3–3.1pp in every rotation group** post-2025, most of all among fresh
+panels (~26–28% → 29–33% by early 2026). The post-2025 CPS is a
+noisier, more-refused survey **for everyone** — natives most, via refusal —
+and that, not immigrant flight from continuing panels, is the correct null
+against which every "disappearing immigrants" claim should be tested. Where
+the missing foreign-born of the Pew/Fed stock estimates went remains open;
+within-panel behavior and respondent composition at first contact both
+fail to show a foreign-born-specific exodus.
 
 ### Where the thermometer moved, by state
 
 ![State change in the fear index](outputs/figure_fear_map.png)
 
 Pooling 2025–26 minus the 2023–24 baseline, for states with enough
-foreign-born sample: increases concentrate in **DC (+2.3pp), Texas (+1.4),
-New Jersey (+1.2)**; decreases in **Maryland (−3.2), Hawaii (−3.7),
-Washington (−1.8)** (Utah's −5.4 is a small-cell artifact). The mixed
+foreign-born sample: increases concentrate in **DC (+2.4pp), Texas (+1.4),
+New Jersey (+1.1)**; decreases in **Maryland (−3.2), Hawaii (−3.7),
+Washington (−2.0)** (Utah's −5.7 is a small-cell artifact). The mixed
 geography is itself informative: with monthly SEs near ±0.5pp nationally and
 far larger by state, the within-panel index is a national-frequency
-instrument, not (yet) a state-monthly one.
+instrument, not (yet) a state-monthly one — read the map as illustrative,
+not as evidence of state-level effects.
 
-Caveats: the October 2025 CPS was **never collected** (government
-shutdown) — the published file is a 376-row stub — so the
-September→November pair bridges two months using the rotation groups
+Caveats (several flagged by the audit): the October 2025 CPS was **never
+collected** (government shutdown) — the published file is a 376-row stub —
+so the September→November pair bridges two months using the rotation groups
 scheduled for both (MIS 1, 2, 5, 6), divided by two for a monthly
-equivalent. T3 "moved" includes ordinary domestic movers; T1 flips include
-separations and institutionalization; and all tiers inherit the CPS's
-address-based design. Reproduce with:
+equivalent; November fieldwork itself was degraded, and that bridge pair is
+an outlier on several tiers, so era averages should be checked with and
+without it (excluding it, the post-era fear index and refusal gap fall
+further, to ~0.41 and ~0.09pp). T4 "refusal" also contains
+temporarily-absent (~5%) and language-barrier households (foreign-born-
+differential: access, not avoidance). Roughly 40% of T3 person-counts come
+from households missing from the next file entirely rather than observed
+vacancies — the control-group differencing cancels most of this, but T3
+*levels* should not be over-read. T3 includes ordinary domestic movers; T1
+flips include separations and institutionalization; and all tiers inherit
+the CPS's address-based design. Reproduce with:
 
 ```bash
 uv run python fear_thermometer.py cps_data jan23 may26
 uv run python entry_margin.py cps_data jan23 may26
 uv run python make_fear_figure.py
 ```
+
+### What this means for the emigration estimates and the strata
+
+Reading the thermometer results back against the multi-year Van Hook
+estimates and every stratification above, the strata sort into three tiers:
+
+1. **Raw behavioral signal — the address-leaving margin.** The strata where
+   raw foreign-born non-follow-up actually rose in 2024→25: Mexico-born
+   (30% → 36%), Hispanic (35% → 39%), agriculture (30% → 46%) and farm
+   occupations (33% → 52%, tiny cells), construction (41% → 45%), and the
+   bottom half of the income distribution. These carry a real change in
+   behavior — but the thermometer says it is *departure from addresses*,
+   not refusal at the door, and the Mexico mirror caps verified emigration
+   at roughly a fifth of the estimate. The residual candidate is domestic
+   relocation and doubling-up — avoidance by moving, or economic
+   displacement — in enforcement-exposed populations.
+2. **Control-side and standardization artifacts.** Strata where the
+   *adjusted* estimate is elevated but raw attrition is flat: naturalized
+   citizens (5.1%, matching noncitizens, with no removal risk), males
+   (2:1 over females on flat raw rates), the less-educated gradient, the
+   65–74 spike, and the duration-aware 14.8% for 0–4-year arrivals (raw
+   non-follow-up flat at ~52%). These move because the control group and
+   the mover-adjustment terms moved — the fear/artifact channel of the
+   estimator, not measured departures.
+3. **No signal either way.** Asian-born (raw attrition *improved*,
+   35% → 30%), professionals, BA+, and college students (still negative
+   through the pre-SEVIS March 2025 window; dorm blind spot applies).
+
+The 2024→25 national estimate (gross 5.1%, ~2.6M) therefore bundles: a
+genuine address-departure wave concentrated in Mexico-origin,
+low-income, agriculture/construction populations (of which external
+mirrors verify only ~1/5 as emigration), plus control-group divergence in
+a survey whose refusal rates rose ~1–3pp for *everyone* after January
+2025. The one-sentence version: **in 2025 the CPS shows a country that
+is harder to survey and a subpopulation that is moving house; it does not
+show, at any margin we can isolate, a subpopulation fleeing the survey —
+and the evidence that it is fleeing the country is real but roughly
+five times smaller than the headline estimator implies.**
 
 ## Further reading
 
