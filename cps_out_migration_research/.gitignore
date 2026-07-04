@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+cps_data/
+*.dat.gz
+*.dat

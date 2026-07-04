@@ -1,0 +1,25 @@
+===== Washington (CPS basic monthly, 2024, 11 consecutive month-pairs) =====
+Individual departure rate from RE-INTERVIEWED households:
+  unweighted: 1.08% / month (155 leavers / 14337 person-pairs)
+  weighted  : 1.14% / month -> annualized ~12.9% / year
+  by nativity (weighted monthly): native 0.96% (n_left=110/12162) | foreign-born 2.14% (n_left=45/2175)
+Household re-interview outcomes (scheduled to return, n=6531):
+  reinterviewed           : 6016
+  Type A noninterview     : 417
+  gone from sample        : 35
+  Type B vacant/ineligible: 63
+  Type C ineligible       : 0
+  -> not cleanly reinterviewed: 7.9% of scheduled households
+
+===== United States (CPS basic monthly, 2024, 11 consecutive month-pairs) =====
+Individual departure rate from RE-INTERVIEWED households:
+  unweighted: 1.08% / month (8095 leavers / 747797 person-pairs)
+  weighted  : 1.17% / month -> annualized ~13.1% / year
+  by nativity (weighted monthly): native 1.06% (n_left=6434/651717) | foreign-born 1.75% (n_left=1661/96080)
+Household re-interview outcomes (scheduled to return, n=344971):
+  reinterviewed           : 316942
+  Type A noninterview     : 23736
+  gone from sample        : 1560
+  Type B vacant/ineligible: 2654
+  Type C ineligible       : 79
+  -> not cleanly reinterviewed: 8.1% of scheduled households

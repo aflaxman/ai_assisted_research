@@ -1,0 +1,3 @@
+label,n_person_pairs_clean,n_left,monthly_leaver_rate_unwt,monthly_leaver_rate_wt,annual_leaver_rate_wt,monthly_leaver_rate_wt_native,n_native_clean,n_native_left,monthly_leaver_rate_wt_foreign_born,n_foreign_born_clean,n_foreign_born_left,n_hh_scheduled,hh_reinterviewed,hh_typeA_noninterview,hh_gone_from_sample,hh_typeB_vacant_ineligible,hh_typeC_ineligible,hh_not_reinterviewed_rate
+Washington,14337,155,0.010811187835669945,0.011400816743858625,0.12854900937539548,0.009588468736993074,12162,110,0.021355174653187977,2175,45,6531,6016,417,35,63,0,0.07885469300260295
+United States,747797,8095,0.010825130349546736,0.011664673366984403,0.13133599381872374,0.010604288017522655,651717,6434,0.01753261178609575,96080,1661,344971,316942,23736,1560,2654,79,0.08125030799690414

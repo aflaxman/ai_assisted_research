@@ -1,0 +1,16 @@
+source,period,annual_k,counts_what
+Censo 2010 (residence-5yr),2005-2010,167.0,"Mexico-born returnees from U.S., alive & resident in MX, /5"
+Encuesta Intercensal,2010-2015,90.0,Mexico-born returnees from U.S. (448k/5)
+Censo 2020 (residence-5yr),2015-2020,59.0,Mexico-born returnees from U.S. (294k/5)
+ENADID 2023 (emigration module),2018-2023,55.0,emigrants who returned to the household (276k/5)
+UPM/Segob devolucion events,CY2019,211.0,removal/return EVENTS at INM points (incl. repeat crossers)
+UPM/Segob devolucion events,CY2020,184.0,same
+UPM/Segob devolucion events,CY2021,161.0,same
+UPM/Segob devolucion events,CY2022,258.0,same (Title-42 era)
+UPM/Segob devolucion events,CY2023,215.0,same
+UPM/Segob devolucion events,CY2024,206.0,same
+UPM/Segob devolucion events,CY2025,160.0,same; Jan-May ran -30% y/y; ~15k voluntary per Segob
+DHS removals of Mexicans,FY2024,140.0,"removal events, mostly border-adjacent (not settled residents)"
+ENOE rates (status note),discontinued 2016,,"INEGI's ENOE per-10k emigration/return rate series last published Jan 2017 (data to 2016Q1); migration questions dropped 2020-22, reinstated 2023 but no published rates -- unusable for 2019-2025"
+EMIF Norte (status note),2019 last full year,809.0,"border-crossing EVENTS 'procedentes de EUA' incl. ~65-77% temporary US-resident visits; survey suspended 2021, partial 2022-23, none 2024-25 -- cannot speak to the 2025 question"
+Brookings voluntary-departure est.,2025,310.0,"midpoint 210-405k enforcement-induced departures, ALL nationalities; CPS-independent but an assumption construct (15-50% of removals, anchored by ~40k TRAC court grants)"
