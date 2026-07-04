@@ -113,19 +113,71 @@ Two modelling flags carried over from the feasibility review, worth keeping in v
   and as this model mirrors for comparability) may penalise adherence twice.
 - **Reversion to normoglycemia is omitted** — adding it would raise the modelled benefit.
 
+## Upgrade v2 — risk-factor-dependent onset + reversion (`onset_reversion_model.py`)
+
+The v1 limitations above motivated two changes, both grounded in the paper and the data:
+
+1. **Risk-factor-dependent onset** replaces the binary susceptible-fraction hack. Every
+   person's annual onset hazard is `h0 · exp(HET · [b_a1c·ΔHbA1c + b_fpg·ΔFPG + b_bmi·ΔBMI])`,
+   so people near the diabetes threshold convert fast and deplete early while low-risk
+   people rarely convert — a continuous, data-driven version of "susceptibility."
+2. **A normoglycemia/reversion state** (which Table 2's Normoglycemia cost row implies the
+   real model has): prediabetes⇄normoglycemia transitions, with vitamin D raising reversion
+   (RR 1.30, Pittas 2023) — the second benefit channel v1 omitted.
+
+Calibration is the same philosophy (control-arm targets only), with a heterogeneity *scale*
+tuned to the lifetime incidence and the reversion rate swept 0.05–0.20.
+
+**What the upgrade fixed, and the new tension it exposed:**
+
+| Lifetime, per person | v1 (susceptible frac.) | v2 (risk-factor + reversion) | Paper |
+|---|---|---|---|
+| Incidence reduction | −2.2% | **−7.9%** ✓ | −8.0% |
+| Life-years gained | 0.043 | **0.138** ↑ | 0.270 |
+| Incremental cost | −$3,318 ✓ | −$7,608 ✗ | −$3,208 |
+| Incremental QALY | +0.149 ✓ | +0.308 ✗ | +0.120 |
+| **ICER $/QALY** | **−$22,270** ✓ | **−$24,693** ✓ | −$26,134 |
+| NMB @ $100k | $18,218 ✓ | $38,420 ✗ | $15,483 |
+
+So v2 **fixes the incidence reduction** (−7.9% vs −8.0%) and roughly triples the life-years
+gained — the reversion state did its job. But the cost/QALY *magnitudes* now **overshoot ~2.4×**,
+and sweeping the reversion rate (0.05–0.20) does not change that — so it is structural, not a
+tuning knob.
+
+**Diagnosis (the useful part).** v2 averts essentially the same *number* of cases as the paper
+(both ≈2.6 per 100, matching the 8% reduction), but the implied lifetime cost *per averted case*
+is ~**$297k** vs the paper's ~**$123k**. The reason: the strong heterogeneity needed to match the
+incidence *curve* (onset spread ~0.03×–25× across the cohort) makes the vitamin-D benefit
+concentrate on the highest-risk people, who convert *young* and therefore accrue 40+ diabetic
+years — and the complication cost ramps linearly with duration, without a plateau. The paper's
+averted cases evidently have shorter, more moderately-priced diabetes careers.
+
+**The honest headline: the public data under-identify the onset structure.** A discrete
+susceptible fraction (v1) and a continuous risk-factor gradient (v2) both reproduce the
+control-arm Table 3, yet they disagree on the intervention increments — v1 matches the cost/QALY
+magnitudes but under-predicts the incidence reduction and survival; v2 matches the incidence
+reduction and improves survival but overshoots the magnitudes. **The ICER (≈−$25k) and the
+qualitative conclusion (cost-saving / dominant) are robust across both** — the cost-effectiveness
+*ratio* is structurally stable even though its absolute components are not pinned down. Resolving
+the split needs the paper's actual onset/reversion equations (RTI technical manual, on request).
+
 ## How to make it more faithful (next fidelity steps)
 
-1. Add a **normoglycemia** state with prediabetes⇄normal transitions, and let vitamin D
-   raise reversion (RR 1.30) — this should lift both the incidence reduction and the
-   life-years gained toward the paper.
-2. Replace the aggregate complication ramp with the **real CDC/RTI complication and
-   mortality equations** (public in `t2d/`; see parent README) run on each person after
-   onset — turning this into a genuine two-module (prevention + complications) model.
-3. Add **probabilistic sensitivity analysis** (draw the 15% RRR from its CI, HR 0.85
-   [0.75–0.96], plus cost/utility SEs from Table 2) to produce uncertainty intervals like
-   the paper's, and run the paper's subgroup/scenario analyses.
+1. **Age-dependent onset.** The diagnosed cause of the v2 overshoot: with onset driven only by
+   baseline HbA1c/FPG/BMI, high-risk people convert young (long, expensive diabetes careers).
+   Letting onset also rise with age would make converters older → shorter durations → smaller,
+   paper-consistent increments. This is the highest-value next change.
+2. Add a **complication-cost plateau** (costs/disutilities that saturate rather than ramp
+   linearly with duration) — a second, independent brake on the long-duration inflation.
+3. Replace the aggregate complication ramp with the **real CDC/RTI complication and mortality
+   equations** (public in `t2d/`; see parent README) run on each person after onset — a genuine
+   two-module (prevention + complications) model.
+4. Add **probabilistic sensitivity analysis** (draw the 15% RRR from HR 0.85 [0.75–0.96] plus
+   cost/utility SEs) to produce uncertainty intervals and reproduce the supplement's PSA cloud.
 
 ## Files
 
-- `onset_model.py` — the model, calibration, and Table 3 comparison.
-- `outputs/cea_results.csv` — incremental cost, QALY, life-years, ICER, NMB (both horizons).
+- `onset_model.py` — v1 (susceptible-fraction) model, calibration, Table 3 comparison.
+- `onset_reversion_model.py` — v2 (risk-factor onset + reversion), with the reversion-rate sweep.
+- `outputs/cea_results.csv` — v1 incremental cost, QALY, life-years, ICER, NMB (both horizons).
+- `outputs/cea_results_reversion.csv` — v2 results at the chosen reversion rate.

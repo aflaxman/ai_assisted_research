@@ -138,12 +138,15 @@ Take the public complications engine as-is and add the missing prevention layer 
    (MEC) — *not* `WTMECPRP`, which is for the 2017–2020 combined file (a correction to our house NHANES
    rule, which applies to that combined file only). OGTT existed only in 2013–16 (no `OGTT_J`).
 2. **Implement the onset layer.** ✅ **Done — see [`simulation/`](./simulation/).** A transparent
-   3-state (prediabetes→diabetes→death) microsimulation, calibrated to the paper's control-arm Table 3,
-   reproduces the headline result as an *emergent* output: lifetime incremental cost **−$3,318** (paper
-   −$3,208), +0.149 QALY (+0.120), ICER **−$22,270** (−$26,134), NMB $18,218 ($15,483) — i.e. vitamin D
-   is **cost-saving/dominant**, matching the paper. It under-predicts life-years gained (0.04 vs 0.27)
-   and the lifetime incidence reduction (2.2% vs 8%) because the reduced form mostly *delays* onset and
-   omits the reversion-to-normoglycemia channel — honest limitations documented in the sub-README.
+   prediabetes→diabetes→death microsimulation, calibrated to the paper's control-arm Table 3, reproduces
+   the headline as an *emergent* output. Two variants bracket the paper: **v1** (susceptible fraction)
+   matches the cost/QALY increments (lifetime −$3,318 vs −$3,208; +0.149 vs +0.120 QALY) but
+   under-predicts the incidence reduction and survival; **v2** (risk-factor-dependent onset + a
+   normoglycemia/reversion state) matches the incidence reduction (−7.9% vs −8.0%) and improves
+   life-years, but overshoots the magnitudes ~2.4× because strong onset heterogeneity concentrates the
+   benefit on young, long-duration converters. **The ICER (≈−$25k vs −$26k) and the cost-saving/dominant
+   conclusion are robust across both** — the public data under-identify the onset structure; the exact
+   split needs the RTI onset equations. Diagnosis and the fix (age-dependent onset) are in the sub-README.
 3. **Wire in the published inputs** from [`paper_parameters.md`](./paper_parameters.md): $60/yr
    supplement, 3% discount, $100k WTP, Yang/Wang complication costs, Neuwahl utilities.
 4. **Run the Monte Carlo harness** (100 × 10,000) and compute ICER + NMB with 2.5/97.5 empirical UIs.
