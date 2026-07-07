@@ -1,0 +1,31 @@
+Variable,Paper Table 1,Recon: fasting-union (A),Recon: MEC-union (B)
+N (unweighted),4176,3563,5603
+"Age, years",53.3 (17.0),49.2 (17.0),51.6 (16.7)
+"HbA1c, %",5.7 (0.5),5.5 (0.4),5.6 (0.4)
+"BMI, kg/m2",30.3 (7.3),30.0 (7.2),30.3 (7.1)
+"Systolic BP, mm Hg",128 (19),124.3 (16.8),125.9 (17.1)
+"HDL, mmol/L",1.35 (0.39),1.4 (0.4),1.4 (0.4)
+"LDL, mmol/L",3.00 (0.93),3.0 (0.9),3.0 (0.9)
+"Triglycerides, mmol/L",1.12 (0.67),1.3 (1.0),1.4 (1.1)
+"Serum creatinine, umol/L",80 (35),77.9 (32.9),78.7 (31.7)
+"Fasting plasma glucose, mmol/L",5.9 (0.8),5.8 (0.4),5.9 (0.4)
+Female,49%,46.2%,48.1%
+NH White,62%,63.8%,62.6%
+NH Black,12%,10.6%,12.0%
+Hispanic,16%,15.6%,15.4%
+Other race/ethnicity,10%,10.0%,10.0%
+Postsecondary education (20+),61%,59.3%,59.5%
+Current smoker,18%,18.0%,18.6%
+25(OH)D <30 nmol/L,7.6%,4.7%,4.8%
+25(OH)D 30-50 nmol/L,21.9%,19.0%,18.7%
+25(OH)D >=50 nmol/L,70.5%,75.9%,75.9%
+Microalbuminuria,8.2%,7.2%,8.2%
+Macroalbuminuria,0.8%,0.7%,0.8%
+CKD stage 3-5 (eGFR<60),9.7%,4.8%,5.9%
+CKD stage 4-5 (eGFR<30),0.5%,0.2%,0.4%
+Dialysis,<0.1%,0.1%,0.0%
+Myocardial infarction,2.5%,2.9%,3.4%
+Stroke,3.1%,2.6%,2.8%
+Congestive heart failure,1.3%,1.8%,2.3%
+Angina,2.8%,1.6%,2.0%
+Family history of diabetes,27%,39.9%,41.4%
