@@ -275,3 +275,72 @@ fig.tight_layout(rect=[0, 0.02, 1, 1])
 fig.savefig("fig11_copula_capunits.png", dpi=130)
 plt.close(fig)
 print("wrote fig11_copula_capunits.png")
+
+# ==========================================================================
+# FIGURE 12: presentation slide version (16:9, big text, LSM capped at 12.5,
+#            bold fibrosis-stage bands). Reuses the fig-11 model grids.
+# ==========================================================================
+Y_MAX = 12.5
+# fibrosis-stage bands on LSM (severity ramp), with darker label colors
+BANDS = [("F0", "< 6 kPa", 2.0, 6.0, "#dcedc8", "#33691e"),
+         ("F1", "6–8 kPa", 6.0, 8.0, "#fff3c4", "#8d6e00"),
+         ("F2", "8–10 kPa", 8.0, 10.0, "#ffe0b2", "#bf560a"),
+         ("F3", "10–15 kPa", 10.0, Y_MAX, "#ffcdd2", "#b71c1c")]
+
+
+def draw_slide_contours(ax, X, Y, dens, color, ls, lw):
+    cell = (X[0, 1] - X[0, 0]) * (Y[1, 0] - Y[0, 0])
+    lv = hdr_levels(dens, cell)
+    levels = sorted(set(round(v, 12) for v in lv.values()))
+    cs = ax.contour(X, Y, dens, levels=levels, colors=color,
+                    linestyles=ls, linewidths=lw, zorder=4)
+    lab = {v: f"{int(p*100)}%" for p, v in lv.items()}
+    ax.clabel(cs, fmt=lambda v: lab.get(round(v, 12), ""), fontsize=12)
+    return cs
+
+
+fig, ax = plt.subplots(figsize=(13.33, 7.5))
+# fibrosis bands + bold right-margin labels
+for name, rng, lo, hi, fill, txt in BANDS:
+    ax.axhspan(lo, hi, color=fill, alpha=0.7, zorder=0)
+    ax.text(398, np.sqrt(lo * hi), f"{name}\n{rng}", ha="right", va="center",
+            fontsize=15, fontweight="bold", color=txt, zorder=6,
+            bbox=dict(boxstyle="round,pad=0.25", facecolor="white",
+                      edgecolor=txt, alpha=0.9))
+for t in (6, 8, 10):
+    ax.axhline(t, color="0.35", lw=1.2, zorder=1)
+
+ax.scatter(cap_j, lsm_j, s=5, c=C_PTS, alpha=0.13, edgecolors="none", zorder=2)
+ax.axvline(288, color="0.35", lw=1.4, ls=":", zorder=3)
+ax.text(291, 11.6, "CAP ≥ 288\n(steatosis)", fontsize=12, color="0.3",
+        style="italic", zorder=6)
+draw_slide_contours(ax, Xd, Yd, gauss_data, C_GAUSS, "solid", 3.0)
+draw_slide_contours(ax, Xd, Yd, emp_data, C_EMP, "dashed", 2.8)
+
+ax.set_yscale("log")
+ax.set_xlim(CAP_LO, CAP_HI); ax.set_ylim(LSM_LO, Y_MAX)
+ax.yaxis.set_major_locator(FixedLocator([2, 3, 4, 5, 6, 8, 10, 12.5]))
+ax.yaxis.set_major_formatter(ScalarFormatter())
+ax.yaxis.set_minor_locator(NullLocator())
+ax.tick_params(axis="both", labelsize=15)
+ax.set_xlabel("Median CAP  (dB/m)  — steatosis marker", fontsize=17)
+ax.set_ylabel("Median LSM  (kPa, log scale)", fontsize=17)
+ax.legend(handles=[
+    Line2D([], [], color=C_GAUSS, lw=3, label="Gaussian copula"),
+    Line2D([], [], color=C_EMP, lw=2.8, ls="--", label="Empirical density"),
+    Line2D([], [], marker="o", color="none", markerfacecolor=C_PTS,
+           markersize=8, alpha=0.5, label=f"Participants (n={len(df):,})")],
+    loc="upper left", fontsize=14, framealpha=0.95)
+fig.suptitle("Joint distribution of CAP and liver stiffness: "
+             "Gaussian copula vs. empirical", fontsize=21, fontweight="bold")
+ax.set_title(f"NHANES 2017–2020, survey-weighted    ·    Gaussian ρ = {rho:.2f}"
+             "    ·    empirical adds the upper-tail dependence Gaussian misses",
+             fontsize=13, color="0.3")
+fig.text(0.5, 0.006, "Contours enclose 25/50/75/95% of probability. Points "
+         "jittered within recording resolution (display only). LSM axis capped "
+         "at 12.5 kPa — F4 (≥15) not shown.", fontsize=10, color="0.45",
+         ha="center")
+fig.tight_layout(rect=[0, 0.03, 1, 0.955])
+fig.savefig("fig12_copula_slide.png", dpi=150)
+plt.close(fig)
+print("wrote fig12_copula_slide.png")

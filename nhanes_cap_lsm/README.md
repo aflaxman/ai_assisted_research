@@ -218,6 +218,9 @@ overlays the density a Gaussian copula would give, in two coordinate systems:
 - `fig11_copula_capunits.png` — **CAP / LSM units** (LSM on a **log** axis to
   spread the crowded low-LSM mode): the same model mapped back,
   `f(x,y) = c_ρ(F_X(x),F_Y(y))·f_X(x)·f_Y(y)` with empirical (KDE) margins.
+- `fig12_copula_slide.png` — **presentation version** of fig11: 16:9, large
+  fonts, LSM capped at 12.5 kPa, with shaded/labeled fibrosis-stage bands
+  (F0–F3). Same weighted fit and contours.
 
 Both overlay the empirical joint density (2-D weighted KDE — what an empirical
 copula reproduces) as dashed contours at matching probability-mass levels.
