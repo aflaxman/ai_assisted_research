@@ -276,3 +276,34 @@ resolution (CAP ±0.5, LSM ±0.05) for display only — the fit and contours use
 raw data, and the mid-rank transform handles ties for the point estimates. An
 empirical copula *fit* should likewise jitter/break ties (or model the
 discreteness) to avoid artifacts.
+
+## Does the relationship vary by age and sex?
+
+`cap_lsm_copula_by_agesex.py` re-does the diagnostic in probit-of-percentile
+space **per subgroup** (each subgroup's own marginals removed), so panels differ
+only in *dependence*, not in CAP/LSM levels.
+
+- `fig13_copula_probit_by_agesex.png` — 2 sex rows × 4 age columns; ellipses
+  (Gaussian ρ per panel) vs empirical KDE, with per-panel ρ and n.
+- `fig14_copula_rho_by_agesex.png` — Gaussian-copula ρ vs age, by sex, with
+  approximate 95% CIs (Fisher z, Kish n_eff; ignores clustering).
+
+**Age matters; sex barely does.** The copula ρ traces an inverted-U with age —
+weakest in the young and strongest in middle age — identically for both sexes:
+
+| Age | Male ρ | Female ρ |
+|---|---|---|
+| 12–29 | 0.22 | 0.25 |
+| 30–44 | 0.36 | 0.33 |
+| 45–59 | **0.40** | **0.35** |
+| 60–80 | 0.30 | 0.30 |
+
+The 12–29 vs 45–59 CIs don't overlap (≈0.16–0.28 vs 0.33–0.46), so the age
+gradient is real, not noise; the male/female tracks overlap at every age.
+Interpretation: in the young, high CAP (steatosis) rarely coincides with high
+LSM (fibrosis takes years to develop), so CAP and LSM are only weakly linked;
+by middle age steatosis has had time to drive fibrosis, tightening the coupling;
+in the elderly other fibrosis causes and survivorship loosen it again. (CAP/LSM
+*levels* also rise with age — a marginal effect — but that is removed here.) The
+empirical-vs-Gaussian upper-tail gap persists across subgroups, most visibly in
+the middle-aged and older panels.
