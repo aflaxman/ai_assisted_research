@@ -141,7 +141,17 @@ for q in (0.90, 0.95):
 PROBS = [0.25, 0.50, 0.75, 0.95]
 C_GAUSS = "#2166ac"     # Gaussian-copula model  (solid)
 C_EMP = "#b2182b"       # empirical density      (dashed)
-C_PTS = "#4d4d4d"
+C_PTS = "#111111"
+
+# Jitter points for DISPLAY ONLY (the fit/contours use the real data): CAP is
+# recorded to 1 dB/m and LSM to 0.1 kPa, so ties band the scatter. Spread each
+# point uniformly within its recording resolution, then re-map to normal scores.
+_rng = np.random.default_rng(42)
+cap_j = cap + _rng.uniform(-0.5, 0.5, len(cap))
+lsm_j = lsm + _rng.uniform(-0.05, 0.05, len(lsm))
+z_cap_disp = norm.ppf(np.clip(np.interp(cap_j, cap_vals, cap_u), 1e-4, 1 - 1e-4))
+z_lsm_disp = norm.ppf(np.clip(np.interp(lsm_j, lsm_vals, lsm_u), 1e-4, 1 - 1e-4))
+PT_KW = dict(s=5, c=C_PTS, alpha=0.16, edgecolors="none", zorder=1)
 
 
 def hdr_levels(dens, cell_area):
@@ -184,7 +194,7 @@ gauss_dens = multivariate_normal(mean=[0, 0], cov=[[1, rho], [rho, 1]]).pdf(pos)
 kde_z = gaussian_kde(np.vstack([z_cap, z_lsm]), weights=w)
 emp_dens = kde_z(np.vstack([Xz.ravel(), Yz.ravel()])).reshape(Xz.shape)
 
-ax.scatter(z_cap, z_lsm, s=6, c=C_PTS, alpha=0.10, edgecolors="none", zorder=1)
+ax.scatter(z_cap_disp, z_lsm_disp, **PT_KW)
 draw_prob_contours(ax, Xz, Yz, gauss_dens, C_GAUSS, "solid")
 draw_prob_contours(ax, Xz, Yz, emp_dens, C_EMP, "dashed")
 ax.axhline(0, color="0.85", lw=0.8, zorder=0)
@@ -200,7 +210,10 @@ ax.legend(handles=[
     Line2D([], [], color=C_GAUSS, lw=2, label="Gaussian copula (bivariate normal)"),
     Line2D([], [], color=C_EMP, lw=1.8, ls="--", label="empirical density (2-D KDE)")],
     loc="upper left", fontsize=9, framealpha=0.9)
-fig.tight_layout()
+fig.text(0.01, 0.005, "points jittered within recording resolution "
+         "(CAP ±0.5 dB/m, LSM ±0.05 kPa) for display; fit uses raw data",
+         fontsize=7.5, color="0.45")
+fig.tight_layout(rect=[0, 0.02, 1, 1])
 fig.savefig("fig10_copula_probit.png", dpi=130)
 plt.close(fig)
 print("\nwrote fig10_copula_probit.png")
@@ -231,7 +244,7 @@ kde_xy = gaussian_kde(np.vstack([cap, lsm]), weights=w)
 emp_data = kde_xy(np.vstack([Xd.ravel(), Yd.ravel()])).reshape(Xd.shape)
 
 fig, ax = plt.subplots(figsize=(9, 8))
-ax.scatter(cap, lsm, s=6, c=C_PTS, alpha=0.10, edgecolors="none", zorder=1)
+ax.scatter(cap_j, lsm_j, **PT_KW)
 draw_prob_contours(ax, Xd, Yd, gauss_data, C_GAUSS, "solid")
 draw_prob_contours(ax, Xd, Yd, emp_data, C_EMP, "dashed")
 # reference lines linking to the fibrosis / steatosis analysis
@@ -250,7 +263,10 @@ ax.legend(handles=[
     Line2D([], [], color=C_GAUSS, lw=2, label="Gaussian copula (KDE margins)"),
     Line2D([], [], color=C_EMP, lw=1.8, ls="--", label="empirical joint density (2-D KDE)")],
     loc="upper right", fontsize=9, framealpha=0.9)
-fig.tight_layout()
+fig.text(0.01, 0.005, "points jittered within recording resolution "
+         "(CAP ±0.5 dB/m, LSM ±0.05 kPa) for display; fit uses raw data",
+         fontsize=7.5, color="0.45")
+fig.tight_layout(rect=[0, 0.02, 1, 1])
 fig.savefig("fig11_copula_capunits.png", dpi=130)
 plt.close(fig)
 print("wrote fig11_copula_capunits.png")

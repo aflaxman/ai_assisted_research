@@ -254,6 +254,8 @@ upper q=0.95 ≈ 0.21 vs. Gaussian 0.16).
   under-represent that upper-right cluster.
 
 **Caveat:** CAP (integer dB/m) and LSM (0.1 kPa) are recorded coarsely, so the
-margins have many ties — visible as banding in the probit scatter. The mid-rank
-transform handles ties for the point estimates, but an empirical copula fit
-should jitter/break ties (or model the discreteness) to avoid artifacts.
+margins have many ties. The plotted points are jittered within recording
+resolution (CAP ±0.5, LSM ±0.05) for display only — the fit and contours use the
+raw data, and the mid-rank transform handles ties for the point estimates. An
+empirical copula *fit* should likewise jitter/break ties (or model the
+discreteness) to avoid artifacts.
