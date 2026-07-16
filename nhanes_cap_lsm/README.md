@@ -307,3 +307,9 @@ in the elderly other fibrosis causes and survivorship loosen it again. (CAP/LSM
 *levels* also rise with age — a marginal effect — but that is removed here.) The
 empirical-vs-Gaussian upper-tail gap persists across subgroups, most visibly in
 the middle-aged and older panels.
+
+`cap_lsm_copula_slide_m60_80.py` → `fig15_copula_slide_m60_80.png` — the fig12
+slide restricted to **males aged 60–80** (n=2,436; ρ=0.30). Fit, margins, and
+region shares are recomputed within the subgroup, which carries far more
+advanced disease than the whole population (F3+F4 ≈ 10% vs ≈5%; CAP≥288 ≈ 43%
+vs ≈31%).
