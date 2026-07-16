@@ -30,30 +30,59 @@ from matplotlib.lines import Line2D
 from matplotlib.ticker import ScalarFormatter, FixedLocator, NullLocator
 from scipy.stats import norm, gaussian_kde, multivariate_normal
 
-CDC = "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles"
+# Pooled cycles: 2017-March 2020 pre-pandemic (P_, weight WTMECPRP, 3.2 yr) and
+# August 2021-August 2023 (_L, weight WTMEC2YR, 2.0 yr). Per NHANES guidance for
+# combining cycles of unequal length, the pooled weight is the cycle MEC weight
+# times (cycle years / total years); total = 3.2 + 2.0 = 5.2.
 os.makedirs("data", exist_ok=True)
-for fname in ("P_LUX.xpt", "P_DEMO.xpt"):
-    dest = os.path.join("data", fname)
-    if not os.path.exists(dest):
-        import requests
-        r = requests.get(f"{CDC}/{fname}", timeout=180); r.raise_for_status()
-        open(dest, "wb").write(r.content)
+SOURCES = {
+    "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles":
+        ["P_LUX.xpt", "P_DEMO.xpt"],
+    "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2021/DataFiles":
+        ["LUX_L.xpt", "DEMO_L.xpt"],
+}
+for base, files in SOURCES.items():
+    for fname in files:
+        dest = os.path.join("data", fname)
+        if not os.path.exists(dest):
+            import requests
+            r = requests.get(f"{base}/{fname}", timeout=180); r.raise_for_status()
+            open(dest, "wb").write(r.content)
+
+TOTAL_YEARS = 5.2
 
 
 def rx(fname, cols):
-    df, _ = pyreadstat.read_xport(os.path.join("data", fname))
+    try:
+        df, _ = pyreadstat.read_xport(os.path.join("data", fname))
+    except UnicodeDecodeError:                      # some _L labels are latin1
+        df, _ = pyreadstat.read_xport(os.path.join("data", fname),
+                                      encoding="latin1")
     return df[cols]
 
 
-df = rx("P_LUX.xpt", ["SEQN", "LUAXSTAT", "LUXSMED", "LUXCAPM"]).merge(
-    rx("P_DEMO.xpt", ["SEQN", "WTMECPRP"]), on="SEQN")
-df = df[(df.LUAXSTAT == 1) & df.LUXSMED.notna() & df.LUXCAPM.notna()
-        & (df.WTMECPRP > 0)].copy()
+def build_cycle(lux_f, demo_f, wcol, years, label):
+    d = rx(lux_f, ["SEQN", "LUAXSTAT", "LUXSMED", "LUXCAPM"]).merge(
+        rx(demo_f, ["SEQN", wcol]), on="SEQN")
+    d = d[(d.LUAXSTAT == 1) & d.LUXSMED.notna() & d.LUXCAPM.notna()
+          & (d[wcol] > 0)].copy()
+    d["w"] = d[wcol] * years / TOTAL_YEARS          # pooled weight
+    d["cycle"] = label
+    return d[["LUXSMED", "LUXCAPM", "w", "cycle"]]
+
+
+df = pd.concat([
+    build_cycle("P_LUX.xpt", "P_DEMO.xpt", "WTMECPRP", 3.2, "2017-2020"),
+    build_cycle("LUX_L.xpt", "DEMO_L.xpt", "WTMEC2YR", 2.0, "2021-2023"),
+], ignore_index=True)
 cap = df.LUXCAPM.values.astype(float)
 lsm = df.LUXSMED.values.astype(float)
-w = df.WTMECPRP.values.astype(float)
+w = df.w.values.astype(float)
 W = w.sum()
-print(f"n = {len(df):,}   sum weights = {W:,.0f}")
+print(f"pooled n = {len(df):,}  ("
+      + ", ".join(f"{c}: {int((df.cycle == c).sum()):,}"
+                  for c in ("2017-2020", "2021-2023")) + ")")
+print(f"sum pooled weights = {W:,.0f}")
 
 
 # --------------------------------------------------------------------------
@@ -277,15 +306,29 @@ plt.close(fig)
 print("wrote fig11_copula_capunits.png")
 
 # ==========================================================================
-# FIGURE 12: presentation slide version (16:9, big text, LSM capped at 12.5,
-#            bold fibrosis-stage bands). Reuses the fig-11 model grids.
+# FIGURE 12: presentation slide version (16:9, big text, LSM capped at 15 to
+#            show all of F3, bold fibrosis-stage bands, and the survey-weighted
+#            share of participants in each CAP-side x fibrosis-band region).
 # ==========================================================================
-Y_MAX = 12.5
-# fibrosis-stage bands on LSM (severity ramp), with darker label colors
+Y_MAX = 15.0
+# fibrosis-stage bands on LSM (severity ramp): name, range label, lo, hi, fill, ink
 BANDS = [("F0", "< 6 kPa", 2.0, 6.0, "#dcedc8", "#33691e"),
          ("F1", "6–8 kPa", 6.0, 8.0, "#fff3c4", "#8d6e00"),
          ("F2", "8–10 kPa", 8.0, 10.0, "#ffe0b2", "#bf560a"),
          ("F3", "10–15 kPa", 10.0, Y_MAX, "#ffcdd2", "#b71c1c")]
+
+# survey-weighted share of participants in each region (CAP side x fibrosis band)
+edges = [0, 6, 8, 10, 15, np.inf]
+names5 = ["F0", "F1", "F2", "F3", "F4"]
+band_of = np.array(names5)[np.searchsorted(edges, lsm, side="right") - 1]
+cap_hi = cap >= 288
+region_pct = {(side, b): w[(msk) & (band_of == b)].sum() / W * 100
+              for side, msk in (("lo", ~cap_hi), ("hi", cap_hi))
+              for b in names5}
+print("\nWeighted % of participants by region (CAP side x fibrosis band):")
+for b in names5:
+    print(f"  {b}: CAP<288 {region_pct[('lo', b)]:4.1f}%   "
+          f"CAP≥288 {region_pct[('hi', b)]:4.1f}%")
 
 
 def draw_slide_contours(ax, X, Y, dens, color, ls, lw):
@@ -300,26 +343,35 @@ def draw_slide_contours(ax, X, Y, dens, color, ls, lw):
 
 
 fig, ax = plt.subplots(figsize=(13.33, 7.5))
-# fibrosis bands + bold right-margin labels
+# fibrosis bands + bold LEFT-edge labels + region-share numbers
 for name, rng, lo, hi, fill, txt in BANDS:
+    yc = np.sqrt(lo * hi)                            # band center on log axis
     ax.axhspan(lo, hi, color=fill, alpha=0.7, zorder=0)
-    ax.text(398, np.sqrt(lo * hi), f"{name}\n{rng}", ha="right", va="center",
-            fontsize=15, fontweight="bold", color=txt, zorder=6,
+    ax.text(103, yc, f"{name}\n{rng}", ha="left", va="center",
+            fontsize=14, fontweight="bold", color=txt, zorder=6,
             bbox=dict(boxstyle="round,pad=0.25", facecolor="white",
                       edgecolor=txt, alpha=0.9))
+    for side, xpos in (("lo", 212), ("hi", 344)):    # CAP<288 vs CAP>=288
+        ax.text(xpos, yc, f"{region_pct[(side, name)]:.0f}%", ha="center",
+                va="center", fontsize=13, fontweight="bold", color="#1a1a1a",
+                zorder=6, bbox=dict(boxstyle="round,pad=0.2", facecolor="white",
+                                    edgecolor=txt, alpha=0.85))
 for t in (6, 8, 10):
     ax.axhline(t, color="0.35", lw=1.2, zorder=1)
 
 ax.scatter(cap_j, lsm_j, s=5, c=C_PTS, alpha=0.13, edgecolors="none", zorder=2)
 ax.axvline(288, color="0.35", lw=1.4, ls=":", zorder=3)
-ax.text(291, 11.6, "CAP ≥ 288\n(steatosis)", fontsize=12, color="0.3",
-        style="italic", zorder=6)
+# CAP>=288 label moved to the BOTTOM (was overlapping the top boundary/text)
+ax.text(293, 2.15, "CAP ≥ 288 (steatosis) →", fontsize=12.5, color="0.25",
+        style="italic", ha="left", va="bottom", zorder=6)
+ax.text(283, 2.15, "← below 288", fontsize=12.5, color="0.25",
+        style="italic", ha="right", va="bottom", zorder=6)
 draw_slide_contours(ax, Xd, Yd, gauss_data, C_GAUSS, "solid", 3.0)
 draw_slide_contours(ax, Xd, Yd, emp_data, C_EMP, "dashed", 2.8)
 
 ax.set_yscale("log")
 ax.set_xlim(CAP_LO, CAP_HI); ax.set_ylim(LSM_LO, Y_MAX)
-ax.yaxis.set_major_locator(FixedLocator([2, 3, 4, 5, 6, 8, 10, 12.5]))
+ax.yaxis.set_major_locator(FixedLocator([2, 3, 4, 5, 6, 8, 10, 15]))
 ax.yaxis.set_major_formatter(ScalarFormatter())
 ax.yaxis.set_minor_locator(NullLocator())
 ax.tick_params(axis="both", labelsize=15)
@@ -330,17 +382,20 @@ ax.legend(handles=[
     Line2D([], [], color=C_EMP, lw=2.8, ls="--", label="Empirical density"),
     Line2D([], [], marker="o", color="none", markerfacecolor=C_PTS,
            markersize=8, alpha=0.5, label=f"Participants (n={len(df):,})")],
-    loc="upper left", fontsize=14, framealpha=0.95)
+    loc="upper center", ncol=3, fontsize=13, framealpha=0.95)
 fig.suptitle("Joint distribution of CAP and liver stiffness: "
              "Gaussian copula vs. empirical", fontsize=21, fontweight="bold")
-ax.set_title(f"NHANES 2017–2020, survey-weighted    ·    Gaussian ρ = {rho:.2f}"
-             "    ·    empirical adds the upper-tail dependence Gaussian misses",
-             fontsize=13, color="0.3")
-fig.text(0.5, 0.006, "Contours enclose 25/50/75/95% of probability. Points "
-         "jittered within recording resolution (display only). LSM axis capped "
-         "at 12.5 kPa — F4 (≥15) not shown.", fontsize=10, color="0.45",
+ax.set_title(f"NHANES 2017–2020 + 2021–2023, survey-weighted    ·    "
+             f"Gaussian ρ = {rho:.2f}, but empirical adds upper-tail dependence",
+             fontsize=13.5, color="0.3")
+fig.text(0.5, 0.032, "Boxed % = survey-weighted share of participants in each "
+         "region (CAP side × fibrosis band).", fontsize=10, color="0.45",
          ha="center")
-fig.tight_layout(rect=[0, 0.03, 1, 0.955])
+fig.text(0.5, 0.008, f"F4 (≥15 kPa) is above the axis: "
+         f"{region_pct[('lo','F4')]:.1f}% below / {region_pct[('hi','F4')]:.1f}% "
+         "above CAP 288.    Curve labels 25/50/75/95% = probability contours.",
+         fontsize=10, color="0.45", ha="center")
+fig.tight_layout(rect=[0, 0.06, 1, 0.955])
 fig.savefig("fig12_copula_slide.png", dpi=150)
 plt.close(fig)
 print("wrote fig12_copula_slide.png")

@@ -208,9 +208,11 @@ moves the distribution far more than alcohol category does.
 # Gaussian vs. empirical copula for (CAP, LSM)
 
 `cap_lsm_copula.py` is a diagnostic to help choose between a **Gaussian copula**
-and an **empirical copula** for the joint distribution of median CAP and LSM
-(full elastography sample, n=9,021, survey-weighted). It scatters the data and
-overlays the density a Gaussian copula would give, in two coordinate systems:
+and an **empirical copula** for the joint distribution of median CAP and LSM.
+It **pools two cycles** — NHANES 2017–2020 pre-pandemic + August 2021–August
+2023 (`_L`) — for **n = 15,300** valid elastography exams, survey-weighted. It
+scatters the data and overlays the density a Gaussian copula would give, in two
+coordinate systems:
 
 - `fig10_copula_probit.png` — **probit-of-percentile space**: each variable
   mapped to `Φ⁻¹(weighted percentile)`. A Gaussian copula is then bivariate
@@ -219,28 +221,39 @@ overlays the density a Gaussian copula would give, in two coordinate systems:
   spread the crowded low-LSM mode): the same model mapped back,
   `f(x,y) = c_ρ(F_X(x),F_Y(y))·f_X(x)·f_Y(y)` with empirical (KDE) margins.
 - `fig12_copula_slide.png` — **presentation version** of fig11: 16:9, large
-  fonts, LSM capped at 12.5 kPa, with shaded/labeled fibrosis-stage bands
-  (F0–F3). Same weighted fit and contours.
+  fonts, LSM capped at **15 kPa** (all of F3 visible), shaded/labeled
+  fibrosis-stage bands (F0–F3), and the **survey-weighted share of participants
+  in each CAP-side × fibrosis-band region** shown as boxed %.
 
 Both overlay the empirical joint density (2-D weighted KDE — what an empirical
 copula reproduces) as dashed contours at matching probability-mass levels.
 
-## What the diagnostic says
+**Pooling & weights.** The two cycles have different weight bases (`WTMECPRP`,
+3.2 yr; `WTMEC2YR`, 2.0 yr). Per NHANES guidance for combining unequal-length
+cycles, the pooled weight is `cycle MEC weight × (cycle years / 5.2)`
+(`WTMECPRP×3.2/5.2` and `WTMEC2YR×2/5.2`); the pooled weights sum to ~243 M (one
+population, not double-counted). (The other analyses in this project still use
+2017–2020 only — this pooling is applied to the copula analysis.)
+
+Weighted region shares (fig12): F0 55.9 / 17.0, F1 9.6 / 8.0, F2 1.7 / 2.5,
+F3 1.0 / 2.3, F4 0.5 / 1.6 (% CAP<288 / CAP≥288). CAP≥288 (steatosis) ≈ 31%.
+
+## What the diagnostic says (pooled)
 
 | Quantity | Value |
 |---|---|
-| Gaussian-copula ρ (normal scores) | 0.329 |
-| Weighted Spearman (empirical) | 0.310 |
-| Gaussian-copula-implied Spearman | 0.315 |
+| Gaussian-copula ρ (normal scores) | 0.343 |
+| Weighted Spearman (empirical) | 0.331 |
+| Gaussian-copula-implied Spearman | 0.330 |
 
-Overall association is captured well (implied vs. empirical Spearman 0.315 vs.
-0.310). But the **tails are asymmetric**, which a Gaussian copula (radially
+Overall association is captured well (implied vs. empirical Spearman 0.330 vs.
+0.331). But the **tails are asymmetric**, which a Gaussian copula (radially
 symmetric, asymptotically tail-independent) cannot represent:
 
 | P(both extreme \| one extreme) | Empirical | Gaussian |
 |---|---|---|
 | Upper, q=0.95 (both high) | **0.28** | 0.16 |
-| Lower, q=0.95 (both low) | **0.10** | 0.16 |
+| Lower, q=0.95 (both low) | **0.11** | 0.16 |
 
 High CAP and high LSM co-occur **more** than Gaussian predicts (advanced MASLD
 clusters in the upper-right corner), while the lower tail co-occurs **less**.
