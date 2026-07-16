@@ -27,6 +27,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from matplotlib.ticker import ScalarFormatter, FixedLocator, NullLocator
 from scipy.stats import norm, gaussian_kde, multivariate_normal
 
 CDC = "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles"
@@ -253,9 +254,13 @@ for t in (6, 8, 10, 15):
 ax.axvline(288, color="0.85", lw=0.7, zorder=0)
 ax.text(392, 15.3, "F4", fontsize=7, color="0.5", ha="right")
 ax.text(290, 27.3, "CAP 288", fontsize=7, color="0.5")
+ax.set_yscale("log")   # spread the crowded low-LSM region for easier comparison
 ax.set_xlim(CAP_LO, CAP_HI); ax.set_ylim(LSM_LO, LSM_HI)
+ax.yaxis.set_major_locator(FixedLocator([2, 3, 4, 5, 6, 8, 10, 15, 20, 28]))
+ax.yaxis.set_major_formatter(ScalarFormatter())
+ax.yaxis.set_minor_locator(NullLocator())
 ax.set_xlabel("median CAP (dB/m)")
-ax.set_ylabel("median LSM (kPa)")
+ax.set_ylabel("median LSM (kPa, log scale)")
 ax.set_title("Gaussian copula in CAP / LSM units\n"
              f"points = observed (n={len(df):,});  KDE margins × Gaussian "
              "dependence  (survey-weighted)", fontweight="bold")

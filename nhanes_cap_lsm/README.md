@@ -215,7 +215,8 @@ overlays the density a Gaussian copula would give, in two coordinate systems:
 - `fig10_copula_probit.png` — **probit-of-percentile space**: each variable
   mapped to `Φ⁻¹(weighted percentile)`. A Gaussian copula is then bivariate
   normal `N(0, [[1,ρ],[ρ,1]])`, so its probability-region contours are ellipses.
-- `fig11_copula_capunits.png` — **CAP / LSM units**: the same model mapped back,
+- `fig11_copula_capunits.png` — **CAP / LSM units** (LSM on a **log** axis to
+  spread the crowded low-LSM mode): the same model mapped back,
   `f(x,y) = c_ρ(F_X(x),F_Y(y))·f_X(x)·f_Y(y)` with empirical (KDE) margins.
 
 Both overlay the empirical joint density (2-D weighted KDE — what an empirical
