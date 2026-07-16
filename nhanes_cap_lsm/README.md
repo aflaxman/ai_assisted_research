@@ -202,3 +202,58 @@ moves the distribution far more than alcohol category does.
   under-reporting → some true heavy drinkers misclassified as moderate).
 - Alcohol stratum is **not** crossed with CAP here: heavy × CAP × fibrosis cells
   (~10 each) are too small for stable estimates.
+
+---
+
+# Gaussian vs. empirical copula for (CAP, LSM)
+
+`cap_lsm_copula.py` is a diagnostic to help choose between a **Gaussian copula**
+and an **empirical copula** for the joint distribution of median CAP and LSM
+(full elastography sample, n=9,021, survey-weighted). It scatters the data and
+overlays the density a Gaussian copula would give, in two coordinate systems:
+
+- `fig10_copula_probit.png` — **probit-of-percentile space**: each variable
+  mapped to `Φ⁻¹(weighted percentile)`. A Gaussian copula is then bivariate
+  normal `N(0, [[1,ρ],[ρ,1]])`, so its probability-region contours are ellipses.
+- `fig11_copula_capunits.png` — **CAP / LSM units**: the same model mapped back,
+  `f(x,y) = c_ρ(F_X(x),F_Y(y))·f_X(x)·f_Y(y)` with empirical (KDE) margins.
+
+Both overlay the empirical joint density (2-D weighted KDE — what an empirical
+copula reproduces) as dashed contours at matching probability-mass levels.
+
+## What the diagnostic says
+
+| Quantity | Value |
+|---|---|
+| Gaussian-copula ρ (normal scores) | 0.329 |
+| Weighted Spearman (empirical) | 0.310 |
+| Gaussian-copula-implied Spearman | 0.315 |
+
+Overall association is captured well (implied vs. empirical Spearman 0.315 vs.
+0.310). But the **tails are asymmetric**, which a Gaussian copula (radially
+symmetric, asymptotically tail-independent) cannot represent:
+
+| P(both extreme \| one extreme) | Empirical | Gaussian |
+|---|---|---|
+| Upper, q=0.95 (both high) | **0.28** | 0.16 |
+| Lower, q=0.95 (both low) | **0.10** | 0.16 |
+
+High CAP and high LSM co-occur **more** than Gaussian predicts (advanced MASLD
+clusters in the upper-right corner), while the lower tail co-occurs **less**.
+The Gaussian model's upper- and lower-tail concordance are identical by
+construction (0.16 = 0.16); the data are not. Robust to weighting (unweighted
+upper q=0.95 ≈ 0.21 vs. Gaussian 0.16).
+
+## Recommendation
+- If you only need the **overall rank correlation** (e.g., a rough joint
+  simulation), the Gaussian copula is adequate and simple (one parameter).
+- If **co-extremes matter** — jointly identifying people with both severe
+  steatosis and advanced fibrosis, or anything tail-sensitive — prefer the
+  **empirical copula** (or an asymmetric parametric one, e.g. a survival/rotated
+  Clayton or Gumbel with upper-tail dependence). The Gaussian will
+  under-represent that upper-right cluster.
+
+**Caveat:** CAP (integer dB/m) and LSM (0.1 kPa) are recorded coarsely, so the
+margins have many ties — visible as banding in the probit scatter. The mid-rank
+transform handles ties for the point estimates, but an empirical copula fit
+should jitter/break ties (or model the discreteness) to avoid artifacts.
