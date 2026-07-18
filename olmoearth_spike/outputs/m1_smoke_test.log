@@ -1,0 +1,29 @@
+====================================================================
+ENVIRONMENT
+====================================================================
+torch              2.8.0+cpu
+CUDA available     False
+device             cpu
+torch num_threads  4
+peak RSS start     306 MB
+
+====================================================================
+PART A - BASE (89M params), 128x128x12 chip
+====================================================================
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+load+download      14.7 s
+forward+pool       13.7 s
+embedding          shape=(768,) dtype=float32
+peak RSS after     1901 MB
+
+====================================================================
+PART B - NANO (1.4M params), 64x64x6 chip, determinism
+====================================================================
+load+download      0.9 s
+forward+pool       0.03 s
+embedding          shape=(128,) dtype=float32
+embedding[:5]      [-0.07109999656677246, 0.14010000228881836, -0.45829999446868896, 0.1665000021457672, -0.08869999647140503]
+determinism max|d| 0.00e+00 -> DETERMINISTIC
+peak RSS final     1901 MB
+
+SMOKE TEST OK
