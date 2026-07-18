@@ -8,6 +8,13 @@ accuracy.
 **Read [`FEASIBILITY.md`](FEASIBILITY.md) for the go/no-go memo** and
 [`docs/RECON.md`](docs/RECON.md) for the model recon.
 
+![Spike results: per-unit NDVI choropleth, held-out-district prediction, and the compute breakdown](outputs/figure.png)
+
+*(A) The pipeline produced real per-unit EO features. (B) Embeddings predict a
+held-out district's NDVI (ridge, leave-one-region-out R²=+0.18). (C) On CPU the
+model is a sliver of wall-clock — imagery I/O dominates. Regenerate with
+`uv run --group viz python make_figure.py`.*
+
 > ⚠️ **Proxy target, not real data.** The downstream target is mean NDVI (an open
 > EO stand-in) plus a synthetic spatial field — used **only** to prove the
 > pipeline runs and that embeddings carry spatial signal. It says nothing about

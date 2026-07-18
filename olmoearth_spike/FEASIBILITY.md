@@ -6,6 +6,8 @@ areal-prediction workflow? This memo answers "does the pipeline run, on what
 compute, with what data friction" — **not** predictive accuracy for the real
 outcome.*
 
+![Spike results at a glance: per-unit NDVI choropleth, held-out-district prediction scatter, and the model-vs-I/O compute breakdown](outputs/figure.png)
+
 > **Proxy caveat, up front.** The downstream target in this spike is mean NDVI (an
 > open, EO-derivable stand-in) plus a synthetic spatial field. These prove the
 > plumbing works and that embeddings carry spatial signal. They say **nothing**
