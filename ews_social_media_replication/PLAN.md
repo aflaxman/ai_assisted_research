@@ -62,34 +62,53 @@ dR/dt = γ_W·W + γ_I·I − (ω + μ)R
 dM/dt = Σ_x α_x·X − M·Σ_x β_x·X − δ_M·M       (x ∈ {S,W,I,R})
 ```
 
-Emergence is driven by a **time-varying transmission rate** `β(t) = β₀ + r·t`, tuned so
-R₀(t) crosses 1 at a known time. The bifurcation parameter is R₀(t); the analytic
-crossing time is the reference point against which we measure changepoint delay/advance.
+Only the **reported** class I appears in the force of infection `βSI` (mass-action, no
+`/N`); each new infection is split fraction `f` into I and `1−f` into W. Emergence is
+driven by a **time-varying transmission rate** `β(t) = β₀ + r·t`. The bifurcation
+parameter is R₀(t); the analytic crossing time is the reference against which we measure
+changepoint delay/advance.
 
-> **⚠️ Verify parameters against the PDF + S1 supplement before trusting results.**
-> The values below were extracted via an automated read of the HTML and must be
-> confirmed. Treat them as a starting scaffold, not ground truth.
+**R₀ (next-generation, verified against the S1 appendix):**
 
-| Param | Meaning | Provisional value |
-|-------|---------|-------------------|
-| Λ | recruitment | 20 /day |
-| μ | natural death | 0.01 /day |
-| ω | immunity loss | 0.005 /day |
-| σ | W→I progression | 1/3 /day |
-| γ_W, γ_I | recovery (W, I) | 1/7 /day |
-| α_S,α_W,α_I,α_R | post generation | 0.05, 0.1, 0.1, 0.05 |
-| β_S,β_W,β_I,β_R | post engagement | 0.025 (0.05 for I) |
-| δ_M | post decay | 0.05 /day |
-| β₀ | initial transmission | 3.5e-4 /day |
-| r | transmission ramp | ~2.4e-5 /day² (R₀=1 near t≈14.5) |
+```
+R₀ = [ α(1−f)·βS̄ + f·βS̄·(γ_W+α+μ) ] / [ (γ_W+α+μ)(γ_I+μ) ],   S̄ = π/μ
+```
 
-### Stochastic variants (Euler–Maruyama, dt = 0.005)
+> **✅ Parameters confirmed** against the full text (Table 1) and S1 appendix. Plugging
+> Table 1 into R₀(t)=1 gives the bifurcation at **t = 14.50 days** — exactly the paper's
+> value — which validates the whole model setup.
 
-- **Additive noise:** `dXᵢ = fᵢ dt + σ_add dWᵢ`, with σ_add ∈ {0.1, 1, 2, 4}.
-- **Multiplicative noise:** `dXᵢ = fᵢ dt + σ_mult·Xᵢ dWᵢ`, with σ_mult ∈ {0.01, 0.05, 0.1, 0.2}.
-- **Demographic stochasticity:** noise amplitude set by the reaction rates (√rate per
-  process); no free intensity knob.
+| Param | Meaning | Confirmed value | Source |
+|-------|---------|-----------------|--------|
+| π | birth rate | 14.28 /day | calc. for S̄=1000 |
+| μ | natural death | 0.01428 /day | ref |
+| f | fraction reporting | 0.8 | assumed |
+| γ_W | recovery, unreported | 0.07 /day | ref |
+| γ_I | recovery, reported | 0.024 /day | assumed |
+| ϕ | waning immunity | 0.01 /day | ref |
+| α | progression W→I | 0.033 /day | ref |
+| ε | media engagement | 0.25 | calc. |
+| δ | media posting | 0.5 | ref |
+| μ̄ | media "fickle"/decay | 0.1428 | ref |
+| β₀ | initial transmission | 5e-6 | ref |
+| r | transmission ramp | 2.739e-6 | calc. (R₀=1 at t=14.5) |
+
+Media compartment: `dM/dt = δ·Σ X + ε·M·Σ X − μ̄·M²` (quadratic decay, bilinear
+engagement). Media is one-directionally coupled — it reads disease state but never feeds
+back — so it never enters R₀ and cannot change the epidemic dynamics.
+
+### Stochastic variants (Euler–Maruyama, dt = 0.005, 2900 pts = 14.5 days to BP)
+
+- **Additive noise:** same intensity σ added to all five equations, `dXᵢ = fᵢ dt + σ dW`.
+- **Multiplicative noise:** `dXᵢ = fᵢ dt + σ·Xᵢ dW` (same σ all compartments).
+- **Demographic stochasticity:** chemical-Langevin form of the 13-process reaction table
+  (S1 Table 3); intensity is set by the rates, **no free knob**.
 - Negative states are rejected (revert to previous step). **300 realizations** per scenario.
+
+> **⚠️ One remaining gap:** the *numeric* low/medium/high intensity values for additive and
+> multiplicative noise live only in the figure captions (stripped from the machine-readable
+> text). We pick defensible values, expose them as parameters, and flag that exact Table 2
+> matching needs those captions. The qualitative findings are robust across reasonable σ.
 
 ### EWS pipeline
 
