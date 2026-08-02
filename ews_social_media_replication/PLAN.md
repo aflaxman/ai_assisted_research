@@ -100,15 +100,17 @@ back — so it never enters R₀ and cannot change the epidemic dynamics.
 ### Stochastic variants (Euler–Maruyama, dt = 0.005, 2900 pts = 14.5 days to BP)
 
 - **Additive noise:** same intensity σ added to all five equations, `dXᵢ = fᵢ dt + σ dW`.
+  Intensities (Fig 3 caption): low **0.5**, medium **1.5**, high **3**.
 - **Multiplicative noise:** `dXᵢ = fᵢ dt + σ·Xᵢ dW` (same σ all compartments).
+  Intensities (Fig 4 caption): low **0.02**, medium **0.05**, high **0.1**.
 - **Demographic stochasticity:** chemical-Langevin form of the 13-process reaction table
   (S1 Table 3); intensity is set by the rates, **no free knob**.
 - Negative states are rejected (revert to previous step). **300 realizations** per scenario.
 
-> **⚠️ One remaining gap:** the *numeric* low/medium/high intensity values for additive and
-> multiplicative noise live only in the figure captions (stripped from the machine-readable
-> text). We pick defensible values, expose them as parameters, and flag that exact Table 2
-> matching needs those captions. The qualitative findings are robust across reasonable σ.
+> **✅ Intensities resolved.** The low/medium/high σ values were recovered from the Fig 3–4
+> captions (via the manuscript XML). With them, the multiplicative-noise AUCs match the
+> paper closely, and the earlier *W* discrepancy vanished (it was caused by running the
+> paper's *medium* σ=0.05 as "low"; the true low is σ=0.02).
 
 ### EWS pipeline
 

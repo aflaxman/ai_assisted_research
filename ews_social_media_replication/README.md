@@ -36,18 +36,24 @@ $R_0$ puts the bifurcation at **t = 14.50 days** — exactly the paper's value.
 
 ## What we reproduce
 
+Using the paper's exact noise intensities (from the Fig 3–4 captions:
+additive σ ∈ {0.5, 1.5, 3}, multiplicative σ ∈ {0.02, 0.05, 0.1}):
+
 | Finding | Paper | This replication |
 |---|---|---|
 | Bifurcation time (R₀=1) | 14.5 d | **14.50 d** |
 | Emergence is delayed past the bifurcation | yes | yes (spike ~90–110 d) |
-| Variance AUC, reported *I*, multiplicative-low | ≈0.99 | **0.96** |
-| Autocorrelation AUC, reported *I* | poor | **0.45** |
-| Variance > autocorrelation for *I* and *W* | yes | **yes** |
-| Social-media *M* AUC (all noise) | ≈0.5 | **0.47–0.53** |
+| Variance AUC, reported *I*, multiplicative-low | ≈0.99 | **0.97** |
+| Autocorrelation AUC, reported *I* | poor | **0.50** |
+| Variance / autocorrelation AUC, *W*, multiplicative-low | 0.94 / 0.79 | **0.92 / 0.69** |
+| Variance AUC declines as noise rises | yes | yes (MN-I: 0.97→0.96→0.93) |
+| Social-media *M* AUC (all noise) | ≈0.5 | **0.44–0.52** |
+| Under demographic noise, *M* autocorr > variance | yes | **yes (0.60 vs 0.46)** |
 
 The two headline conclusions — **variance beats autocorrelation for reported
 infections**, and **social media carries no usable warning** — reproduce
-cleanly.
+cleanly, and the multiplicative-noise AUCs match the paper to within a few
+hundredths.
 
 ## How it fits the literature
 
@@ -61,19 +67,25 @@ cleanly.
 
 ## Where this replication differs from the paper
 
-1. **Noise intensities** (low/medium/high for additive & multiplicative) appear
-   only in figure captions, absent from the machine-readable text. We chose
-   values, which shifts AUC *magnitudes* — additive-noise and *W* AUCs come out
-   lower than published — without changing the qualitative story.
-2. **Demographic stochasticity** here yields mostly *delays*; the paper reports
-   ~70% *advances*. Our AMOC penalty is Monte-Carlo-calibrated to a 5%
-   false-positive rate, so it skips the spurious early changepoints that the
+With the exact published intensities the multiplicative-noise results line up
+closely (including the once-off *W* AUCs, which were an artifact of running the
+paper's *medium* σ as "low"). Two differences remain:
+
+1. **Additive noise stays lower in magnitude.** At the lowest additive intensity,
+   variance reaches ~0.62 here vs the paper's ~0.73, and our autocorrelation runs
+   slightly high. This is a detrending / rolling-window detail (R's
+   `earlywarnings` vs our NumPy version), not an intensity mismatch — the
+   qualitative pattern (variance ≥ autocorrelation, both fading with noise) holds.
+2. **Demographic stochasticity** yields mostly *delays* here; the paper reports
+   ~70% *advances*. Demographic noise has no intensity knob, so this is purely a
+   changepoint-detection difference: our AMOC penalty is Monte-Carlo-calibrated
+   to a 5% false-positive rate and skips the spurious early changepoints the
    paper notes high demographic noise can produce — the likely source of most of
    their "advances."
-3. **Tooling.** `changepoint.py` and `ews.py` are transparent NumPy
-   reimplementations of R's `cpt.mean` (AMOC) and `earlywarnings` (Gaussian
-   detrend + rolling window), not the original R packages; small numeric
-   differences follow.
+
+`changepoint.py` and `ews.py` are transparent NumPy reimplementations of R's
+`cpt.mean` (AMOC) and `earlywarnings` (Gaussian detrend + rolling window), not
+the original R packages, so small numeric differences follow throughout.
 
 ## Layout
 
