@@ -106,8 +106,8 @@ $$\begin{aligned}
 Emergence is forced by a linearly rising transmission rate $\beta(t)=\beta_0+rt$.
 The next-generation method gives
 
-$$R_0(t)=\frac{\alpha(1-f)\beta S^\* + f\beta S^\*(\gamma_W+\alpha+\mu)}
-{(\gamma_W+\alpha+\mu)(\gamma_I+\mu)},\qquad S^\*=\pi/\mu .$$
+$$R_0(t)=\frac{\alpha(1-f)\beta S^{*} + f\beta S^{*}(\gamma_W+\alpha+\mu)}
+{(\gamma_W+\alpha+\mu)(\gamma_I+\mu)},\qquad S^{*}=\pi/\mu .$$
 
 With the Table 1 parameters this crosses 1 at exactly **t = 14.5 days** — the check
 below is the single most reassuring line in the notebook.
