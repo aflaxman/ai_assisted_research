@@ -125,16 +125,66 @@ Three lessons:
    ignores post-disembarkation transmission (May 10–11), which would
    only add cases.
 
-A further refinement — not run here — is Erlang staging for the dwell
-shape: `onset : E --> I via erlang(stages = 4, rate = 1 / z_lat)` keeps
-the 22-day mean but SD ≈ 11 d instead of 22 d (exponential dwell makes
-near-zero incubations the most likely, which is wrong for hantavirus).
-The complication is initial conditions: with realistic staging, a day-6
-first onset requires the index case to board mid-incubation (exposed in
-Argentina pre-departure), so the seed must enter a later Erlang stage or
-the exposure window must extend before Apr 1. That changes the model's
-initial-condition story, not just a parameter — worth doing before
-trusting any quantitative hidden-reservoir estimate from this model.
+## The Erlang refinement
+
+`hondius_seird_erlang.camdl` + `fit_hondius_erlang.toml` fix the dwell
+*shape*: an exponential latency with mean 22 d makes near-zero
+incubations the single most likely outcome, which contradicts the
+observed 7–39 d Andes-virus range. Erlang-4 keeps the mean but SD =
+11 d (CV 0.5), covering that range.
+
+![Erlang comparison](results/hondius_erlang_comparison.png)
+
+Design choices, in order of consequence:
+
+1. **Hand-rolled staging, not `via erlang`.** camdl's one-liner
+   (`via erlang(stages = 4, mean = z_lat)`) deliberately makes the
+   residence stages unnameable, so `init {}` cannot seed anyone
+   mid-pipeline. This model needs exactly that, so it uses the public
+   form: a `latent_stage` dimension, `stratify(by = latent_stage,
+   only = [E])`, a `consecutive()` progression at rate `4/z_lat` per
+   stage, and stage-indexed init. The bare name `E` still sums the
+   stages, so N and the FOI are unchanged.
+2. **Index case seeded in the last stage: `E[e4] = 1`.** From a fresh
+   seed, P(onset by day 6) ≈ 3% under Erlang-4 — the observed Apr 6
+   first case would be nearly impossible. From stage 4 (onset time ~
+   Exp(5.5 d)) it is ≈ 66%. The day-6 first case *requires* the index
+   to board ~3 weeks post-exposure, i.e., infected in Argentina before
+   departure. Forward check: median first onset day 7 vs observed 6.
+3. **Fresh co-exposures estimated: `E[e1] = e0_extra`.** The
+   late-April case cluster could be second-generation onboard
+   infections or co-exposed travelers who boarded freshly infected;
+   rather than assume, the fit apportions. Posterior: e0_extra ≈ 2.0
+   (0.1, 3.9) — the data mildly favor a couple of co-exposures
+   alongside ~10–12 onboard transmissions by May 7.
+4. **Stage count k = 4 is a structural commitment** (camdl requires a
+   literal — it sets how many compartments exist). CV = 1/√4 = 0.5
+   matches the empirical incubation spread; a fuller analysis would
+   profile over k ∈ {2, 4, 6}.
+5. **Unchanged on purpose:** infectious-period dwell stays exponential
+   and E stays non-infectious (the paper's structure), so differences
+   against the exponential-z22 fit isolate the latency shape. R0 = β·D
+   by construction either way.
+
+Results (PGAS, R̂ ≤ 1.009):
+
+| | exponential, Z~22 prior | Erlang-4, Z~22 prior |
+|---|---|---|
+| Z (days) | 21.9 (13.7, 34.4) | 21.6 (13.9, 31.6) |
+| β | 0.29 (0.11, 0.49) | 0.33 (0.13, 0.49) |
+| R0 | 3.1 (1.1, 5.9) | 3.4 (1.3, 6.2) |
+| active exposed, May 7 (mean) | 8.9 | 9.4 |
+| new onsets May 8–27 (median, actual ~7) | 8 | 7 |
+| day-57 cumulative (median, WHO: 13) | 14 | 13 |
+
+`camdl compare` (37 scored steps, plug-in): Δelpd = 1.02 ± 0.34 in the
+Erlang model's favor with better CRPS — camdl's deciban scale calls
+this "indeterminate", i.e., a real but not decisive preference from 37
+sparse observations. The Erlang model's conditional out-of-sample
+projection matches WHO's May 27 count exactly at the median. R0 climbs
+again (median 2.9 → 3.3) because the tighter dwell delays early
+onsets, requiring slightly faster transmission to hit the same
+observed timing.
 
 ## Files
 

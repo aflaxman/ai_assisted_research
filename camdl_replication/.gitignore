@@ -9,3 +9,4 @@ results/hondius_sim_paperMLE.tsv
 results/sim_obs.tsv
 results/hondius_z22_postpred_traj.tsv
 results/hondius_base_proj57_traj.tsv
+results/hondius_erlang_postpred_traj.tsv
