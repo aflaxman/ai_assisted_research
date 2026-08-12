@@ -83,6 +83,59 @@ the observed series (panel A vs the paper's Figure 2).
   entirely, which would push R0 and the hidden-reservoir estimates
   further still.
 
+## Incorporating WHO's updated 22-day mean incubation
+
+WHO's third DON (May 27) estimated a 22-day mean incubation for this
+outbreak — outside the paper's [6, 12]-day range for Z entirely. The
+variant `hondius_seird_z22.camdl` + `fit_hondius_z22.toml` incorporates
+it as an informative prior (log-normal, mean 22 d, 95% mass ≈ 13–35 d,
+bracketing the 7–39 d Andes-virus range); the model's declared bounds
+had to widen to [6, 40] first, since camdl only lets a `fit.toml`
+narrow them. Everything else matches the baseline fit, so differences
+isolate the incubation update.
+
+![Z=22 comparison](results/hondius_z22_comparison.png)
+
+| | baseline (paper's Z range) | Z ~ 22 d prior |
+|---|---|---|
+| Z (days) | 9.4 (6.3, 11.9) | 21.9 (13.7, 34.4) |
+| β | 0.22 (0.11, 0.44) | 0.29 (0.11, 0.49) |
+| R0 | 2.2 (0.9, 4.8) | 3.1 (1.1, 5.9) |
+| active exposed, May 7 (mean) | 7.8 | 8.9 |
+
+Three lessons:
+
+1. **Z's posterior tracks its prior in both fits** — the case series
+   cannot distinguish a 9-day from a 22-day latency. The paper's Z
+   estimate (9.12, CI 8.76–9.48) was its prior range talking, not the
+   data; the same mechanics apply to the updated fit, which is why the
+   incubation period must come from outside the model (case
+   investigations), exactly as WHO did.
+2. **R0 rises with Z** (posterior median 2.0 → 2.9): the data pin the
+   observed growth rate r, and for SEIR dynamics R0 ≈ (1+rZ)(1+rD), so
+   a longer latency implies more transmission per case to sustain the
+   same growth. The paper's R0 therefore inherits the incubation
+   assumption; with WHO's value it would be ~3, not 2.76.
+3. **Out-of-sample the pipeline keeps delivering**: conditioned on
+   trajectories matching the fitted window, the Z≈22 model projects a
+   median 8 (95% 0–28) new onsets May 8–27 vs ~7 observed (13
+   cumulative, WHO May 27); the baseline model centers low (median 5).
+   Twenty extra days of sparse counts can't sharply discriminate, but
+   the direction favors the longer incubation, and the projection
+   ignores post-disembarkation transmission (May 10–11), which would
+   only add cases.
+
+A further refinement — not run here — is Erlang staging for the dwell
+shape: `onset : E --> I via erlang(stages = 4, rate = 1 / z_lat)` keeps
+the 22-day mean but SD ≈ 11 d instead of 22 d (exponential dwell makes
+near-zero incubations the most likely, which is wrong for hantavirus).
+The complication is initial conditions: with realistic staging, a day-6
+first onset requires the index case to board mid-incubation (exposed in
+Argentina pre-departure), so the seed must enter a later Erlang stage or
+the exposure window must extend before Apr 1. That changes the model's
+initial-condition story, not just a parameter — worth doing before
+trusting any quantitative hidden-reservoir estimate from this model.
+
 ## Files
 
 - `hondius_seird.camdl` — the SEIRD model (paper's Poisson daily-update
