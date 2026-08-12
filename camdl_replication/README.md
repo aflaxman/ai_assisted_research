@@ -71,12 +71,26 @@ which is the regime signature He et al.'s noise and forcing structure
 exists to capture.
 
 **IF2 scout fit** re-estimating R0, amplitude, and rho from the data
-(4 chains × 2000 particles × 25 iterations): results below. A first
+(4 chains × 2000 particles × 25 iterations, ~30 min wall). A first
 attempt at 500 particles was killed by camdl's particle-filter degeneracy
 watchdog on all 4 chains (sustained ESS collapse) — the error message
-named the fix: more particles or tighter bounds.
+named the fix: more particles or tighter bounds. The rerun:
 
-(IF2 results pending)
+| parameter | scout estimate | He et al. published MLE |
+|---|---|---|
+| R0 | 53.6 | 56.8 |
+| amplitude | 0.477 | 0.554 |
+| rho | 0.545 | 0.488 |
+
+A deliberately small scout, and camdl says so: the compound convergence
+gate **fails** the run (max Â = 1.074 > 1.01 threshold; best chain
+loglik −6119 vs −5827 at the published MLE), the dt-Richardson check
+flags discretization dependence at dt = 1, and per-chain diagnostics
+recommend more particles. The estimates move from arbitrary starts
+toward the published values, but the tooling — correctly — refuses to
+certify a 4-chain × 25-iteration run as converged. He et al.'s actual
+analysis used orders of magnitude more search effort; camdl's docs
+suggest 36 chains × 200 iterations for a real scout stage.
 
 ## Impressions of camdl
 
@@ -88,8 +102,10 @@ named the fix: more particles or tighter bounds.
 - Every run is content-addressed and cached (`results/sims/...`,
   `camdl cat <hash>`), so reruns are free and provenance is automatic.
 - Failure modes are diagnosed, not silent: the ESS-collapse watchdog
-  killed a under-resourced fit with a specific, actionable error rather
-  than returning garbage estimates.
+  killed an under-resourced fit with a specific, actionable error rather
+  than returning garbage estimates, and the scout-convergence gate
+  (Â threshold + decibans), dt-Richardson check, and near-bound warnings
+  all fired on the small demo fit rather than letting it pass as "done."
 - Speed: a 21-year chain-binomial simulation runs in ~50 ms; a
   2000-particle filter pass in ~6 s of CPU.
 
