@@ -1,0 +1,101 @@
+# Erlang-staged SEIRD for the MV Hondius hantavirus outbreak.
+#
+# Refines hondius_seird_z22.camdl in one place: the latent-period dwell
+# is Erlang-4 (mean z_lat, SD z_lat/2) instead of exponential. An
+# exponential dwell with mean 22 days makes near-zero incubations the
+# single most likely outcome, which contradicts the observed 7-39 day
+# range for Andes virus; Erlang-4 (CV = 0.5) puts 95% of incubations
+# at roughly 6-48 days around a 22-day mean.
+#
+# Staging is hand-rolled (dimensions + stratify + consecutive) rather
+# than `via erlang(...)` because `via` residence stages are
+# intentionally unnameable — they cannot be referenced in init {} —
+# and this model NEEDS stage-resolved initial conditions: with a
+# 22-day Erlang-4 incubation, a freshly exposed index case has only a
+# ~3% chance of symptom onset by day 6, when the first case was
+# actually reported. The index case must board mid-incubation
+# (exposure in Argentina before the Apr 1 departure), which is
+# expressed by seeding the LAST latent stage:
+#
+#   E[e4] = 1        the index case, boarding ~3 weeks post-exposure
+#                    (from stage 4 the onset time is Exp(mean 5.5 d),
+#                    so P(onset by day 6) ~= 0.66 — consistent with
+#                    the observed Apr 6 first case)
+#   E[e1] = e0_extra possible co-exposed travelers boarding freshly
+#                    exposed (estimated; the late-April case cluster
+#                    could be their onsets or second generation --
+#                    the data decide)
+
+time_unit = 'days
+
+compartments { S, E, I, R, Dead }
+
+dimensions {
+  latent_stage = [e1, e2, e3, e4]
+}
+
+stratify(by = latent_stage, only = [E])
+
+# bare E sums the four stages (bare-name rule), so N is unchanged
+let N = S + E + I + R + Dead
+
+parameters {
+  #' transmission rate; paper range [0.1, 0.5] from Andes-virus studies
+  #' @symbol β
+  beta  : rate in [0.1, 0.5]
+  #' mean latency; WHO DON604 outbreak estimate: 22 days
+  #' @symbol Z
+  z_lat : duration in [6 'days, 40 'days]
+  #' infectious period; paper range [7, 14] days
+  #' @symbol D
+  d_inf : duration in [7 'days, 14 'days]
+  #' case fatality rate; paper range [0.3, 0.5]
+  #' @symbol δ
+  delta : probability in [0.3, 0.5]
+  #' freshly exposed co-travelers at departure (initial-value param)
+  e0_extra : count in [0.05, 4.0]
+}
+
+transitions {
+  # new exposures enter the first latent stage
+  infection : S --> E[e1] @ beta * S * I / N
+
+  # Erlang-4 progression: per-stage rate 4/z_lat preserves mean z_lat
+  progress[(s, s_next) in consecutive(latent_stage)]
+    : E[s] --> E[s_next] @ 4.0 * E[s] / z_lat
+
+  # symptom onset / documentation from the final stage
+  onset : E[e4] --> I @ 4.0 * E[e4] / z_lat
+
+  recovery : I --> R    @ (1.0 - delta) * I / d_inf
+  death    : I --> Dead @ delta * I / d_inf
+}
+
+init {
+  S      = 180.0 - e0_extra   # 181 aboard minus the index case minus extras
+  E[e4]  = 1
+  E[e1]  = e0_extra
+  I      = 0
+  R      = 0
+  Dead   = 0
+}
+
+observations {
+  daily_cases {
+    columns       { time : time, daily_cases : count }
+    projected     = incidence(onset)
+    emit_schedule = every 1 'days
+    daily_cases   ~ poisson(rate = projected + 0.001)
+  }
+}
+
+# R0 = beta * d_inf exactly as before: staging E changes the dwell
+# SHAPE, not the mean, and E is not infectious in this model.
+quantities {
+  R0 = final(beta * d_inf)
+}
+
+simulate {
+  from = 0 'days
+  to   = 57 'days
+}
