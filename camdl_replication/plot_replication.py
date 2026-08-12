@@ -54,19 +54,21 @@ ax1.set_title(
 ax1.legend(frameon=False, fontsize=9, loc="upper right", labelcolor=TEXT)
 
 # -- Bottom: pfilter log-likelihood vs pomp reference ------------------------
+reps = range(1, len(pf) + 1)
 ax2.axhspan(POMP_REF_MEAN - 2 * POMP_REF_SD, POMP_REF_MEAN + 2 * POMP_REF_SD,
             color=BLUE, alpha=0.12, lw=0)
 ax2.axhline(POMP_REF_MEAN, color=BLUE, lw=2, label="pomp reference mean ±2 SD")
-ax2.scatter(pf["seed"], pf["loglik"], color=ORANGE, s=36, zorder=3,
+ax2.scatter(reps, pf["loglik"], color=ORANGE, s=36, zorder=3,
             label="camdl pfilter replicates (2000 particles)")
 camdl_mean = pf["loglik"].mean()
 ax2.axhline(camdl_mean, color=ORANGE, lw=1.2, ls="--")
-ax2.annotate(f"camdl mean {camdl_mean:.1f}", xy=(pf['seed'].iloc[-1], camdl_mean),
-             xytext=(-2, 6), textcoords="offset points", ha="right",
+ax2.annotate(f"camdl mean {camdl_mean:.1f}", xy=(len(pf), camdl_mean),
+             xytext=(-2, -14), textcoords="offset points", ha="right",
              fontsize=9, color=TEXT)
-ax2.annotate(f"pomp mean {POMP_REF_MEAN:.1f}", xy=(pf['seed'].iloc[0], POMP_REF_MEAN),
-             xytext=(2, -14), textcoords="offset points", fontsize=9, color=TEXT)
-ax2.set_xlabel("Particle-filter replicate (seed)", color=TEXT, fontsize=10)
+ax2.annotate(f"pomp mean {POMP_REF_MEAN:.1f}", xy=(1, POMP_REF_MEAN),
+             xytext=(2, 6), textcoords="offset points", fontsize=9, color=TEXT)
+ax2.set_xticks(list(reps))
+ax2.set_xlabel("Particle-filter replicate", color=TEXT, fontsize=10)
 ax2.set_ylabel("Log-likelihood at MLE", color=TEXT, fontsize=10)
 ax2.legend(frameon=False, fontsize=9, loc="lower right", labelcolor=TEXT)
 

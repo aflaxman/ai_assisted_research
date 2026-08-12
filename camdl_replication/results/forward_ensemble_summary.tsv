@@ -1,0 +1,4 @@
+stat	camdl_mean	camdl_sd	pomp_mean	pomp_sd	n_camdl	n_pomp
+total_cases	538063	8696	538602	7274	20	200
+last52_cases	25787	14047	27638	11497	20	200
+persistence_rate	1.0	0	1.0	0	20	200

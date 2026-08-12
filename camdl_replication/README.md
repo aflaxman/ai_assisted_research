@@ -5,7 +5,7 @@ Notes from a first end-to-end run of [camdl](https://github.com/vsbuffalo/camdl)
 compiler + inference stack for stochastic compartmental models, developed at
 the Institute for Disease Modeling.
 
-**Status: draft — results filled in below as runs complete.**
+![camdl replication of He et al. 2010](results/he2010_replication.png)
 
 ## What this replicates
 
@@ -41,7 +41,57 @@ This directory exercises camdl's workflow at the paper's published London MLE
 
 ## Results
 
-(to be filled in)
+All runs on a fresh Linux container, camdl 0.1.0+578d682, published London
+MLE parameters throughout.
+
+**Particle-filter log-likelihood at the MLE** (2000 particles × 10
+replicates, 1096 weekly observations):
+
+| implementation | mean loglik | sd | n |
+|---|---|---|---|
+| camdl `pfilter` | **−5829.7** | 18.1 | 10 |
+| pomp `pfilter()` (reference) | −5827.4 | 12.3 | 20 |
+
+The 2.3-nat gap is inside Monte Carlo error (combined SE ≈ 6.5 nats) and
+inside the ~10-nat systematic offset expected from camdl's continuous vs
+pomp's discretized Normal observation density. One 2000-particle filter
+pass over 21 years of data takes about 6 seconds.
+
+**Forward-simulation ensemble at the MLE** (`results/forward_ensemble_summary.tsv`):
+
+| stat | camdl (20 seeds) | pomp (200 sims) |
+|---|---|---|
+| total cases, 21 years | 538,063 ± 8,696 | 538,602 ± 7,274 |
+| final-year cases | 25,787 ± 14,047 | 27,638 ± 11,497 |
+| persistence rate | 20/20 | 200/200 |
+
+The simulation reproduces London's biennial measles cycle (top panel of
+the figure) — peaks land in the right years with the right amplitude,
+which is the regime signature He et al.'s noise and forcing structure
+exists to capture.
+
+**IF2 scout fit** re-estimating R0, amplitude, and rho from the data
+(4 chains × 2000 particles × 25 iterations): results below. A first
+attempt at 500 particles was killed by camdl's particle-filter degeneracy
+watchdog on all 4 chains (sustained ESS collapse) — the error message
+named the fix: more particles or tighter bounds.
+
+(IF2 results pending)
+
+## Impressions of camdl
+
+- The compiler earns its keep: `camdl check` dimension-checks every rate
+  expression, and the model file documents each place it must deviate
+  from clean dimensional analysis (e.g. He et al.'s phenomenological
+  `(I + iota)^alpha` mixing term requires an explicit
+  `unchecked_dim(..., reason = ...)` escape hatch).
+- Every run is content-addressed and cached (`results/sims/...`,
+  `camdl cat <hash>`), so reruns are free and provenance is automatic.
+- Failure modes are diagnosed, not silent: the ESS-collapse watchdog
+  killed a under-resourced fit with a specific, actionable error rather
+  than returning garbage estimates.
+- Speed: a 21-year chain-binomial simulation runs in ~50 ms; a
+  2000-particle filter pass in ~6 s of CPU.
 
 ## Quickstart
 
