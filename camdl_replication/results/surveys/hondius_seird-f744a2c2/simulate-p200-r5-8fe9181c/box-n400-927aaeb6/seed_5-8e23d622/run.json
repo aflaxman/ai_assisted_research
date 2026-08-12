@@ -1,0 +1,86 @@
+{
+  "format_version": 1,
+  "kind": "survey",
+  "run_id": "aaa9fba3b601ba88e5ca4041c3224122b985842b1ebcbdab55e715c4a0cdebf2",
+  "hash_version": 1,
+  "ir_version": "0.30",
+  "engine_version": "0.1.0+578d682",
+  "levels": [
+    {
+      "name": "model",
+      "label": "hondius_seird",
+      "hash": "f744a2c2c00b74c3f68ebcfcbc7bfe25a70e3ba96ea99c97b1016e935006a076",
+      "schema_version": 1
+    },
+    {
+      "name": "config",
+      "label": "simulate-P200-r5",
+      "hash": "8fe9181ccc0f2e678d9d3902a72c56d09e035625211574505ae4e04dea1461d9",
+      "schema_version": 1
+    },
+    {
+      "name": "box",
+      "label": "box-n400",
+      "hash": "927aaeb6643ad081b9260eaebdd9a69df7258caaa50a5a43e3625f86e5b886c8",
+      "schema_version": 1
+    },
+    {
+      "name": "seed",
+      "label": "seed_5",
+      "hash": "8e23d622f491db2902be0905fb23242bacaf65742f5f97d817db71858d97ecf7",
+      "schema_version": 1
+    }
+  ],
+  "status": "completed",
+  "artifacts": {
+    "landscape.tsv": {
+      "bytes": 52363,
+      "mtime": "1786554465.180036755",
+      "digest": "aa14feb18f135bb74e884db891ef5bb13c4954ad81309d981e53fc3355289952"
+    },
+    "summary.json": {
+      "bytes": 342,
+      "mtime": "1786554465.180036755",
+      "digest": "69ee6c4743ed07a9d968ae86af1eaccd68b68b5c3e50850a17620fd520e4e8ff"
+    }
+  },
+  "inputs": {
+    "best_loglik": -17.851222029312037,
+    "data_hashes": {
+      "daily_cases": "6f35014a0ab14a99c958ef482f8fdb5d2e78cce84d50f12d302057c7b5dee0b1"
+    },
+    "estimated": [
+      "beta",
+      "z_lat",
+      "d_inf",
+      "delta",
+      "e0"
+    ],
+    "eval_method": "simulate",
+    "eval_particles": 200,
+    "eval_replicates": 5,
+    "fixed": {},
+    "loglik_type": "marginal",
+    "model_identity": "c655b6d401fb6d80ca519d6c6c5ad240ba9db34f28207e5463230e0caa6e85b2",
+    "n_points": 400,
+    "wall_time_seconds": 0.013641423
+  },
+  "provenance": {
+    "argv": [
+      "camdl",
+      "survey",
+      "hondius_seird.camdl",
+      "--fit",
+      "fit_hondius.toml",
+      "--n-points",
+      "400",
+      "--seed",
+      "5"
+    ],
+    "created_at": "2026-08-12T17:07:45Z",
+    "camdl_version": "0.1.0+578d682",
+    "source_paths": [
+      "hondius_seird.camdl"
+    ]
+  }
+}

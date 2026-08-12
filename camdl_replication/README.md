@@ -1,4 +1,114 @@
-# Replicating He, Ionides & King (2010) with camdl
+# Replicating epidemic-model papers with camdl
+
+Two replications using [camdl](https://github.com/vsbuffalo/camdl)
+([intro blog post](https://vincebuffalo.com/blog/introducing-camdl/)), a DSL +
+compiler + inference stack for stochastic compartmental models:
+
+1. **Cui (2026)** — the MV Hondius hantavirus cruise-ship outbreak SEIRD
+   (the target paper; see below)
+2. **He, Ionides & King (2010)** — London measles, camdl's external-validation
+   benchmark (run first to prove the toolchain end-to-end)
+
+---
+
+# 1. Cui (2026): MV Hondius hantavirus SEIRD
+
+Replicates: Jiaming Cui, *Modeling the Impact of Exposed Cases in a
+Hantavirus Outbreak on a Cruise Ship*, medRxiv
+[2026.05.08.26352718](https://doi.org/10.64898/2026.05.08.26352718)
+(also on OpenReview as `78vM3b8mpk`). The paper fits a discrete-time
+stochastic SEIRD with daily Poisson transitions to cumulative reported
+cases from the April–May 2026 Andes-virus outbreak aboard the MV Hondius
+(Apr 1 – May 7: 6 reported cases in the paper's Figure 2), using an
+Ensemble Adjustment Kalman Filter (300 members, 10 iterations).
+
+![camdl replication of Cui 2026](results/hondius_replication.png)
+
+## What replicates and what doesn't
+
+**Point estimates replicate.** PGAS posterior means from camdl land close
+to the paper's Table 1 (fit: IF2 scout, 8 chains × 2000 particles, then
+PGAS, 4 chains × 3000 sweeps, R̂ ≤ 1.005):
+
+| parameter | camdl posterior mean (95% CrI) | paper (95% CI) |
+|---|---|---|
+| β (transmission rate) | 0.22 (0.11, 0.44) | 0.23 (0.22, 0.25) |
+| Z (latency, days) | 9.4 (6.3, 11.9) | 9.12 (8.76, 9.48) |
+| D (infectious period, days) | 10.3 (7.1, 13.8) | 11.52 (11.06, 11.97) |
+| δ (case fatality) | 0.41 (0.31, 0.50) | 0.36 (0.35, 0.38) |
+| R0 = β·D | 2.2 (0.9, 4.8) | 2.76 (2.52, 2.99) |
+
+**The uncertainty quantification does not.** With uniform priors on the
+paper's own Table 1 ranges, the posteriors for Z, D, and δ are nearly
+indistinguishable from those priors — six reported cases carry almost no
+information about them — and the paper's CIs are 5–20× narrower than the
+posterior CrIs. Panel B makes the contrast explicit for R0: the paper's
+(2.52, 2.99) sits inside a camdl posterior spanning (0.9, 4.8) that
+includes R0 = 1. EAKF ensemble spread after 10 assimilation iterations is
+known to under-state posterior uncertainty (filter variance collapses on
+repeated passes over the same data); these results are consistent with
+that failure mode.
+
+**The claimed identifiability is a ridge.** Replicating the paper's
+Figure 3C RMSE grid (panel C) shows the low-RMSE region is a valley along
+the constant-product curve β·D ≈ 2.76, not a basin around the paper's
+optimum — my grid minimum (β = 0.40, D = 7) has the *same R0* as the
+paper's (β = 0.24, D = 11.52). camdl's LHS survey agrees: among the top
+40 of 400 landscape points the log-likelihood varies by 0.3 nats while β
+ranges 0.13–0.33 and D ranges 7–14 (β–D correlation −0.67). Only the
+product β·D is identified by these data.
+
+**The qualitative headline replicates.** The fitted model does imply a
+hidden exposed reservoir comparable to the identified cases throughout
+April (panel D mirrors the paper's Figure 4), and the fit envelope covers
+the observed series (panel A vs the paper's Figure 2).
+
+## Reproducibility notes
+
+- **Data are not published with the paper.** The observed series was
+  digitized from Figure 2's red crosses (37 daily values; jumps of
+  +1/+2/+2/+1 on Apr 6 / 24 / 28 / 30). The Apr 6 first case matches
+  WHO's reported first onset date.
+- **N is never stated.** I used 181 (87 passengers + 60 crew aboard at
+  the May 2 WHO notification, plus 34 who disembarked earlier, per WHO
+  DON601/604). Early-phase dynamics are insensitive to N.
+- **Initial conditions are never stated.** E(0) is estimated here as an
+  initial-value parameter (posterior mean ≈ 2.9).
+- **Inference differs by design:** the paper uses EAKF; camdl provides
+  IF2 + PGAS. Matching point estimates across different inference
+  machinery strengthens the point-estimate replication; the CI
+  discrepancy is the substantive finding.
+- WHO's later DON (May 27) estimated a **22-day mean incubation** for
+  this outbreak — outside the paper's [6, 12]-day prior range for Z
+  entirely, which would push R0 and the hidden-reservoir estimates
+  further still.
+
+## Files
+
+- `hondius_seird.camdl` — the SEIRD model (paper's Poisson daily-update
+  process as chain-binomial at dt = 1; R0 declared as a `quantities {}`
+  derived output)
+- `fit_hondius.toml` — IF2 scout + PGAS posterior configuration
+- `data/hondius_cases.tsv`, `data/hondius_cumulative.tsv` — digitized series
+- `results/hondius_posterior_draws.tsv` — 1600 PGAS posterior draws
+- `results/rmse_grid.tsv` — the Figure 3C replication grid
+- `plot_hondius.py` — the four-panel figure
+
+## Quickstart
+
+```bash
+camdl check hondius_seird.camdl
+camdl fit run fit_hondius.toml --label hondius --seed 3
+camdl fit summary @hondius
+camdl simulate hondius_seird.camdl --draws posterior \
+    --fit results/fits/fit_hondius-*/ -n 400 --seed 21 \
+    --obs-only results/hondius_postpred_obs.tsv
+uv run python plot_hondius.py
+```
+
+---
+
+# 2. He, Ionides & King (2010) with camdl
 
 Notes from a first end-to-end run of [camdl](https://github.com/vsbuffalo/camdl)
 ([intro blog post](https://vincebuffalo.com/blog/introducing-camdl/)), a DSL +

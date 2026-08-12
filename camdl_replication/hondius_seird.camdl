@@ -1,0 +1,79 @@
+# Stochastic SEIRD for the 2026 MV Hondius hantavirus outbreak
+# Replicates Cui (2026), "Modeling the Impact of Exposed Cases in a
+# Hantavirus Outbreak on a Cruise Ship", medRxiv 2026.05.08.26352718.
+#
+# The paper's model: discrete-time daily updates with Poisson transition
+# counts — U1 ~ Pois(beta*S*I/N), U2 ~ Pois(E/Z), U3 ~ Pois((1-delta)*I/D),
+# U4 ~ Pois(delta*I/D). camdl's chain_binomial backend at dt=1 is the
+# Euler-multinomial version of the same daily-step process (binomial
+# rather than unbounded Poisson draws — identical at these small rates,
+# and it cannot overdraw a compartment).
+#
+# Naming: the paper's Z (latency) is z_lat, D (infectious period) is
+# d_inf, and the deceased compartment is Dead (the paper overloads "D").
+
+time_unit = 'days
+
+compartments { S, E, I, R, Dead }
+let N = S + E + I + R + Dead
+
+parameters {
+  #' transmission rate; paper range [0.1, 0.5] from Andes-virus studies
+  #' @symbol β
+  beta  : rate in [0.1, 0.5]
+  #' latency (exposed) period; paper range [6, 12] days
+  #' @symbol Z
+  z_lat : duration in [6 'days, 12 'days]
+  #' infectious period; paper range [7, 14] days
+  #' @symbol D
+  d_inf : duration in [7 'days, 14 'days]
+  #' case fatality rate; paper range [0.3, 0.5]
+  #' @symbol δ
+  delta : probability in [0.3, 0.5]
+  #' initial exposed count at departure (Apr 1) — not stated in the
+  #' paper; treated as an initial-value parameter
+  e0    : count in [0.5, 5.0]
+}
+
+transitions {
+  infection : S --> E    @ beta * S * I / N
+  onset     : E --> I    @ E / z_lat
+  recovery  : I --> R    @ (1.0 - delta) * I / d_inf
+  death     : I --> Dead @ delta * I / d_inf
+}
+
+init {
+  # 87 passengers + 60 crew aboard when WHO was notified (2 May), plus
+  # 34 who disembarked before the outbreak was reported = 181 at
+  # departure. The paper does not state N; early-outbreak dynamics are
+  # insensitive to it (S/N ≈ 1 throughout).
+  S    = 181.0 - e0
+  E    = e0
+  I    = 0
+  R    = 0
+  Dead = 0
+}
+
+# The paper fits cumulative E->I transitions to cumulative reported
+# cases (all symptomatic cases assumed documented). Daily incidence of
+# the onset transition carries the same information; the small floor
+# keeps the Poisson rate positive on zero-incidence days.
+observations {
+  daily_cases {
+    columns       { time : time, daily_cases : count }
+    projected     = incidence(onset)
+    emit_schedule = every 1 'days
+    daily_cases   ~ poisson(rate = projected + 0.001)
+  }
+}
+
+# Basic reproduction number: total exit rate from I is 1/d_inf, so
+# R0 = beta * d_inf as in the paper.
+quantities {
+  R0 = final(beta * d_inf)
+}
+
+simulate {
+  from = 0 'days
+  to   = 37 'days
+}
