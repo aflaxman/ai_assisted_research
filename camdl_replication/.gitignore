@@ -2,3 +2,8 @@ results/sims/
 results/pfilters/
 results/fits/
 .venv/
+results/ensembles/
+results/hondius_postpred_traj.tsv
+results/hondius_traj_paperMLE.tsv
+results/hondius_sim_paperMLE.tsv
+results/sim_obs.tsv
