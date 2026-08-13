@@ -1,0 +1,126 @@
+# Policy-informed behavioral-change SIR — camdl port
+#
+# A camdl expression of the framework from
+#   Pathak, Pokharel & Hossain (2026), "Modeling Infectious Disease
+#   Transmission Dynamics with Policy-Informed Behavioral Responses,"
+#   SIS-FENStatS 2026, pp. 293-299 (Springer),
+# built on its open-access backbone, Ward, Deardon & Schmidt (2023),
+# "Bayesian modeling of dynamic behavioral change during an epidemic,"
+# Infect. Dis. Model. 8(4), 947-963.
+#
+# This is the camdl twin of the hand-rolled Python model in
+# ../policy_behavioral_epidemic/. Transmission is scaled by an ALARM term
+# a(t) in [0, 1] that combines endogenous fear with a policy signal. Where
+# the DSL and the Python model must differ, the choice is annotated inline.
+
+time_unit = 'days
+
+compartments { S, I, R }
+let N = S + I + R
+
+# Floor keeping the Hill ratio finite at I = 0 (typed as a count so the
+# I + iota sum is dimension-clean, per the E302 seeding-term idiom).
+let iota : count = 1.0
+
+parameters {
+  #' baseline transmission rate (behavioral response scales it down)
+  #' @symbol β
+  beta        : rate        in [0.1, 1.5]
+  #' removal rate; 1/gamma is the mean infectious period
+  #' @symbol γ
+  gamma       : rate        in [0.05, 0.5]
+
+  # --- endogenous ("fear") alarm: a Hill function of prevalence ------------
+  # Python drives f_endog off m-day AVERAGE INCIDENCE. camdl rate
+  # expressions see current state, not a lagged incidence accumulator, so
+  # we drive it off PREVALENCE I instead. With mean infectious period
+  # 1/gamma ~ 5 days, I is itself a ~5-day running sum of recent incidence,
+  # so this is a close, fittable stand-in for the smoothed-incidence input.
+  #' asymptotic endogenous alarm
+  #' @symbol δ_e
+  endog_delta : probability in [0.0, 1.0]
+  #' prevalence at half-maximal endogenous alarm
+  #' @symbol x₀
+  endog_x0    : count       in [50.0, 5000.0]
+  #' Hill steepness
+  #' @symbol ν
+  endog_nu    : positive [1] in [1.0, 8.0]
+
+  # --- policy-informed alarm ----------------------------------------------
+  #' how strongly the policy signal translates into alarm
+  #' @symbol w
+  policy_weight : probability in [0.0, 1.0]
+
+  # --- heterogeneous compliance -------------------------------------------
+  # Python adds N(0, sigma_c^2) noise to the alarm each day. The camdl-
+  # idiomatic equivalent is extra-demographic (Gamma) noise on the force of
+  # infection via overdispersed(); sigma_c2 is that noise variance.
+  #' compliance-heterogeneity noise variance on the FOI
+  #' @symbol σ_c²
+  sigma_c2    : positive [1] in [1e-4, 1.0]
+
+  #' initial infected count
+  i0          : count        in [1.0, 50.0]
+}
+
+# ── Policy signal p(t) ∈ [0,1] ────────────────────────────────────────────
+# An interpolated covariate read from data/policy_signal.tsv. The Python
+# model layers DELAYED ADAPTATION (a geometric lag rho) on top of a step
+# policy; here that ramp is pre-baked into the covariate itself (the tsv is
+# the exponentially-smoothed step), so p(t) already carries the delay. This
+# keeps the adaptation faithful while staying fittable — a covariate needs
+# no auxiliary ODE state, which camdl rate expressions cannot introduce.
+forcing {
+  policy : interpolated 'ratio {
+    data      = "data/policy_signal.tsv"
+    time_col  = "time"
+    value_col = "policy"
+    method    = linear
+  }
+}
+
+# ── Alarm and behavior-adjusted transmission ──────────────────────────────
+# Endogenous fear rises with prevalence (Hill); the "+ 1 'count" floor keeps
+# the ratio finite at I = 0.
+let endog = endog_delta / (1.0 + (endog_x0 / (I + iota)) ^ endog_nu)
+
+# Endogenous fear and policy pressure reinforce and saturate at 1:
+#   a = 1 - (1 - endog)(1 - w·p(t))
+let alarm = 1.0 - (1.0 - endog) * (1.0 - policy_weight * policy(t))
+
+transitions {
+  # Behavior-adjusted mass-action infection with compliance overdispersion.
+  # beta*(1-alarm)*S*I/N is the Ward et al. hazard; overdispersed(...) injects
+  # the heterogeneous-compliance noise as multiplicative Gamma noise on it.
+  infection : S --> I @ overdispersed(beta * (1.0 - alarm) * S * I / N, sigma_c2)
+  recovery  : I --> R @ gamma * I
+}
+
+init {
+  S = 100000.0 - i0
+  I = i0
+  R = 0
+}
+
+# Daily incidence of new infections is the observed series (Python's I*_t),
+# emitted every day with a small Poisson floor for zero-incidence days.
+observations {
+  daily_cases {
+    columns       { time : time, daily_cases : count }
+    projected     = incidence(infection)
+    emit_schedule = every 1 'days
+    daily_cases   ~ poisson(rate = projected + 0.001)
+  }
+}
+
+# Derived summaries: baseline R0 (no behavior), attack rate, peak day.
+quantities {
+  R0_baseline = final(beta / gamma)
+  attack_rate = final((100000.0 - S) / 100000.0)
+  peak_day    = time_of_max(I)
+}
+
+simulate {
+  from = 0 'days
+  to   = 120 'days
+}
