@@ -1,0 +1,42 @@
+# Fit of the Hondius SEIRD model to the digitized daily case series.
+# Estimates the paper's four parameters plus the unstated initial
+# exposed count. Priors are uniform over the paper's Table 1 ranges,
+# so the PGAS posterior is directly comparable to the paper's
+# EAKF-derived 95% CIs.
+
+output_dir = "results"
+
+[model]
+camdl = "hondius_seird.camdl"
+
+[data.observations]
+daily_cases = "data/hondius_cases.tsv"
+
+[estimate]
+beta  = { bounds = [0.1, 0.5],  start = 0.25, prior = { uniform = {} } }
+z_lat = { bounds = [6.0, 12.0], start = 9.0,  prior = { uniform = {} } }
+d_inf = { bounds = [7.0, 14.0], start = 11.0, prior = { uniform = {} } }
+delta = { bounds = [0.3, 0.5],  start = 0.4,  prior = { uniform = {} } }
+e0    = { bounds = [0.5, 5.0],  start = 1.0,  prior = { uniform = {} }, ivp = true }
+
+[fixed]
+
+[stages.scout]
+algorithm  = "if2"
+backend    = "chain_binomial"
+chains     = 8
+particles  = 2000
+iterations = 100
+cooling    = 0.7
+
+[stages.posterior]
+algorithm = "pgas"
+backend   = "chain_binomial"
+chains    = 4
+particles = 500
+sweeps    = 3000
+burn_in   = 1000
+init_mle  = "scout"
+
+[config]
+dt = 1.0

@@ -1,0 +1,46 @@
+# Variant fit incorporating WHO DON604's updated incubation estimate:
+# mean 22 days (vs the paper's [6, 12]-day prior range for Z).
+#
+# z_lat gets an informative log-normal prior with mean 22 days:
+#   mu = ln(22) - sigma^2/2 = 3.060, sigma = 0.25
+#   => 95% prior mass roughly 13-35 days, matching the observed
+#      7-39 day range for Andes virus incubation.
+# Everything else matches fit_hondius.toml so the comparison isolates
+# the incubation update.
+
+output_dir = "results"
+
+[model]
+camdl = "hondius_seird_z22.camdl"
+
+[data.observations]
+daily_cases = "data/hondius_cases.tsv"
+
+[estimate]
+beta  = { bounds = [0.1, 0.5],  start = 0.25, prior = { uniform = {} } }
+z_lat = { bounds = [6.0, 40.0], start = 22.0, prior = { log_normal = { mu = 3.060, sigma = 0.25 } } }
+d_inf = { bounds = [7.0, 14.0], start = 11.0, prior = { uniform = {} } }
+delta = { bounds = [0.3, 0.5],  start = 0.4,  prior = { uniform = {} } }
+e0    = { bounds = [0.5, 5.0],  start = 1.0,  prior = { uniform = {} }, ivp = true }
+
+[fixed]
+
+[stages.scout]
+algorithm  = "if2"
+backend    = "chain_binomial"
+chains     = 8
+particles  = 2000
+iterations = 100
+cooling    = 0.7
+
+[stages.posterior]
+algorithm = "pgas"
+backend   = "chain_binomial"
+chains    = 4
+particles = 500
+sweeps    = 3000
+burn_in   = 1000
+init_mle  = "scout"
+
+[config]
+dt = 1.0

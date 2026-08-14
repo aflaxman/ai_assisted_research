@@ -1,0 +1,41 @@
+# Fit of the Erlang-4-staged Hondius model. Identical inference setup
+# to fit_hondius_z22.toml (same data, same priors including the
+# WHO-informed lognormal on z_lat) so that any difference against that
+# fit isolates the dwell-shape + seeding refinement.
+
+output_dir = "results"
+
+[model]
+camdl = "hondius_seird_erlang.camdl"
+
+[data.observations]
+daily_cases = "data/hondius_cases.tsv"
+
+[estimate]
+beta     = { bounds = [0.1, 0.5],  start = 0.29, prior = { uniform = {} } }
+z_lat    = { bounds = [6.0, 40.0], start = 22.0, prior = { log_normal = { mu = 3.060, sigma = 0.25 } } }
+d_inf    = { bounds = [7.0, 14.0], start = 11.0, prior = { uniform = {} } }
+delta    = { bounds = [0.3, 0.5],  start = 0.4,  prior = { uniform = {} } }
+e0_extra = { bounds = [0.05, 4.0], start = 1.0,  prior = { uniform = {} }, ivp = true }
+
+[fixed]
+
+[stages.scout]
+algorithm  = "if2"
+backend    = "chain_binomial"
+chains     = 8
+particles  = 2000
+iterations = 100
+cooling    = 0.7
+
+[stages.posterior]
+algorithm = "pgas"
+backend   = "chain_binomial"
+chains    = 4
+particles = 500
+sweeps    = 3000
+burn_in   = 1000
+init_mle  = "scout"
+
+[config]
+dt = 1.0

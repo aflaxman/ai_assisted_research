@@ -1,0 +1,45 @@
+# IF2 demo fit for He et al. (2010) London measles.
+# Deliberately small (a "scout" pass, not the paper's full search):
+# estimates the three headline transmission parameters from weekly
+# case notifications while holding the rest at the published MLE.
+
+output_dir = "results"
+
+[model]
+camdl = "he2010_london.camdl"
+
+[data.observations]
+weekly_cases = "data/he2010_london_cases.tsv"
+
+# Bounds tighter than the survey range: with 500 particles the PF
+# degeneracy watchdog killed every chain started far from the basin
+# (ESS collapse). 2000 particles + these bounds keep all chains alive.
+[estimate]
+R0        = { bounds = [20.0, 70.0], start = 30.0 }
+amplitude = { bounds = [0.2, 0.8],   start = 0.3 }
+rho       = { bounds = [0.2, 0.8],   start = 0.3 }
+
+[fixed]
+sigma    = 0.0791
+gamma    = 0.0832
+mu       = 0.0000548
+alpha    = 0.976
+iota     = 2.9
+sigma_se = 2.816
+cohort   = 0.557
+psi      = 0.116
+s0       = 0.0297
+e0       = 0.0000517
+i0       = 0.0000514
+N0       = 2462500
+
+[stages.scout]
+algorithm  = "if2"
+backend    = "chain_binomial"
+chains     = 4
+particles  = 2000
+iterations = 25
+cooling    = 0.7
+
+[config]
+dt = 1.0
