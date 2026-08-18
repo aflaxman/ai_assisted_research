@@ -107,7 +107,7 @@ pathways (e.g., anemia from both iron and B12), or subgroup equity results.
 | Premix nutrient | GBD handle | Outcomes affected | Notes |
 |---|---|---|---|
 | Vitamin A | Risk: vitamin A deficiency | Diarrhea, measles (<5y); VAD sequelae | Trial was null at ~50–73% dose — simulate both delivered and intended dose |
-| Iron | Risk: iron deficiency (hemoglobin shift); Cause: dietary iron deficiency | Anemia YLDs, maternal disorders | Dose→Hb response from published fortification meta-analyses, not the trial |
+| Iron | Risk: iron deficiency (hemoglobin shift); Cause: dietary iron deficiency | Anemia YLDs, maternal disorders, birth outcomes (extended) | Dose→Hb response from published fortification meta-analyses, not the trial; see iron pathway detail below |
 | Zinc | Risk: zinc deficiency | Diarrhea, LRI (<5y) | GBD exposure data are weak; flag wide uncertainty |
 | Folic acid | Cause: neural tube defects | NTD births averted | Requires reaching WRA periconceptionally — bouillon's reach is the argument |
 | Iodine | Cause: iodine deficiency | Goiter, cognitive sequelae | Control cubes already had iodine; marginal effect ~0 where salt iodization works |
@@ -117,6 +117,61 @@ The B12 row is the honest limitation: GBD has no B12 risk–outcome pairs, so
 the trial's headline finding translates into "cases of low milk/serum B12
 averted," not DALYs. Report it as its own outcome rather than forcing it into
 the DALY frame.
+
+### Iron pathway detail
+
+Note first that this paper reports neither the iron dose nor hemoglobin
+outcomes — those are in a forthcoming companion CoMIT paper (a statistical
+analysis plan, Arnold et al. 2025, is already published). Until it appears,
+the iron pathway runs on the protocol dose plus external dose–response
+evidence.
+
+Expected magnitude: a modest hemoglobin shift, but likely the first- or
+second-largest DALY contributor of the premix anyway. Three opposing forces:
+
+1. **Small, poorly absorbed dose.** At 2–2.5 g of cube/day the iron dose is a
+   few mg — a fraction of the RDA — and condiment fortification typically uses
+   ferric pyrophosphate, with roughly a quarter to half the bioavailability of
+   ferrous sulfate. Expect population Hb shifts of ~1–3 g/L in regular
+   consumers, not the 5–10 g/L of supplementation trials.
+2. **Much of northern Ghana's anemia is not iron-responsive.** The national
+   survey the paper cites (Wegmüller 2020) found anemia heavily driven by
+   malaria, inflammation, and hemoglobinopathies. GBD's anemia causal
+   attribution gives the iron-responsive share directly — a key anchor pull,
+   because it caps what any iron dose can avert.
+3. **Enormous reached population with complete GBD machinery.** Anemia in WRA
+   is a large prevalent YLD burden, and in IHME's vivarium LSFF modeling iron
+   was consistently a dominant DALY contributor: small per-person effect ×
+   very large population.
+
+Model iron as **three stacked components**, reported separately so a reviewer
+can accept or discount each:
+
+- **(a) Anemia YLDs** from the hemoglobin shift — standard GBD, low
+  controversy.
+- **(b) Maternal disorders** via GBD's hemoglobin → maternal
+  hemorrhage/sepsis relative risks — standard GBD CRA; small in absolute
+  deaths but defensible.
+- **(c) Birth outcomes (extended):** maternal hemoglobin → birthweight and
+  gestational age → neonatal mortality via GBD's LBWSG risk curves. This is
+  the mortality multiplier — (a) and (b) are mostly YLDs, while (c) converts
+  maternal iron status into neonatal deaths (YLLs), which in the
+  `vivarium_gates_iv_iron` and nutrition-optimization work was a major share
+  of iron's total impact. It is **not** a standard GBD risk–outcome pair, so
+  it needs literature effect sizes — e.g., Haider et al. 2013 (BMJ) prenatal
+  iron meta-analysis (birth weight ≈ +40 g; LBW RR ≈ 0.81 for
+  supplementation) — mapped onto GBD's LBWSG exposure and risk curves, cribbing
+  the implementation from `vivarium_gates_iv_iron`.
+
+Two caveats for component (c): the meta-analytic evidence comes from
+supplementation doses several times a bouillon dose, so scale by dose–response
+rather than applying pooled RRs wholesale; and the effect requires exposure
+during pregnancy — which is bouillon's selling point, since a market vehicle
+reaches women continuously rather than only after the first antenatal visit
+(the same argument the paper makes for folic acid and B12).
+
+Leave iron → child cognitive development as a qualitative mention only; the
+causal evidence is contested and does not fit the DALY frame cleanly.
 
 ## The intervention effect model (coverage cascade)
 
