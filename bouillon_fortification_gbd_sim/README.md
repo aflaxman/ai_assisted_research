@@ -254,9 +254,26 @@ the public GBD Results Tool for anything shareable.
 
 1. **Anchor pulls** (½ day) — get Ghana burden and exposure numbers for the
    table above via GBD MCP skills; record in `data/gbd_anchors.csv`.
+   *Status: done best-effort 2026-08-18.* The GBD MCP was not connected in the
+   working session, so `data/gbd_anchors.csv` holds survey anchors (Ghana
+   Micronutrient Survey 2017: VAD 20.8% in children 6–59 mo, anemia 21.7% /
+   B12 deficiency 6.9% / folate deficiency 53.8% in WRA), GBD 2019 relative
+   risks (VAD→diarrhea 1.14, VAD→measles 1.39, zinc→diarrhea 1.14; LRI
+   dropped as an outcome), and order-of-magnitude burden placeholders flagged
+   `PROVISIONAL_PULL`. Replace those with draw-level GBD 2023 pulls.
 2. **Tier 1 notebook** (1–2 days) — `tier1_paf_shift.ipynb`: coverage cascade
    → exposure shift → PAF recompute → DALYs averted, with the S0–S4 scenario
    table as output. Pure pandas/numpy, `uv`-managed environment.
+   *Status: first working version built and executed 2026-08-18*
+   (`model.py` + `tier1_paf_shift.py` in jupytext percent format).
+   Headline provisional result: S1 (77% household coverage × 95% market
+   share, full premix) averts ~41k DALYs/yr, dominated by **folic acid
+   (~18k, via ~300 NTD births averted)** and **iron (~19k across anemia,
+   maternal, and the extended neonatal chain)**; vitamin A contributes <10%
+   because GBD 2019 deflated its RRs — which also means the premix-error
+   scenario S2 (~40k) barely differs from S1. Absolute numbers are
+   placeholders; the pathway ranking is the finding to check against real
+   pulls.
 3. **Sensitivity + writeup** (1 day) — tornado plot over coverage, dose,
    dose–response slope; draft results into this README.
 4. **Decision point** — if Tier 1 shows material burden aversion with

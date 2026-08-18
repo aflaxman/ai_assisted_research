@@ -1,0 +1,47 @@
+parameter,value,lo,hi,units,group,source,status
+pop_total,34100000,33000000,35000000,persons,demography,World Bank 2024 estimate,PROVISIONAL
+births_per_year,870000,830000,910000,births/yr,demography,UN WPP ~2024,PROVISIONAL
+pop_children_6_59mo,3900000,3700000,4100000,persons,demography,births x 4.5y survival approx,PROVISIONAL
+pop_wra,8700000,8400000,9000000,persons,demography,UN WPP ~2024 women 15-49,PROVISIONAL
+pregnancies_per_year,1000000,950000,1100000,pregnancies/yr,demography,births + losses approx,PROVISIONAL
+prev_vad_children,0.208,0.17,0.25,proportion,exposure,Ghana Micronutrient Survey 2017 (children 6-59mo),SURVEY
+prev_anemia_wra,0.217,0.19,0.25,proportion,exposure,GMS 2017 non-pregnant women 15-49,SURVEY
+prev_anemia_children,0.356,0.32,0.39,proportion,exposure,GMS 2017 children 6-59mo,SURVEY
+prev_irondef_wra,0.137,0.11,0.16,proportion,exposure,GMS 2017 (ferritin-based),SURVEY
+prev_ida_wra,0.089,0.07,0.11,proportion,exposure,GMS 2017,SURVEY
+prev_b12def_wra,0.069,0.05,0.09,proportion,exposure,GMS 2017,SURVEY
+prev_folatedef_wra,0.538,0.49,0.59,proportion,exposure,GMS 2017 (RBC folate),SURVEY
+prev_zincdef_children,0.25,0.15,0.40,proportion,exposure,regional estimates; GMS did not report plasma zinc,PROVISIONAL
+rr_vad_diarrhea,1.14,1.03,1.26,RR,relative_risk,GBD 2019 CRA (Stevens et al. PHN 2022 summary),LITERATURE
+rr_vad_measles,1.39,1.03,1.90,RR,relative_risk,GBD 2019 CRA,LITERATURE
+rr_zinc_diarrhea,1.14,1.07,1.21,RR,relative_risk,GBD 2019 CRA,LITERATURE
+rr_lbw_iron_supp,0.81,0.71,0.93,RR,relative_risk,Haider 2013 BMJ prenatal iron meta-analysis (~60 mg/d),LITERATURE
+daly_u5_diarrhea,250000,150000,400000,DALYs/yr,burden,order-of-magnitude pending GBD 2023 pull for Ghana,PROVISIONAL_PULL
+daly_u5_measles,30000,5000,100000,DALYs/yr,burden,order-of-magnitude pending GBD 2023 pull (epidemic-prone),PROVISIONAL_PULL
+yld_anemia_wra,60000,30000,120000,YLDs/yr,burden,order-of-magnitude pending GBD 2023 anemia envelope pull,PROVISIONAL_PULL
+daly_maternal,160000,120000,220000,DALYs/yr,burden,MMR ~263/100k x ~870k births x ~60 YLL approx,PROVISIONAL_PULL
+neonatal_deaths,20000,17000,24000,deaths/yr,burden,NMR ~23/1000 x births approx,PROVISIONAL_PULL
+ntd_birth_prev,0.0012,0.0008,0.0020,proportion of births,burden,West Africa registry estimates,PROVISIONAL
+daly_per_ntd_birth,60,40,80,DALYs/birth,burden,mix of early deaths and lifelong disability approx,PROVISIONAL
+lbw_prev,0.14,0.11,0.17,proportion of births,burden,Ghana DHS approx,PROVISIONAL
+lbw_attrib_neonatal_share,0.40,0.30,0.55,proportion,burden,GBD LBWSG attributable share approx,PROVISIONAL_PULL
+hb_mean_wra,125,122,128,g/L,exposure,consistent with GMS anemia prevalence under normal model,PROVISIONAL
+hb_sd_wra,15,13,17,g/L,exposure,typical population SD,PROVISIONAL
+iron_responsive_share,0.5,0.3,0.7,proportion,exposure,GMS ID/anemia ratio and GBD attribution bracket,PROVISIONAL_PULL
+cov_hh_bouillon_regular,0.77,0.70,0.85,proportion,coverage,CoMIT region: cooked with bouillon >=2x/day,SURVEY
+intake_wra_g_per_d,2.25,2.0,2.5,g/d,coverage,CoMIT protocol assumption for WRA,TRIAL
+intake_child_g_per_d,1.0,0.6,1.5,g/d,coverage,AME method approx from CoMIT household data,PROVISIONAL
+va_ug_re_per_g_cube,200,180,220,ug RE/g,premix,CoMIT paper (intended),TRIAL
+b12_ug_per_g_cube,1.2,1.1,1.3,ug/g,premix,CoMIT paper,TRIAL
+iron_mg_per_g_cube,,,,mg/g,premix,TO PULL from CoMIT protocol (Engle-Stone et al.),TO_PULL
+zinc_mg_per_g_cube,,,,mg/g,premix,TO PULL from CoMIT protocol,TO_PULL
+folic_ug_per_g_cube,,,,ug/g,premix,TO PULL from CoMIT protocol,TO_PULL
+dhb_regular_consumer,2.0,1.0,3.0,g/L,effect,condiment iron fortification literature bracket,LITERATURE
+efficacy_va_full,0.40,0.20,0.60,proportion of covered deficient resolved,effect,fortification literature; intended dose ~31-38% RDA,PROVISIONAL
+efficacy_va_delivered,0.15,0.00,0.30,proportion,effect,trial null at 50-73% dose with positive direction,TRIAL_INFORMED
+efficacy_zinc,0.30,0.10,0.50,proportion,effect,assumed similar to VA full dose,PROVISIONAL
+efficacy_b12,0.30,0.10,0.50,proportion of covered deficient resolved,effect,trial: milk B12 shift but median still below reference,TRIAL_INFORMED
+ntd_preventable_frac,0.40,0.25,0.55,proportion,effect,folic acid fortification literature,LITERATURE
+iron_dose_ratio_vs_supp,0.10,0.05,0.20,ratio,effect,bouillon iron dose (ferric pyrophosphate adj.) vs 60 mg/d supplementation,PROVISIONAL
+rr_maternal_per_10gL,1.25,1.10,1.45,RR per 10 g/L Hb decrease,relative_risk,approx from GBD hemoglobin-maternal disorder curves,PROVISIONAL_PULL
+yll_per_neonatal_death,86,80,90,YLL/death,burden,GBD standard life table at birth,LITERATURE
