@@ -110,29 +110,32 @@ def main() -> None:
         pred = slice(cutoff, n_all)   # 0-based data rows in the prediction window
         n_pred = n_all - cutoff
         country_out = {}
-        for model in ("sir", "sirx"):
+        # "sirx" = the code's lam prior [0, 0.2]; "sirx_s2" = the
+        # supplement's [0, 0.03], which reproduces the paper's estimates
+        for model in ("sir", "sirx", "sirx_s2"):
             label = f"{name}_{model}"
             try:
                 draws = find_draws(label)
             except FileNotFoundError as e:
                 print(f"skip {label}: {e}", file=sys.stderr)
                 continue
+            mkind = "sir" if model == "sir" else "sirx"
             k_fit = 7 if model == "sir" else 12
             pick = draws.iloc[RNG.choice(len(draws), size=min(N_DRAWS, len(draws)),
                                          replace=False)]
             reps, xs, r0s, reffs = [], [], [], []
             for _, d in pick.iterrows():
                 p = d.to_dict()
-                if model == "sirx":
+                if mkind == "sirx":
                     p.setdefault("sigma_x", 300.0)
-                rep, x = simulate(model, p, t_end)
+                rep, x = simulate(mkind, p, t_end)
                 reps.append(rep[:n_all])
                 xs.append(x[:n_all])
                 tt = np.arange(cutoff + 1, n_all + 1, 1.0)
                 season = 1.0 + p["b"] * np.cos((tt - p["phi"]) * FREQ)
                 r0_t = p["beta"] * season / p["gamma"]
                 r0s.append(r0_t)
-                if model == "sirx":
+                if mkind == "sirx":
                     reffs.append(r0_t * (1.0 - p["eps"] * x[cutoff:n_all]))
             reps, xs = np.array(reps), np.array(xs)
             avg = reps.mean(axis=0)
@@ -141,7 +144,7 @@ def main() -> None:
                 "time": np.arange(1, n_all + 1), "data": cases,
                 "mean": avg, "q025": q[0], "med": q[1], "q975": q[2],
             })
-            if model == "sirx":
+            if mkind == "sirx":
                 xq = np.quantile(xs, [0.025, 0.5, 0.975], axis=0)
                 traj["x_mean"] = xs.mean(axis=0)
                 traj["x_q025"], traj["x_med"], traj["x_q975"] = xq
@@ -173,7 +176,7 @@ def main() -> None:
             # model is penalised with its full parameter count both ways.
             rss_inc = float(np.mean((cases[pred] - avg[pred]) ** 2))
             metrics["aicc_inc"] = aicc_terms([(rss_inc, n_pred)], k_fit)
-            if model == "sirx":
+            if mkind == "sirx":
                 x_avg = xs.mean(axis=0)
                 rss_osi = float(np.mean((osi[pred] - x_avg[pred]) ** 2))
                 metrics["aicc_inc_osi"] = aicc_terms(
@@ -193,34 +196,34 @@ def main() -> None:
             pool = np.concatenate(r0s)
             r0_med, r0_lo, r0_hi = np.quantile(pool, [0.5, 0.025, 0.975])
             metrics["r0_med"], metrics["r0_lo"], metrics["r0_hi"] = r0_med, r0_lo, r0_hi
-            if model == "sirx":
+            if mkind == "sirx":
                 pool = np.concatenate(reffs)
                 metrics["reff_med"], metrics["reff_lo"], metrics["reff_hi"] = \
                     np.quantile(pool, [0.5, 0.025, 0.975])
             rows.append(metrics)
             country_out[model] = metrics
 
-        if {"sir", "sirx"} <= country_out.keys():
+        if {"sir", "sirx_s2"} <= country_out.keys():
             ps = PAPER_TABLE_S3[name]
             m = country_out
             r0_rows.append({
                 "country": name,
-                "camdl_sirx_r0": m["sirx"]["r0_med"], "paper_sirx_r0": ps[0][0],
+                "camdl_sirx_r0": m["sirx_s2"]["r0_med"], "paper_sirx_r0": ps[0][0],
                 "camdl_sir_r0": m["sir"]["r0_med"], "paper_sir_r0": ps[1][0],
-                "camdl_reff": m["sirx"]["reff_med"], "paper_reff": ps[2][0],
+                "camdl_reff": m["sirx_s2"]["reff_med"], "paper_reff": ps[2][0],
             })
 
     pd.DataFrame(rows).to_csv(RESULTS / "summary_stats.tsv", sep="\t", index=False)
     pd.DataFrame(r0_rows).to_csv(RESULTS / "table_s3_comparison.tsv", sep="\t",
                                  index=False)
     df = pd.DataFrame(rows)
-    for model in ("sir", "sirx"):
+    for model in ("sir", "sirx", "sirx_s2"):
         sub = df[df.model == model]
         if len(sub) == 0:
             continue
         print(f"\n== {model} across {len(sub)} countries ==")
         print(f"AICc (incidence):    {sub.aicc_inc.mean():8.0f} +/- {sub.aicc_inc.std():.0f}")
-        if model == "sirx" and "aicc_inc_osi" in sub:
+        if model.startswith("sirx") and "aicc_inc_osi" in sub:
             print(f"AICc (inc+osi):      {sub.aicc_inc_osi.mean():8.0f} +/- {sub.aicc_inc_osi.std():.0f}")
         print(f"area (pred):         {sub.area_pred.mean():8.4f} +/- {sub.area_pred.std():.4f}")
         print(f"peak2 mag:           {sub.peak2_mag.mean():8.4f} +/- {sub.peak2_mag.std():.4f}")

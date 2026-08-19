@@ -31,10 +31,14 @@ i0      = {{ bounds = [{i0_lo:.6e}, {i0_hi:.6e}], start = {i0_start:.6e}, transf
 sigma_i = {{ bounds = [0.5, 100000.0], start = {sig_start:.1f}, transform = "log", prior = {{ uniform = {{}} }} }}
 """
 
+# lam bounds differ between the paper's supplement (Table S2: [0, 0.03])
+# and its code (r_lamb = (0, 0.2)). "sirx" uses the code's range; the
+# "sirx_s2" variant uses the supplement's, which is what reproduces the
+# paper's published parameter estimates and its wave-2 behaviour rebound.
 SIRX_ESTIMATES = """\
 eps     = {{ bounds = [0.1, 0.8],    start = 0.4,   transform = "identity", prior = {{ uniform = {{}} }} }}
 kappa   = {{ bounds = [100.0, 5000.0], start = 1000.0, transform = "log", prior = {{ uniform = {{}} }} }}
-lam     = {{ bounds = [0.0, 0.2],    start = 0.01,  transform = "identity", prior = {{ uniform = {{}} }} }}
+lam     = {{ bounds = [0.0, {lam_hi}],   start = 0.01,  transform = "identity", prior = {{ uniform = {{}} }} }}
 c       = {{ bounds = [0.0, 0.01],   start = 0.001, transform = "identity", prior = {{ uniform = {{}} }} }}
 x0      = {{ bounds = [1e-4, {x0_hi}], start = {x0_start:.4f}, transform = "log", prior = {{ uniform = {{}} }}, ivp = true }}
 """
@@ -84,22 +88,24 @@ def main() -> None:
             i0_lo=i0_lo, i0_hi=i0_hi, i0_start=(i0_lo * i0_hi) ** 0.5,
             sig_start=max(2.0, pop * 2e-5),
         )
-        for model in ("sir", "sirx"):
+        for model in ("sir", "sirx", "sirx_s2"):
             obs = [f'cases = "../data/{name}_cases_train.tsv"']
             estimates = shared
-            if model == "sirx":
+            if model.startswith("sirx"):
                 obs.append(f'osi = "../data/{name}_osi_train.tsv"')
                 estimates += SIRX_ESTIMATES.format(
                     x0_hi=x0_hi, x0_start=x0_hi / 2.0,
+                    lam_hi=0.2 if model == "sirx" else 0.03,
                 )
             # sigma_x is fixed, not fitted: with a free scale the ML solution
             # inflates it to wash out the OSI stream entirely (the paper's
             # Belarus/Finland failure mode, but for every country). 300
             # permille is the paper's own typical accepted behaviour RMS
             # (median Error_X^0.5 = 0.29-0.50 across its final particles).
-            fixed_extra = "sigma_x = 300.0\n" if model == "sirx" else ""
+            fixed_extra = "sigma_x = 300.0\n" if model.startswith("sirx") else ""
             text = TEMPLATE.format(
-                country=name, model=model, cutoff=cutoff, pop=pop,
+                country=name, model="sirx" if model == "sirx_s2" else model,
+                cutoff=cutoff, pop=pop,
                 observations="\n".join(obs), estimates=estimates,
                 fixed_extra=fixed_extra,
                 scout_chains=12 if model == "sir" else 24,

@@ -19,7 +19,7 @@ i0      = { bounds = [2.025199e-07, 4.050398e-04], start = 9.056966e-06, transfo
 sigma_i = { bounds = [0.5, 100000.0], start = 98.8, transform = "log", prior = { uniform = {} } }
 eps     = { bounds = [0.1, 0.8],    start = 0.4,   transform = "identity", prior = { uniform = {} } }
 kappa   = { bounds = [100.0, 5000.0], start = 1000.0, transform = "log", prior = { uniform = {} } }
-lam     = { bounds = [0.0, 0.2],    start = 0.01,  transform = "identity", prior = { uniform = {} } }
+lam     = { bounds = [0.0, 0.2],   start = 0.01,  transform = "identity", prior = { uniform = {} } }
 c       = { bounds = [0.0, 0.01],   start = 0.001, transform = "identity", prior = { uniform = {} } }
 x0      = { bounds = [1e-4, 0.2], start = 0.1000, transform = "log", prior = { uniform = {} }, ivp = true }
 
