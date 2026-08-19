@@ -102,13 +102,20 @@ def main() -> None:
     traj_dir = RESULTS / "trajectories"
     traj_dir.mkdir(parents=True, exist_ok=True)
     rows, r0_rows = [], []
-    for name, _, pop, cutoff, _ in COUNTRIES:
+    for name, _, pop, cutoff, _, start in COUNTRIES:
         cases = pd.read_csv(HERE / f"data/{name}_cases.tsv", sep="\t")["cases"].values / pop
         osi = pd.read_csv(HERE / f"data/{name}_osi.tsv", sep="\t")["osi"].values / 1000.0
         n_all = len(cases)
         t_end = n_all
         pred = slice(cutoff, n_all)   # 0-based data rows in the prediction window
         n_pred = n_all - cutoff
+        # the paper's "second peak" is the Sep-Dec maximum (Fig 1), so the
+        # peak2 window is capped at Dec 31 even though prediction runs to
+        # late January
+        from datetime import date
+        y, m, d = map(int, start.split("-"))
+        dec31 = (date(2020, 12, 31) - date(y, m, d)).days + 1
+        peak2_win = slice(cutoff, min(dec31, n_all))
         country_out = {}
         # "sirx" = the code's lam prior [0, 0.2]; "sirx_s2" = the
         # supplement's [0, 0.03], which reproduces the paper's estimates
@@ -154,7 +161,7 @@ def main() -> None:
             # peaks: of the average simulation (the paper's convention),
             # CrI from per-draw peaks
             metrics = {"country": name, "model": model}
-            for wname, sl in [("peak1", slice(0, cutoff)), ("peak2", pred)]:
+            for wname, sl in [("peak1", slice(0, cutoff)), ("peak2", peak2_win)]:
                 seg = avg[sl]
                 metrics[f"{wname}_day"] = sl.start + int(seg.argmax()) + 1
                 metrics[f"{wname}_mag"] = float(seg.max())
@@ -166,8 +173,8 @@ def main() -> None:
                     np.quantile(per_draw_mag, [0.025, 0.975])
             metrics["data_peak1_day"] = int(cases[:cutoff].argmax()) + 1
             metrics["data_peak1_mag"] = float(cases[:cutoff].max())
-            metrics["data_peak2_day"] = cutoff + int(cases[pred].argmax()) + 1
-            metrics["data_peak2_mag"] = float(cases[pred].max())
+            metrics["data_peak2_day"] = cutoff + int(cases[peak2_win].argmax()) + 1
+            metrics["data_peak2_mag"] = float(cases[peak2_win].max())
 
             # area between average simulation and data, prediction window
             metrics["area_pred"] = float(np.trapezoid(np.abs(cases[pred] - avg[pred])))

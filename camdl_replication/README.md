@@ -1,13 +1,17 @@
 # Replicating epidemic-model papers with camdl
 
-Two replications using [camdl](https://github.com/vsbuffalo/camdl)
+Three replications using [camdl](https://github.com/vsbuffalo/camdl)
 ([intro blog post](https://vincebuffalo.com/blog/introducing-camdl/)), a DSL +
 compiler + inference stack for stochastic compartmental models:
 
 1. **Cui (2026)** — the MV Hondius hantavirus cruise-ship outbreak SEIRD
-   (the target paper; see below)
+   (see below)
 2. **He, Ionides & King (2010)** — London measles, camdl's external-validation
    benchmark (run first to prove the toolchain end-to-end)
+3. **Frimpong & Bauch (2026)** — coupled behaviour-disease SIRx vs seasonal
+   SIR for COVID-19 second-wave prediction in 13 European countries, on
+   camdl's deterministic-ODE inference backend — see
+   [`pandemic_waves/`](pandemic_waves/)
 
 ---
 

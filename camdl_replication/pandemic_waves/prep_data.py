@@ -23,25 +23,26 @@ import csv
 import sys
 from pathlib import Path
 
-# (name, paper job-array index, population, fit cutoff, x0 upper bound)
+# (name, paper job-array index, population, fit cutoff, x0 upper bound,
+#  Table S1 start date)
 # from sirx_model_estimations.py in the paper's repository. Note the
 # Netherlands population is Germany's (a bug in the paper's script);
 # kept as-is for fidelity — it only scales the count units and the
 # I0 prior, not the proportion-space dynamics.
 COUNTRIES = [
-    ("austria",     "austria",     9006398,  200, 0.20),
-    ("belarus",     "belarus",     9449323,  230, 0.05),
-    ("belgium",     "belgium",     11589623, 220, 0.20),
-    ("denmark",     "denmark",     5792202,  230, 0.10),
-    ("finland",     "finland",     5540720,  200, 0.05),
-    ("france",      "france",      65411076, 200, 0.10),
-    ("germany",     "germany",     83783942, 200, 0.10),
-    ("ireland",     "ireland",     4937786,  200, 0.20),
-    ("netherlands", "netherlands", 83783942, 200, 0.10),
-    ("norway",      "norway",      5421241,  200, 0.20),
-    ("portugal",    "portugal",    10196709, 200, 0.10),
-    ("uk",          "uk",          67886011, 250, 0.10),
-    ("switzerland", "switzerland", 8654622,  200, 0.10),
+    ("austria",     "austria",     9006398,  200, 0.20, "2020-02-25"),
+    ("belarus",     "belarus",     9449323,  230, 0.05, "2020-02-28"),
+    ("belgium",     "belgium",     11589623, 220, 0.20, "2020-02-04"),
+    ("denmark",     "denmark",     5792202,  230, 0.10, "2020-02-27"),
+    ("finland",     "finland",     5540720,  200, 0.05, "2020-02-26"),
+    ("france",      "france",      65411076, 200, 0.10, "2020-02-24"),
+    ("germany",     "germany",     83783942, 200, 0.10, "2020-02-25"),
+    ("ireland",     "ireland",     4937786,  200, 0.20, "2020-02-29"),
+    ("netherlands", "netherlands", 83783942, 200, 0.10, "2020-02-27"),
+    ("norway",      "norway",      5421241,  200, 0.20, "2020-02-26"),
+    ("portugal",    "portugal",    10196709, 200, 0.10, "2020-03-02"),
+    ("uk",          "uk",          67886011, 250, 0.10, "2020-01-31"),
+    ("switzerland", "switzerland", 8654622,  200, 0.10, "2020-02-25"),
 ]
 
 
@@ -63,7 +64,7 @@ def main() -> None:
         sys.exit(f"source data not found under {src} — pass the paper repo clone path")
     out = Path(__file__).parent / "data"
     out.mkdir(exist_ok=True)
-    for name, stem, pop, cutoff, _ in COUNTRIES:
+    for name, stem, pop, cutoff, _, _ in COUNTRIES:
         cases_prop = read_series(src / f"{stem}Avg7ma.csv")
         osi_prop = read_series(src / f"{stem}Avgosi7ma.csv")
         n = min(len(cases_prop), len(osi_prop))

@@ -82,7 +82,7 @@ dt = 0.25
 
 def main() -> None:
     FIT_DIR.mkdir(exist_ok=True)
-    for name, _, pop, cutoff, x0_hi in COUNTRIES:
+    for name, _, pop, cutoff, x0_hi, _ in COUNTRIES:
         i0_lo, i0_hi = 1.0 / pop, 2000.0 / pop
         shared = SHARED_ESTIMATES.format(
             i0_lo=i0_lo, i0_hi=i0_hi, i0_start=(i0_lo * i0_hi) ** 0.5,
