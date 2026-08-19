@@ -84,8 +84,21 @@ def simulate(model: str, p: dict, t_end: int) -> tuple[np.ndarray, np.ndarray]:
         ic = [1.0 - p["i0"], p["i0"], 0.0, 0.0]
     sol = solve_ivp(fun, (0.0, t_end + 1), ic, method="RK45",
                     t_eval=np.arange(0, t_end + 1, 1.0), rtol=1e-8, atol=1e-10)
+    if sol.y.shape[1] != t_end + 1:
+        return None, None   # diverged; the paper's code rejects these too
     rep = np.diff(sol.y[3]) / p["eta0"]
     return rep, sol.y[2][1:]
+
+
+def r0_stat(curves: np.ndarray, cutoff: int) -> tuple[float, float, float]:
+    """Table S3's statistic (from the authors' Particle_analysis.ipynb):
+    max over the TRAINING window of the across-particle mean R0(t) curve,
+    with a "CI" of (min lower band, max upper band) over the same window
+    — despite the table caption saying "after 200 days"."""
+    mean = curves.mean(axis=0)[:cutoff]
+    lo = np.quantile(curves, 0.025, axis=0)[:cutoff]
+    hi = np.quantile(curves, 0.975, axis=0)[:cutoff]
+    return float(mean.max()), float(lo.min()), float(hi.max())
 
 
 def aicc_terms(rss_over_n: list[tuple[float, int]], k: int) -> float:
@@ -136,15 +149,30 @@ def main() -> None:
                 if mkind == "sirx":
                     p.setdefault("sigma_x", 300.0)
                 rep, x = simulate(mkind, p, t_end)
+                if rep is None:
+                    continue
                 reps.append(rep[:n_all])
                 xs.append(x[:n_all])
-                tt = np.arange(cutoff + 1, n_all + 1, 1.0)
+                # Table S3's caption says "after 200 days", but its SIR
+                # values only reproduce when R0(t) is pooled over the full
+                # year (median seasonal factor ~ 1): full-axis pooling
+                tt = np.arange(1.0, n_all + 1, 1.0)
                 season = 1.0 + p["b"] * np.cos((tt - p["phi"]) * FREQ)
                 r0_t = p["beta"] * season / p["gamma"]
                 r0s.append(r0_t)
                 if mkind == "sirx":
-                    reffs.append(r0_t * (1.0 - p["eps"] * x[cutoff:n_all]))
+                    reffs.append(r0_t * (1.0 - p["eps"] * x[:n_all]))
             reps, xs = np.array(reps), np.array(xs)
+            # the paper's metrics use "the average simulation from 100
+            # selected particles" (lowest-error); mirror that selection to
+            # keep chains stuck in poor local optima from polluting the
+            # average (the MH chains do not always agree)
+            train_mse = np.mean((reps[:, :cutoff] - cases[:cutoff]) ** 2, axis=1)
+            best = np.argsort(train_mse)[:100]
+            reps, xs = reps[best], xs[best]
+            r0s = [r0s[i] for i in best]
+            if reffs:
+                reffs = [reffs[i] for i in best]
             avg = reps.mean(axis=0)
             q = np.quantile(reps, [0.025, 0.5, 0.975], axis=0)
             traj = pd.DataFrame({
@@ -199,14 +227,12 @@ def main() -> None:
             metrics["r2adj_train"] = 1.0 - (rss_train / (cutoff - k_fit - 1)) / \
                 (sst / (cutoff - 1))
 
-            # R0 / Reff over the prediction window (Table S3)
-            pool = np.concatenate(r0s)
-            r0_med, r0_lo, r0_hi = np.quantile(pool, [0.5, 0.025, 0.975])
-            metrics["r0_med"], metrics["r0_lo"], metrics["r0_hi"] = r0_med, r0_lo, r0_hi
+            # R0 / Reff, the paper's Table S3 statistic
+            metrics["r0_med"], metrics["r0_lo"], metrics["r0_hi"] = \
+                r0_stat(np.array(r0s), cutoff)
             if mkind == "sirx":
-                pool = np.concatenate(reffs)
                 metrics["reff_med"], metrics["reff_lo"], metrics["reff_hi"] = \
-                    np.quantile(pool, [0.5, 0.025, 0.975])
+                    r0_stat(np.array(reffs), cutoff)
             rows.append(metrics)
             country_out[model] = metrics
 

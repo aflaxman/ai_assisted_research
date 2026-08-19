@@ -24,7 +24,96 @@ Its headline: the SIR model fits the first wave slightly better, but
 badly overshoots the second wave; the coupled model predicts the second
 wave's magnitude far better and is preferred by AICc in every country.
 
-## RESULTS_PLACEHOLDER
+![incidence predictions](results/waves_incidence.png)
+
+## What replicates and what doesn't
+
+**The paper's headline numbers reproduce exactly from its published
+particles.** Before any refitting, `validate_metrics.py` pushes the
+authors' own posterior particles (their repository's `Paper Particles/`,
+100 lowest-error per country — the paper's stated procedure) through
+this replication's independent model implementation and metric code.
+Every abstract-level number comes back:
+
+| metric (mean ± SD over 13 countries) | paper | reimplementation on the paper's particles |
+|---|---|---|
+| SIR AICc, prediction window | −2295 ± 212 | −2295 ± 154 |
+| SIRx AICc, prediction window | −2638 ± 345 | −2687 ± 357 |
+| SIR area between curves | 0.16 ± 0.11 | 0.166 ± 0.103 |
+| SIRx area between curves | 0.072 ± 0.071 | 0.065 ± 0.073 |
+| SIR predicted second-peak magnitude | 0.0083 ± 0.0090 | 0.0081 ± 0.0074 |
+| SIRx predicted second-peak magnitude | 0.0015 ± 0.0014 | 0.0014 ± 0.0014 |
+| observed second-peak magnitude | 0.0006 ± 0.0005 | 0.0006 ± 0.0005 |
+| SIR predicted second-peak day | 253 ± 31 | 249 ± 25 |
+| SIRx predicted second-peak day | 283 ± 19 | 284 ± 20 |
+
+Table S3's SIRx R0 and Reff reproduce to two decimals for all 13
+countries (median relative error 1%) — once its statistic is
+reverse-engineered from the authors' notebook: it is the **maximum over
+the training window of the across-particle mean R0(t) curve**, not a
+median "for the prediction period – after 200 days" as the caption
+says. The paper's SIR R0 for its four high-seasonality countries
+(Austria, Belgium, Norway, Switzerland) is not reproducible from its
+published particles under the notebook's own formula; the other nine
+match.
+
+**Independent camdl refits replicate the SIR results and the
+qualitative SIRx claims, but not the SIRx margins.** Refitting from
+scratch (camdl ODE backend, Sbplx scout + adaptive MH, uniform priors):
+
+| metric (mean ± SD) | paper | camdl SIR | camdl SIRx (code λ prior) | camdl SIRx (suppl. λ prior) |
+|---|---|---|---|---|
+| AICc, prediction window | SIR −2295 / SIRx −2638 | −2242 ± 237 | −2368 ± 411 | −2368 ± 426 |
+| area between curves | SIR 0.16 / SIRx 0.072 | 0.209 ± 0.151 | 0.182 ± 0.167 | 0.205 ± 0.251 |
+| second-peak magnitude | SIR 0.0083 / SIRx 0.0015 | 0.0102 ± 0.0071 | 0.0068 ± 0.0068 | 0.0092 ± 0.0173 |
+| second-peak day (data: 285 ± 24) | SIR 253 / SIRx 283 | 247 ± 25 | 252 ± 33 | 259 ± 34 |
+
+The SIR column lands on the paper's SIR numbers. The refitted SIRx
+beats SIR on AICc in 7/13 countries (code prior) or 9/13 (supplement
+prior) — the paper reports 13/13 — and its average overshoot sits
+between the paper's SIRx and SIR. The paper's Belarus/Finland failure
+(coupled model degenerates to behaviour-off) reproduces: Belarus under
+the code prior and Finland under both land in x ≈ 0 modes.
+
+![behaviour stream](results/waves_behaviour.png)
+
+![prediction metrics](results/waves_metrics.png)
+
+**The λ prior is load-bearing, and the paper's two sources disagree
+about it.** The supplement's Table S2 gives the risk-memory decay
+λ ∈ [0, 0.03]; the released code declares (0, 0.2). Under the code's
+range, maximum likelihood finds a *better-fitting* first-wave mode
+(λ ≈ 0.065 for Austria, +65 nats) in which e^(−λt) has fully decayed by
+autumn — perceived risk is dead, NPI support cannot rebound, and the
+model's headline mechanism for capping the second wave disappears.
+Constrained to the supplement's range, the Austria fit lands almost
+exactly on the paper's published estimates (β 0.285 vs 0.30, γ 0.21 vs
+0.23, ε 0.352 vs 0.348, λ 0.011, i0 1.2e-4 vs 1.4e-4). The paper's own
+particles concentrate at λ ≈ 0.01 even though its code allowed 0.2 —
+the second wave's predictability hinges on a prior the data actively
+disfavour within the training window.
+
+**ABC-SMC's "posterior" width is set by its tolerance, not the data.**
+The deterministic-ODE likelihood posterior is essentially a point: 20,000
+MH draws span ~0.02 log-likelihood units, and each parameter's 95% CrI
+has near-zero width. The paper's wide violin plots and credible
+intervals are level-sets of parameters fitting within the ABC tolerance
+— a different statistical object, with width chosen by the tolerance
+schedule. (Neither is honest uncertainty for a deterministic model with
+autocorrelated errors; a stochastic process model — camdl's
+chain-binomial backend with PGAS — would be the principled route, at
+substantially higher compute.) Because point-mass posteriors inherit
+whatever local optimum the scout finds, per-country SIRx refits are
+bimodal-lottery-like — visible as the heterogeneity in the figures —
+whereas ABC-SMC's tolerance cloud averages over that basin structure.
+
+**The behaviour stream needs an outside weight.** With a free
+observation sd on the stringency stream, maximum likelihood inflates it
+to ~0.5 and washes the stream out entirely, for every country — the
+generalisation of the paper's Belarus/Finland failure mode. The ABC
+design's *separate behaviour tolerance* is what keeps behaviour in the
+model at all; the likelihood analogue used here fixes σ_x = 300‰, the
+RMS the paper's own accepted particles achieve (0.29–0.50).
 
 ## Model translation notes (paper → camdl)
 
@@ -75,15 +164,19 @@ wave's magnitude far better and is preferred by AICc in every country.
 - `analyze.py` — posterior trajectories + the paper's metrics
   (peaks, area, AICc, Table S3) via a scipy re-integration validated
   against camdl's ODE backend to <0.2%
+- `validate_metrics.py` — the same metric code run on the authors'
+  published particles (the implementation-validation layer)
 - `plot_waves.py` — the three figures
-- `results/summary_stats.tsv`, `results/table_s3_comparison.tsv`
+- `results/summary_stats.tsv`, `results/table_s3_comparison.tsv`,
+  `results/paper_particle_metrics.tsv`
 
 ## Quickstart
 
 ```bash
 python3 prep_data.py /path/to/authors-repo-clone
 python3 gen_fits.py
-./run_fits.sh
-uv run python analyze.py     # from camdl_replication/
-uv run python plot_waves.py
+./run_fits.sh                                  # ~4 h on 4 cores, 39 fits
+uv run python pandemic_waves/validate_metrics.py /path/to/authors-repo-clone
+uv run python pandemic_waves/analyze.py        # both from camdl_replication/
+uv run python pandemic_waves/plot_waves.py
 ```
