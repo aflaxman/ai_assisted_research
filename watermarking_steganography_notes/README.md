@@ -107,11 +107,20 @@ watermarking literature isn't merely *analogous* to the 2002 work — it is the
 2002 work, finally instantiated, with the roles of message and channel
 reshuffled.
 
+## Worked example
+
+[`toy_demo/`](toy_demo/) carries out the first project idea below: a tested
+implementation of a distortion-free watermark and a Meteor-style steganographic
+channel that share one PRF, with the headline measurement confirmed — **payload
+capacity equals text entropy** (97–102%), and watermark detection power grows
+with length and entropy. It runs on real distilgpt2: a 31-byte secret hides in
+plausible English and recovers exactly.
+
 ## Fun follow-up project ideas
 
 1. Reimplement a toy Christ–Gunn–Zamir watermark on a small open model and then
    apply Zamir's ECC-with-feedback trick to turn it into a payload channel;
-   measure bits/token vs. text entropy.
+   measure bits/token vs. text entropy. *(Done — see [`toy_demo/`](toy_demo/).)*
 2. Measure how many bits of a Meteor-style payload survive an
    LLM-paraphrase attack, versus a CGZ-style watermark's one bit.
 3. Historical note: von Ahn's other famous line (CAPTCHA, also ~2002-2003) was

@@ -1,0 +1,3 @@
+# Optional: only needed for experiments/demo_gpt2.py (real GPT-2 stegotext).
+torch
+transformers
