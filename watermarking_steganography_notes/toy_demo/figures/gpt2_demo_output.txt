@@ -1,0 +1,31 @@
+
+Secret payload (31 bytes): b'Meet at the old mill, midnight.'
+
+======================================================================
+STEGOTEXT (looks like an ordinary GPT-2 sample):
+======================================================================
+ going to be the big winner of an earlier series due to two issues in which a team of experienced, competitive team members have been forced to step up to defend themselves against a strong front. These two issues are in a distinct and complex way.
+
+
+Today we would like to present the most critical and most entertaining forecast, so you may have been wondering, after
+======================================================================
+
+74 tokens carry 248 payload bits (3.35 bits/token).
+
+Recovered with key : b'Meet at the old mill, midnight.'
+Exact match        : True
+Recovered w/ wrong key (garbage): b'\xe3\x18D\xab\xbe\xdd \x81\x04\x8f/p!\x9ds\xa5\x91N\xa22d5\xad\x93b\xc8vlD~.4\xb3d\x16'
+
+======================================================================
+WATERMARK on the same model
+======================================================================
+ up and on.​
+
+To those who have been with us through the most recent weather to know when it’s going to come for you, you probably have a bit of time to see it from the horizon:
+Here are the latest weather reports:
+There’s no word on which weather can be predicted for today. However, the most-likely path of events should be clear for today‛ if and when it has happened right now in the coming days. Depending on the weather, though, there’s always going to be more changes to this forecast
+
+Detect (own key)   : z=24.3  p=2.45e-57
+Detect (other key) : z=-0.8  p=0.78
+
+[exited with code 0]
