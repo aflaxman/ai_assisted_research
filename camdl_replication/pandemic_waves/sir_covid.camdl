@@ -1,0 +1,77 @@
+# Seasonal SIR "disease model" of Frimpong & Bauch (2026), "Pandemic
+# waves as the outcome of coupled behaviour and disease dynamics",
+# medRxiv 2026.02.05.26345658 (supplement eqs. 1-3, 13, 15).
+#
+#   dS/dt = -beta (1 + b cos(2pi (t - phi)/365)) (1 - 0.2 eps_fix) S I
+#   dI/dt = +...  - gamma I
+#   reported incidence = (C(t) - C(t-1)) / eta0
+#
+# The paper's script fixes eps_fix = 1.0 and x0 = 0.2 in the SIR variant,
+# so transmission carries a constant (1 - 0.2) = 0.8 multiplier — a pure
+# rescale of beta, reproduced literally here so the fitted beta is
+# comparable to the paper's SIR particles.
+#
+# The paper works in population proportions with a deterministic ODE;
+# here compartments are counts (N = pop) run on camdl's ODE backend —
+# identical dynamics up to the count scale.
+
+time_unit = 'days
+
+compartments { S, I, R }
+
+parameters {
+  #' baseline transmission rate; paper range [0.1, 0.9]
+  #' @symbol β
+  beta    : rate in [0.1, 0.9]
+  #' seasonal transmission amplitude; paper range [0, 1]
+  b       : real [1] in [0.0, 1.0]
+  #' recovery rate; paper range [0.1, 0.5] (infectious period 2-10 d)
+  #' @symbol γ
+  gamma   : rate in [0.1, 0.5]
+  #' phase of seasonal transmission, days; paper's code range [-135, -45]
+  #' @symbol φ
+  phi     : real in [-135.0, -45.0]
+  #' constant under-reporting factor; paper range [1, 10]
+  #' @symbol η₀
+  eta0    : real [1] in [1.0, 10.0]
+  #' initial infectious fraction; paper range [1/pop, 2000/pop]
+  i0      : real [1] in [1e-9, 5e-4]
+  #' observation sd for the smoothed daily case counts (replaces the
+  #' paper's ABC tolerance; normal likelihood ~ their least squares)
+  sigma_i : positive [P] in [0.1, 1e6]
+  #' country population (fixed per fit)
+  pop     : count in [1e6, 1e8]
+}
+
+transitions {
+  infection : S --> I
+    @ beta * (1.0 + b * cos(2.0 * pi * (t * (1.0 'per_day) - phi) / 365.0))
+      * 0.8 * S * I / pop
+  recovery  : I --> R @ gamma * I
+}
+
+init {
+  S = pop * (1.0 - i0)
+  I = pop * i0
+  R = 0
+}
+
+observations {
+  cases {
+    columns       { time : time, cases : count }
+    projected     = incidence(infection)
+    emit_schedule = every 1 'days
+    cases         ~ normal(mean = projected / eta0, sd = sigma_i)
+  }
+}
+
+quantities {
+  # time-averaged basic reproduction number, the paper's convention
+  # (supplement eq. 21 at cos = 0; the paper's R0 omits the 0.8 factor)
+  R0_mean = final(beta / gamma)
+}
+
+simulate {
+  from = 0 'days
+  to   = 365 'days
+}
