@@ -21,6 +21,8 @@ dependencies = [
 [dependency-groups]
 # optional: only needed to regenerate outputs/figure.png (uv run --group viz ...)
 viz = ["matplotlib>=3.8"]
+# optional: only needed to run/execute the Jupyter demo notebook
+notebook = ["matplotlib>=3.8", "nbformat>=5.9", "nbconvert>=7.16", "ipykernel>=6.29"]
 
 [tool.uv]
 package = false

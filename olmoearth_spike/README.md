@@ -75,8 +75,45 @@ uv run python fit_model.py
 | `smoke_test.py` | M1 — load + run + determinism, with timings/peak RSS |
 | `extract_embeddings.py` | M2 — boundaries → Sentinel-2 → per-unit embeddings |
 | `fit_model.py` | M3 — ridge/GBM + 5-fold/LOO/leave-one-region eval |
-| `outputs/` | `embeddings.csv`, `m3_results.json`, `m1_smoke_test.log` |
+| `movement.py`, `build_notebook.py`, `animal_movement_demo.ipynb` | bonus demo — OlmoEarth for animal-movement models |
+| `outputs/` | `embeddings.csv`, `m3_results.json`, `m1_smoke_test.log`, `figure.png`, `animal_movement_figure.png` |
 | `FEASIBILITY.md` | M4 — the deliverable: GO/NO-GO memo |
+
+## Bonus demo — animal movement (`animal_movement_demo.ipynb`)
+
+A second use case, motivated by a wildlife/livestock GPS-collar project: can
+OlmoEarth embeddings serve as the habitat covariate in movement-ecology models —
+resource-selection functions ("where animals go") and behavioral-state models
+(area-restricted foraging vs. transit, the "where they turn" question)?
+
+![Animal-movement demo: simulated track over real NDVI, RSF suitability from embeddings, and AUC skill](outputs/animal_movement_figure.png)
+
+The notebook simulates a behaviorally realistic two-state GPS track over a **real**
+Sentinel-2 landscape (Liwonde NP, Malawi), extracts OlmoEarth embeddings at track
+and background points, and finds:
+
+- **Where animals go (RSF, used vs. available):** AUC ≈ 0.73 (lower on a spatial split).
+- **What they're doing (forage vs. transit state):** AUC ≈ 0.87 from embeddings,
+  **clearly beating raw NDVI (≈ 0.57)** — the FM embedding encodes patch structure a
+  single index misses.
+- **The literal "sharp turn vs. straight" hypothesis:** near chance for embedding
+  *and* NDVI — the raw turn label is a noisy observable of state. Takeaway for real
+  data: segment behavioral **state** first (HMM), then relate state to habitat.
+
+> ⚠️ The GPS track is **simulated** (the landscape is real). The NDVI→behavior
+> coupling is a modeling choice, so recovering it validates the *method*, not any
+> biology. See the notebook's caveats and literature pointers (SSF/iSSF, `amt`,
+> `moveHMM`).
+
+Reproduce:
+
+```bash
+uv sync --group notebook
+export CURL_CA_BUNDLE=/root/.ccr/ca-bundle.crt GDAL_HTTP_PROXY="$HTTPS_PROXY"  # proxy only
+uv run --group notebook python build_notebook.py          # assemble the .ipynb
+uv run --group notebook jupyter nbconvert --to notebook --execute --inplace \
+  --ExecutePreprocessor.timeout=900 animal_movement_demo.ipynb   # run it (~3 min, BASE)
+```
 
 ## Key facts (measured on 4-vCPU / 15 GB / no-GPU)
 
