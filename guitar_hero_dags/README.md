@@ -124,22 +124,37 @@ graph LR
 
 ### And one non-DAG problem: how the contrast was found
 
-> ✍️ *Walmart didn't sample stores; it noticed the extremes and asked what
-> was different about them. Comparing the noticed-best (18) to everyone
-> else (2) exaggerates any of the mechanisms above — regression to the
-> mean guarantees the next week's 18s look less special. Worth a short
-> paragraph: selection on the outcome is a defect no arrow diagram of the
-> world fixes, because it lives in how the data reached you.*
+> ✍️ *This deserves care, because it is easy to conflate with reverse
+> causation (H4) and it is not the same thing. H4 is a claim about the
+> world: the arrow really runs sales → demo, and even a perfect census of
+> all stores would show the association. The noticing problem is a claim
+> about how the data reached you: Walmart scanned the outcome column,
+> grabbed the right tail ("who's selling 18?"), and only then looked up
+> the exposure. Two distinct distortions follow:*
+
+- **Winner's curse / regression to the mean.** "18 units/week" is the
+  observed value of stores selected *for* being extreme in a noisy
+  measure. Their underlying rate is lower than 18; next week they
+  disappoint. In the simulation (H5), demos truly work (3×), yet the
+  noticed-stores contrast reports **11.8×** — and the noticed stores drop
+  by 1.5 units/week the following week with no change in anything real.
+- **Exposure ascertained conditional on the outcome.** Corporate checked
+  for demos only in the stores that stood out. Low-selling stores that
+  also had demos were never inspected and sit silently in the "2
+  units/week, no demo" pile. This is the retail cousin of recall bias in
+  case-control studies: the exposure measurement itself depends on the
+  outcome. The fix is boring and structural — ascertain demo status in
+  *all* stores (or a random sample) *before* looking at sales.
+
+> ✍️ *Key sentence to land: the fair cohort contrast in the same
+> simulated world is 3×. The anecdote's arithmetic — quote the noticed
+> stores' sales against everyone else's — turns a true 3× into a
+> reported 12×, without any confounding at all. And note these pitfalls
+> stack: H4 and the noticing problem can operate simultaneously, and
+> neither is visible in a DAG of the world alone; selection lives in a
+> DAG of the* measurement process.
 
 ## Would an E-value help?
-
-> ✍️ *Bridge to the E-value post. RR 9 gives E-value 17.5 — on its face,
-> only an absurdly strong confounder could explain it away. But the
-> E-value's premise is a fair cohort contrast with confounding as the only
-> threat. Here the exposure is self-selected (H2), possibly caused by the
-> outcome (H4), and the comparison groups were assembled by looking at the
-> outcome first. Big E-values don't rescue a broken design — a compact
-> lesson on what sensitivity analysis does and doesn't buy you.*
 
 ```python
 >>> evalue(18 / 2)
@@ -147,6 +162,39 @@ graph LR
 >>> evalue(10 / 2)
 9.47
 ```
+
+![Curve of the maximum observed RR a zero-effect world can fake versus equal-arm confounder strength, crossing RR 9 at strength 17.5](outputs/evalue_curve.png)
+
+> ✍️ *Unpack how RR 9 becomes E-value 17.5, using the bounding factor
+> B = RR_EU·RR_UD/(RR_EU+RR_UD−1) from the companion post. Three facts,
+> all visible in the figure and verified by simulation:*
+
+1. **B is always smaller than both of its inputs.** Algebraically,
+   B < min(RR_EU, RR_UD) whenever both exceed 1. So to fake an observed
+   RR of 9, a confounder needs a strength *greater than 9 on each arm
+   separately* — no amount of strength on one arm compensates for
+   weakness on the other. (In the H2 simulation: RR with sales 9.8, RR
+   with demo adoption ~170.)
+2. **Equal strength is the worst case the E-value prices.** Setting
+   RR_EU = RR_UD = E, the largest fakeable RR is E²/(2E−1). A confounder
+   as strong as the claimed effect itself (9 on both arms) can fake only
+   RR 4.8; reaching 9 takes E = 17.49 — the E-value.
+3. **The bound is sharp but extreme.** The zero-effect world that
+   attains it needs the confounder present in essentially *every* demo
+   store and in exactly 1/E of the others (`sim_equal_strength_boundary`
+   reproduces this). Real confounding usually sits inside the curve.
+
+> ✍️ *Then the caveat that makes this section worth writing: the E-value
+> prices exactly one threat — an unmeasured common cause in a fair,
+> correctly-oriented contrast. It assumes the arrow points from exposure
+> to outcome and that the groups were assembled without looking at the
+> outcome. Under H4 the arrow is backwards: there is no causal effect of
+> demo on sales to defend, so "how strong must a confounder be to explain
+> it away" is an answer to the wrong question. Under the noticing problem
+> (H5) the contrast itself is manufactured — 11.8 observed where the fair
+> cohort RR is 3 — and its E-value of 23 is sensitivity analysis
+> performed on an artifact. A huge E-value narrows the confounding escape
+> route and says nothing about the other exits.*
 
 ## What evidence would tell the DAGs apart
 
@@ -157,7 +205,17 @@ graph LR
    the week the demo appeared? Separates H1 from H2/H3 (whose store
    differences predate the demo), but not from H4.
 2. **Negative-control outcomes**: did demo stores also over-sell Madden?
-   If yes, that's T or M at work, not the demo.
+   With only (demo, GH sales) measured, H2 and H3 are the *same DAG* —
+   X → demo, X → sales — differing only in the story attached to X. A
+   second outcome breaks the tie exactly when the two candidate X's
+   differ in whether they touch it: store traffic moves all games,
+   Guitar-Hero-specific enthusiasm moves only one. Simulated Madden RRs:
+   H3 busy stores **8.8**, H2b general hustle **2.4**, H2 GH-specific
+   **1.0**. Two honest limits: (a) a clean Madden (RR ≈ 1) rules out
+   traffic but *cannot* separate H1 from H2 — a real demo effect and a
+   GH-specific confounder both leave Madden alone; (b) the test's power
+   comes from the substantive assumption about which arrows X has, not
+   from the data (Lipsitch et al. 2010).
 3. **The GameStop mailing as an encouragement design**: kit receipt
    depended on which managers RedOctane captured at a trade show — closer
    to random than manager self-selection. Compare stores by *assignment*
@@ -170,6 +228,41 @@ graph LR
    Nobody did this, and nobody needed to —
 
 > ✍️ *— which sets up the epilogue's decision-theory point.*
+
+## The simulation: six worlds, one anecdote
+
+[`simulate_dags.py`](simulate_dags.py) builds each DAG as a population of
+store-weeks, calibrated so every world reproduces the observed contrast,
+then applies the tools that distinguish them
+([`test_simulate_dags.py`](test_simulate_dags.py) pins the behavior):
+
+| Scenario | True causal RR | Observed RR | Madden RR | Chain-wide rollout delivers |
+|---|---|---|---|---|
+| H1 demos work (9×) | 9.0 | 9.0 | 1.0 | **5.0×** |
+| H2 superstar manager | 1.0 | 9.0 | 1.0 | 1.0× |
+| H2b general hustle | 1.0 | 9.0 | 2.4 | 1.0× |
+| H3 busy stores | 1.0 | 8.8 | 8.8 | 1.0× |
+| H4 sales → demo | 1.0 | 11.3 | 1.0 | 1.0× |
+| H5 noticed (true 3×) | 3.0 | 11.8 | 1.0 | 2.5× |
+
+![Paired dot plot: the observed demo-vs-no-demo ratio is 9-12x in every scenario, while the chain-wide rollout payoff is 5x, 1x, 1x, 1x, 1x, 2.5x](outputs/observed_vs_rollout.png)
+
+> ✍️ *Walk the table: the observed column is the anecdote, nearly
+> constant across worlds. Each other column is a different interrogation.
+> Madden flags H3 (and half-flags H2b). Within-store timing catches H4:
+> demo stores' sales* fall *by 1.6 units/week after installation, because
+> the demo arrived at a lucky peak. And the rollout column is the answer
+> Walmart actually cared about: 5×, nothing, nothing, nothing, nothing,
+> 2.5×. Note H1's rollout is 5× not 9× — the chain average already
+> included the demo stores — and H5's is 2.5×: demos work there, just at
+> a third of what the noticed contrast promised.*
+
+```bash
+cd guitar_hero_dags
+uv venv && uv pip install -r requirements.txt
+uv run python simulate_dags.py
+uv run pytest
+```
 
 ## Epilogue: they were probably right anyway
 
@@ -188,9 +281,10 @@ graph LR
 1. Draw the DAG for the Lennon Lange story (an associate producer
    secretly demoing the game around the Bay Area) — what does it do to
    the "without demo" comparison group?
-2. Simulate all four DAGs so each produces the observed 18-vs-2 table,
-   then simulate the chain-wide rollout under each. How different are the
-   outcomes?
+2. Extend [`simulate_dags.py`](simulate_dags.py): make H2's manager
+   enthusiasm continuous instead of binary, or add measurement noise to
+   demo ascertainment. How far inside the E-value curve do realistic
+   parameterizations sit?
 3. The GameStop buyer reversed himself on n = 2 stores. What's the
    probability of a 10-vs-2 split under no effect, for plausible weekly
    pre-order counts?
@@ -205,6 +299,11 @@ graph LR
 - Pearl J, Mackenzie D. *The Book of Why* — for DAG background.
 - Hernán MA, Robins JM. *Causal Inference: What If* — confounding,
   selection, and negative controls, free online.
+- Lipsitch M, Tchetgen Tchetgen E, Cohen T. Negative controls: a tool for
+  detecting confounding and bias in observational studies. *Epidemiology*.
+  2010;21(3):383–388.
+- Smith LH, VanderWeele TJ. Bounding bias due to selection. *Epidemiology*.
+  2019;30(4):509–516 — the selection-bias analog of the E-value.
 - Companion post: the E-value writeup in
   [`../evalue_examples/`](../evalue_examples/).
 
