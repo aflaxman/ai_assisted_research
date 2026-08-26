@@ -50,18 +50,92 @@ infection, and the paper's discretized-Normal observation model.
 population and school-entry-lagged per-capita birth rate) and observation
 cadence (weekly UK, biweekly US).
 
-Each city gets the same modest IF2 "scout" fit (`fit_<city>.toml`):
-4 chains × 2000 particles × 25 iterations estimating the headline
-parameters R0, seasonal `amplitude`, reporting probability `rho`, and the
-initial susceptible fraction `s0`, with natural history and noise held at
-He et al.'s London MLE. These are scout fits, not full searches — the point
-is regime reproduction, not definitive per-city MLEs.
+Each city gets a modest IF2 "scout" fit (`fit_<city>.toml`): 4 chains ×
+2000–4000 particles × 25 iterations estimating the headline parameters —
+R0, seasonal `amplitude`, and initial susceptible fraction `s0`
+everywhere; reporting probability `rho` for the UK cities (anchored
+demographically for the US ones); extra-demographic noise `sigma_se` for
+the US cities (held at He et al.'s London MLE for the UK ones) — with
+natural history fixed throughout. The fit design took three
+diagnostics-driven rounds to reach this shape (the log lives at the top
+of `make_city_models.py`; the story is under Results). These are scout
+fits, not full searches — the point is regime reproduction, not
+definitive per-city MLEs.
 
 `run_postfit.py` then forward-simulates a 20-member ensemble at each
 city's point estimate, and `plot_camdl_fig.py` compares observed and
 simulated series and their periodograms.
 
-RESULTS_PLACEHOLDER
+## Results
+
+![camdl analysis](results/fig14_camdl_analysis.png)
+
+Best scout estimates per city (particle-filter loglik at the returned
+MLE; full table in `results/fit_summary.tsv`):
+
+| city | loglik | R0 | amplitude | rho | s0 | sigma_se |
+|---|---|---|---|---|---|---|
+| London | −4228.8 | 24.6 | 0.47 | 0.59 | 0.064 | 2.82 (fixed) |
+| Liverpool | −4762.0 | 31.4 | 0.36 | 0.42 | 0.059 | 2.82 (fixed) |
+| New York | −2358.3 | 32.8 | 0.44 | 0.23 (fixed) | 0.058 | 4.09 |
+| Baltimore | −1793.8 | 45.7 | 0.44 | 0.44 (fixed) | 0.067 | 4.52 |
+
+And the periodicity comparison (`results/periodicity.tsv`) — the
+multiannual (> 1.2 yr) spectral peak, which measures inter-epidemic
+spacing separately from the annual seasonal component:
+
+| city | observed | simulated (median, 5–95%) |
+|---|---|---|
+| London | 2.14 yr | 3.75 (2.50–7.49) |
+| Liverpool | 1.67 yr | 2.50 (1.86–3.03) |
+| New York | 2.41 yr | 3.62 (2.06–4.95) |
+| Baltimore | 2.41 yr | 2.90 (2.38–3.62) |
+
+Three findings worth keeping:
+
+**1. One model family really does span the four rhythms.** Each city's
+fitted SEIR produces recurrent, violently fluctuating epidemics of the
+right size on the right demographic canvas — Baltimore's irregular
+2–3-year outbreaks especially (observed 2.41 yr vs simulated 2.90,
+5–95% 2.38–3.62), and Liverpool's fast quasi-annual cycling (1.67 vs
+2.50, interval reaching down to 1.86). This is Bjornstad's Chapter 1
+point made mechanistic: the differences between panels are parameter
+differences (birth rates, population size, seasonality), not different
+kinds of disease.
+
+**2. The scout fits find a ridge, not the attractor.** London's IF2
+scout walks to R0 ≈ 25 with s0 ≈ 0.064 — even when started at He et
+al.'s published MLE (R0 = 56.8, s0 = 0.0297). The product is conserved
+(25 × 0.064 = 1.6 ≈ 56.8 × 0.0297 = 1.69): on a one-city window the
+likelihood pins the *effective* reproduction number R0·s0 and lets the
+factors slide. The factors matter for the dynamics, though — simulating
+at the ridge point gives a ~3.75-year inter-epidemic period, while
+simulating at the published full-search MLE (same model, same
+covariates) recovers the biennial attractor (2.50 yr, 5–95% 2.12–3.00,
+against 2.14 observed) and the strong annual harmonic:
+
+![London He MLE check](results/london_he_mle_check.png)
+
+He et al.'s search used orders of magnitude more compute than these
+4-chain × 25-iteration scouts; camdl's own diagnostics flagged every
+scout run as unconverged (ESS-at-MLE errors on each). The lesson is the
+same one `../camdl_replication/` recorded for its He et al. scout: the
+estimates move toward the truth, and the tooling correctly refuses to
+certify them.
+
+**3. The reporting rate cannot be fit on these windows — anchor it.**
+Three fit rounds, each redesigned off camdl's diagnostics (the round
+log is in `make_city_models.py`): round 1 held all noise at He et al.'s
+London values and New York's chains all died in the particle-filter
+degeneracy watchdog; round 2 estimated sigma_se and both US cities
+pinned rho at its 0.95 bound with sigma_se near its own bound — noise
+absorbing what the susceptible budget could not identify. Round 3
+anchored rho at the demographically implied value (mean reported cases
+over the birth stream, the standard TSIR susceptible-reconstruction
+move) and the logliks improved enormously *despite one fewer free
+parameter* (Baltimore −3225.5 → −1793.8, New York −2642.6 → −2358.3) —
+strong evidence rounds 1–2 were stuck in bad local modes, not that the
+data preferred rho ≈ 0.95.
 
 ## Quickstart
 
@@ -77,9 +151,15 @@ for c in london liverpool newyork baltimore; do
 done
 
 # ensemble simulation, periodicity analysis, final figure
-uv run python run_postfit.py
+uv run python run_postfit.py          # picks each city's best fit by loglik
 uv run python plot_camdl_fig.py
+uv run python london_he_mle_check.py  # the ridge-vs-attractor comparison
 ```
+
+(The committed results came from three fit rounds with different seeds
+and labels — see the round log in `make_city_models.py`; `run_postfit.py`
+selects the best particle-filter loglik per city across whatever fit
+directories exist.)
 
 ## Files
 
@@ -89,6 +169,8 @@ uv run python plot_camdl_fig.py
 - `make_city_models.py` — generates `<city>_seir.camdl` + `fit_<city>.toml`
 - `run_postfit.py` — extracts IF2 estimates, simulates the ensembles
 - `plot_camdl_fig.py` — final figure + `results/periodicity.tsv`
+- `london_he_mle_check.py` — London at the published He et al. MLE vs
+  the scout's ridge point (`results/london_he_mle_check.png`)
 
 ## References
 

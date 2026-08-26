@@ -1,5 +1,5 @@
 city	observed_dominant_yr	observed_multiannual_yr	sim_dominant_median_yr	sim_multiannual_median_yr	sim_multiannual_q05	sim_multiannual_q95
 london	1.0	2.14	3.75	3.75	2.5	7.49
 liverpool	1.0	1.67	2.5	2.5	1.86	3.03
-newyork	0.96	2.41	4.83	4.83	3.59	7.24
-baltimore	2.41	2.41	2.9	2.9	2.87	3.68
+newyork	0.96	2.41	3.62	3.62	2.06	4.95
+baltimore	2.41	2.41	2.9	2.9	2.38	3.62

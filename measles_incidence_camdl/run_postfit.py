@@ -7,6 +7,7 @@ Run after the four `camdl fit run fit_<city>.toml --label <city>` jobs:
 """
 
 import glob
+import shutil
 import subprocess
 import tomllib
 from pathlib import Path
@@ -25,16 +26,18 @@ ESTIMATED = ["R0", "amplitude", "rho", "s0", "sigma_se"]
 
 
 def mle_params_path(city):
-    # Newest fit directory for the city (US cities were refit with
-    # sigma_se estimated after the first round failed).
-    fit_dirs = sorted(
-        glob.glob(str(HERE / "results" / "fits" / f"fit_{city}-*")),
-        key=lambda d: Path(d).stat().st_mtime,
+    # Best particle-filter loglik across all fit rounds for this city.
+    mles = glob.glob(
+        str(HERE / "results" / "fits" / f"fit_{city}-*" /
+            "01-scout-*" / "seed_*" / "mle_params.toml")
     )
-    assert fit_dirs, f"no fit directory for {city}"
-    mles = glob.glob(fit_dirs[-1] + "/01-scout-*/seed_*/mle_params.toml")
-    assert len(mles) == 1, mles
-    return Path(mles[0])
+    assert mles, f"no fit results for {city}"
+
+    def loglik(p):
+        with open(p, "rb") as f:
+            return tomllib.load(f)["provenance"]["log_likelihood"]
+
+    return Path(max(mles, key=loglik))
 
 
 def main():
@@ -50,6 +53,8 @@ def main():
         with open(ptoml, "rb") as f:
             mle = tomllib.load(f)
         loglik = mle["provenance"]["log_likelihood"]
+        # Keep the selected MLE in results/ (fit dirs are gitignored).
+        shutil.copy(ptoml, HERE / "results" / f"{city}_mle_params.toml")
 
         for seed in range(1, N_SIMS + 1):
             out = SIMS / f"{city}_seed{seed}.tsv"
