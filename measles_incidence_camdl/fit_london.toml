@@ -1,0 +1,42 @@
+# IF2 scout fit for London measles (weekly cases).
+# Estimates the headline transmission parameters (R0, amplitude, rho, s0)
+# while holding natural history and noise at He et al. (2010) London MLE
+# values — a scout pass, not a full search.
+
+output_dir = "results"
+
+[model]
+camdl = "london_seir.camdl"
+
+[data.observations]
+weekly_cases = "data/london_cases.tsv"
+
+[estimate]
+R0        = { bounds = [15.0, 80.0], start = 30.0 }
+amplitude = { bounds = [0.05, 0.9],  start = 0.3 }
+rho       = { bounds = [0.2, 0.9],   start = 0.4 }
+s0        = { bounds = [0.01, 0.12], start = 0.04 }
+
+[fixed]
+sigma    = 0.0791
+gamma    = 0.0832
+mu       = 0.0000548
+alpha    = 0.976
+iota     = 2.9
+sigma_se = 2.816
+cohort   = 0.557
+psi      = 0.116
+e0       = 0.0000517
+i0       = 0.0000514
+N0       = 2481706
+
+[stages.scout]
+algorithm  = "if2"
+backend    = "chain_binomial"
+chains     = 4
+particles  = 2000
+iterations = 25
+cooling    = 0.7
+
+[config]
+dt = 1.0
