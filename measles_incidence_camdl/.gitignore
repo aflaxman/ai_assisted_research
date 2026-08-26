@@ -1,3 +1,5 @@
 .venv/
 results/fits/
 results/sims_obs/
+results/sims/
+results/pfilter/
