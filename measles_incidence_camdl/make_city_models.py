@@ -134,12 +134,12 @@ camdl = "{city}_seir.camdl"
 {obs_col} = "data/{city}_cases.tsv"
 
 [estimate]
-R0        = {{ bounds = [15.0, 80.0], start = 30.0 }}
-amplitude = {{ bounds = [0.05, 0.9],  start = 0.3 }}
-rho       = {{ bounds = [{rho_lo}, 0.95],  start = {rho_start} }}
-s0        = {{ bounds = [0.01, 0.12], start = 0.04 }}
+R0        = {{ bounds = [15.0, 80.0], start = {r0_start} }}
+amplitude = {{ bounds = [0.05, 0.9],  start = {amp_start} }}
+{rho_line}s0        = {{ bounds = [0.01, 0.12], start = {s0_start} }}
 {sigma_se_line}
 [fixed]
+{rho_fixed}
 sigma    = 0.0791
 gamma    = 0.0832
 mu       = 0.0000548
@@ -163,24 +163,39 @@ cooling    = 0.7
 dt = 1.0
 """
 
-# The UK fits hold sigma_se (extra-demographic noise) at He et al.'s London
-# MLE; for the US cities that value is indefensible a priori and the first
-# fit round bore that out (NY: PF degeneracy watchdog killed all chains;
-# Baltimore: rho pinned at its bound), so the US fits estimate sigma_se and
-# NY gets more particles — both fixes named by camdl's own diagnostics.
+# Fit-design notes, one decision per fit round:
+# - Round 1 held sigma_se (extra-demographic noise) at He et al.'s London
+#   MLE everywhere. The US cities rejected it: NY's chains all died via
+#   camdl's PF degeneracy watchdog and Baltimore pinned rho at its bound.
+# - Round 2 estimated sigma_se for the US cities (4000 particles). Both
+#   then pinned rho at 0.95 with sigma_se near its bound — the S-budget
+#   identification of the reporting rate fails on these windows, with
+#   noise absorbing the misfit.
+# - Round 3 (current): the US fits anchor rho at the demographically
+#   implied reporting rate (mean reported cases / birth stream, the
+#   standard TSIR susceptible-reconstruction move: NY 0.23,
+#   Baltimore 0.44) and estimate R0, amplitude, s0, sigma_se. The UK
+#   fits start from He et al.'s published London MLE instead of
+#   arbitrary starts, after round-1 scout fits from arbitrary starts
+#   landed in a longer-period regime than the data show.
 UK = dict(obs_col="weekly_cases", emit_days=7, cadence="weekly",
-          rho_lo=0.2, rho_start=0.4, particles=2000,
+          particles=2000,
+          r0_start=56.8, amp_start=0.554, s0_start=0.03,
+          rho_line="rho       = { bounds = [0.2, 0.95],  start = 0.488 }\n",
+          rho_fixed="",
           sigma_se_line="", sigma_se_fixed="sigma_se = 2.816\n")
 US = dict(obs_col="biweekly_cases", emit_days=14, cadence="biweekly",
-          rho_lo=0.05, particles=4000,
-          sigma_se_line="sigma_se  = {{ bounds = [0.2, 5.0],  start = 1.5 }}\n".replace("{{", "{").replace("}}", "}"),
+          particles=4000,
+          r0_start=30.0, amp_start=0.5, s0_start=0.04,
+          rho_line="",
+          sigma_se_line="sigma_se  = { bounds = [0.2, 5.0],  start = 1.5 }\n",
           sigma_se_fixed="")
 
 CITIES = {
     "london": dict(label="London", **UK),
     "liverpool": dict(label="Liverpool", **UK),
-    "newyork": dict(label="New York", rho_start=0.2, **US),
-    "baltimore": dict(label="Baltimore", rho_start=0.3, **US),
+    "newyork": dict(label="New York", rho_fixed="rho      = 0.23\n", **US),
+    "baltimore": dict(label="Baltimore", rho_fixed="rho      = 0.44\n", **US),
 }
 
 

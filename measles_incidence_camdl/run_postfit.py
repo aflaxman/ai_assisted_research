@@ -25,11 +25,12 @@ ESTIMATED = ["R0", "amplitude", "rho", "s0", "sigma_se"]
 
 
 def mle_params_path(city):
-    # Prefer the second-round fits (label "<city>2": the US reruns with
-    # sigma_se estimated) when present.
-    fit_dirs = sorted(glob.glob(str(HERE / "results" / "fits" / f"fit_{city}2-*")))
-    if not fit_dirs:
-        fit_dirs = sorted(glob.glob(str(HERE / "results" / "fits" / f"fit_{city}-*")))
+    # Newest fit directory for the city (US cities were refit with
+    # sigma_se estimated after the first round failed).
+    fit_dirs = sorted(
+        glob.glob(str(HERE / "results" / "fits" / f"fit_{city}-*")),
+        key=lambda d: Path(d).stat().st_mtime,
+    )
     assert fit_dirs, f"no fit directory for {city}"
     mles = glob.glob(fit_dirs[-1] + "/01-scout-*/seed_*/mle_params.toml")
     assert len(mles) == 1, mles

@@ -72,10 +72,14 @@ def main():
         sim.columns = range(len(sims))
         sim_dy = t0 + sim.index.to_numpy() / DAYS_PER_YEAR
 
-        # -- time series panel
-        lo_, med, hi_ = (sim.quantile(q, axis=1) for q in (0.05, 0.5, 0.95))
-        ax_ts.fill_between(sim_dy, lo_ / 1000, hi_ / 1000, color="tab:blue", alpha=0.25, lw=0)
-        ax_ts.plot(sim_dy, med / 1000, color="tab:blue", lw=0.7, label="camdl SEIR (5-95%)")
+        # -- time series panel: envelope + one representative member.
+        # (Unconditioned stochastic simulations dephase, so the ensemble
+        # median washes out the cycles; a single member shows the regime.)
+        lo_, hi_ = (sim.quantile(q, axis=1) for q in (0.05, 0.95))
+        ax_ts.fill_between(sim_dy, lo_ / 1000, hi_ / 1000, color="tab:blue", alpha=0.2, lw=0)
+        member = sim[sim.columns[0]]
+        ax_ts.plot(sim_dy, member / 1000, color="tab:blue", lw=0.7,
+                   label="camdl SEIR (one sim + 5-95%)")
         ax_ts.plot(obs["decyear"], obs[col] / 1000, color="black", lw=0.7, label="observed")
         r0, amp, rho = (fitsum.loc[city, k] for k in ("R0", "amplitude", "rho"))
         ax_ts.set_title(
