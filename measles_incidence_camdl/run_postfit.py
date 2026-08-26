@@ -19,11 +19,17 @@ SIMS.mkdir(parents=True, exist_ok=True)
 
 CITIES = ["london", "liverpool", "newyork", "baltimore"]
 N_SIMS = 20
-ESTIMATED = ["R0", "amplitude", "rho", "s0"]
+# sigma_se is estimated for the US cities, fixed for the UK ones; the MLE
+# file carries its value either way.
+ESTIMATED = ["R0", "amplitude", "rho", "s0", "sigma_se"]
 
 
 def mle_params_path(city):
-    fit_dirs = sorted(glob.glob(str(HERE / "results" / "fits" / f"fit_{city}-*")))
+    # Prefer the second-round fits (label "<city>2": the US reruns with
+    # sigma_se estimated) when present.
+    fit_dirs = sorted(glob.glob(str(HERE / "results" / "fits" / f"fit_{city}2-*")))
+    if not fit_dirs:
+        fit_dirs = sorted(glob.glob(str(HERE / "results" / "fits" / f"fit_{city}-*")))
     assert fit_dirs, f"no fit directory for {city}"
     mles = glob.glob(fit_dirs[-1] + "/01-scout-*/seed_*/mle_params.toml")
     assert len(mles) == 1, mles
@@ -31,8 +37,14 @@ def mle_params_path(city):
 
 
 def main():
+    import sys
+
+    cities = sys.argv[1:] or CITIES
     rows = []
-    for city in CITIES:
+    if (HERE / "results" / "fit_summary.tsv").exists():
+        prev = pd.read_csv(HERE / "results" / "fit_summary.tsv", sep="\t")
+        rows = [r for r in prev.to_dict("records") if r["city"] not in cities]
+    for city in cities:
         ptoml = mle_params_path(city)
         with open(ptoml, "rb") as f:
             mle = tomllib.load(f)

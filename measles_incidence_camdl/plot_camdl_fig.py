@@ -30,12 +30,24 @@ CITIES = [
 
 
 def dominant_period(x, dt_years, lo=0.5, hi=8.0):
-    """Dominant period (years) from a linear-detrended sqrt-scale periodogram."""
+    """Dominant period (years) from a linear-detrended sqrt-scale periodogram.
+
+    Returns (overall peak period, multiannual peak period (>1.2 y), f, p).
+    The multiannual peak separates inter-epidemic spacing from the annual
+    seasonal component, which otherwise dominates cities (like London
+    1944-50) that mix annual and multiannual regimes in one window.
+    """
     x = np.sqrt(np.asarray(x, float).clip(min=0))
     f, p = periodogram(x, fs=1.0 / dt_years, detrend="linear")
     keep = (f > 1.0 / hi) & (f < 1.0 / lo)
     f, p = f[keep], p[keep]
-    return 1.0 / f[np.argmax(p)], f, p
+    multi = f < 1.0 / 1.2
+    return (
+        1.0 / f[np.argmax(p)],
+        1.0 / f[multi][np.argmax(p[multi])],
+        f,
+        p,
+    )
 
 
 def main():
@@ -75,29 +87,31 @@ def main():
             ax_ts.legend(fontsize=7, loc="upper right")
 
         # -- periodogram panel
-        pd_obs, f_obs, p_obs = dominant_period(obs[col], dt_years)
+        pd_obs, pd_obs_multi, f_obs, p_obs = dominant_period(obs[col], dt_years)
         ax_pg.plot(1 / f_obs, p_obs / p_obs.max(), color="black", lw=1, label="observed")
-        sim_periods = []
-        pgs = []
+        sim_periods, sim_multi, pgs = [], [], []
         for c in sim.columns:
-            pd_sim, f_sim, p_sim = dominant_period(sim[c], dt_years)
+            pd_sim, pd_sim_multi, f_sim, p_sim = dominant_period(sim[c], dt_years)
             sim_periods.append(pd_sim)
+            sim_multi.append(pd_sim_multi)
             pgs.append(p_sim / p_sim.max())
         ax_pg.plot(1 / f_sim, np.median(pgs, axis=0), color="tab:blue", lw=1, label="simulated")
         ax_pg.set_xlim(0.5, 5)
         ax_pg.set_xlabel("period (years)", fontsize=8)
         ax_pg.set_ylabel("relative power", fontsize=8)
-        ax_pg.axvline(pd_obs, color="black", ls=":", lw=0.8)
-        ax_pg.axvline(np.median(sim_periods), color="tab:blue", ls=":", lw=0.8)
+        ax_pg.axvline(pd_obs_multi, color="black", ls=":", lw=0.8)
+        ax_pg.axvline(np.median(sim_multi), color="tab:blue", ls=":", lw=0.8)
         if city == "london":
             ax_pg.legend(fontsize=7)
 
         rows.append({
             "city": city,
-            "observed_period_yr": round(pd_obs, 2),
-            "sim_period_median_yr": round(float(np.median(sim_periods)), 2),
-            "sim_period_q05": round(float(np.quantile(sim_periods, 0.05)), 2),
-            "sim_period_q95": round(float(np.quantile(sim_periods, 0.95)), 2),
+            "observed_dominant_yr": round(pd_obs, 2),
+            "observed_multiannual_yr": round(pd_obs_multi, 2),
+            "sim_dominant_median_yr": round(float(np.median(sim_periods)), 2),
+            "sim_multiannual_median_yr": round(float(np.median(sim_multi)), 2),
+            "sim_multiannual_q05": round(float(np.quantile(sim_multi, 0.05)), 2),
+            "sim_multiannual_q95": round(float(np.quantile(sim_multi, 0.95)), 2),
         })
 
     axes[-1, 0].set_xlabel("year")

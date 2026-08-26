@@ -136,17 +136,16 @@ camdl = "{city}_seir.camdl"
 [estimate]
 R0        = {{ bounds = [15.0, 80.0], start = 30.0 }}
 amplitude = {{ bounds = [0.05, 0.9],  start = 0.3 }}
-rho       = {{ bounds = [{rho_lo}, 0.9],   start = {rho_start} }}
+rho       = {{ bounds = [{rho_lo}, 0.95],  start = {rho_start} }}
 s0        = {{ bounds = [0.01, 0.12], start = 0.04 }}
-
+{sigma_se_line}
 [fixed]
 sigma    = 0.0791
 gamma    = 0.0832
 mu       = 0.0000548
 alpha    = 0.976
 iota     = 2.9
-sigma_se = 2.816
-cohort   = 0.557
+{sigma_se_fixed}cohort   = 0.557
 psi      = 0.116
 e0       = 0.0000517
 i0       = 0.0000514
@@ -156,7 +155,7 @@ N0       = {n0}
 algorithm  = "if2"
 backend    = "chain_binomial"
 chains     = 4
-particles  = 2000
+particles  = {particles}
 iterations = 25
 cooling    = 0.7
 
@@ -164,15 +163,24 @@ cooling    = 0.7
 dt = 1.0
 """
 
+# The UK fits hold sigma_se (extra-demographic noise) at He et al.'s London
+# MLE; for the US cities that value is indefensible a priori and the first
+# fit round bore that out (NY: PF degeneracy watchdog killed all chains;
+# Baltimore: rho pinned at its bound), so the US fits estimate sigma_se and
+# NY gets more particles — both fixes named by camdl's own diagnostics.
+UK = dict(obs_col="weekly_cases", emit_days=7, cadence="weekly",
+          rho_lo=0.2, rho_start=0.4, particles=2000,
+          sigma_se_line="", sigma_se_fixed="sigma_se = 2.816\n")
+US = dict(obs_col="biweekly_cases", emit_days=14, cadence="biweekly",
+          rho_lo=0.05, particles=4000,
+          sigma_se_line="sigma_se  = {{ bounds = [0.2, 5.0],  start = 1.5 }}\n".replace("{{", "{").replace("}}", "}"),
+          sigma_se_fixed="")
+
 CITIES = {
-    "london": dict(label="London", obs_col="weekly_cases", emit_days=7,
-                   cadence="weekly", rho_lo=0.2, rho_start=0.4),
-    "liverpool": dict(label="Liverpool", obs_col="weekly_cases", emit_days=7,
-                      cadence="weekly", rho_lo=0.2, rho_start=0.4),
-    "newyork": dict(label="New York", obs_col="biweekly_cases", emit_days=14,
-                    cadence="biweekly", rho_lo=0.05, rho_start=0.2),
-    "baltimore": dict(label="Baltimore", obs_col="biweekly_cases", emit_days=14,
-                      cadence="biweekly", rho_lo=0.05, rho_start=0.3),
+    "london": dict(label="London", **UK),
+    "liverpool": dict(label="Liverpool", **UK),
+    "newyork": dict(label="New York", rho_start=0.2, **US),
+    "baltimore": dict(label="Baltimore", rho_start=0.3, **US),
 }
 
 
