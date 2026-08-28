@@ -112,6 +112,8 @@ def main():
     preq_path = TWIN / f"{CITY}_prequential.tsv"
     if preq_path.exists():
         preq = pd.read_csv(preq_path, sep="\t", comment="#")
+        if "stream" in preq.columns:  # file carries a per-stream and a joint row
+            preq = preq[preq["stream"] == "weekly_cases"]
         pit_col = next((c for c in preq.columns if c.lower() == "pit"), None)
         if pit_col is not None:
             pit = preq[pit_col].dropna()

@@ -1,0 +1,140 @@
+{
+  "format_version": 1,
+  "kind": "pfilter",
+  "run_id": "3b0508d660d6981ac681585845d21a92085cacd7d593392e027c86971a55a730",
+  "hash_version": 1,
+  "ir_version": "0.36",
+  "engine_version": "0.1.0+a7885c1",
+  "levels": [
+    {
+      "name": "model",
+      "label": "london_seir",
+      "hash": "ba037388e1ba3d529e097eee2fe8e538ec5d6131b9ce7f881231f5a8edf3d8bf",
+      "schema_version": 1
+    },
+    {
+      "name": "config",
+      "label": "pf-N2000-r1-dt1",
+      "hash": "310e768b7ceead9e71bc0fa4a37c89ee180b7e2b305e51ff34b9f15ac3596a58",
+      "schema_version": 1
+    },
+    {
+      "name": "params",
+      "label": "params",
+      "hash": "89eca564c9406406b74830fae2c058279b86940aee3435d1f18336dd1186f152",
+      "schema_version": 1
+    },
+    {
+      "name": "seed",
+      "label": "seed_5",
+      "hash": "8e23d622f491db2902be0905fb23242bacaf65742f5f97d817db71858d97ecf7",
+      "schema_version": 1
+    }
+  ],
+  "status": "completed",
+  "artifacts": {
+    "loglik.toml": {
+      "bytes": 64,
+      "mtime": "1787936998.682752461",
+      "digest": "0efa15170dd1c965fa354d6e2bd6a07333bf0a4dbb08f375f491b24518f5a03c"
+    }
+  },
+  "inputs": {
+    "data_hashes": [
+      [
+        "weekly_cases",
+        "ff0925ab0af93e359a8fb57407bddcbd504232d630364ab3b8f633fe266af19e"
+      ]
+    ],
+    "loglik": -2355.481946970647,
+    "loglik_sd": null,
+    "loglik_type": "marginal",
+    "n_particles": 2000,
+    "n_replicates": 1,
+    "params": [
+      [
+        "R0",
+        24.6402418051
+      ],
+      [
+        "sigma",
+        0.0791
+      ],
+      [
+        "gamma",
+        0.0832
+      ],
+      [
+        "mu",
+        0.0000548
+      ],
+      [
+        "alpha",
+        0.976
+      ],
+      [
+        "iota",
+        2.9
+      ],
+      [
+        "sigma_se",
+        2.816
+      ],
+      [
+        "amplitude",
+        0.467775
+      ],
+      [
+        "cohort",
+        0.557
+      ],
+      [
+        "rho",
+        0.5931446302
+      ],
+      [
+        "psi",
+        0.116
+      ],
+      [
+        "s0",
+        0.06412
+      ],
+      [
+        "e0",
+        0.0000517
+      ],
+      [
+        "i0",
+        0.0000514
+      ],
+      [
+        "N0",
+        2481706.0
+      ]
+    ]
+  },
+  "provenance": {
+    "argv": [
+      "camdl",
+      "pfilter",
+      "london_seir.camdl",
+      "--params",
+      "results/london_mle_params.toml",
+      "--data",
+      "/tmp/claude-0/-home-user-ai-assisted-research/8a94ef96-6198-5942-8c46-9fce7c561cc7/scratchpad/upto3003.tsv",
+      "--particles",
+      "2000",
+      "--seed",
+      "5",
+      "--save-final-state",
+      "/tmp/claude-0/-home-user-ai-assisted-research/8a94ef96-6198-5942-8c46-9fce7c561cc7/scratchpad/state3003.tsv",
+      "--no-progress"
+    ],
+    "created_at": "2026-08-28T17:09:58Z",
+    "camdl_version": "0.1.0+a7885c1",
+    "source_paths": [
+      "london_seir.camdl"
+    ]
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "format_version": 1,
+  "kind": "pfilter",
+  "run_id": "0e4052f41871879d9adc9f047fb11a8a4b1d979086642c745bad7705381e5831",
+  "hash_version": 1,
+  "ir_version": "0.36",
+  "engine_version": "0.1.0+a7885c1",
+  "levels": [
+    {
+      "name": "model",
+      "label": "london_seir",
+      "hash": "ba037388e1ba3d529e097eee2fe8e538ec5d6131b9ce7f881231f5a8edf3d8bf",
+      "schema_version": 1
+    },
+    {
+      "name": "config",
+      "label": "pf-N2000-r1-dt1",
+      "hash": "6f68eeb003d1d8d65509b737b0df20419bc7f3f4c53aa6cf553e2188966f3a48",
+      "schema_version": 1
+    },
+    {
+      "name": "params",
+      "label": "params",
+      "hash": "89eca564c9406406b74830fae2c058279b86940aee3435d1f18336dd1186f152",
+      "schema_version": 1
+    },
+    {
+      "name": "seed",
+      "label": "seed_1008",
+      "hash": "96599a42ea1e000a4dec04ea50a057bc810f5e89e0fb95c3f72e2fb3c4a37044",
+      "schema_version": 1
+    }
+  ],
+  "status": "completed",
+  "artifacts": {
+    "loglik.toml": {
+      "bytes": 64,
+      "mtime": "1787937121.825695478",
+      "digest": "6c18e2acffd7476dc7c2aa1daf5ca74a29fd25c980f0d58b9f44d19610c74d61"
+    }
+  },
+  "inputs": {
+    "data_hashes": [
+      [
+        "weekly_cases",
+        "0a002c2e0e9b8d6210dfa6cce21498caf5f981b49a5b3814ea86f73c94b0d931"
+      ]
+    ],
+    "loglik": -749.3095949685011,
+    "loglik_sd": null,
+    "loglik_type": "marginal",
+    "n_particles": 2000,
+    "n_replicates": 1,
+    "params": [
+      [
+        "R0",
+        24.6402418051
+      ],
+      [
+        "sigma",
+        0.0791
+      ],
+      [
+        "gamma",
+        0.0832
+      ],
+      [
+        "mu",
+        0.0000548
+      ],
+      [
+        "alpha",
+        0.976
+      ],
+      [
+        "iota",
+        2.9
+      ],
+      [
+        "sigma_se",
+        2.816
+      ],
+      [
+        "amplitude",
+        0.467775
+      ],
+      [
+        "cohort",
+        0.557
+      ],
+      [
+        "rho",
+        0.5931446302
+      ],
+      [
+        "psi",
+        0.116
+      ],
+      [
+        "s0",
+        0.06412
+      ],
+      [
+        "e0",
+        0.0000517
+      ],
+      [
+        "i0",
+        0.0000514
+      ],
+      [
+        "N0",
+        2481706.0
+      ]
+    ]
+  },
+  "provenance": {
+    "argv": [
+      "camdl",
+      "pfilter",
+      "london_seir.camdl",
+      "--params",
+      "/home/user/ai_assisted_research/measles_incidence_camdl/results/london_mle_params.toml",
+      "--data",
+      "/tmp/tmpr2d8b1tz/upto_952.tsv",
+      "--particles",
+      "2000",
+      "--seed",
+      "1008",
+      "--save-final-state",
+      "/tmp/tmpr2d8b1tz/state_952.tsv",
+      "--no-progress"
+    ],
+    "created_at": "2026-08-28T17:12:01Z",
+    "camdl_version": "0.1.0+a7885c1",
+    "source_paths": [
+      "london_seir.camdl"
+    ]
+  }
+}

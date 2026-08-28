@@ -137,6 +137,71 @@ parameter* (Baltimore −3225.5 → −1793.8, New York −2642.6 → −2358.3)
 strong evidence rounds 1–2 were stuck in bad local modes, not that the
 data preferred rho ≈ 0.95.
 
+## A retrospective digital twin
+
+A "digital twin," as the term is settling (e.g., the 2023 National
+Academies report), is a virtual representation of a *specific* physical
+system, continuously updated by data from that system, coupled to
+decisions, at decision-relevant fidelity. The fitted London model plus a
+particle filter is most of one — what's missing is the *live loop*. This
+demo supplies the loop retrospectively: it replays 1946–58 as if the
+data were arriving in real time.
+
+![twin replay](results/twin_replay.gif)
+
+Every 4 weeks (168 times), the twin:
+
+1. **assimilates** everything reported so far — `camdl pfilter` over the
+   truncated series, saving the filtered particle cloud
+   p(S, E, I, R | data so far) via `--save-final-state`;
+2. **nowcasts** the hidden state — the susceptible pool nobody observes,
+   with uncertainty (middle panel: the sawtooth of susceptible build-up
+   and epidemic burn-down is the mechanism of Fig. 1.4's cycles, made
+   visible);
+3. **forecasts** 8 weeks ahead — `camdl simulate --init-state` restarts
+   the model from 200 members of the filtered cloud (camdl's built-in
+   forecast workflow), preserving seasonal phase and covariates;
+4. **scores itself** when the "future" arrives — sample CRPS, interval
+   coverage, and two point baselines; plus camdl's own one-step-ahead
+   prequential scorecard (`--save-prequential`: log score, CRPS, PIT).
+
+![twin scorecard](results/twin_replay.png)
+
+The scorecard (`results/twin/london_score_summary.tsv`):
+
+| horizon | twin CRPS | persistence | seasonal-naive | 90% coverage |
+|---|---|---|---|---|
+| 1 week | 59 | 91 | 664 | 0.88 |
+| 4 weeks | 116 | 207 | 657 | 0.76 |
+| 8 weeks | 191 | 376 | 659 | 0.70 |
+
+Teaching points that fall out of the numbers:
+
+- **Assimilation is where the value is.** The same model whose
+  *unconditioned* simulations dephase within a few years (the fan chart
+  in the analysis above) beats persistence at every horizon once it is
+  restarted from filtered state every 4 weeks. A mediocre model plus
+  data assimilation outforecasts a good model left to free-run.
+- **Seasonal-naive fails *because* London is biennial** — "same week
+  last year" is exactly wrong in an alternating regime, and its CRPS
+  (~660) is worse than persistence at every horizon. A baseline choice
+  is a hypothesis about the system.
+- **The intervals are honest at 1 week (88% vs nominal 90%) and
+  overconfident by 8 weeks (70%)** — fixed parameters plus growing
+  state uncertainty understate long-horizon risk. The PIT histogram's
+  mild left lean says one-step predictions run slightly high. In a real
+  twin this scorecard is what triggers re-fitting.
+- **What this demo deliberately leaves out** marks the rest of the road
+  to a real twin: parameters are frozen at the scout MLE (no drift
+  tracking / rolling re-fit), the data arrive clean (no reporting
+  delay or nowcasting layer), nothing anchors the S-level ridge (no
+  serosurvey stream), and no decision feeds back (no vaccination
+  scenario branching — though `camdl simulate --init-state` plus an
+  intervention flag is exactly where it would attach).
+
+Reproduce with `uv run python digital_twin_replay.py` (~25 min), then
+`plot_twin.py` and `twin_animation.py`.
+
 ## Quickstart
 
 ```bash
@@ -171,6 +236,10 @@ directories exist.)
 - `plot_camdl_fig.py` — final figure + `results/periodicity.tsv`
 - `london_he_mle_check.py` — London at the published He et al. MLE vs
   the scout's ridge point (`results/london_he_mle_check.png`)
+- `digital_twin_replay.py` — the assimilate/nowcast/forecast/score loop
+  (writes `results/twin/`)
+- `plot_twin.py`, `twin_animation.py` — the twin scorecard figure and
+  the animated replay GIF
 
 ## References
 
