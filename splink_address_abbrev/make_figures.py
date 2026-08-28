@@ -85,10 +85,7 @@ def fig_mechanism(noise="elevated", regime="split"):
     plt.close(fig)
 
 
-MODEL_TITLES = {
-    "full": "full model (names, DOB, address)",
-    "address_heavy": "address-heavy model (first name + address only)",
-}
+MODEL_TITLES = {"full": "full model", "address_heavy": "address-heavy model"}
 
 
 def fig_outcome():
@@ -117,6 +114,12 @@ def fig_outcome():
     for r, model in enumerate(models):
         for ax, (regime, noise) in zip(axes[r], cells):
             sub = df[(df.model == model) & (df.regime == regime) & (df.noise == noise)]
+            piv = sub.pivot_table(index="rep", columns="treatment", values="best_f1")
+            for _, row in piv.iterrows():
+                ax.plot(
+                    range(len(order)), [row[t] for t in order],
+                    color=BASELINE, lw=0.9, zorder=1,
+                )
             for i, treatment in enumerate(order):
                 vals = sub[sub.treatment == treatment]["best_f1"]
                 ax.scatter(
@@ -139,12 +142,15 @@ def fig_outcome():
         for ax in axes[r]:
             ax.set_ylim(row_vals.min() - pad, row_vals.max() + pad)
     fig.suptitle(
-        "Splink linkage quality (best F1, 3 replicates + mean) by street-name treatment",
-        fontsize=11,
-        x=0.01,
+        "Splink linkage quality (best F1) by street-name treatment\n"
+        "dots: 3 replicates, bar: mean; gray lines connect the same replicate "
+        "(top: names + DOB + address; bottom: first name + address only)",
+        fontsize=10.5,
+        x=0.02,
         ha="left",
+        color=INK,
     )
-    fig.tight_layout(rect=[0, 0, 1, 0.94])
+    fig.tight_layout(rect=[0.01, 0, 1, 0.91])
     fig.savefig(FIGS / "linkage_best_f1.png", dpi=150)
     plt.close(fig)
 

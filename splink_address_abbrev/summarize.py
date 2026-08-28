@@ -38,6 +38,18 @@ def main():
     print("=== linkage quality (mean of 3 replicates) ===")
     print(g.to_string())
 
+    print("\n=== paired per-replicate comparisons ===")
+    for metric in ["best_f1", "avg_precision"]:
+        p = df.pivot_table(
+            index=["model", "noise", "regime", "rep"], columns="treatment", values=metric
+        )
+        ae, na = p.abbreviate - p.expand, p.none - p.abbreviate
+        print(
+            f"{metric}: abbreviate > expand in {(ae > 0).sum()}/{len(p)} "
+            f"(mean diff {ae.mean():+.5f}); none > abbreviate in "
+            f"{(na > 0).sum()}/{len(p)} (mean diff {na.mean():+.5f})"
+        )
+
     params = load_all("street_params")
     params["match_weight"] = np.log2(params["m"] / params["u"])
     pw = (

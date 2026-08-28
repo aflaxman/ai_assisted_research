@@ -20,30 +20,31 @@ specifies? This experiment uses [pseudopeople](https://pseudopeople.readthedocs.
 measure what the choice actually does to [splink](https://moj-analytical-services.github.io/splink/)
 linkage quality.
 
-*(Results summary figure and tables below — see [Results](#results).)*
-
 ## TL;DR
 
-- **Standardize; the direction is second-order.** When the two datasets follow
-  different conventions, either mapping restores the exact-match rate on true
-  pairs (13% → 86% in the messy-noise condition). Which direction you map to
-  matters far less than mapping at all.
-- **Abbreviation is the safer direction for precision.** Expanding to full
-  words roughly doubles the share of *non-matching* address pairs that clear a
-  Jaro–Winkler 0.7 threshold (1.5% → 3.0%), because long shared suffixes
-  ("...street") pad the similarity of unrelated streets. Splink's trained
-  u-probabilities absorb most of this, but the raw comparator separates
-  matches from non-matches slightly better on abbreviated strings.
-- **Expansion's classic failure is real but contained.** The naive token map
-  corrupts Saint-style names ("st clair ave" → "street clair avenue") — 6 of
-  4,066 distinct street names here — but it corrupts them *consistently*, so
-  linkage barely notices. The collision argument against abbreviation
-  (St = Street = Saint) also failed to materialize: both mappings merged
-  exactly the same 44 form-pairs in this vocabulary.
-- **With a rich model, none of it matters much.** When names and date of birth
-  also enter the model, best-case F1 moves by less than replicate noise
-  (~0.001) across all treatments — splink's fuzzy comparison levels and
-  term-frequency adjustments are doing their job.
+- **If you standardize, abbreviate.** Across 24 paired replicates (2 linkage
+  models × 2 convention regimes × 2 noise levels × 3 replicates),
+  Street→St beat St→Street on average precision in **24 of 24** and on best
+  F1 in 22 of 24. The margin is small — ~0.001 F1 with a rich model, ~0.002–
+  0.005 when addresses carry more weight — but its sign barely wavers.
+- **Why: long suffixes pad non-match similarity.** Expanding to full words
+  roughly doubles the share of *non-matching* address pairs clearing a
+  Jaro–Winkler 0.7 threshold (1.5% → 3.0%), because unrelated streets share
+  "...street". Splink then halves that comparison level's match weight —
+  the model corrects the damage, but the evidence budget shrinks.
+- **The case for expansion didn't materialize.** The naive abbreviation map
+  merged no more distinct street names than expansion did (both: the same 44
+  form-pairs), while naive expansion corrupted 6 Saint-style names
+  ("st clair ave" → "street clair avenue") — harmlessly, since it corrupted
+  them consistently.
+- **Doing nothing is surprisingly strong.** Even when one dataset abbreviates
+  and the other spells out, un-cleaned street names won best F1 in 21/24
+  paired replicates: Jaro–Winkler ≥ 0.92 absorbs the convention difference
+  and splink re-weights an (now rarer) exact match upward. The trade: worse
+  average precision when addresses have to carry the linkage.
+- Whatever you do, do it to *both* datasets — every camp in the discussion
+  agrees that consistency dominates direction, and nothing here contradicts
+  them.
 
 ## The problem
 
@@ -87,9 +88,9 @@ factors:
 | Factor | Levels |
 |---|---|
 | Street-name treatment | `none`, `abbreviate` (Street→St), `expand` (St→Street) |
-| Convention regime | `consistent` (as generated), `split` (extract A's pipeline abbreviates, extract B's expands — the scenario from the discussion) |
+| Convention regime | `consistent` (as generated), `split` (extract A's pipeline abbreviates, extract B's expands — the scenario from the discussion), `mixed` (each record flips a coin; comparator benchmark only) |
 | Street-name noise | `default` (~4% of cells corrupted or blanked), `elevated` (~15%) |
-| Linkage model | `full` (first, last, DOB, street number, street name), `address_heavy` (first name + street number + street name only) |
+| Linkage model | `full` (first name, last name, DOB, street number, street name), `address_heavy` (first name, street number, street name only) |
 
 with 3 replicates per cell. Both treatments use the same USPS suffix
 dictionary ([suffix_maps.py](suffix_maps.py)), applied token-wise in either
@@ -141,18 +142,67 @@ regime.
 
 ### The outcome: what splink reports
 
-RESULTS_PLACEHOLDER
+![Best F1 by treatment, model, regime, and noise](figures/linkage_best_f1.png)
+
+The absolute differences are small — street name is one field among several —
+but the *ordering* is remarkably stable. Connecting each replicate across
+treatments (gray lines) shows the same downward slope almost everywhere:
+
+| Paired comparison (24 replicates) | best F1 | average precision |
+|---|---|---|
+| abbreviate beats expand | 22/24, mean +0.0010 | **24/24**, mean +0.0009 |
+| no cleaning beats abbreviate | 21/24, mean +0.0014 | 16/24, mean −0.0021 |
+
+Mean best F1 in the hardest cell (split conventions, elevated noise):
+
+| Model | none | abbreviate | expand |
+|---|---|---|---|
+| full (names, DOB, address) | 0.9770 | 0.9762 | 0.9756 |
+| address-heavy (first name + address) | 0.9259 | 0.9220 | 0.9196 |
+
+**Abbreviation never loses to expansion.** The gap is tiny with a rich model
+(~0.001 F1) and grows when addresses carry more of the weight (~0.002–0.005
+F1, and up to +0.005 recall at a precision ≥ 0.995 operating point), but its
+sign is the same in essentially every paired replicate, both regimes, both
+noise levels, both models.
+
+**Why:** the trained model parameters tell the story. In the full model
+(split conventions, elevated noise), the street-name comparison levels earn
+these match weights (log₂ m/u, averaged over replicates):
+
+| Comparison level | none | abbreviate | expand |
+|---|---|---|---|
+| Exact match | 11.4 | 9.5 | 9.7 |
+| Jaro–Winkler ≥ 0.92 | 9.4 | 8.6 | 8.2 |
+| Jaro–Winkler ≥ 0.7 | +3.6 | +1.7 | +0.7 |
+
+Under expansion, the fuzzy levels are worth up to a bit less evidence apiece,
+because unrelated streets sharing a spelled-out suffix flood into them
+(doubling u). Splink learns the correction — that is why the F1 cost stays
+near a thousandth instead of becoming catastrophic — but the evidence budget
+shrinks.
+
+**The dark horse: doing nothing.** "No cleaning" won best F1 in 21/24 paired
+replicates, even in the split regime, because splink recalibrated around the
+convention mismatch: an exact street match became rarer and therefore more
+informative (11.4 bits vs 9.5), and true pairs that disagreed only on suffix
+convention still cleared JW 0.92 and collected 9.4 bits. It is not a free
+lunch — in the address-heavy model with split conventions, "none" loses
+average precision (−0.004 vs abbreviate) because its PR curve sags at the
+high-precision end — but it is a striking demonstration that splink's fuzzy
+levels plus parameter estimation absorb most of what suffix standardization
+would fix.
 
 ## Reproducing
 
 ```bash
 cd splink_address_abbrev
 uv sync
-uv run python generate_data.py    # ~3 min: builds data/ from pseudopeople sample population
-uv run python microbench.py       # comparator-level analysis -> results/microbench.csv
-uv run python run_experiment.py   # 36 splink runs, ~30 min -> results/linkage_results.csv
-uv run python run_experiment.py address_heavy   # 36 more -> results/linkage_results_address.csv
-uv run python summarize.py        # tables
+uv run python generate_data.py    # ~4 min: builds data/ from the pseudopeople sample population
+uv run python microbench.py       # ~3 min: comparator-level analysis -> results/microbench.csv
+uv run python run_experiment.py   # ~30 min: 36 splink runs -> results/linkage_results.csv
+uv run python run_experiment.py address_heavy   # ~15 min: 36 more -> results/linkage_results_address.csv
+uv run python summarize.py        # tables and paired comparisons
 uv run python make_figures.py     # figures/
 uv run pytest                     # tests for the suffix maps
 ```
