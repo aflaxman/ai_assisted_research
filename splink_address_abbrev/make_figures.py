@@ -155,9 +155,63 @@ def fig_outcome():
     plt.close(fig)
 
 
+PHASE2_TITLES = {
+    ("jw_no_tf", "elevated"): "JW, no TF adjustment\nelevated noise",
+    ("lev_abs", "elevated"): "Levenshtein ≤ 1, 2 edits\nelevated noise",
+    ("jw_tf", "severe"): "JW + TF (baseline)\nsevere noise (~39%)",
+    ("jw_tf", "garbled"): "JW + TF (baseline)\ngarbled noise",
+}
+
+
+def fig_phase2():
+    """Best F1 by treatment across the tire-kicking conditions
+    (split conventions, address-heavy model)."""
+    df = pd.read_csv(RESULTS / "linkage_results_phase2.csv")
+    df = df[df.model == "address_heavy"]
+    order = list(COLORS)
+    fig, axes = plt.subplots(1, 4, figsize=(11, 3.6), sharex=True)
+    for ax, ((comparator, noise), title) in zip(axes, PHASE2_TITLES.items()):
+        sub = df[(df.comparator == comparator) & (df.noise == noise)]
+        piv = sub.pivot_table(index="rep", columns="treatment", values="best_f1")
+        for _, row in piv.iterrows():
+            ax.plot(
+                range(len(order)), [row[t] for t in order],
+                color=BASELINE, lw=0.9, zorder=1,
+            )
+        for i, treatment in enumerate(order):
+            vals = sub[sub.treatment == treatment]["best_f1"]
+            ax.scatter(
+                [i] * len(vals), vals, color=COLORS[treatment], s=42, zorder=3,
+                edgecolors=SURFACE, linewidths=1.2,
+            )
+            ax.hlines(
+                vals.mean(), i - 0.28, i + 0.28,
+                color=COLORS[treatment], lw=2, zorder=2,
+            )
+        ax.set_title(title, fontsize=10, loc="left")
+        ax.set_xticks(range(len(order)))
+        ax.set_xticklabels(["none", "abbrev.", "expand"], fontsize=9)
+        ax.set_xlim(-0.6, len(order) - 0.4)
+    axes[0].set_ylabel("best F1")
+    fig.suptitle(
+        "Tire-kicking: best F1 under other comparators and heavier noise\n"
+        "(split conventions, address-heavy model; dots: 3 replicates, bar: mean, "
+        "gray lines connect the same replicate)",
+        fontsize=10.5,
+        x=0.02,
+        ha="left",
+        color=INK,
+    )
+    fig.tight_layout(rect=[0, 0, 1, 0.88])
+    fig.savefig(FIGS / "phase2_best_f1.png", dpi=150)
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     FIGS.mkdir(exist_ok=True)
     fig_mechanism()
     if (RESULTS / "linkage_results.csv").exists():
         fig_outcome()
+    if (RESULTS / "linkage_results_phase2.csv").exists():
+        fig_phase2()
     print("figures written to", FIGS)

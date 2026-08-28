@@ -62,6 +62,30 @@ def main():
     print("\n=== trained street_name match weights, log2(m/u), full model ===")
     print(pw.to_string())
 
+    phase2 = RESULTS / "linkage_results_phase2.csv"
+    if phase2.exists():
+        p2 = pd.read_csv(phase2)
+        g2 = (
+            p2.groupby(["comparator", "noise", "model", "treatment"])
+            .agg(best_f1_mean=("best_f1", "mean"), ap_mean=("avg_precision", "mean"))
+            .reindex(["none", "abbreviate", "expand"], level="treatment")
+            .round(4)
+        )
+        print("\n=== phase 2 (split conventions): comparator and noise sensitivity ===")
+        print(g2.to_string())
+        for metric in ["best_f1", "avg_precision"]:
+            p = p2.pivot_table(
+                index=["comparator", "noise", "model", "rep"],
+                columns="treatment",
+                values=metric,
+            )
+            ae, na = p.abbreviate - p.expand, p.none - p.abbreviate
+            print(
+                f"{metric}: abbreviate > expand in {(ae > 0).sum()}/{len(p)} "
+                f"(mean {ae.mean():+.5f}); none > abbreviate in "
+                f"{(na > 0).sum()}/{len(p)} (mean {na.mean():+.5f})"
+            )
+
 
 if __name__ == "__main__":
     main()

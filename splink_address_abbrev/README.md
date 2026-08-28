@@ -22,11 +22,13 @@ linkage quality.
 
 ## TL;DR
 
-- **If you standardize, abbreviate.** Across 24 paired replicates (2 linkage
-  models × 2 convention regimes × 2 noise levels × 3 replicates),
-  Street→St beat St→Street on average precision in **24 of 24** and on best
-  F1 in 22 of 24. The margin is small — ~0.001 F1 with a rich model, ~0.002–
-  0.005 when addresses carry more weight — but its sign barely wavers.
+- **If you standardize, abbreviate.** Across 48 paired replicates spanning
+  2 linkage models, 2 convention regimes, 4 noise levels, and 3 string
+  comparators (Jaro–Winkler with and without term-frequency adjustment,
+  absolute Levenshtein), Street→St beat St→Street on average precision in
+  **48 of 48** and on best F1 in 45 of 48. The margin is small — ~0.001 F1
+  with a rich model, ~0.002–0.005 when addresses carry more weight — but its
+  sign barely wavers, and no comparator, noise level, or regime flipped it.
 - **Why: long suffixes pad non-match similarity.** Expanding to full words
   roughly doubles the share of *non-matching* address pairs clearing a
   Jaro–Winkler 0.7 threshold (1.5% → 3.0%), because unrelated streets share
@@ -37,11 +39,17 @@ linkage quality.
   form-pairs), while naive expansion corrupted 6 Saint-style names
   ("st clair ave" → "street clair avenue") — harmlessly, since it corrupted
   them consistently.
-- **Doing nothing is surprisingly strong.** Even when one dataset abbreviates
-  and the other spells out, un-cleaned street names won best F1 in 21/24
-  paired replicates: Jaro–Winkler ≥ 0.92 absorbs the convention difference
-  and splink re-weights an (now rarer) exact match upward. The trade: worse
-  average precision when addresses have to carry the linkage.
+- **Doing nothing looked surprisingly strong — but only under one
+  configuration.** With splink's usual Jaro–Winkler levels plus a
+  term-frequency adjustment on the exact-match level, un-cleaned street
+  names won best F1 in 21/24 paired replicates: JW's prefix weighting
+  absorbs a suffix-only mismatch, and TF-free fuzzy levels dodge the
+  penalty that standardized exact matches pay on common street names.
+  Kick the tires and it deflates: drop the TF adjustment and no-cleaning
+  loses to abbreviation in 6/6 replicates; switch to Levenshtein-at-
+  thresholds (where "st"→"street" is 4 edits) and no-cleaning collapses,
+  costing 0.013–0.027 F1. Standardizing is the robust choice; skipping it
+  is safe only if you know your comparator forgives suffixes.
 - Whatever you do, do it to *both* datasets — every camp in the discussion
   agrees that consistency dominates direction, and nothing here contradicts
   them.
@@ -88,9 +96,10 @@ factors:
 | Factor | Levels |
 |---|---|
 | Street-name treatment | `none`, `abbreviate` (Street→St), `expand` (St→Street) |
-| Convention regime | `consistent` (as generated), `split` (extract A's pipeline abbreviates, extract B's expands — the scenario from the discussion), `mixed` (each record flips a coin; comparator benchmark only) |
-| Street-name noise | `default` (~4% of cells corrupted or blanked), `elevated` (~15%) |
+| Convention regime | `consistent` (as generated), `split` (extract A's pipeline abbreviates, extract B's expands — the scenario from the discussion), `mixed` (each record flips a coin) and `dropsuffix` (a quarter of records lose the suffix token) in the comparator benchmark |
+| Street-name noise | `default` (~4% of cells corrupted or blanked), `elevated` (~15%), plus `severe` (~39%) and `garbled` (~14% of cells, half the tokens mangled) in phase 2 |
 | Linkage model | `full` (first name, last name, DOB, street number, street name), `address_heavy` (first name, street number, street name only) |
+| Street comparator (phase 2) | Jaro–Winkler + TF adjustment (baseline), Jaro–Winkler without TF, Levenshtein at 1 and 2 edits |
 
 with 3 replicates per cell. Both treatments use the same USPS suffix
 dictionary ([suffix_maps.py](suffix_maps.py)), applied token-wise in either
@@ -193,15 +202,95 @@ high-precision end — but it is a striking demonstration that splink's fuzzy
 levels plus parameter estimation absorb most of what suffix standardization
 would fix.
 
+## Kicking the tires
+
+The phase-1 results — especially "no cleaning wins" — deserved suspicion, so
+a second battery varied the string comparator, the noise, and the failure
+modes ([run_experiment2.py](run_experiment2.py),
+[microbench_metrics.py](microbench_metrics.py); split conventions
+throughout).
+
+![Phase 2: best F1 under other comparators and heavier noise](figures/phase2_best_f1.png)
+
+**Is "no cleaning wins" a term-frequency artifact? Largely, yes.** In the
+baseline model, TF adjustment applies only to the *exact-match* level, so a
+standardized exact match on "main st" is discounted for being a common
+value, while an un-cleaned pair ("main st" / "main street") lands on the
+JW ≥ 0.92 level and collects its full, undiscounted weight. Remove the TF
+adjustment and the ordering flips: abbreviation beats no-cleaning in 6/6
+paired replicates (both models). So phase 1's dark horse was exploiting a
+quirk of *where* splink applies TF adjustments, not proving cleaning
+useless.
+
+**Does the comparator matter? Enormously — more than the cleaning
+direction.** Jaro–Winkler weights the shared prefix, so a suffix-only
+difference is nearly invisible to it; that is what made no-cleaning viable.
+Replace the street comparison with `LevenshteinAtThresholds([1, 2])` —
+absolute edits, where "st" vs "street" is 4 — and no-cleaning collapses:
+−0.013 F1 (full model) to −0.027 F1 (address-heavy) versus abbreviation,
+losing all 6 of 6 paired replicates. With standardized input, Levenshtein
+performs nearly as well as JW; with mixed conventions it cannot cope. The
+comparator-level benchmark
+([results/microbench_metrics.csv](results/microbench_metrics.csv)) says the
+same in AUC terms across four metrics (JW, plain Jaro, normalized
+Levenshtein, normalized Damerau–Levenshtein): abbreviate ≥ expand under
+every metric, every regime, every noise level.
+
+**What about heavier or different noise?** Two harsher conditions:
+`severe` (~39% of street names corrupted; cross-extract street agreement
+falls to 62%) and `garbled` (~14% of cells hit, but half the tokens mangled
+when hit — "ygoff drt"). The abbreviate > expand ordering holds in both
+(11/12 paired replicates on F1, 12/12 on average precision), and the gap
+*widens* with noise at the comparator level. Under JW + TF, no-cleaning
+still wins best F1 in these conditions, but under severe noise it loses
+average precision to abbreviation (−0.008 on the address-heavy model) — its
+PR curve sags exactly where high-precision linkage operates.
+
+**A regime where expansion truly hurts: dropped suffixes.** If records
+sometimes lose the suffix entirely ("main st" → "main"), expansion is the
+worst treatment by a wide margin at the comparator level (AUC 0.992 vs
+0.9986 for abbreviation at default noise, edit-distance metrics): "main" vs
+"main street" is a much larger relative mismatch than "main" vs "main st".
+Abbreviation minimizes the damage a missing suffix can do — an argument the
+discussion did not raise.
+
+**What does Project US@ actually say about matching?** Nothing about string
+distances. It is a *formatting* specification — an address data model and
+standardized element formats built on USPS Publication 28 (whence "ST"),
+developed by ONC with USPS, CDC, HL7, X12 and EHR vendors. Match-rate
+claims associated with it come from patient-matching research around
+address standardization, not from the spec prescribing a matcher. Its
+practical relevance here: US health data increasingly arrives already
+standardized to USPS abbreviations, and matching *that* consistently means
+abbreviating your other source, not expanding both.
+
+**Could this all be an artifact of pseudopeople?** Its known limits cut in
+identifiable directions:
+
+- The sample population is one synthetic metro (~10k people, ~4,000
+  distinct street names); term-frequency skew in real national data would
+  strengthen TF effects, not weaken the abbreviate-vs-expand comparison.
+- Its noise is character-level (typos, OCR, phonetic); it never swaps
+  conventions, so the convention regimes here are imposed by construction —
+  which is also what makes the treatment effect cleanly identifiable.
+- Each household's true address is a single fixed string, and noise is
+  independent across extracts. Real sources differ *systematically*
+  (parsing, truncation, moves, PO boxes, units), which the split and
+  dropsuffix regimes only partially mimic. That favors "none" in the
+  consistent regime, and is another reason not to take the dark horse too
+  seriously.
+
 ## Reproducing
 
 ```bash
 cd splink_address_abbrev
 uv sync
-uv run python generate_data.py    # ~4 min: builds data/ from the pseudopeople sample population
-uv run python microbench.py       # ~3 min: comparator-level analysis -> results/microbench.csv
+uv run python generate_data.py    # ~8 min: builds data/ from the pseudopeople sample population
+uv run python microbench.py       # ~3 min: JW comparator analysis -> results/microbench.csv
 uv run python run_experiment.py   # ~30 min: 36 splink runs -> results/linkage_results.csv
 uv run python run_experiment.py address_heavy   # ~15 min: 36 more -> results/linkage_results_address.csv
+uv run python run_experiment2.py  # ~45 min: 72 tire-kicking runs -> results/linkage_results_phase2.csv
+uv run python microbench_metrics.py  # ~15 min: 4-metric AUC matrix -> results/microbench_metrics.csv
 uv run python summarize.py        # tables and paired comparisons
 uv run python make_figures.py     # figures/
 uv run pytest                     # tests for the suffix maps
@@ -209,17 +298,16 @@ uv run pytest                     # tests for the suffix maps
 
 ## Caveats
 
-- Pseudopeople's sample population is one synthetic metro area (~10k people);
-  its street-name vocabulary, typo processes, and the 2.3:1 abbreviated-to-full
-  suffix ratio may not match your data. The generator does not model
-  *systematic* convention differences between sources, so the split regime is
-  imposed by construction.
-- Ground-truth addresses are consistent per household before noise. Real
-  cross-source address discrepancies (moves, PO boxes, unit-number chaos) are
-  harsher than anything simulated here.
 - Only token-wise dictionary mapping was tested. A parsing standardizer
   (e.g., libpostal, usaddress) that knows "St" at the start of a name means
   Saint would change the collision story.
+- The 2.3:1 abbreviated-to-full suffix ratio in pseudopeople's vocabulary
+  may not match your data; see the pseudopeople limitations discussed under
+  "Kicking the tires".
+- Blocking never used street_name, so these results measure the comparison
+  stage only. Standardization matters more if street names enter your
+  blocking keys, where "main st" ≠ "main street" costs candidate pairs
+  outright.
 
 ## Challenges for the reader
 
