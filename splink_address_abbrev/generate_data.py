@@ -9,6 +9,8 @@ Convention regimes applied to street_name after noise:
                household keeps the same form in both extracts, up to noise)
   split      — extract A's pipeline abbreviates suffixes, extract B's
                spells them out (the scenario in splink discussion #3250)
+  mixed      — every record independently abbreviates or expands with
+               probability 1/2, in both extracts (per-record entry chaos)
 
 Cached to parquet under data/ so replicates are reproducible and fast.
 """
@@ -75,12 +77,23 @@ def load_pair(replicate, noise_level):
     return dfs
 
 
-def apply_regime(df_a, df_b, regime):
+def apply_regime(df_a, df_b, regime, seed=123):
     """Apply the convention regime, returning copies."""
+    import numpy as np
+
     df_a, df_b = df_a.copy(), df_b.copy()
     if regime == "split":
         df_a["street_name"] = df_a["street_name"].map(abbreviate, na_action="ignore")
         df_b["street_name"] = df_b["street_name"].map(expand, na_action="ignore")
+    elif regime == "mixed":
+        rng = np.random.default_rng(seed)
+        for df in (df_a, df_b):
+            flip = rng.random(len(df)) < 0.5
+            sn = df["street_name"]
+            df["street_name"] = [
+                (abbreviate(s) if f else expand(s)) if isinstance(s, str) else s
+                for s, f in zip(sn, flip)
+            ]
     elif regime != "consistent":
         raise ValueError(regime)
     return df_a, df_b

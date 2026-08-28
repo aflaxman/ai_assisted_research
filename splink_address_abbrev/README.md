@@ -3,9 +3,9 @@
 ```python
 >>> from rapidfuzz.distance import JaroWinkler
 >>> JaroWinkler.similarity("10 main st", "10 main street")     # same address
-0.94
+0.943
 >>> JaroWinkler.similarity("maple street", "marple street")    # different streets
-0.97
+0.979
 ```
 
 Two street names that differ only in suffix convention score *lower* than two
@@ -88,7 +88,7 @@ factors:
 |---|---|
 | Street-name treatment | `none`, `abbreviate` (Street→St), `expand` (St→Street) |
 | Convention regime | `consistent` (as generated), `split` (extract A's pipeline abbreviates, extract B's expands — the scenario from the discussion) |
-| Street-name noise | `default` (~5% of cells corrupted), `elevated` (~15%) |
+| Street-name noise | `default` (~4% of cells corrupted or blanked), `elevated` (~15%) |
 | Linkage model | `full` (first, last, DOB, street number, street name), `address_heavy` (first name + street number + street name only) |
 
 with 3 replicates per cell. Both treatments use the same USPS suffix

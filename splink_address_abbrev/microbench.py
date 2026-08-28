@@ -62,7 +62,9 @@ def auc(pos, neg):
 def main():
     rows = []
     sims = {}
-    for noise_level, regime in itertools.product(NOISE_CONFIGS, ["consistent", "split"]):
+    for noise_level, regime in itertools.product(
+        NOISE_CONFIGS, ["consistent", "split", "mixed"]
+    ):
         true_a, true_b, non_a, non_b = pairs_for_cell(noise_level, regime)
         for treatment, fn in TREATMENTS.items():
             pos = jw(true_a, true_b, fn)
