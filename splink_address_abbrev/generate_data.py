@@ -11,6 +11,8 @@ Convention regimes applied to street_name after noise:
                spells them out (the scenario in splink discussion #3250)
   mixed      — every record independently abbreviates or expands with
                probability 1/2, in both extracts (per-record entry chaos)
+  dropsuffix — every record independently loses its street-suffix token
+               with probability 1/4, in both extracts ("main st" -> "main")
 
 Cached to parquet under data/ so replicates are reproducible and fast.
 """
@@ -35,20 +37,31 @@ COLS = [
     "zipcode",
 ]
 
-# elevated noise: messy admin-data street names (~15% of cells corrupted)
-ELEVATED_STREET_NOISE = {
-    "decennial_census": {
-        "column_noise": {
-            "street_name": {
-                "make_typos": {"cell_probability": 0.05, "token_probability": 0.1},
-                "make_ocr_errors": {"cell_probability": 0.05, "token_probability": 0.1},
-                "make_phonetic_errors": {"cell_probability": 0.05, "token_probability": 0.1},
+def _street_noise(cell_probability, token_probability):
+    return {
+        "decennial_census": {
+            "column_noise": {
+                "street_name": {
+                    noise: {
+                        "cell_probability": cell_probability,
+                        "token_probability": token_probability,
+                    }
+                    for noise in ["make_typos", "make_ocr_errors", "make_phonetic_errors"]
+                }
             }
         }
     }
-}
 
-NOISE_CONFIGS = {"default": None, "elevated": ELEVATED_STREET_NOISE}
+
+NOISE_CONFIGS = {
+    "default": None,
+    # messy admin data (~15% of street names corrupted)
+    "elevated": _street_noise(0.05, 0.1),
+    # very messy (~39% of street names corrupted)
+    "severe": _street_noise(0.15, 0.1),
+    # fewer cells hit (~14%) but half the tokens mangled when hit
+    "garbled": _street_noise(0.05, 0.5),
+}
 
 
 def _one_extract(seed, noise_level):
@@ -93,6 +106,25 @@ def apply_regime(df_a, df_b, regime, seed=123):
             df["street_name"] = [
                 (abbreviate(s) if f else expand(s)) if isinstance(s, str) else s
                 for s, f in zip(sn, flip)
+            ]
+    elif regime == "dropsuffix":
+        from suffix_maps import ABBREV_TO_FULL, FULL_TO_ABBREV
+
+        suffix_tokens = set(FULL_TO_ABBREV) | set(ABBREV_TO_FULL)
+
+        def drop_last_suffix(name):
+            toks = name.split()
+            for i in range(len(toks) - 1, -1, -1):
+                if toks[i] in suffix_tokens and len(toks) > 1:
+                    return " ".join(toks[:i] + toks[i + 1 :])
+            return name
+
+        rng = np.random.default_rng(seed)
+        for df in (df_a, df_b):
+            flip = rng.random(len(df)) < 0.25
+            df["street_name"] = [
+                drop_last_suffix(s) if (f and isinstance(s, str)) else s
+                for s, f in zip(df["street_name"], flip)
             ]
     elif regime != "consistent":
         raise ValueError(regime)

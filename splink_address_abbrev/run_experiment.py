@@ -32,16 +32,31 @@ BLOCKING_RULES = [
 ]
 
 
-def make_settings(model="full"):
+# how the street_name column is compared inside splink
+STREET_COMPARISONS = {
+    # baseline: Jaro-Winkler levels, TF adjustment on the exact level
+    "jw_tf": lambda: cl.JaroWinklerAtThresholds("street_name", [0.92, 0.7]).configure(
+        term_frequency_adjustments=True
+    ),
+    # is the "no cleaning wins" result an artifact of TF applying only
+    # to the exact level?
+    "jw_no_tf": lambda: cl.JaroWinklerAtThresholds("street_name", [0.92, 0.7]),
+    # absolute edit distance: "st" vs "street" is 4 edits, so convention
+    # mismatch cannot ride the fuzzy levels the way it does with JW
+    "lev_abs": lambda: cl.LevenshteinAtThresholds("street_name", [1, 2]).configure(
+        term_frequency_adjustments=True
+    ),
+}
+
+
+def make_settings(model="full", comparator="jw_tf"):
     """'full' uses all five fields; 'address_heavy' drops last_name and
     date_of_birth, mimicking datasets where addresses must carry the
     discriminating weight."""
     comparisons = [
         cl.NameComparison("first_name"),
         cl.LevenshteinAtThresholds("street_number", 1),
-        cl.JaroWinklerAtThresholds("street_name", [0.92, 0.7]).configure(
-            term_frequency_adjustments=True
-        ),
+        STREET_COMPARISONS[comparator](),
     ]
     if model == "full":
         comparisons[1:1] = [
@@ -64,11 +79,11 @@ def prep(df, treat_fn):
     return df
 
 
-def run_one(df_a, df_b, treat_fn, model="full"):
+def run_one(df_a, df_b, treat_fn, model="full", comparator="jw_tf"):
     df_a, df_b = prep(df_a, treat_fn), prep(df_b, treat_fn)
     linker = Linker(
         [df_a, df_b],
-        make_settings(model),
+        make_settings(model, comparator),
         db_api=DuckDBAPI(),
         input_table_aliases=["a", "b"],
     )
