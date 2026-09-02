@@ -1,0 +1,13 @@
+specification,contrast,pct_change,lo,hi
+"primary: step, predicted counts, 18-month knots",cocaine vs synthetic_opioids,1.6288932728449224,-13.838097737051191,19.872376033934415
+"primary: step, predicted counts, 18-month knots",cocaine vs psychostimulants,20.957337030821456,5.608731756148599,38.53662607529537
+reported counts (no pending-investigation adjustment),cocaine vs synthetic_opioids,2.0836730429276473,-13.284829652585339,20.175930695684173
+reported counts (no pending-investigation adjustment),cocaine vs psychostimulants,20.138017726375026,5.072533350247488,37.36361771264747
+step + ramp,cocaine vs synthetic_opioids,-3.478368044650537,-23.93664151505629,22.482435970376848
+step + ramp,cocaine vs psychostimulants,16.620147233247295,-3.91171877540073,41.53920298474978
+dose-response in cumulative vessels struck,cocaine vs synthetic_opioids,-2.338155120273566,-21.792370515703762,21.955313160679623
+dose-response in cumulative vessels struck,cocaine vs psychostimulants,16.94954006545071,-2.5657853713072276,40.373635417929975
+stiffer baseline (30-month knots),cocaine vs synthetic_opioids,-1.6075628719882773,-15.391154242982552,14.421507554803092
+stiffer baseline (30-month knots),cocaine vs psychostimulants,11.14715332896765,-1.286301052263461,25.146659732340115
+wigglier baseline (12-month knots),cocaine vs synthetic_opioids,9.752249030379524,-6.65118349822682,29.03812408802886
+wigglier baseline (12-month knots),cocaine vs psychostimulants,10.061837583745902,-4.396966342412356,26.707360936861345
