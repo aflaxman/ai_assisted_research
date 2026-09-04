@@ -27,32 +27,62 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from matplotlib.ticker import ScalarFormatter, FixedLocator, NullLocator
 from scipy.stats import norm, gaussian_kde, multivariate_normal
 
-CDC = "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles"
+# Pooled cycles: 2017-March 2020 pre-pandemic (P_, weight WTMECPRP, 3.2 yr) and
+# August 2021-August 2023 (_L, weight WTMEC2YR, 2.0 yr). Per NHANES guidance for
+# combining cycles of unequal length, the pooled weight is the cycle MEC weight
+# times (cycle years / total years); total = 3.2 + 2.0 = 5.2.
 os.makedirs("data", exist_ok=True)
-for fname in ("P_LUX.xpt", "P_DEMO.xpt"):
-    dest = os.path.join("data", fname)
-    if not os.path.exists(dest):
-        import requests
-        r = requests.get(f"{CDC}/{fname}", timeout=180); r.raise_for_status()
-        open(dest, "wb").write(r.content)
+SOURCES = {
+    "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles":
+        ["P_LUX.xpt", "P_DEMO.xpt"],
+    "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2021/DataFiles":
+        ["LUX_L.xpt", "DEMO_L.xpt"],
+}
+for base, files in SOURCES.items():
+    for fname in files:
+        dest = os.path.join("data", fname)
+        if not os.path.exists(dest):
+            import requests
+            r = requests.get(f"{base}/{fname}", timeout=180); r.raise_for_status()
+            open(dest, "wb").write(r.content)
+
+TOTAL_YEARS = 5.2
 
 
 def rx(fname, cols):
-    df, _ = pyreadstat.read_xport(os.path.join("data", fname))
+    try:
+        df, _ = pyreadstat.read_xport(os.path.join("data", fname))
+    except UnicodeDecodeError:                      # some _L labels are latin1
+        df, _ = pyreadstat.read_xport(os.path.join("data", fname),
+                                      encoding="latin1")
     return df[cols]
 
 
-df = rx("P_LUX.xpt", ["SEQN", "LUAXSTAT", "LUXSMED", "LUXCAPM"]).merge(
-    rx("P_DEMO.xpt", ["SEQN", "WTMECPRP"]), on="SEQN")
-df = df[(df.LUAXSTAT == 1) & df.LUXSMED.notna() & df.LUXCAPM.notna()
-        & (df.WTMECPRP > 0)].copy()
+def build_cycle(lux_f, demo_f, wcol, years, label):
+    d = rx(lux_f, ["SEQN", "LUAXSTAT", "LUXSMED", "LUXCAPM"]).merge(
+        rx(demo_f, ["SEQN", wcol]), on="SEQN")
+    d = d[(d.LUAXSTAT == 1) & d.LUXSMED.notna() & d.LUXCAPM.notna()
+          & (d[wcol] > 0)].copy()
+    d["w"] = d[wcol] * years / TOTAL_YEARS          # pooled weight
+    d["cycle"] = label
+    return d[["LUXSMED", "LUXCAPM", "w", "cycle"]]
+
+
+df = pd.concat([
+    build_cycle("P_LUX.xpt", "P_DEMO.xpt", "WTMECPRP", 3.2, "2017-2020"),
+    build_cycle("LUX_L.xpt", "DEMO_L.xpt", "WTMEC2YR", 2.0, "2021-2023"),
+], ignore_index=True)
 cap = df.LUXCAPM.values.astype(float)
 lsm = df.LUXSMED.values.astype(float)
-w = df.WTMECPRP.values.astype(float)
+w = df.w.values.astype(float)
 W = w.sum()
-print(f"n = {len(df):,}   sum weights = {W:,.0f}")
+print(f"pooled n = {len(df):,}  ("
+      + ", ".join(f"{c}: {int((df.cycle == c).sum()):,}"
+                  for c in ("2017-2020", "2021-2023")) + ")")
+print(f"sum pooled weights = {W:,.0f}")
 
 
 # --------------------------------------------------------------------------
@@ -141,7 +171,17 @@ for q in (0.90, 0.95):
 PROBS = [0.25, 0.50, 0.75, 0.95]
 C_GAUSS = "#2166ac"     # Gaussian-copula model  (solid)
 C_EMP = "#b2182b"       # empirical density      (dashed)
-C_PTS = "#4d4d4d"
+C_PTS = "#111111"
+
+# Jitter points for DISPLAY ONLY (the fit/contours use the real data): CAP is
+# recorded to 1 dB/m and LSM to 0.1 kPa, so ties band the scatter. Spread each
+# point uniformly within its recording resolution, then re-map to normal scores.
+_rng = np.random.default_rng(42)
+cap_j = cap + _rng.uniform(-0.5, 0.5, len(cap))
+lsm_j = lsm + _rng.uniform(-0.05, 0.05, len(lsm))
+z_cap_disp = norm.ppf(np.clip(np.interp(cap_j, cap_vals, cap_u), 1e-4, 1 - 1e-4))
+z_lsm_disp = norm.ppf(np.clip(np.interp(lsm_j, lsm_vals, lsm_u), 1e-4, 1 - 1e-4))
+PT_KW = dict(s=5, c=C_PTS, alpha=0.16, edgecolors="none", zorder=1)
 
 
 def hdr_levels(dens, cell_area):
@@ -184,7 +224,7 @@ gauss_dens = multivariate_normal(mean=[0, 0], cov=[[1, rho], [rho, 1]]).pdf(pos)
 kde_z = gaussian_kde(np.vstack([z_cap, z_lsm]), weights=w)
 emp_dens = kde_z(np.vstack([Xz.ravel(), Yz.ravel()])).reshape(Xz.shape)
 
-ax.scatter(z_cap, z_lsm, s=6, c=C_PTS, alpha=0.10, edgecolors="none", zorder=1)
+ax.scatter(z_cap_disp, z_lsm_disp, **PT_KW)
 draw_prob_contours(ax, Xz, Yz, gauss_dens, C_GAUSS, "solid")
 draw_prob_contours(ax, Xz, Yz, emp_dens, C_EMP, "dashed")
 ax.axhline(0, color="0.85", lw=0.8, zorder=0)
@@ -200,7 +240,10 @@ ax.legend(handles=[
     Line2D([], [], color=C_GAUSS, lw=2, label="Gaussian copula (bivariate normal)"),
     Line2D([], [], color=C_EMP, lw=1.8, ls="--", label="empirical density (2-D KDE)")],
     loc="upper left", fontsize=9, framealpha=0.9)
-fig.tight_layout()
+fig.text(0.01, 0.005, "points jittered within recording resolution "
+         "(CAP ±0.5 dB/m, LSM ±0.05 kPa) for display; fit uses raw data",
+         fontsize=7.5, color="0.45")
+fig.tight_layout(rect=[0, 0.02, 1, 1])
 fig.savefig("fig10_copula_probit.png", dpi=130)
 plt.close(fig)
 print("\nwrote fig10_copula_probit.png")
@@ -231,7 +274,7 @@ kde_xy = gaussian_kde(np.vstack([cap, lsm]), weights=w)
 emp_data = kde_xy(np.vstack([Xd.ravel(), Yd.ravel()])).reshape(Xd.shape)
 
 fig, ax = plt.subplots(figsize=(9, 8))
-ax.scatter(cap, lsm, s=6, c=C_PTS, alpha=0.10, edgecolors="none", zorder=1)
+ax.scatter(cap_j, lsm_j, **PT_KW)
 draw_prob_contours(ax, Xd, Yd, gauss_data, C_GAUSS, "solid")
 draw_prob_contours(ax, Xd, Yd, emp_data, C_EMP, "dashed")
 # reference lines linking to the fibrosis / steatosis analysis
@@ -240,9 +283,13 @@ for t in (6, 8, 10, 15):
 ax.axvline(288, color="0.85", lw=0.7, zorder=0)
 ax.text(392, 15.3, "F4", fontsize=7, color="0.5", ha="right")
 ax.text(290, 27.3, "CAP 288", fontsize=7, color="0.5")
+ax.set_yscale("log")   # spread the crowded low-LSM region for easier comparison
 ax.set_xlim(CAP_LO, CAP_HI); ax.set_ylim(LSM_LO, LSM_HI)
+ax.yaxis.set_major_locator(FixedLocator([2, 3, 4, 5, 6, 8, 10, 15, 20, 28]))
+ax.yaxis.set_major_formatter(ScalarFormatter())
+ax.yaxis.set_minor_locator(NullLocator())
 ax.set_xlabel("median CAP (dB/m)")
-ax.set_ylabel("median LSM (kPa)")
+ax.set_ylabel("median LSM (kPa, log scale)")
 ax.set_title("Gaussian copula in CAP / LSM units\n"
              f"points = observed (n={len(df):,});  KDE margins × Gaussian "
              "dependence  (survey-weighted)", fontweight="bold")
@@ -250,7 +297,105 @@ ax.legend(handles=[
     Line2D([], [], color=C_GAUSS, lw=2, label="Gaussian copula (KDE margins)"),
     Line2D([], [], color=C_EMP, lw=1.8, ls="--", label="empirical joint density (2-D KDE)")],
     loc="upper right", fontsize=9, framealpha=0.9)
-fig.tight_layout()
+fig.text(0.01, 0.005, "points jittered within recording resolution "
+         "(CAP ±0.5 dB/m, LSM ±0.05 kPa) for display; fit uses raw data",
+         fontsize=7.5, color="0.45")
+fig.tight_layout(rect=[0, 0.02, 1, 1])
 fig.savefig("fig11_copula_capunits.png", dpi=130)
 plt.close(fig)
 print("wrote fig11_copula_capunits.png")
+
+# ==========================================================================
+# FIGURE 12: presentation slide version (16:9, big text, LSM capped at 15 to
+#            show all of F3, bold fibrosis-stage bands, and the survey-weighted
+#            share of participants in each CAP-side x fibrosis-band region).
+# ==========================================================================
+Y_MAX = 15.0
+# fibrosis-stage bands on LSM (severity ramp): name, range label, lo, hi, fill, ink
+BANDS = [("F0", "< 6 kPa", 2.0, 6.0, "#dcedc8", "#33691e"),
+         ("F1", "6–8 kPa", 6.0, 8.0, "#fff3c4", "#8d6e00"),
+         ("F2", "8–10 kPa", 8.0, 10.0, "#ffe0b2", "#bf560a"),
+         ("F3", "10–15 kPa", 10.0, Y_MAX, "#ffcdd2", "#b71c1c")]
+
+# survey-weighted share of participants in each region (CAP side x fibrosis band)
+edges = [0, 6, 8, 10, 15, np.inf]
+names5 = ["F0", "F1", "F2", "F3", "F4"]
+band_of = np.array(names5)[np.searchsorted(edges, lsm, side="right") - 1]
+cap_hi = cap >= 288
+region_pct = {(side, b): w[(msk) & (band_of == b)].sum() / W * 100
+              for side, msk in (("lo", ~cap_hi), ("hi", cap_hi))
+              for b in names5}
+print("\nWeighted % of participants by region (CAP side x fibrosis band):")
+for b in names5:
+    print(f"  {b}: CAP<288 {region_pct[('lo', b)]:4.1f}%   "
+          f"CAP≥288 {region_pct[('hi', b)]:4.1f}%")
+
+
+def draw_slide_contours(ax, X, Y, dens, color, ls, lw):
+    cell = (X[0, 1] - X[0, 0]) * (Y[1, 0] - Y[0, 0])
+    lv = hdr_levels(dens, cell)
+    levels = sorted(set(round(v, 12) for v in lv.values()))
+    cs = ax.contour(X, Y, dens, levels=levels, colors=color,
+                    linestyles=ls, linewidths=lw, zorder=4)
+    lab = {v: f"{int(p*100)}%" for p, v in lv.items()}
+    ax.clabel(cs, fmt=lambda v: lab.get(round(v, 12), ""), fontsize=12)
+    return cs
+
+
+fig, ax = plt.subplots(figsize=(13.33, 7.5))
+# fibrosis bands + bold LEFT-edge labels + region-share numbers
+for name, rng, lo, hi, fill, txt in BANDS:
+    yc = np.sqrt(lo * hi)                            # band center on log axis
+    ax.axhspan(lo, hi, color=fill, alpha=0.7, zorder=0)
+    ax.text(103, yc, f"{name}\n{rng}", ha="left", va="center",
+            fontsize=14, fontweight="bold", color=txt, zorder=6,
+            bbox=dict(boxstyle="round,pad=0.25", facecolor="white",
+                      edgecolor=txt, alpha=0.9))
+    for side, xpos in (("lo", 212), ("hi", 344)):    # CAP<288 vs CAP>=288
+        ax.text(xpos, yc, f"{region_pct[(side, name)]:.0f}%", ha="center",
+                va="center", fontsize=13, fontweight="bold", color="#1a1a1a",
+                zorder=6, bbox=dict(boxstyle="round,pad=0.2", facecolor="white",
+                                    edgecolor=txt, alpha=0.85))
+for t in (6, 8, 10):
+    ax.axhline(t, color="0.35", lw=1.2, zorder=1)
+
+ax.scatter(cap_j, lsm_j, s=5, c=C_PTS, alpha=0.13, edgecolors="none", zorder=2)
+ax.axvline(288, color="0.35", lw=1.4, ls=":", zorder=3)
+# CAP>=288 label moved to the BOTTOM (was overlapping the top boundary/text)
+ax.text(293, 2.15, "CAP ≥ 288 (steatosis) →", fontsize=12.5, color="0.25",
+        style="italic", ha="left", va="bottom", zorder=6)
+ax.text(283, 2.15, "← below 288", fontsize=12.5, color="0.25",
+        style="italic", ha="right", va="bottom", zorder=6)
+draw_slide_contours(ax, Xd, Yd, gauss_data, C_GAUSS, "solid", 3.0)
+draw_slide_contours(ax, Xd, Yd, emp_data, C_EMP, "dashed", 2.8)
+
+ax.set_yscale("log")
+ax.set_xlim(CAP_LO, CAP_HI); ax.set_ylim(LSM_LO, Y_MAX)
+ax.yaxis.set_major_locator(FixedLocator([2, 3, 4, 5, 6, 8, 10, 15]))
+ax.yaxis.set_major_formatter(ScalarFormatter())
+ax.yaxis.set_minor_locator(NullLocator())
+ax.tick_params(axis="both", labelsize=15)
+ax.set_xlabel("Median CAP  (dB/m)  — steatosis marker", fontsize=17)
+ax.set_ylabel("Median LSM  (kPa, log scale)", fontsize=17)
+ax.legend(handles=[
+    Line2D([], [], color=C_GAUSS, lw=3, label="Gaussian copula"),
+    Line2D([], [], color=C_EMP, lw=2.8, ls="--", label="Empirical density"),
+    Line2D([], [], marker="o", color="none", markerfacecolor=C_PTS,
+           markersize=8, alpha=0.5, label=f"Participants (n={len(df):,})")],
+    loc="upper center", ncol=3, fontsize=13, framealpha=0.95)
+fig.suptitle("Joint distribution of CAP and liver stiffness: "
+             "Gaussian copula vs. empirical", fontsize=21, fontweight="bold")
+ax.set_title(f"NHANES 2017–2020 + 2021–2023, survey-weighted    ·    "
+             f"Gaussian ρ = {rho:.2f}, but empirical adds upper-tail dependence",
+             fontsize=13.5, color="0.3")
+fig.text(0.5, 0.032, "Boxed % = survey-weighted share of participants in each "
+         "region (CAP side × fibrosis band).", fontsize=10, color="0.45",
+         ha="center")
+fig.text(0.5, 0.008, f"F4 (≥15 kPa) is above the axis: "
+         f"{region_pct[('lo','F4')]:.1f}% below / {region_pct[('hi','F4')]:.1f}% "
+         "above CAP 288.    Curve labels 25/50/75/95% = probability contours.",
+         fontsize=10, color="0.45", ha="center")
+fig.tight_layout(rect=[0, 0.06, 1, 0.955])
+fig.savefig("fig12_copula_slide.png", dpi=150)
+plt.close(fig)
+print("wrote fig12_copula_slide.png")
