@@ -76,7 +76,8 @@ uv run python fit_model.py
 | `extract_embeddings.py` | M2 — boundaries → Sentinel-2 → per-unit embeddings |
 | `fit_model.py` | M3 — ridge/GBM + 5-fold/LOO/leave-one-region eval |
 | `movement.py`, `build_notebook.py`, `animal_movement_demo.ipynb` | bonus demo — OlmoEarth for animal-movement models |
-| `outputs/` | `embeddings.csv`, `m3_results.json`, `m1_smoke_test.log`, `figure.png`, `animal_movement_figure.png` |
+| `dhs.py`, `build_dhs_notebook.py`, `dhs_displacement_demo.ipynb` | bonus demo — DHS geo-displacement + buffer remedy |
+| `outputs/` | `embeddings.csv`, `m3_results.json`, `m1_smoke_test.log`, `figure.png`, `animal_movement_figure.png`, `dhs_displacement_figure.png` |
 | `FEASIBILITY.md` | M4 — the deliverable: GO/NO-GO memo |
 
 ## Bonus demo — animal movement (`animal_movement_demo.ipynb`)
@@ -113,6 +114,45 @@ export CURL_CA_BUNDLE=/root/.ccr/ca-bundle.crt GDAL_HTTP_PROXY="$HTTPS_PROXY"  #
 uv run --group notebook python build_notebook.py          # assemble the .ipynb
 uv run --group notebook jupyter nbconvert --to notebook --execute --inplace \
   --ExecutePreprocessor.timeout=900 animal_movement_demo.ipynb   # run it (~3 min, BASE)
+```
+
+## Bonus demo — DHS geo-displacement (`dhs_displacement_demo.ipynb`)
+
+DHS scrambles cluster GPS for confidentiality (urban 0–2 km, rural 0–5 km, 1% of
+rural up to 10 km). This notebook measures what that costs an OlmoEarth covariate,
+and what recovers it — a design check before touching restricted DHS data.
+
+![DHS displacement demo: latent outcome + displacement, R² vs displacement, head comparison](outputs/dhs_displacement_figure.png)
+
+It embeds a dense grid over a **real** Sentinel-2 window, drops **synthetic**
+survey clusters whose outcome is a latent landscape factor the embedding captures
+by construction, applies DHS-style displacement, and compares covariates:
+
+- **Displacement attenuates the point covariate hard:** CV R² falls from ~0.74
+  (no displacement) toward ~0 by 2 km.
+- **A displacement-matched buffer is a partial remedy:** it helps mostly once
+  displacement exceeds the chip footprint (~0.6 km) and itself fades as the buffer
+  grows — a resolution-for-robustness trade, not a cure for 5–10 km rural.
+- **A supervised-bottleneck MLP head overfits** at this label count; a regularized
+  linear head on the buffer is the sane default.
+
+> ⚠️ Clusters and outcome are **synthetic** (the landscape is real). The
+> latent-factor target makes "the embedding encodes the outcome" true by design to
+> isolate the *displacement* effect — the *relative* comparison (point vs. buffer
+> vs. areal aggregation) is what transfers to real DHS.
+
+The notebook also lays out the design menu — buffering/kernel integration,
+multiple-instance learning, **areal aggregation** (displacement stays within
+admin-2, so admin-level prediction averages it out — what the main spike does),
+and semi-supervised autoencoders — and clarifies when adapting OlmoEarth counts as
+fine-tuning. Reproduce:
+
+```bash
+uv sync --group notebook
+export CURL_CA_BUNDLE=/root/.ccr/ca-bundle.crt GDAL_HTTP_PROXY="$HTTPS_PROXY"  # proxy only
+uv run --group notebook python build_dhs_notebook.py
+uv run --group notebook jupyter nbconvert --to notebook --execute --inplace \
+  --ExecutePreprocessor.timeout=1200 dhs_displacement_demo.ipynb
 ```
 
 ## Key facts (measured on 4-vCPU / 15 GB / no-GPU)
