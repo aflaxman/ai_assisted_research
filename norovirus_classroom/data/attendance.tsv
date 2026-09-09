@@ -1,0 +1,12 @@
+day	weekday	present	enrolled	absent
+1	Mon	20	28	8
+2	Tue	16	28	12
+3	Wed	14	28	14
+4	Thu	16	28	12
+5	Fri	19	28	9
+6	Sat	NA	28	NA
+7	Sun	NA	28	NA
+8	Mon	23	28	5
+9	Tue	24	28	4
+10	Wed	25	28	3
+11	Thu	NA	28	NA

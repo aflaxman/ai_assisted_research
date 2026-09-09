@@ -1,0 +1,46 @@
+# Fit the classroom norovirus model to nine days of attendance counts.
+#
+# One Bayesian stage (particle Gibbs), started from the priors. With only
+# nine numbers, the priors matter and are written out here on purpose.
+
+output_dir = "results"
+
+[model]
+camdl = "classroom_norovirus.camdl"
+
+[data.observations]
+absent = "data/absent.tsv"
+
+[estimate]
+# Transmission: median R0 ~ 2 (beta ~ 2/day with a 1-day infectious window),
+# 95% prior range roughly 0.3 to 14.
+beta   = { start = 2.0, prior = { log_normal = { mu = 0.69, sigma = 1.0 } } }
+# Days home after getting sick: median 3, 95% range roughly 1.7 to 5.4.
+d_home = { start = 3.0, prior = { log_normal = { mu = 1.10, sigma = 0.30 } } }
+# Starting state on day 1: uniform over the model's declared ranges (the
+# record starts mid-outbreak, so we really don't know).
+i0     = { start = 4.0, prior = { uniform = {} } }
+h0     = { start = 6.0, prior = { uniform = {} } }
+# Background absences per day: US elementary schools run about 5-8% daily
+# absence, i.e. 1.4-2.2 kids out of 28. Median 1.5, 95% range ~0.6 to 4.
+a0     = { start = 1.5, prior = { log_normal = { mu = 0.41, sigma = 0.50 } } }
+
+[fixed]
+# Infectious-at-school window: norovirus incubates 12-48 h. Held at 1 day.
+d_school = 1.0
+
+[stages.posterior]
+algorithm = "pgas"
+backend   = "chain_binomial"
+chains    = 4
+particles = 500
+sweeps    = 12000
+burn_in   = 2000
+init      = "from_prior"
+# The day-1 head counts (i0, h0) are whole kids, so the likelihood is a
+# staircase in them and gradient-based NUTS diverges. Use plain
+# Metropolis-within-Gibbs for the parameter step instead.
+use_nuts  = false
+
+[config]
+dt = 0.25

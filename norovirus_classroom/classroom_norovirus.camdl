@@ -1,0 +1,92 @@
+#' Norovirus in one elementary-school classroom (28 students).
+#'
+#' A stochastic compartmental model fit to nine days of attendance counts
+#' from a class of 28 during a December 2024 norovirus outbreak. The only
+#' data are how many kids showed up each school day.
+#'
+#' Four boxes, in the order a kid moves through them:
+#'
+#'   S  susceptible         at school, healthy
+#'   I  infectious          at school, infected but not yet sick (norovirus
+#'                          incubates 12-48 h); this is who spreads it
+#'   H  home sick           absent; vomiting/diarrhea, then kept home until
+#'                          symptom-free (typical school rule: 24-48 h)
+#'   R  recovered           back at school, immune for this outbreak
+#'
+#' We never see S, I or R. We see absences, and absences = H plus the kids
+#' who are out for ordinary reasons (dentist, travel, a cold). The
+#' observation model adds that background.
+
+time_unit = 'days
+
+compartments { S, I, H, R }
+let N = S + I + H + R
+
+parameters {
+  #' transmission rate at school: contacts per day x chance of passing it on
+  #' @symbol β
+  beta     : rate in [0.05, 10.0]
+  #' days a kid is infectious at school before getting sick and going home
+  #' (norovirus incubation is 12-48 h)
+  d_school : duration in [0.5 'days, 2.0 'days]
+  #' days a sick kid stays home (1-3 days ill + a "24 h symptom-free" rule)
+  d_home   : duration in [1.0 'days, 6.0 'days]
+  #' kids infectious at school on day 1 (the record starts mid-outbreak)
+  i0       : count in [0.1, 12.0]
+  #' kids already home sick on day 1
+  h0       : count in [0.1, 12.0]
+  #' background absences per day unrelated to the outbreak
+  a0       : count in [0.1, 6.0]
+}
+
+# No school on the weekend, so no transmission on days 6 and 7 (Sat, Sun).
+# Day 1 is a Monday; the pattern repeats every 7 days. Recovery keeps going.
+forcing {
+  school : periodic 'ratio {
+    period = 7 'days
+    step   = 1 'days
+    on     = [1 'days : 5 'days]   # both ends included: Mon..Fri
+  }
+}
+
+transitions {
+  infection : S --> I @ beta * school(t) * S * I / N
+  sick      : I --> H @ I / d_school
+  recover   : H --> R @ H / d_home
+}
+
+init {
+  S = 28.0 - i0 - h0
+  I = i0
+  H = h0
+}
+
+# Attendance is taken once a day. "absent" is a snapshot of who is home,
+# not a flow, so the projection reads the H box directly. Weekend rows and
+# the unreadable Thursday are NA in the data file: a hole, not a zero.
+observations {
+  absent {
+    columns       { time : time, absent : count }
+    projected     = H + a0
+    emit_schedule = every 1 'days
+    absent        ~ poisson(rate = projected)
+  }
+}
+
+quantities {
+  #' basic reproduction number: infections per infectious kid in a fully
+  #' susceptible class = beta x days infectious at school
+  R0            = final(beta * d_school)
+  #' fraction of the class infected by the end (everyone who left S, plus
+  #' those already infected on day 1)
+  attack_rate   = final((28.0 - S) / 28.0)
+  #' most kids home sick on any one day
+  peak_home     = max(H)
+  #' kids still infectious at school after the last observation
+  still_at_risk = final(I)
+}
+
+simulate {
+  from = 1 'days
+  to   = 15 'days
+}

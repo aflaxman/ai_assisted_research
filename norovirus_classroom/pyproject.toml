@@ -1,0 +1,9 @@
+[project]
+name = "norovirus-classroom"
+version = "0.1.0"
+description = "camdl model of a norovirus outbreak in one elementary-school classroom"
+requires-python = ">=3.11"
+dependencies = [
+    "matplotlib>=3.9",
+    "pandas>=2.2",
+]

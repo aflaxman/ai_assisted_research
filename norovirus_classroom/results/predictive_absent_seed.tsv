@@ -1,0 +1,27 @@
+scenario	time	horizon	treatment	fit_rhat_max	fit_ess_min	rhat_mean	ess_mean	rhat_pred	ess_pred	n_draws	q05	q25	q50	q75	q95
+fitted	1	free_forward	posterior	1.0009	3005.5	0.9981	433.8	0.9975	370.8	400	1	4	8	14	22
+fitted	2	free_forward	posterior	1.0009	3005.5	0.9976	417.4	1.0020	412.2	400	1	4	7	12	19
+fitted	3	free_forward	posterior	1.0009	3005.5	0.9989	392.0	0.9991	387.9	400	1	3	7	11	17
+fitted	4	free_forward	posterior	1.0009	3005.5	1.0009	320.2	1.0010	334.1	400	1	3	7	11	17
+fitted	5	free_forward	posterior	1.0009	3005.5	1.0017	344.8	1.0022	358.8	400	1	3	6	11	19
+fitted	6	free_forward	posterior	1.0009	3005.5	0.9998	358.5	0.9979	344.3	400	1	2	5	10	18
+fitted	7	free_forward	posterior	1.0009	3005.5	0.9991	349.0	0.9997	334.2	400	1	2	4	9	16
+fitted	8	free_forward	posterior	1.0009	3005.5	1.0002	352.8	0.9978	425.4	400	1	2	4	7	13
+fitted	9	free_forward	posterior	1.0009	3005.5	1.0017	366.3	0.9957	345.4	400	0	2	4	6	11
+fitted	10	free_forward	posterior	1.0009	3005.5	1.0009	372.3	1.0005	390.4	400	0	2	3	6	10
+fitted	11	free_forward	posterior	1.0009	3005.5	0.9998	364.6	0.9961	420.3	400	0	1	3	5	8
+fitted	12	free_forward	posterior	1.0009	3005.5	0.9970	380.5	1.0022	410.6	400	0	1	3	4	8
+fitted	13	free_forward	posterior	1.0009	3005.5	0.9967	384.6	0.9996	390.3	400	0	1	2	4	7
+fitted	14	free_forward	posterior	1.0009	3005.5	0.9991	381.7	1.0052	389.3	400	0	1	2	4	6
+fitted	15	free_forward	posterior	1.0009	3005.5	1.0010	376.9	1.0048	351.6	400	0	1	2	3	6
+fitted	1	one_step	posterior	1.0009	3005.5					400	1	5	10	15	23
+fitted	2	one_step	posterior	1.0009	3005.5					400	2	5	8	12	18
+fitted	3	one_step	posterior	1.0009	3005.5					400	4	7	10	13	19
+fitted	4	one_step	posterior	1.0009	3005.5					400	5	8	11	15	21
+fitted	5	one_step	posterior	1.0009	3005.5					400	4	8	11	14	20
+fitted	6	one_step	posterior	1.0009	3005.5					400	3	6	9	12	17
+fitted	7	one_step	posterior	1.0009	3005.5					400	2	5	7	10	16
+fitted	8	one_step	posterior	1.0009	3005.5					400	2	4	6	9	14
+fitted	9	one_step	posterior	1.0009	3005.5					400	1	3	5	7	10
+fitted	10	one_step	posterior	1.0009	3005.5					400	1	2	4	5	8
+fitted	11	one_step	posterior	1.0009	3005.5					400	0	2	3	5	7

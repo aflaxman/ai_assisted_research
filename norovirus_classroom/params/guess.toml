@@ -1,0 +1,8 @@
+# Hand-picked starting point for a first look, before any fitting.
+# R0 = beta * d_school = 2.5
+beta     = 2.5
+d_school = 1.0
+d_home   = 3.0
+i0       = 4.0
+h0       = 6.0
+a0       = 2.0

@@ -1,0 +1,72 @@
+#' Companion to classroom_norovirus.camdl: the same four boxes, but instead
+#' of guessing how many kids were already infected on day 1, assume the
+#' outbreak began with ONE infectious kid at school on some earlier day
+#' (t_seed, negative = before the record starts) and let the data say when.
+#'
+#' This trades one kind of assumption (a free head count on day 1) for
+#' another (a single introduction, then classroom spread only). Under this
+#' assumption the speed of the rise and the size of the outbreak both
+#' depend on R0, so R0 becomes much better determined. Compare the two
+#' R0 posteriors and ask which assumption you believe.
+
+time_unit = 'days
+
+compartments { S, I, H, R }
+let N = S + I + H + R
+
+parameters {
+  #' transmission rate at school
+  beta     : rate in [0.05, 10.0]
+  #' days infectious at school before going home sick
+  d_school : duration in [0.5 'days, 2.0 'days]
+  #' days a sick kid stays home
+  d_home   : duration in [1.0 'days, 6.0 'days]
+  #' background absences per day unrelated to the outbreak
+  a0       : count in [0.1, 6.0]
+  #' day the first infectious kid came to school (day 1 = the Monday the
+  #' attendance record starts; day -6 = the Monday before)
+  t_seed   : instant in [-13.0 'days, 0.0 'days]
+}
+
+forcing {
+  school : periodic 'ratio {
+    period = 7 'days
+    step   = 1 'days
+    on     = [1 'days : 5 'days]   # Mon..Fri (day 8 = Mon again, etc.)
+  }
+}
+
+transitions {
+  infection : S --> I @ beta * school(t) * S * I / N
+  sick      : I --> H @ I / d_school
+  recover   : H --> R @ H / d_home
+}
+
+# One kid becomes infectious at school on day t_seed (moved S -> I).
+events {
+  introduction : transfer(count = 1, from = S, to = I) at [t_seed]
+}
+
+init {
+  S = 28.0
+}
+
+observations {
+  absent {
+    columns       { time : time, absent : count }
+    projected     = H + a0
+    emit_schedule = every 1 'days
+    absent        ~ poisson(rate = projected)
+  }
+}
+
+quantities {
+  R0          = final(beta * d_school)
+  attack_rate = final((28.0 - S) / 28.0)
+  peak_home   = max(H)
+}
+
+simulate {
+  from = -14 'days
+  to   = 15 'days
+}

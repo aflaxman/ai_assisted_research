@@ -1,0 +1,39 @@
+# Companion fit: one seed kid on an unknown earlier day (see
+# classroom_norovirus_seed.camdl). Same data, same priors on beta, d_home
+# and a0 as fit.toml; the two day-1 head counts are replaced by t_seed.
+
+output_dir = "results"
+
+[model]
+camdl = "classroom_norovirus_seed.camdl"
+
+[data.observations]
+absent = "data/absent.tsv"
+
+[estimate]
+beta   = { start = 2.0,  prior = { log_normal = { mu = 0.69, sigma = 1.0 } } }
+d_home = { start = 3.0,  prior = { log_normal = { mu = 1.10, sigma = 0.30 } } }
+a0     = { start = 1.5,  prior = { log_normal = { mu = 0.41, sigma = 0.50 } } }
+# Seed day: anywhere in the two weeks before the record, equally likely.
+t_seed = { start = -6.0, prior = { uniform = {} } }
+
+[fixed]
+d_school = 1.0
+
+# Particle marginal Metropolis-Hastings, not PGAS. PGAS updates the
+# parameters conditional on one sampled hidden path, and the seed day is
+# baked into that path (it is the step where S drops by one), so the
+# conditional update carries no information about t_seed and its posterior
+# comes back flat. PMMH scores each proposal with a fresh particle-filter
+# likelihood, which does depend on t_seed. About 3 minutes.
+[stages.posterior]
+algorithm  = "pmmh"
+backend    = "chain_binomial"
+chains     = 4
+particles  = 500
+iterations = 20000
+burn_in    = 4000
+init       = "from_prior"
+
+[config]
+dt = 0.25

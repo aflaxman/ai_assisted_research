@@ -1,0 +1,6 @@
+.venv/
+results/sims/
+results/fits/
+results/pfilters/
+results/ensembles/
+results/surveys/
