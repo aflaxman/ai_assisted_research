@@ -142,3 +142,112 @@ Apply these timeless writing principles for clarity and impact:
 - Cut filler: "In order to" → "To"; "It should be noted that" → delete
 - Strengthen verbs: "makes use of" → "uses"; "is in violation of" → "violates"
 - Concrete examples: Not "some bugs," but "three directional bias bugs"
+
+## Replicating epidemic-model papers with camdl
+
+[camdl](https://github.com/vsbuffalo/camdl) ([intro](https://vincebuffalo.com/blog/introducing-camdl/))
+is a DSL + compiler + inference stack for stochastic compartmental models
+(OCaml frontend, Rust engine), developed at the Institute for Disease Modeling.
+It is a strong default for replicating compartmental-model papers: the compiler
+dimension-checks every rate, runs are content-addressed and cached, and failure
+modes (particle degeneracy, non-convergence, discretization dependence) are
+diagnosed rather than silent. Two worked replications live in
+`policy_behavioral_camdl/` (behavioral-feedback SIR) and the
+`claude/replicate-paper-camdl-*` branch (Cui 2026 SEIRD + He et al. 2010 measles).
+
+### Install (no sudo, from source)
+
+Not on PATH by default. Rust ships in the base image but OCaml/opam do not, so
+build from source — takes ~15–25 min (OCaml 5.2.0 compiler + vendored nlopt +
+Rust engine):
+
+```bash
+git clone --depth 1 https://github.com/vsbuffalo/camdl   # public; reachable via proxy
+cd camdl && NO_SANDBOX=1 ./install.sh                     # → ~/.local/bin/camdl
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+Run it in the background and keep working; the binary appears before `make test`
+finishes. Prereqs (make, git, curl, tar, cmake ≥ 3.13) are already present.
+
+### DSL structure
+
+A `.camdl` model file has these blocks (see `docs/dsl-cheatsheet.md` and
+`docs/camdl-language-spec.md` in a clone — read the cheatsheet first):
+
+```camdl
+time_unit = 'days                      # 'weeks/'months/'years; add origin=date(...) to anchor
+compartments { S, I, R }
+let N = S + I + R                       # let CAN reference state, params, forcings, covariates
+parameters { beta : rate in [0.1,1.5]  # kinds: rate probability count positive real duration instant
+             rho  : probability in [0,1] }
+forcing { policy : interpolated 'ratio { data="p.tsv" time_col="time" value_col="policy" method=linear } }
+transitions { infection : S --> I @ beta * S * I / N        # rate must be dimension P·T⁻¹ (E300)
+              recovery  : I --> R @ gamma * I }
+init { S = N0 - i0 ; I = i0 ; R = 0 }
+observations { cases { columns { time:time, cases:count }
+                       projected = incidence(infection)      # or a compartment
+                       emit_schedule = every 1 'days
+                       cases ~ poisson(rate = projected + 0.001) } }   # also normal/neg_binomial/beta/beta_binomial
+quantities { R0 = final(beta/gamma) ; peak_day = time_of_max(I) }      # derived, non-scored
+simulate { from = 0 'days ; to = 120 'days }
+```
+
+Units are first-class: literals carry them (`5 'days`, `0.1 'per_day`,
+`100 'count`, `1.0 'ratio`), and the checker rejects dimensionally wrong rates.
+Synthetic/textbook models stay **unanchored** (no `origin`, bare numeric times);
+real-calendar data uses `origin = date(...)` with `time_unit = 'days`/`'weeks`.
+
+### Expressing behavioral / time-varying / noisy dynamics
+
+- **Time-varying covariate** (policy, seasonality, births): a `forcing` block —
+  `interpolated` from a tsv, `periodic`, or `sinusoidal`; reference as `name(t)`.
+  A forcing can take a `lag` (duration). Bake smooth ramps (e.g. delayed
+  behavioral adaptation) into the covariate itself — rate expressions cannot
+  introduce auxiliary ODE state.
+- **State-dependent feedback** (alarm/behavior responding to prevalence): inline
+  a function of the compartment in the rate, or via a `let` — e.g. a Hill term
+  `endog_delta / (1 + (x0/(I + 1 'count))^nu)`. Prevalence `I` is a natural
+  ~`1/gamma`-day smoother of recent incidence, so it stands in for
+  moving-average-incidence inputs while staying fittable.
+- **Process noise / heterogeneity**: wrap a rate in `overdispersed(rate, sigma2)`
+  for Gamma noise on the force of infection (σ² dimensionless, E308). This is the
+  idiomatic way to model heterogeneous compliance / extra-demographic noise.
+- **Reactive policies** (`reactive_interventions {}` with `when sum_observed(...)`)
+  read observed incidence over a window — but they run in **forward simulation
+  only** and error under inference. For a *fittable* behavior-responds-to-cases
+  model, use the prevalence-driven `let` form instead.
+- **Non-exponential dwell times**: `E --> I via erlang(stages=3, rate=sigma)` or
+  `via hyper_erlang(branch(...), ...)`. `stages` is a structural literal (not
+  fittable); `mean`/`rate` are.
+
+### Workflow (commands)
+
+```bash
+camdl check model.camdl                                    # compile: units + dimensions
+camdl simulate model.camdl --params p.toml --backend chain_binomial --dt 1.0 \
+      --seed 42 --obs-only cases.tsv                        # synthetic observed series
+      # --param name=val overrides; --replicates N ensemble; -o traj.tsv = state path
+camdl fit run fit.toml --label run --seed 3                 # staged: if2 scout → pgas posterior
+camdl fit summary results/fits/<dir>/                       # R-hat, gate verdict, MLE table
+camdl fit predict --fit <dir> --stream cases                # predicted-vs-observed ribbon
+camdl simulate model.camdl --draws posterior --fit <dir> -n 300 --obs-only pp.tsv
+camdl survey model.camdl --fit fit.toml                     # LHS identifiability landscape
+```
+
+A `fit.toml` declares `[model]`, `[data.observations]`, `[estimate]` (per-param
+`bounds`/`start`/`prior`; `ivp=true` for initial-value params), `[fixed]`, and
+`[stages.*]` (`algorithm`, `backend`, `chains`, `particles`, `iterations`/`sweeps`).
+Posterior draws land at `results/fits/<dir>/**/draws.tsv`.
+
+### Practical gotchas
+
+- The complete-data likelihood is very informative for large populations, so
+  posteriors are sharp — a hand-rolled Metropolis needs proposals scaled to the
+  MLE SEs or it sits at 0% acceptance (camdl's PGAS avoids this).
+- Under-resourced particle filters get killed by an ESS-collapse watchdog with an
+  actionable message (more particles / tighter bounds); the convergence gate
+  fails small scout fits (R̂ threshold + decibans) rather than passing them.
+- When the full paper is paywalled, replicate the framework in camdl on
+  simulated data (parameter recovery + the paper's qualitative claims), and say
+  so plainly — same honesty rule as the Python replications above.
