@@ -69,8 +69,8 @@ maternal mortality rate is 0.91 per 1,000 in both.
 | Indirect, both frames combined | 609 | |
 | Sibling histories, same survey, 5-year window, pregnancy-related | 376 | 302–450 |
 | Sibling histories, 7-year window, pregnancy-related | 420 | 355–486 |
-| Sibling histories, 7-year window, excluding accidents and violence | 391 | 329–453 |
-| NDHS 2018 published, sibling histories, 7 years | 512 | 447–578 |
+| Sibling histories, 7-year window, NDHS 2018 MMR definition (42 days, excluding accidents and violence) | 369 | 308–430 |
+| NDHS 2018 published MMR, sibling histories, 7 years | 512 | 447–578 |
 | MMEIG 2023 (published 2025) | 993 | |
 | GBD 2023, years 2021 to 2023, read from IHME slides | 385–405 | |
 
@@ -87,6 +87,12 @@ the household roster, with the shortfall concentrated at ages 40 to 49, and a
 pregnancy-related ratio around 400 rather than 580. The 2018 sibling estimate was
 3.18 per 1,000, so the 2024 sibling data imply an implausibly fast decline and most
 likely under-report sister deaths.
+
+**The sibling code is validated.** Run on the 2018 NDHS women's file with a 7-year
+window, it reproduces every published 2018 figure: female mortality 3.18 per 1,000
+(1.59 at ages 15 to 19, 5.86 at 45 to 49), PRMR 556, and MMR 512 with CI 448–577
+against the published 447–578. The published 2018 MMR counts deaths within 42 days
+and excludes accidents and violence; that definition is what the 369 above uses.
 
 **Where the survey lands between GBD and MMEIG.** The household-roster all-cause rate
 for women 15 to 49 agrees with GBD's envelope and is about half of MMEIG's. The

@@ -114,9 +114,16 @@ SIBLING_ITEMS = (1, 2, 4, 8, 9, 12, 16)
 IR_SIBLING_COLS = [f"mm{k}_{i:02d}" for i in range(1, 21) for k in SIBLING_ITEMS]
 
 
-def read_ir(sibling: bool = False) -> pd.DataFrame:
+IR_FILE_2018 = Path(os.environ.get("NDHS_DIR_2018", "/home/j/DATA/DHS_PROG_DHS/NGA/2018")) / \
+    "NGA_DHS7_2018_WN_NGIR7AFL_Y2019M11D05.DTA"  # used to validate the sibling method
+
+
+def read_ir(sibling: bool = False, path: str | Path | None = None) -> pd.DataFrame:
+    """Women's recode with the columns needed for fertility (and, optionally,
+    the sibling module). Defaults to the 2024 NDHS; pass `path` for another
+    round with standard DHS variable names (e.g. IR_FILE_2018)."""
     cols = IR_FERTILITY_COLS + (IR_SIBLING_COLS if sibling else [])
-    return _read(NDHS_DIR / IR_FILE, cols)
+    return _read(Path(path) if path else NDHS_DIR / IR_FILE, cols)
 
 
 def fertility(ir: pd.DataFrame | None = None, window_months: int = WINDOW_MONTHS):
@@ -261,8 +268,10 @@ def sibling_tables(ir: pd.DataFrame, window_months: int = 84):
     d["preg_related"] = d.mm9.isin(PREG_RELATED_CODES)
     d["preg_42d"] = d.mm9.isin(PREG_42DAY_CODES)
     d["maternal_excl_ext"] = d.preg_related & ~d.mm16.isin([1, 2])
+    # NDHS 2018 "maternal death": within 42 days AND not due to violence/accident
+    d["maternal_42d_excl_ext"] = d.preg_42d & ~d.mm16.isin([1, 2])
     deaths = {"all": deaths_table(d, pd.Series(True, index=d.index), "w")}
-    for k in ["preg_related", "preg_42d", "maternal_excl_ext"]:
+    for k in ["preg_related", "preg_42d", "maternal_excl_ext", "maternal_42d_excl_ext"]:
         deaths[k] = deaths_table(d, d[k], "w")
     return exposure, deaths, d
 
