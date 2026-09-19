@@ -1,0 +1,10 @@
+# uv / Python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Never commit microdata extracts (DHS terms of use)
+*.dta
+*.DTA
+*.csv
