@@ -266,10 +266,14 @@ respondent's own two-week consistency is over-fitting to noise.
 
 ### 17. Open-source work this repo invites (this repo's theme)
 
-- **Reimplement the missing `text_simulation/` module** (persona → text,
-  question → prompt, LLM runner, JSON post-processing). Formats are documented;
-  the upstream authors may simply have forgotten to commit it. File an issue
-  first.
+- **Port the simulation module forward.** The mega-study repo lacks
+  `text_simulation/`; an older version lives in
+  `tianyipeng-lab/Digital-Twin-Simulation`. What needs writing is the
+  per-question JSON-stub formatter of supplement S2.3 (plus constant-sum, rank
+  and side-by-side types), a config-driven prompt assembler, and the
+  responses-to-CSV step. The exact prompts and twin outputs for all 13,299
+  person-studies are on Hugging Face, so the port can be regression-tested
+  against them. File an issue upstream first; the authors may have a copy.
 - **An XLSForm/ODK adapter** producing the repo's JSON template format, so WHO
   VA and VASA instruments flow through the same harness as Qualtrics surveys.
   A few hundred lines; unlocks #7–#11.

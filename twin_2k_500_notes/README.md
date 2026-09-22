@@ -1,11 +1,11 @@
-# Twin-2K-500 Mega-Study: what the repo holds, and what it would take to point it at IHME instruments
+# Twin-2K-500 Mega-Study: what the repo holds, where the rest lives, and what it would take to point it at IHME instruments
 
 Notes from reading [TianyiPeng/Twin-2K-500-Mega-Study](https://github.com/TianyiPeng/Twin-2K-500-Mega-Study)
-(commit `afe2bb9`, 2026-06-08) on 2026-09-21, asking: **could this digital-twin
-testbed help design better surveys for disability weights (DW) and verbal and
-social autopsy (VA/SA)?** The ideas are in [MUSINGS.md](MUSINGS.md). This file
-records what the repo and its two papers actually contain, so the musings rest
-on verified facts.
+(commit `afe2bb9`, 2026-06-08) on 2026-09-21, then the paper's Supplementary
+Materials and the two Hugging Face datasets on 2026-09-22, asking: **could this
+digital-twin testbed help design better surveys for disability weights (DW) and
+verbal and social autopsy (VA/SA)?** The ideas are in [MUSINGS.md](MUSINGS.md).
+This file records what exists and where, so the musings rest on verified facts.
 
 ## TL;DR
 
@@ -13,21 +13,25 @@ on verified facts.
   four waves (demographics, 19 personality scales, 11 cognitive measures, economic
   preferences, 16 heuristics-and-biases experiments, a pricing study). A "digital
   twin" is an LLM prompted with one person's full answer history (~128K
-  characters) and asked to answer new questions as that person.
+  characters, ~30K tokens) and asked to answer new questions as that person.
 - **The mega-study** ran 19 pre-registered sub-studies (164 outcomes) on both the
   humans and their twins. Headline: twin-human correlation at the individual
   level averages **r = 0.20**; twins are only modestly better than the same LLM
   with no persona (r = 0.08) or with demographics only (r = 0.15); twin response
   distributions are **under-dispersed in 94% of outcomes**; twins reproduced about
-  **half** of the experimental treatment effects. The final version of the paper
-  is titled *"Digital Twins as Funhouse Mirrors: Five Key Distortions"*
-  (insufficient individuation, stereotyping, representation bias, ideological
-  bias, hyper-rationality).
-- **The repo is a testbed, not a turnkey twin generator.** It ships the 19
-  sub-studies' Qualtrics surveys and human responses, twin outputs for ~440
-  model/prompt specifications, and the evaluation code. The `text_simulation/`
-  module that turns personas into prompts and calls the LLM is referenced
-  everywhere but **is not in the repository** (0 tracked files).
+  **half** of the experimental treatment effects. Published as Peng et al.,
+  *Digital twins are funhouse mirrors: Five systematic distortions*, Science
+  Advances 12, eaeh8260 (2026), doi:10.1126/sciadv.aeh8260 (insufficient
+  individuation, stereotyping, representation bias, ideological bias,
+  hyper-rationality).
+- **Everything needed to build and query the twins is public, but spread over
+  four places** (see "Where each piece lives"): the mega-study GitHub repo, the
+  older `tianyipeng-lab/Digital-Twin-Simulation` GitHub repo, and two Hugging
+  Face datasets. The persona texts, persona summaries, per-study question
+  prompts, human answers, and twin answers are all downloadable. The only
+  code that is not published anywhere is the mega-study-era prompt formatter,
+  the persona-summary generator, and the fine-tuning data prep. All three are
+  re-derivable from published inputs and outputs.
 - **The pipeline is Qualtrics-only** (QSF in, CSV out). I confirmed the QSF parser
   runs on the bundled surveys with three pip dependencies. A WHO VA instrument
   (XLSForm/ODK) would need an adapter.
@@ -40,20 +44,24 @@ on verified facts.
 | Item | Value | Source |
 |---|---|---|
 | Participants completing all four waves | 2,058 (2,509 started wave 1) | dataset paper |
-| Questions in waves 1–3 | ~500 (256 unique question IDs) | HF dataset card |
+| Questions in waves 1–3 | ~500 (256 unique Qualtrics QuestionIDs, 760 CSV columns) | HF question catalog |
 | Persona battery | demographics 14; personality 279 q / 19 scales / 26 constructs; cognitive 85 q / 11 measures; economic preferences 34 q / 10 measures; heuristics & biases 48 q / 16 experiments; pricing 40 q | mega-study paper |
 | Time and pay per participant | ~145 min total, $37 | dataset paper |
 | Wave 4 (two weeks after wave 3) | repeats 88 hold-out questions across 17 tasks (the between- and within-subject experiments and the pricing study) | dataset paper |
 | Human test-retest accuracy (wave 4 vs. waves 1–3) | 81.7% | dataset paper |
 | Twin accuracy on the same hold-outs (GPT-4.1-mini, full text persona) | 71.7%, i.e. 87.7% of the human test-retest ceiling; random guessing 59.2% | dataset paper |
-| Persona formats | full text (~128K chars), JSON, LLM-written summary (~13K chars), demographics-only, empty | repo configs |
-| License | CC BY 4.0 on Hugging Face (`LLM-Digital-Twin/Twin-2K-500`) | HF dataset card |
+| Persona formats | full text (~128.7K chars), JSON (~167K chars), LLM-style summary (~13K chars), demographics-only (prefix of full), empty | HF parquet, verified |
+| License | CC BY 4.0 (panel), Apache-2.0 (mega-study data) | HF dataset cards |
 
 The dataset paper already reported what it called a **hyper-accuracy distortion**:
 twins answered knowledge and normative questions "correctly" where humans did
 not. Examples it gives: 98.8% of twins knew the number of African UN member
 states (eliminating an anchoring effect); 4% of twins refused a vaccine in an
-omission-bias task versus about 45% of humans.
+omission-bias task versus about 45% of humans. The mega-study supplement adds
+sharper ones: twins identified 99.88% of junk-fee definitions correctly versus
+51.75% for humans; 99.9% of twins chose the normative "guesstimate" option
+versus 59.4% of humans; nearly 100% of twins reported that their father
+completed high school.
 
 ## The mega-study in numbers
 
@@ -61,7 +69,9 @@ omission-bias task versus about 45% of humans.
 effects, hiring algorithms, junk fees, misinformation sharing, privacy, story
 beliefs, ...), fielded April–June 2025 to 1,784 of the panelists (13,506
 participant-sessions), and to their twins. Twins were GPT-4.1 with the full text
-persona at temperature 0.7 unless noted.
+persona at temperature 0.7 unless noted. Each human and their twin were assigned
+the same experimental condition; image stimuli were replaced by text
+descriptions for twins.
 
 | Metric (mean over 164 outcomes) | Full persona | Demographics only | Empty persona | Random |
 |---|---|---|---|---|
@@ -74,7 +84,8 @@ Other results worth keeping in mind:
 - Best individual correlation among ~25 specifications: temperature 0
   (r ≈ 0.23). Fine-tuning GPT-4.1 on the panel did not help (r ≈ 0.18–0.19).
   Gemini, GPT-5, DeepSeek land in the same 0.19–0.21 band. Llama and Centaur
-  personas were far worse (r ≈ 0.07).
+  personas were far worse (r ≈ 0.07). The persona summary performs about as
+  well as the full persona at a tenth of the tokens.
 - Twin means differ from human means by 0.35 SD on average; significantly in
   64% of outcomes.
 - Full-persona twins are closer to demographics-only twins (MAD 0.13) and to
@@ -92,58 +103,145 @@ Other results worth keeping in mind:
   option in bounded-rationality tasks (hyper-rationality). They reproduced a
   classic default-effect paradigm but not a novel one, which the authors read
   as training-data leakage.
+- Aggregate rank orders often survive when individual correlation does not:
+  privacy-violation ratings correlated ~0 person by person but the six
+  advertising scenarios ranked the same (Spearman 0.88); targeting-fairness
+  means matched but 63% of twins answered "7" versus 20% of humans.
+- A survey of 68 academics, managers and students predicted the human
+  treatment effects better than the twin ones (supplement S9).
 
 The repo's own `relevance_analysis/` is a nice touch: an LLM pre-scored every
 outcome for how simulable it should be (0–1, with reasoning). Image-based items
 and exogenous facts about the respondent (father's education) scored ~0.2;
 text-driven attitude items scored 0.8–0.9.
 
-## What is in the repository
+## Where each piece lives
 
-| Path | Contents |
-|---|---|
-| `processing_qualtrics_qsf/` | QSF → structured JSON (blocks, randomizers, embedded data, branch logic; MC, matrix, slider, text, rank, constant-sum, side-by-side question types) |
-| `processing_qualtrics_csv/` | Human CSV responses → one JSON per respondent, filled into the template |
-| `configs/<study>/*.yaml` | 492 configs: 19 studies × ~26 specifications (model, temperature, persona variant, reasoning on/off) rendered from `configs/study_template.yaml.j2` |
-| `.dat/<study>/raw_data/` | The 19 sub-studies' `survey.qsf` and anonymized human `response.csv` (16 MB total) |
-| `results/<study>/<spec>_<date>/` | Twin outputs for 438 study × spec runs: `consolidated_llm_values.csv.gz` next to `consolidated_original_answers_values.csv.gz`, same columns, one row per twin/human (213 MB) |
-| `mega_study_evaluation/` | Per-study meta-analysis scripts (converted from notebooks), combined tables in `meta_analysis_results/` |
-| `post_metric_calculation/` | Seven human-vs-twin vector metrics per outcome (correlation, two accuracies, Wasserstein, SD ratio, mean difference, Cohen's d) plus a random benchmark |
-| `prediction_comparison/`, `ml_prediction/` | XGBoost baselines and training-size curves |
-| `fine_tuning/` | OpenAI fine-tuning job scripts (data-prep script is an empty file) |
-| `relevance_analysis/` | LLM-judged simulability score per outcome |
-| `Snakefile`, `scripts/setup_study.py` | Workflow: `process_qsf → process_csv → convert_questions → create_simulation_input → run_llm_simulation → convert_to_csv`; `setup_study.py <name> --qsf ... --csv ...` scaffolds a new study |
-| `download_dataset.py` | Pulls personas, hold-out answer blocks, and raw wave CSVs from Hugging Face |
+Four public locations. GH = GitHub, HF = Hugging Face.
 
-Twin prompts are documented in the configs. System instruction (paraphrased):
-*answer the new survey question as the person described by their past survey
-responses; stay consistent with their answers; account for human cognitive
-limitations, uncertainty, and biases; return JSON in the given schema.* The user
-prompt is `## Persona Profile` + full persona text + `## New Survey Question`.
+| Piece | Where | Status |
+|---|---|---|
+| Human panel answers, raw | HF `LLM-Digital-Twin/Twin-2K-500` → `raw_data/wave_{1..4}_{labels,numbers}_anonymized.csv` | Qualtrics exports, 6–14 MB each |
+| Human panel answers, clean | same → `question_catalog_and_human_response_csv/wave1_3_response{,_label}.csv` (2,058 × 761) and `wave4_response{,_label}.csv` (2,058 × 127) | recommended by the authors for analysis |
+| Question catalog | same → `question_catalog.json` (256 QuestionIDs: text, type, options, rows, columns, settings, block, CSV columns) plus a README reconciling 256 IDs ≈ 500 questions ≈ 760 columns | complete codebook |
+| Scale scores | same → `raw_data/wave {1,2,3} scores.csv` (28, 18, 11 columns: `score_extraversion` … `score_dictator_sender`) | inputs to the persona summary |
+| Panel questionnaires | same → `raw_data/questionnaire/Digital_Twins_-_Wave_{1..4} with flow.docx` | Word documents, **not QSF** |
+| Full persona (text, JSON, summary) | same → `full_persona/chunks/persona_chunk_{001..007}.parquet`, 29 MB each, 294 rows each | `persona_text` mean 128,654 chars; `persona_summary` 13,019; `persona_json` 166,894; verified against the supplement's S3 examples |
+| Train/test split for twin methods | same → `wave_split/chunks/*.parquet`: `wave1_3_persona_{text,json}` (13 blocks, ~95K chars) + `wave4_Q_wave1_3_A` and `wave4_Q_wave4_A` (18 hold-out blocks) | the benchmark the dataset paper used |
+| Twin answers to the wave-4 hold-outs | same → `LLM_simulation_results/` (default GPT-4.1-mini run + 12 specification folders: text/JSON/summary/demographics personas, reasoning, repeating questions, fine-tuned, Gemini Flash 2.5), each with llm-vs-wave1-3-vs-wave4 CSVs and accuracy plots | ready-made benchmark results |
+| The 19 sub-study instruments and human answers | GH mega-study repo `.dat/<study>/raw_data/{survey.qsf,response.csv}`; identical copy on HF `LLM-Digital-Twin/Twin-2K-500-Mega-Study/.dat/` | 16 MB |
+| The exact question prompt each twin saw | HF Mega-Study → `data/<study>-00000-of-00001.parquet`, columns `PID`, `survey_json_with_human_response`, `survey_text` (13,299 rows) | `survey_text` is the rendered "Q1: … Answer: [Masked] … Format Instructions" block, without the persona; verified |
+| Twin answers to the 19 sub-studies | GH mega-study repo `results/<study>/<spec>_<date>/` (438 folders, 213 MB); same content as HF Mega-Study `results.zip` (437 folders, 1.55 GB unzipped, plus `__MACOSX` junk) | `consolidated_llm_{values,labels}`, `consolidated_original_answers_values`, `consolidated_correlations`, `meta analysis{, individual level}.csv` |
+| QSF → JSON parser, CSV → per-respondent JSON | GH mega-study repo `processing_qualtrics_qsf/`, `processing_qualtrics_csv/` | runs; see feasibility check |
+| Persona → text, question → prompt, prompt assembly, LLM runner, post-processing | GH **`tianyipeng-lab/Digital-Twin-Simulation`** (2025-08-04) `text_simulation/`: `convert_persona_to_text.py`, `convert_question_json_to_text.py`, `create_text_simulation_input.py`, `llm_helper.py`, `run_LLM_simulations.py`, `postprocess_responses.py`, `batch_convert_personas.py` | the dataset-paper-era version; **absent from the mega-study repo** |
+| Async batch LLM helper with caching and output verification | PyPI `llm-batch-helper` (0.4.0; mega-study pins 0.2.0), GH `TianyiPeng/LLM_batch_helper` | replaces `llm_helper.py` |
+| Evaluation of wave-4 predictions | both GH repos `evaluation/` (`json2csv.py`, `mad_accuracy_evaluation.py`, …); mega-study adds `evaluation_engine.py`, `generate_full_report.py` | |
+| Meta-analysis over the 19 studies, XGBoost baselines, training-size curves | GH mega-study repo `mega_study_evaluation/`, `ml_prediction/`, `prediction_comparison/`, `post_metric_calculation/` | reproducible from `results/` |
+| Per-block codebook | GH `Digital-Twin-Simulation/docs/` (43 block pages by wave), rendered at digital-twin-simulation-version2.readthedocs.io | |
+| Quick start without any pipeline | GH `Digital-Twin-Simulation/notebooks/demo_simple_simulation.ipynb`: loads `persona_summary` from HF, asks a new question with GPT-4.1-mini at temperature 0 | the fastest route to a DW-module pilot |
+| Prompt templates and persona construction, in prose | Science Advances supplement S2 (full prompt template, example questions, format templates) and S3 (full, summary, demographics, empty personas); S7.2 (fine-tuning recipe) | |
+
+## Persona and prompt formats (from the supplement, verified against the data)
+
+**Full prompt** (S2.1). System instruction: answer the "New Survey Question" as
+the person described in the "Persona Profile"; stay consistent with their past
+answers; account for human cognitive limitations, uncertainty and biases; follow
+formatting instructions. User message: `Persona Profile (This individual's past
+survey responses):` + persona text, then `New Survey Question & Instructions
+(Please respond as the persona described above):` + the questions, then
+`Format Instructions:` with one JSON stub per question:
+
+```
+Q2:
+How important is it to you that your employer actively invests in ...?
+Question Type: Single Choice
+Options:
+  1 - Not at all important
+  ...
+  5 - Extremely important
+Answer: [Masked]
+
+"Q2": {"Question Type": "Single Choice",
+       "Answers": {"SelectedByPosition": Masked,   // a number from 1 to 5
+                   "SelectedText": "Masked"}}      // the option text
+```
+
+The `survey_text` column of the Mega-Study parquet is exactly this block for
+each participant's randomized version of each sub-study.
+
+**Full persona** (S3.1). One entry per question in survey order: question text,
+`Question Type:` (Single Choice, Multiple Choice, Matrix, Text Entry, Slider),
+`Options:` enumerated `1 - text` (Matrix columns as `1 = text`), then `Answer: 2 -
+Female`; Matrix rows are listed `1. Is talkative` each with its own `Answer:`
+line. Where a question was asked in both waves 1–3 and wave 4, the wave-4 answer
+is used. One persona holds 221 question entries and 631 answer lines. The 14
+demographic questions come first, so the demographics persona is a prefix.
+
+**Persona summary** (S3.2). `The following is a description of a person.`, the 14
+demographics as `Label: value` lines, then 35 short sections of scale scores with
+percentile ranks and a one-sentence gloss of each scale (Big Five, need for
+cognition, agency/communion, minimalism, empathy, GREEN, CRT, fluid and
+crystallized intelligence, syllogisms, overconfidence, ultimatum game, mental
+accounting, social desirability, anxiety, individualism/collectivism, financial
+literacy, numeracy, deductive certainty, forward flow, discounting, risk and
+loss aversion, trust game, regulatory focus, tightwad-spendthrift, depression,
+need for uniqueness, self-monitoring, self-concept clarity, need for closure,
+maximization, Wason, dictator game). Wave-4 experiments are excluded. About 3K
+tokens.
+
+**Empty persona**: the literal `[Empty Persona Profile]`.
+
+**Fine-tuning** (S7.2): one training example per participant; user message is
+the whole Twin-2K-500 questionnaire with every `Answer: [Masked]`, assistant
+message is the same text with answers revealed; GPT-4.1, 3 epochs, batch 4,
+learning-rate multiplier 2, 65,536-token limit; no sub-study data used.
+
+## What is still missing
+
+Nothing that blocks use, but four things exist only as outputs or prose:
+
+1. **The mega-study-era prompt code.** The mega-study Snakefile calls
+   `text_simulation/convert_personas_to_text.py`, `question_formatters/*.py`,
+   `llm_batch_helper/*.py`, and `convert_responses_to_csv.py`. None are in that
+   repo. The older `Digital-Twin-Simulation` module covers persona → text and
+   prompt assembly, but its `convert_question_json_to_text.py` emits the older
+   generic format instructions (with an optional `Reasoning` field), not the
+   per-question JSON stubs of S2.3; it handles MC, Matrix, TE, Slider and DB
+   only (the QSF parser also emits constant-sum, rank and side-by-side); and
+   `create_text_simulation_input.py` hard-codes the header and separator that
+   the mega-study configs make configurable (`persona_prompt_header`,
+   `persona_question_prompt_separator`, `empty_persona_prompt`). Since the
+   formatter's outputs for all 13,299 person-studies are on HF, a rewrite can be
+   regression-tested exactly.
+2. **The persona-summary generator.** Inputs (`scores.csv`, percentiles) and
+   outputs (`persona_summary`) are public; the script is not. Needed only to
+   summarize a new panel.
+3. **Fine-tuning data prep.** `fine_tuning/prepare_finetuning_data.py` is an
+   empty file; the recipe is in S7.2.
+4. **Wave 1–4 QSF files.** HF ships Word questionnaires and Qualtrics CSV exports,
+   and `persona_json` is the already-parsed product, so the panel instrument
+   cannot be re-parsed. Not needed unless you want to change the parse.
+
+Also not available to outsiders: the Prolific mapping (anonymized), so only the
+Columbia team can re-field the panel; the expectations-survey data of S9; and
+any health-status items, because none were asked.
 
 ## Gaps and gotchas
 
-1. **`text_simulation/` is missing.** The Snakefile's `convert_questions`,
-   `create_simulation_input`, and `run_llm_simulation` rules call
-   `text_simulation/*.py`, and every config writes there, but the directory is
-   not tracked. The human-side testbed and all evaluation code are reproducible;
-   generating new twin responses is not, as cloned. Reimplementing it is
-   feasible (the formats are documented in `docs/` and the configs), and worth
-   an issue upstream.
-2. **`parse_qsf.py` does not create its output directory.** Snakemake normally
+1. **`parse_qsf.py` does not create its output directory.** Snakemake normally
    does. Run standalone it fails with `FileNotFoundError` until you `mkdir -p`
    the `wave_qsf_json/` folder. One-line fix.
-3. **Qualtrics only.** WHO's 2022 VA instrument ships as an XLSForm for ODK; the
+2. **Qualtrics only.** WHO's 2022 VA instrument ships as an XLSForm for ODK; the
    GBD DW surveys were custom web and household instruments. An XLSForm → the
-   repo's JSON template format adapter is the natural bridge (see MUSINGS #16).
-4. **US, English, online panel.** Representation bias is documented within the
+   repo's JSON template format adapter is the natural bridge (see MUSINGS #17).
+3. **US, English, online panel.** Representation bias is documented within the
    US sample; extrapolating to rural LMIC VA respondents is a different problem
    again.
-5. **Contamination.** GBD disability-weight tables, WHO VA instruments, the PHMRC
+4. **Contamination.** GBD disability-weight tables, WHO VA instruments, the PHMRC
    dataset, InterVA probabilities, and the Tariff paper are all plausibly in
    training data. The mega-study's own default-effect result shows leakage
    inflates apparent fidelity on known paradigms.
-6. **No health-status items in the persona.** Self-rated health, chronic
+5. **No health-status items in the persona.** Self-rated health, chronic
    conditions, disability, caregiving experience: none are asked. Depression
    (wave 2) and anxiety scales are the closest.
 
@@ -164,21 +262,29 @@ intro Block → Randomizer over two scenario arms → Block with a 9-point MC
 paired-comparison item ("Which person do you think is healthier?" with two
 options) is an ordinary MC question in this schema, and randomized pair
 assignment is an ordinary Randomizer. So a DW module authored in Qualtrics would
-flow into this pipeline without parser changes.
+flow into this pipeline without parser changes. For a pilot that skips the
+pipeline entirely, the sibling repo's demo notebook prompts the HF persona
+summaries directly.
 
 ## Sources
 
-- Mega-study paper (final version): Peng, Toubia et al., *Digital Twins as
-  Funhouse Mirrors: Five Key Distortions*, [arXiv:2509.19088](https://arxiv.org/abs/2509.19088)
-  (earlier title: *A Mega-Study of Digital Twins Reveals Strengths, Weaknesses
-  and Opportunities for Further Improvement*).
+- Mega-study paper: Peng, Toubia et al., *Digital twins are funhouse mirrors:
+  Five systematic distortions*, Science Advances 12, eaeh8260 (2026),
+  doi:10.1126/sciadv.aeh8260; preprint [arXiv:2509.19088](https://arxiv.org/abs/2509.19088)
+  (earlier titles: *A Mega-Study of Digital Twins Reveals Strengths, Weaknesses
+  and Opportunities for Further Improvement*; *Digital Twins as Funhouse
+  Mirrors: Five Key Distortions*). Supplementary Materials S1–S10.
 - Dataset paper: Toubia, Gui, Peng, Merlau, Li, Chen, *Twin-2K-500: A dataset
   for building digital twins of over 2,000 people based on their answers to
   over 500 questions*, [arXiv:2505.17479](https://arxiv.org/abs/2505.17479);
-  *Marketing Science* 2025 database report.
-- Dataset: [huggingface.co/datasets/LLM-Digital-Twin/Twin-2K-500](https://huggingface.co/datasets/LLM-Digital-Twin/Twin-2K-500).
+  *Marketing Science* 44, 1446–1455 (2025).
+- Code: [TianyiPeng/Twin-2K-500-Mega-Study](https://github.com/TianyiPeng/Twin-2K-500-Mega-Study),
+  [tianyipeng-lab/Digital-Twin-Simulation](https://github.com/tianyipeng-lab/Digital-Twin-Simulation),
+  [TianyiPeng/LLM_batch_helper](https://github.com/TianyiPeng/LLM_batch_helper).
+- Data: [LLM-Digital-Twin/Twin-2K-500](https://huggingface.co/datasets/LLM-Digital-Twin/Twin-2K-500),
+  [LLM-Digital-Twin/Twin-2K-500-Mega-Study](https://huggingface.co/datasets/LLM-Digital-Twin/Twin-2K-500-Mega-Study).
 - Project page: [Columbia DAPLab digital twins](https://daplab.cs.columbia.edu/projects/digitaltwins/).
 - Numbers in the tables above come from the repo files
   `post_metric_calculation/average_metrics_by_specification.csv`,
   `mega_study_evaluation/meta_analysis_results/summary_by_persona_specification_avg.csv`,
-  and the paper text.
+  the paper text and supplement, and my own reads of the HF parquet files.
