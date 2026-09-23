@@ -77,7 +77,8 @@ uv run python fit_model.py
 | `fit_model.py` | M3 — ridge/GBM + 5-fold/LOO/leave-one-region eval |
 | `movement.py`, `build_notebook.py`, `animal_movement_demo.ipynb` | bonus demo — OlmoEarth for animal-movement models |
 | `dhs.py`, `build_dhs_notebook.py`, `dhs_displacement_demo.ipynb` | bonus demo — DHS geo-displacement + buffer remedy |
-| `outputs/` | `embeddings.csv`, `m3_results.json`, `m1_smoke_test.log`, `figure.png`, `animal_movement_figure.png`, `dhs_displacement_figure.png` |
+| `transfer.py`, `build_transfer_notebook.py`, `dhs_transfer_demo.ipynb` | bonus demo — transfer from abundant DHS indicators to a scarce one |
+| `outputs/` | `embeddings.csv`, `m3_results.json`, `m1_smoke_test.log`, `figure.png`, `animal_movement_figure.png`, `dhs_displacement_figure.png`, `dhs_transfer_figure.png` |
 | `FEASIBILITY.md` | M4 — the deliverable: GO/NO-GO memo |
 
 ## Bonus demo — animal movement (`animal_movement_demo.ipynb`)
@@ -153,6 +154,48 @@ export CURL_CA_BUNDLE=/root/.ccr/ca-bundle.crt GDAL_HTTP_PROXY="$HTTPS_PROXY"  #
 uv run --group notebook python build_dhs_notebook.py
 uv run --group notebook jupyter nbconvert --to notebook --execute --inplace \
   --ExecutePreprocessor.timeout=1200 dhs_displacement_demo.ipynb
+```
+
+## Bonus demo — transfer from abundant DHS indicators (`dhs_transfer_demo.ipynb`)
+
+Micronutrient biomarkers are in only a few DHS surveys, but stunting, wasting,
+wealth and U5MR are in essentially every geocoded one. This notebook shows how to
+**borrow strength**: learn a compact representation from the abundant indicators on
+frozen OlmoEarth embeddings, then fit the scarce target on it.
+
+![Transfer demo: R² vs scarce-label count, edge vs task overlap, abundant-task transport](outputs/dhs_transfer_figure.png)
+
+On a **real** Sentinel-2 landscape with **synthetic** indicators (realistic SNR:
+EO explains ≈ 35% of the target; spatial west→east hold-out):
+
+- **The pretrained representation** (one CV-regularized ridge predictor per abundant
+  indicator → 4 features: "EO-predicted stunting/wasting/wealth/U5MR") **reaches the
+  EO-explainable ceiling from ~50 labels (R² ≈ 0.35, ±0.04)**; from-scratch ridge on
+  the 768-dim embedding climbs 0.21 → 0.32 by 600 labels and is far noisier
+  (±0.10–0.19). Unsupervised PCA-8 lags (it keeps high-*variance*, not
+  outcome-*relevant*, directions).
+- **The edge scales with task overlap** and never falls below from-scratch:
+  near-ceiling when ≲10% of the target's signal is private to it, parity by ~60%.
+  For real DHS the first empirical question is how much of micronutrient status's
+  EO signal is shared with stunting/wasting/wealth.
+- **All four abundant tasks transport** to the held-out half (R² 0.75–0.91).
+- **Methodological lesson:** a gradient-trained shared bottleneck dropped the task
+  whose drivers live on low-variance directions; per-task CV regularization kept
+  all four. It is not fine-tuning — OlmoEarth stays frozen; the abundant labels'
+  volume is what would justify PEFT later.
+
+> ⚠️ Indicators and target are **synthetic** (built from real embeddings) so the
+> task overlap and SNR are controlled. What transfers to real data is the *shape*
+> of the curves and the regime boundary, not the exact R² values.
+
+Reproduce:
+
+```bash
+uv sync --group notebook
+export CURL_CA_BUNDLE=/root/.ccr/ca-bundle.crt GDAL_HTTP_PROXY="$HTTPS_PROXY"  # proxy only
+uv run --group notebook python build_transfer_notebook.py
+uv run --group notebook jupyter nbconvert --to notebook --execute --inplace \
+  --ExecutePreprocessor.timeout=1200 dhs_transfer_demo.ipynb
 ```
 
 ## Key facts (measured on 4-vCPU / 15 GB / no-GPU)
