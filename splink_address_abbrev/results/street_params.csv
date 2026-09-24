@@ -1,0 +1,145 @@
+noise,regime,treatment,rep,level,m,u
+default,consistent,none,0,Exact match on street_name,0.9712370652713351,0.001591658174638558
+default,consistent,none,0,Jaro-Winkler distance of street_name >= 0.92,0.019570414890849076,0.00014688554869116618
+default,consistent,none,0,Jaro-Winkler distance of street_name >= 0.7,0.008935339377408247,0.014094046557544105
+default,consistent,none,0,All other comparisons,0.00025718046040758784,0.9841674097191262
+default,consistent,none,1,Exact match on street_name,0.9666377754987108,0.0011889919330729563
+default,consistent,none,1,Jaro-Winkler distance of street_name >= 0.92,0.02429236081506707,0.00011817688973674844
+default,consistent,none,1,Jaro-Winkler distance of street_name >= 0.7,0.009069863469083153,0.013176823525587805
+default,consistent,none,1,All other comparisons,2.1713896879690638e-10,0.9855160076516025
+default,consistent,none,2,Exact match on street_name,0.9701999134976136,0.0010617438376598954
+default,consistent,none,2,Jaro-Winkler distance of street_name >= 0.92,0.021946225284800953,0.00013353673739324457
+default,consistent,none,2,Jaro-Winkler distance of street_name >= 0.7,0.007853817545741302,0.013453615000063387
+default,consistent,none,2,All other comparisons,4.367184420362306e-08,0.9853511044248835
+default,consistent,abbreviate,0,Exact match on street_name,0.9712593390333044,0.001321521428448439
+default,consistent,abbreviate,0,Jaro-Winkler distance of street_name >= 0.92,0.018907903411226813,0.00015453621915732563
+default,consistent,abbreviate,0,Jaro-Winkler distance of street_name >= 0.7,0.009341917150383792,0.014426752414897463
+default,consistent,abbreviate,0,All other comparisons,0.0004908404050850239,0.9840971899374967
+default,consistent,abbreviate,1,Exact match on street_name,0.9666415011309415,0.00110411963088981
+default,consistent,abbreviate,1,Jaro-Winkler distance of street_name >= 0.92,0.022945731701314073,0.00015623559671014233
+default,consistent,abbreviate,1,Jaro-Winkler distance of street_name >= 0.7,0.010137377204232854,0.015346195293674675
+default,consistent,abbreviate,1,All other comparisons,0.0002753899635115541,0.9833934494787254
+default,consistent,abbreviate,2,Exact match on street_name,0.970199347367225,0.001122121035907873
+default,consistent,abbreviate,2,Jaro-Winkler distance of street_name >= 0.92,0.02144268081202658,0.00014840467141561615
+default,consistent,abbreviate,2,Jaro-Winkler distance of street_name >= 0.7,0.008244250120914755,0.015200662153087855
+default,consistent,abbreviate,2,All other comparisons,0.00011372169983360549,0.9835288121395886
+default,consistent,expand,0,Exact match on street_name,0.971251108972662,0.0011761234331033002
+default,consistent,expand,0,Jaro-Winkler distance of street_name >= 0.92,0.018385606314042936,0.00023001971483160716
+default,consistent,expand,0,Jaro-Winkler distance of street_name >= 0.7,0.010164160421044774,0.030515348260658583
+default,consistent,expand,0,All other comparisons,0.0001991242922503377,0.9680785085914065
+default,consistent,expand,1,Exact match on street_name,0.9666981651272912,0.0012997544269290713
+default,consistent,expand,1,Jaro-Winkler distance of street_name >= 0.92,0.02198706855874378,0.0001955382766176479
+default,consistent,expand,1,Jaro-Winkler distance of street_name >= 0.7,0.011314766043590435,0.029663690596005595
+default,consistent,expand,1,All other comparisons,2.703746474557494e-10,0.9688410167004476
+default,consistent,expand,2,Exact match on street_name,0.9701989451165826,0.0013056756639146139
+default,consistent,expand,2,Jaro-Winkler distance of street_name >= 0.92,0.01988249380998082,0.0001809867039057524
+default,consistent,expand,2,Jaro-Winkler distance of street_name >= 0.7,0.009804825210594245,0.0288024020792702
+default,consistent,expand,2,All other comparisons,0.00011373586284241656,0.9697109355529094
+default,split,none,0,Exact match on street_name,0.14723567214536679,6.0072042250535776e-05
+default,split,none,0,Jaro-Winkler distance of street_name >= 0.92,0.8112539168494004,0.0014075743411613834
+default,split,none,0,Jaro-Winkler distance of street_name >= 0.7,0.040057774629584854,0.0085316363684582
+default,split,none,0,All other comparisons,0.001452636375648022,0.9900007172481299
+default,split,none,1,Exact match on street_name,0.14438279655290853,5.5365689300677486e-05
+default,split,none,1,Jaro-Winkler distance of street_name >= 0.92,0.8129078283316025,0.0012503597692651055
+default,split,none,1,Jaro-Winkler distance of street_name >= 0.7,0.04193678827319104,0.008237854448126873
+default,split,none,1,All other comparisons,0.0007725868422980443,0.9904564200933074
+default,split,none,2,Exact match on street_name,0.14718308158394033,5.610985883225482e-05
+default,split,none,2,Jaro-Winkler distance of street_name >= 0.92,0.8120537804042993,0.0015499135053906237
+default,split,none,2,Jaro-Winkler distance of street_name >= 0.7,0.03966425584644123,0.008179807828587293
+default,split,none,2,All other comparisons,0.0010988821653191935,0.9902141688071898
+default,split,abbreviate,0,Exact match on street_name,0.9712595334563568,0.0015000915055818406
+default,split,abbreviate,0,Jaro-Winkler distance of street_name >= 0.92,0.018908680117790302,0.00014180865032767
+default,split,abbreviate,0,Jaro-Winkler distance of street_name >= 0.7,0.00934183590473476,0.014026255601591698
+default,split,abbreviate,0,All other comparisons,0.0004899505211180614,0.9843318442424988
+default,split,abbreviate,1,Exact match on street_name,0.966640509670351,0.0013232678699814583
+default,split,abbreviate,1,Jaro-Winkler distance of street_name >= 0.92,0.022945753392772945,0.00012903469936050252
+default,split,abbreviate,1,Jaro-Winkler distance of street_name >= 0.7,0.01013878498287885,0.014304688386877058
+default,split,abbreviate,1,All other comparisons,0.0002749519539972199,0.984243009043781
+default,split,abbreviate,2,Exact match on street_name,0.9701986188085654,0.0012985294456078981
+default,split,abbreviate,2,Jaro-Winkler distance of street_name >= 0.92,0.02144268896857707,0.0001330939942773418
+default,split,abbreviate,2,Jaro-Winkler distance of street_name >= 0.7,0.008244972259034459,0.014086100691168236
+default,split,abbreviate,2,All other comparisons,0.00011371996382309333,0.9844822758689465
+default,split,expand,0,Exact match on street_name,0.9712534408882139,0.0013905412203384982
+default,split,expand,0,Jaro-Winkler distance of street_name >= 0.92,0.018386000275477002,0.00021715410113301592
+default,split,expand,0,Jaro-Winkler distance of street_name >= 0.7,0.01016411054839119,0.029961106965381703
+default,split,expand,0,All other comparisons,0.00019644828791805257,0.9684311977131468
+default,split,expand,1,Exact match on street_name,0.9666991203590267,0.0012936292980568755
+default,split,expand,1,Jaro-Winkler distance of street_name >= 0.92,0.021987055611581353,0.00019799758888942948
+default,split,expand,1,Jaro-Winkler distance of street_name >= 0.7,0.011313823758907446,0.030804730678228465
+default,split,expand,1,All other comparisons,2.704845065536332e-10,0.9677036424348252
+default,split,expand,2,Exact match on street_name,0.9701992097323773,0.0012571943475473129
+default,split,expand,2,Jaro-Winkler distance of street_name >= 0.92,0.019882474036259812,0.0002017746818207025
+default,split,expand,2,Jaro-Winkler distance of street_name >= 0.7,0.009804574860538984,0.02957313073908106
+default,split,expand,2,All other comparisons,0.00011374137082414398,0.9689679002315509
+elevated,consistent,none,0,Exact match on street_name,0.859594649965121,0.0011519971556780888
+elevated,consistent,none,0,Jaro-Winkler distance of street_name >= 0.92,0.0954364877704528,0.0002247466532143547
+elevated,consistent,none,0,Jaro-Winkler distance of street_name >= 0.7,0.044069237269810296,0.013255959148738427
+elevated,consistent,none,0,All other comparisons,0.0008996249946157996,0.9853672970423691
+elevated,consistent,none,1,Exact match on street_name,0.8580724002283651,0.0010855285230455189
+elevated,consistent,none,1,Jaro-Winkler distance of street_name >= 0.92,0.10132557299225416,0.0002558209756424881
+elevated,consistent,none,1,Jaro-Winkler distance of street_name >= 0.7,0.03998598788743346,0.012927898656928841
+elevated,consistent,none,1,All other comparisons,0.0006160388919474139,0.9857307518443832
+elevated,consistent,none,2,Exact match on street_name,0.8608165686165201,0.0011466043847733196
+elevated,consistent,none,2,Jaro-Winkler distance of street_name >= 0.92,0.09702347018081989,0.0002424733410446042
+elevated,consistent,none,2,Jaro-Winkler distance of street_name >= 0.7,0.0416252435660686,0.013956741303538295
+elevated,consistent,none,2,All other comparisons,0.0005347176365912269,0.9846541809706438
+elevated,consistent,abbreviate,0,Exact match on street_name,0.859590975330371,0.001146496971993244
+elevated,consistent,abbreviate,0,Jaro-Winkler distance of street_name >= 0.92,0.08970572536756269,0.0002499248585228477
+elevated,consistent,abbreviate,0,Jaro-Winkler distance of street_name >= 0.7,0.0489071016029346,0.014057094401068096
+elevated,consistent,abbreviate,0,All other comparisons,0.001796197699131673,0.9845464837684158
+elevated,consistent,abbreviate,1,Exact match on street_name,0.8580766604650634,0.0012385866280508334
+elevated,consistent,abbreviate,1,Jaro-Winkler distance of street_name >= 0.92,0.09611768609779325,0.000262847268700488
+elevated,consistent,abbreviate,1,Jaro-Winkler distance of street_name >= 0.7,0.04485203454067195,0.014537319850241957
+elevated,consistent,abbreviate,1,All other comparisons,0.0009536188964713887,0.9839612462530067
+elevated,consistent,abbreviate,2,Exact match on street_name,0.860784313804311,0.0009991613930924335
+elevated,consistent,abbreviate,2,Jaro-Winkler distance of street_name >= 0.92,0.09269967222506109,0.00026145156869940257
+elevated,consistent,abbreviate,2,Jaro-Winkler distance of street_name >= 0.7,0.04578535597513367,0.01466551115483318
+elevated,consistent,abbreviate,2,All other comparisons,0.0007306579954940693,0.984073875883375
+elevated,consistent,expand,0,Exact match on street_name,0.859621475083169,0.0011079331505956288
+elevated,consistent,expand,0,Jaro-Winkler distance of street_name >= 0.92,0.08966206893545128,0.00029147887696009473
+elevated,consistent,expand,0,Jaro-Winkler distance of street_name >= 0.7,0.049087058690639805,0.028613509754915965
+elevated,consistent,expand,0,All other comparisons,0.001629397290739859,0.9699870782175283
+elevated,consistent,expand,1,Exact match on street_name,0.8581501830855054,0.0012648829140253627
+elevated,consistent,expand,1,Jaro-Winkler distance of street_name >= 0.92,0.09219822480618606,0.00030615521169978884
+elevated,consistent,expand,1,Jaro-Winkler distance of street_name >= 0.7,0.04830672876146343,0.02943913305346087
+elevated,consistent,expand,1,All other comparisons,0.001344863346845076,0.968989828820814
+elevated,consistent,expand,2,Exact match on street_name,0.8608098155502,0.0010788042116516422
+elevated,consistent,expand,2,Jaro-Winkler distance of street_name >= 0.92,0.09013062421220017,0.0003076332010000167
+elevated,consistent,expand,2,Jaro-Winkler distance of street_name >= 0.7,0.04748778582463,0.029728861204331283
+elevated,consistent,expand,2,All other comparisons,0.0015717744129698495,0.9688847013830171
+elevated,split,none,0,Exact match on street_name,0.13062288275416412,5.25758226261907e-05
+elevated,split,none,0,Jaro-Winkler distance of street_name >= 0.92,0.7669516318340587,0.0011566680977761954
+elevated,split,none,0,Jaro-Winkler distance of street_name >= 0.7,0.09954868645174506,0.008366318662715408
+elevated,split,none,0,All other comparisons,0.00287679896003216,0.9904244374168822
+elevated,split,none,1,Exact match on street_name,0.12749828263623247,4.914061388515601e-05
+elevated,split,none,1,Jaro-Winkler distance of street_name >= 0.92,0.7697194343115603,0.0010323491868615435
+elevated,split,none,1,Jaro-Winkler distance of street_name >= 0.7,0.09976456200048353,0.008278608258555718
+elevated,split,none,1,All other comparisons,0.0030177210517237305,0.9906399019406976
+elevated,split,none,2,Exact match on street_name,0.13011176227270557,4.5969753467146395e-05
+elevated,split,none,2,Jaro-Winkler distance of street_name >= 0.92,0.7657679711872234,0.0011952135901458062
+elevated,split,none,2,Jaro-Winkler distance of street_name >= 0.7,0.10134961814077023,0.008347129149772783
+elevated,split,none,2,All other comparisons,0.0027706483993008143,0.9904116875066142
+elevated,split,abbreviate,0,Exact match on street_name,0.8595914339137716,0.0013646545742888295
+elevated,split,abbreviate,0,Jaro-Winkler distance of street_name >= 0.92,0.08970575203535772,0.0002535434631777183
+elevated,split,abbreviate,0,Jaro-Winkler distance of street_name >= 0.7,0.04890661249237376,0.013828922588958271
+elevated,split,abbreviate,0,All other comparisons,0.0017962015584969114,0.9845528793735752
+elevated,split,abbreviate,1,Exact match on street_name,0.8580642707806654,0.0009612177961684038
+elevated,split,abbreviate,1,Jaro-Winkler distance of street_name >= 0.92,0.09611649047841572,0.00021713404111340994
+elevated,split,abbreviate,1,Jaro-Winkler distance of street_name >= 0.7,0.044865533396010474,0.01398177288224495
+elevated,split,abbreviate,1,All other comparisons,0.0009537053449084096,0.9848398752804732
+elevated,split,abbreviate,2,Exact match on street_name,0.8607854845108983,0.0012950785445514869
+elevated,split,abbreviate,2,Jaro-Winkler distance of street_name >= 0.92,0.09269977561807077,0.0002658835496768583
+elevated,split,abbreviate,2,Jaro-Winkler distance of street_name >= 0.7,0.045784526022649194,0.014324942270892756
+elevated,split,abbreviate,2,All other comparisons,0.0007302138483817421,0.984114095634879
+elevated,split,expand,0,Exact match on street_name,0.859621473113704,0.0011084927843811093
+elevated,split,expand,0,Jaro-Winkler distance of street_name >= 0.92,0.08966211854519843,0.0002792273965212096
+elevated,split,expand,0,Jaro-Winkler distance of street_name >= 0.7,0.04908697834253396,0.02875915932142903
+elevated,split,expand,0,All other comparisons,0.0016294299985635723,0.9698531204976687
+elevated,split,expand,1,Exact match on street_name,0.8581327129158561,0.0009674805518751961
+elevated,split,expand,1,Jaro-Winkler distance of street_name >= 0.92,0.09219634965553232,0.0003372077774842103
+elevated,split,expand,1,Jaro-Winkler distance of street_name >= 0.7,0.04832589289295117,0.029350642471254976
+elevated,split,expand,1,All other comparisons,0.001345044535660373,0.9693446691993857
+elevated,split,expand,2,Exact match on street_name,0.8608071224188443,0.0010703694663999996
+elevated,split,expand,2,Jaro-Winkler distance of street_name >= 0.92,0.09013033709435257,0.00031019893217536015
+elevated,split,expand,2,Jaro-Winkler distance of street_name >= 0.7,0.04749073752708062,0.028577630897587313
+elevated,split,expand,2,All other comparisons,0.001571802959722441,0.9700418007038373
