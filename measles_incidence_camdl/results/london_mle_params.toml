@@ -1,0 +1,37 @@
+# camdl fit MLE — parameter values first, followed by a [provenance] block.
+# Editing any value in this params section invalidates provenance.content_hash.
+N0 = 2481706.0
+R0 = 24.6402418051
+alpha = 0.976
+amplitude = 0.467775
+cohort = 0.557
+e0 = 0.0000517
+gamma = 0.0832
+i0 = 0.0000514
+iota = 2.9
+mu = 0.0000548
+psi = 0.116
+rho = 0.5931446302
+s0 = 0.06412
+sigma = 0.0791
+sigma_se = 2.816
+
+[provenance]
+camdl_version = "0.1.0+a7885c1"
+timestamp = "2026-08-26T17:28:36Z"
+content_hash = "85f319c3"
+fit_hash = "8b6302dd48cd8ab1b0130c8a652d78d99d36a34eb32dae9f3a3e50104d815324"
+backend = "chain_binomial"
+dt = 1.0
+model = "london_seir.camdl"
+model_identity = "cb0ebf8bde313f42f5ae142be2a9250ad6e788830622355817a637732acb7edd"
+seed = 7
+stage = "scout"
+chain = 2
+log_likelihood = -4228.843348938413
+loglik_sd = 0.0
+n_particles = 2000
+
+[provenance.data.weekly_cases]
+path = "data/london_cases.tsv"
+hash = "f05474df"

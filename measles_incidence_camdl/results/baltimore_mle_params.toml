@@ -1,0 +1,37 @@
+# camdl fit MLE — parameter values first, followed by a [provenance] block.
+# Editing any value in this params section invalidates provenance.content_hash.
+N0 = 821387.0
+R0 = 45.723588628
+alpha = 0.976
+amplitude = 0.4359
+cohort = 0.557
+e0 = 0.0000517
+gamma = 0.0832
+i0 = 0.0000514
+iota = 2.9
+mu = 0.0000548
+psi = 0.116
+rho = 0.44
+s0 = 0.0667875
+sigma = 0.0791
+sigma_se = 4.5151370698
+
+[provenance]
+camdl_version = "0.1.0+a7885c1"
+timestamp = "2026-08-26T19:46:38Z"
+content_hash = "ea96139a"
+fit_hash = "6f4c420022610b6fdf884cc38b76d7e6a122467c7d725f928ae1499abd2f8e9f"
+backend = "chain_binomial"
+dt = 1.0
+model = "baltimore_seir.camdl"
+model_identity = "b9155f1b877186dc4637ec38846f938f63b1612c535ee838732c017af0841458"
+seed = 23
+stage = "scout"
+chain = 2
+log_likelihood = -1793.8196139654272
+loglik_sd = 0.0
+n_particles = 4000
+
+[provenance.data.biweekly_cases]
+path = "data/baltimore_cases.tsv"
+hash = "c34cdac9"
