@@ -208,35 +208,52 @@ moves the distribution far more than alcohol category does.
 # Gaussian vs. empirical copula for (CAP, LSM)
 
 `cap_lsm_copula.py` is a diagnostic to help choose between a **Gaussian copula**
-and an **empirical copula** for the joint distribution of median CAP and LSM
-(full elastography sample, n=9,021, survey-weighted). It scatters the data and
-overlays the density a Gaussian copula would give, in two coordinate systems:
+and an **empirical copula** for the joint distribution of median CAP and LSM.
+It **pools two cycles** — NHANES 2017–2020 pre-pandemic + August 2021–August
+2023 (`_L`) — for **n = 15,300** valid elastography exams, survey-weighted. It
+scatters the data and overlays the density a Gaussian copula would give, in two
+coordinate systems:
 
 - `fig10_copula_probit.png` — **probit-of-percentile space**: each variable
   mapped to `Φ⁻¹(weighted percentile)`. A Gaussian copula is then bivariate
   normal `N(0, [[1,ρ],[ρ,1]])`, so its probability-region contours are ellipses.
-- `fig11_copula_capunits.png` — **CAP / LSM units**: the same model mapped back,
+- `fig11_copula_capunits.png` — **CAP / LSM units** (LSM on a **log** axis to
+  spread the crowded low-LSM mode): the same model mapped back,
   `f(x,y) = c_ρ(F_X(x),F_Y(y))·f_X(x)·f_Y(y)` with empirical (KDE) margins.
+- `fig12_copula_slide.png` — **presentation version** of fig11: 16:9, large
+  fonts, LSM capped at **15 kPa** (all of F3 visible), shaded/labeled
+  fibrosis-stage bands (F0–F3), and the **survey-weighted share of participants
+  in each CAP-side × fibrosis-band region** shown as boxed %.
 
 Both overlay the empirical joint density (2-D weighted KDE — what an empirical
 copula reproduces) as dashed contours at matching probability-mass levels.
 
-## What the diagnostic says
+**Pooling & weights.** The two cycles have different weight bases (`WTMECPRP`,
+3.2 yr; `WTMEC2YR`, 2.0 yr). Per NHANES guidance for combining unequal-length
+cycles, the pooled weight is `cycle MEC weight × (cycle years / 5.2)`
+(`WTMECPRP×3.2/5.2` and `WTMEC2YR×2/5.2`); the pooled weights sum to ~243 M (one
+population, not double-counted). (The other analyses in this project still use
+2017–2020 only — this pooling is applied to the copula analysis.)
+
+Weighted region shares (fig12): F0 55.9 / 17.0, F1 9.6 / 8.0, F2 1.7 / 2.5,
+F3 1.0 / 2.3, F4 0.5 / 1.6 (% CAP<288 / CAP≥288). CAP≥288 (steatosis) ≈ 31%.
+
+## What the diagnostic says (pooled)
 
 | Quantity | Value |
 |---|---|
-| Gaussian-copula ρ (normal scores) | 0.329 |
-| Weighted Spearman (empirical) | 0.310 |
-| Gaussian-copula-implied Spearman | 0.315 |
+| Gaussian-copula ρ (normal scores) | 0.343 |
+| Weighted Spearman (empirical) | 0.331 |
+| Gaussian-copula-implied Spearman | 0.330 |
 
-Overall association is captured well (implied vs. empirical Spearman 0.315 vs.
-0.310). But the **tails are asymmetric**, which a Gaussian copula (radially
+Overall association is captured well (implied vs. empirical Spearman 0.330 vs.
+0.331). But the **tails are asymmetric**, which a Gaussian copula (radially
 symmetric, asymptotically tail-independent) cannot represent:
 
 | P(both extreme \| one extreme) | Empirical | Gaussian |
 |---|---|---|
 | Upper, q=0.95 (both high) | **0.28** | 0.16 |
-| Lower, q=0.95 (both low) | **0.10** | 0.16 |
+| Lower, q=0.95 (both low) | **0.11** | 0.16 |
 
 High CAP and high LSM co-occur **more** than Gaussian predicts (advanced MASLD
 clusters in the upper-right corner), while the lower tail co-occurs **less**.
@@ -254,6 +271,45 @@ upper q=0.95 ≈ 0.21 vs. Gaussian 0.16).
   under-represent that upper-right cluster.
 
 **Caveat:** CAP (integer dB/m) and LSM (0.1 kPa) are recorded coarsely, so the
-margins have many ties — visible as banding in the probit scatter. The mid-rank
-transform handles ties for the point estimates, but an empirical copula fit
-should jitter/break ties (or model the discreteness) to avoid artifacts.
+margins have many ties. The plotted points are jittered within recording
+resolution (CAP ±0.5, LSM ±0.05) for display only — the fit and contours use the
+raw data, and the mid-rank transform handles ties for the point estimates. An
+empirical copula *fit* should likewise jitter/break ties (or model the
+discreteness) to avoid artifacts.
+
+## Does the relationship vary by age and sex?
+
+`cap_lsm_copula_by_agesex.py` re-does the diagnostic in probit-of-percentile
+space **per subgroup** (each subgroup's own marginals removed), so panels differ
+only in *dependence*, not in CAP/LSM levels.
+
+- `fig13_copula_probit_by_agesex.png` — 2 sex rows × 4 age columns; ellipses
+  (Gaussian ρ per panel) vs empirical KDE, with per-panel ρ and n.
+- `fig14_copula_rho_by_agesex.png` — Gaussian-copula ρ vs age, by sex, with
+  approximate 95% CIs (Fisher z, Kish n_eff; ignores clustering).
+
+**Age matters; sex barely does.** The copula ρ traces an inverted-U with age —
+weakest in the young and strongest in middle age — identically for both sexes:
+
+| Age | Male ρ | Female ρ |
+|---|---|---|
+| 12–29 | 0.22 | 0.25 |
+| 30–44 | 0.36 | 0.33 |
+| 45–59 | **0.40** | **0.35** |
+| 60–80 | 0.30 | 0.30 |
+
+The 12–29 vs 45–59 CIs don't overlap (≈0.16–0.28 vs 0.33–0.46), so the age
+gradient is real, not noise; the male/female tracks overlap at every age.
+Interpretation: in the young, high CAP (steatosis) rarely coincides with high
+LSM (fibrosis takes years to develop), so CAP and LSM are only weakly linked;
+by middle age steatosis has had time to drive fibrosis, tightening the coupling;
+in the elderly other fibrosis causes and survivorship loosen it again. (CAP/LSM
+*levels* also rise with age — a marginal effect — but that is removed here.) The
+empirical-vs-Gaussian upper-tail gap persists across subgroups, most visibly in
+the middle-aged and older panels.
+
+`cap_lsm_copula_slide_m60_80.py` → `fig15_copula_slide_m60_80.png` — the fig12
+slide restricted to **males aged 60–80** (n=2,436; ρ=0.30). Fit, margins, and
+region shares are recomputed within the subgroup, which carries far more
+advanced disease than the whole population (F3+F4 ≈ 10% vs ≈5%; CAP≥288 ≈ 43%
+vs ≈31%).
