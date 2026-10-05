@@ -99,27 +99,32 @@ base-pattern × migration-pattern scenarios at each migration level
 
 - **RMSE** (dissertation: lower everywhere, gains growing with migration and
   largest for Neighbors and Distance): replicated. The power prior has lower
-  RMSE in 92 of 96 scenarios; the reductions reach 0.035 (Block, Distance,
-  high migration) and 0.019-0.024 for Neighbors, versus at most 0.008 when
-  migrants leave from only a few districts. The dissertation's largest
+  RMSE in 86 of 96 scenarios (one tie; the 9 losses are all at most 0.003 and
+  sit in the Out-Urban and Out-Hot-Cold patterns); the reductions reach 0.035
+  (Block, Distance, high migration) and 0.019-0.024 for Neighbors, versus at
+  most 0.008 when migrants leave from only a few districts. The dissertation's largest
   reductions were about 0.06; its case loads and sampling fraction differ.
 - **Bias** (dissertation: naive slightly better on average, mixed by
-  scenario): replicated. The naive predictions are biased slightly downward,
-  the power prior slightly upward, by about the same amount; the sign flips
+  scenario): replicated. The power prior has the smaller absolute bias in 41
+  of 96 scenarios. The naive predictions are biased slightly downward, the
+  power prior slightly upward, by about the same amount; the sign flips
   because the power prior pulls each district toward the raw mixture of
   origin-area proportions.
-- **Bias²** (dissertation: favours the power prior almost everywhere): only
-  partly replicated. With 10 replications the per-district bias² is noisy and
-  the two methods are tied on average; the power prior wins in the all-district
-  patterns at high migration and loses for Out-Urban and Distance in the
-  Random base pattern.
+- **Bias²** (dissertation: favours the power prior almost everywhere): not
+  replicated. The power prior has the lower bias² in only 40 of 96 scenarios.
+  With 10 replications the per-district bias² is noisy and the two methods
+  are tied on average; the power prior wins in the all-district patterns at
+  high migration and loses for Out-Urban and Distance in the Random base
+  pattern.
 - **Spearman correlation** (dissertation: better in most settings, worse
   under high migration into hot/cold spots or cities): replicated in
-  direction; here the exceptions are the Random base pattern with Out-Urban,
+  direction. The power prior ranks districts better in 77 of 96 scenarios;
+  the exceptions concentrate in the Random base pattern with Out-Urban,
   Out-Hot-Cold and Distance migration.
 - **Coverage** (dissertation: about 40-50% for the power prior vs 95% for the
   naive model): replicated. Power prior coverage ranges from 34% to 70%
-  (mean 52%) while the naive model sits at 90-93%.
+  (mean 52%) while the naive model ranges from 79% to 96% (mean 92%), dipping
+  below 90% only under high migration.
 
 ![power prior coverage](results/figures/fig4_prediction_coverage.png)
 
@@ -195,7 +200,10 @@ inherits the design correction through the imputed counts.
   population. The main variant (`pp`) therefore uses each area's full case load
   with observed plus posterior-mean imputed positives. A second variant
   (`pp_sample`) uses only the sampled individuals, in case the sums were meant
-  over the sample.
+  over the sample. (A third variant in the code, `pp_tempered`, tempers the
+  baseline Beta prior by the stayer share instead of re-using the focal area's
+  likelihood; it is badly biased for destinations of large flows and is not
+  reported.)
 - **MCMC settings.** 2 chains × (400 warm-up + 400 draws) per fit; R-hat and
   divergences are logged for every fit in `results/raw/*.diagnostics.csv`.
 

@@ -20,29 +20,35 @@ import pandas as pd
 KEYS = ["study", "base", "pattern", "level", "method"]
 
 
+def _keys(df):
+    return KEYS + ["category"] if "category" in df.columns else KEYS
+
+
 def scenario_metrics(df: pd.DataFrame) -> pd.DataFrame:
+    keys = _keys(df)
     df = df.copy()
     df["err"] = df["est"] - df["truth"]
     df["covered"] = (df["lo"] <= df["truth"]) & (df["truth"] <= df["hi"])
-    per_district = df.groupby(KEYS + ["district"]).agg(
+    per_district = df.groupby(keys + ["district"]).agg(
         bias=("err", "mean"), mse=("err", lambda e: np.mean(np.square(e))),
         coverage=("covered", "mean"), sd=("sd", "mean"), n_rep=("rep", "nunique")).reset_index()
     per_district["bias2"] = per_district["bias"] ** 2
     per_district["rmse"] = np.sqrt(per_district["mse"])
-    scen = per_district.groupby(KEYS).agg(bias=("bias", "mean"), bias2=("bias2", "mean"), rmse=("rmse", "mean"),
+    scen = per_district.groupby(keys).agg(bias=("bias", "mean"), bias2=("bias2", "mean"), rmse=("rmse", "mean"),
                                           coverage=("coverage", "mean"), sd=("sd", "mean"),
                                           n_rep=("n_rep", "max")).reset_index()
-    sp = (df.groupby(KEYS + ["rep"])[["est", "truth"]]
+    sp = (df.groupby(keys + ["rep"])[["est", "truth"]]
             .apply(lambda g: g["est"].corr(g["truth"], method="spearman")).rename("spearman").reset_index())
-    sp = sp.groupby(KEYS)["spearman"].mean().reset_index()
-    scen = scen.merge(sp, on=KEYS)
+    sp = sp.groupby(keys)["spearman"].mean().reset_index()
+    scen = scen.merge(sp, on=keys)
     return scen, per_district
 
 
 def differences(scen: pd.DataFrame, reference="naive") -> pd.DataFrame:
     ref = scen[scen["method"] == reference].drop(columns=["method"])
     cols = ["bias", "bias2", "rmse", "coverage", "sd", "spearman"]
-    out = scen[scen["method"] != reference].merge(ref, on=["study", "base", "pattern", "level"], suffixes=("", "_ref"))
+    on = [k for k in _keys(scen) if k != "method"]
+    out = scen[scen["method"] != reference].merge(ref, on=on, suffixes=("", "_ref"))
     for c in cols:
         out[f"d_{c}"] = out[c] - out[f"{c}_ref"]
     return out

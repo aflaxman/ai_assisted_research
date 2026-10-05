@@ -47,21 +47,28 @@ def _style_ax(ax):
 
 
 # ----------------------------------------------------------------------------- heatmaps
-def heatmap_grid(scen, method, metrics, title, path, reference="naive"):
+def heatmap_grid(scen, method, metrics, title, path, reference="naive", bases=None, patterns=None, note=None):
     """Rows: base pattern; columns: migration pattern; one panel per migration level per metric.
-    Cell value = favourability of `method` vs the reference (orange favours `method`)."""
+    Cell value = favourability of `method` vs the reference (orange favours `method`).
+    A metric may be given as (column, label, sign) or (column, label, sign, category) for
+    multinomial output, where `category` selects rows of the long table."""
+    bases = bases or BASES
+    patterns = patterns or PATTERNS
     diff = differences(scen, reference)
     diff = diff[diff["method"] == method]
     nrow, ncol = len(metrics), len(LEVELS)
     fig, axes = plt.subplots(nrow, ncol, figsize=(11, 1.55 * nrow + 0.8), squeeze=False)
-    for i, (metric, label, sign) in enumerate(metrics):
+    for i, spec in enumerate(metrics):
+        metric, label, sign = spec[:3]
+        d_i = diff if len(spec) == 3 else diff[diff["category"] == spec[3]]
         vals = []
         grids = {}
         for level in LEVELS:
-            g = np.full((len(BASES), len(PATTERNS)), np.nan)
-            sub = diff[diff["level"] == level]
+            g = np.full((len(bases), len(patterns)), np.nan)
+            sub = d_i[d_i["level"] == level]
             for _, row in sub.iterrows():
-                g[BASES.index(row["base"]), PATTERNS.index(row["pattern"])] = sign * row[f"d_{metric}"]
+                if row["base"] in bases and row["pattern"] in patterns:
+                    g[bases.index(row["base"]), patterns.index(row["pattern"])] = sign * row[f"d_{metric}"]
             grids[level] = g
             vals.append(g)
         vmax = np.nanmax(np.abs(np.concatenate([v.ravel() for v in vals]))) or 1e-6
@@ -69,19 +76,19 @@ def heatmap_grid(scen, method, metrics, title, path, reference="naive"):
         for j, level in enumerate(LEVELS):
             ax = axes[i, j]
             im = ax.imshow(grids[level], cmap=DIVERGING, norm=norm, aspect="auto")
-            ax.set_xticks(range(len(PATTERNS)))
-            ax.set_xticklabels([PATTERN_LABELS[p] for p in PATTERNS] if i == nrow - 1 else [], rotation=45,
+            ax.set_xticks(range(len(patterns)))
+            ax.set_xticklabels([PATTERN_LABELS[p] for p in patterns] if i == nrow - 1 else [], rotation=45,
                                ha="right", fontsize=7.5)
-            ax.set_yticks(range(len(BASES)))
-            ax.set_yticklabels([BASE_LABELS[b] for b in BASES] if j == 0 else [], fontsize=8)
+            ax.set_yticks(range(len(bases)))
+            ax.set_yticklabels([BASE_LABELS[b] for b in bases] if j == 0 else [], fontsize=8)
             if i == 0:
                 ax.set_title(LEVEL_LABELS[level], fontsize=9.5, pad=6)
             for s in ax.spines.values():
                 s.set_visible(False)
             ax.tick_params(length=0)
             # 2px surface gaps between cells
-            ax.set_xticks(np.arange(-0.5, len(PATTERNS)), minor=True)
-            ax.set_yticks(np.arange(-0.5, len(BASES)), minor=True)
+            ax.set_xticks(np.arange(-0.5, len(patterns)), minor=True)
+            ax.set_yticks(np.arange(-0.5, len(bases)), minor=True)
             ax.grid(which="minor", color="white", linewidth=2)
             ax.tick_params(which="minor", length=0)
         cb = fig.colorbar(im, ax=axes[i, :].tolist(), fraction=0.015, pad=0.03)
@@ -89,9 +96,10 @@ def heatmap_grid(scen, method, metrics, title, path, reference="naive"):
         cb.outline.set_visible(False)
         cb.ax.tick_params(labelsize=7, length=2, color=MUTED)
     fig.suptitle(title, fontsize=11, x=0.02, ha="left", y=0.995)
-    fig.text(0.02, 0.962, "orange: migration-adjusted method better; blue: migration-naive method better",
+    fig.text(0.02, 0.962, note or "orange: migration-adjusted method better; blue: migration-naive method better",
              fontsize=8, color=INK2)
-    fig.subplots_adjust(top=0.88, bottom=0.2 if nrow <= 3 else 0.14, left=0.09, right=0.86, hspace=0.25, wspace=0.08)
+    fig.subplots_adjust(top=0.88 if nrow <= 4 else 0.9, bottom=0.2 if nrow <= 3 else (0.14 if nrow <= 4 else 0.1),
+                        left=0.09, right=0.86, hspace=0.25, wspace=0.08)
     fig.savefig(path, dpi=160)
     plt.close(fig)
 
@@ -259,10 +267,33 @@ def main(which):
         heatmap_grid(s, "pp", [("bias", "|bias| reduction\n(A-matrix − power prior)", -1), ("rmse", "RMSE reduction\n(A-matrix − power prior)", -1),
                               ("coverage", "Coverage gain\n(power prior − A-matrix)", +1)],
                      "Power prior vs A-matrix under the method-neutral DGP (Dupuis Fig. 15/16 analogue)",
-                     OUT / "fig15_headtohead_heatmap.png", reference="amatrix")
+                     OUT / "fig15_headtohead_heatmap.png", reference="amatrix",
+                     note="orange: power prior better; blue: A-matrix better")
         coverage_dots(scen, ["amatrix", "pp"], {"amatrix": "A-matrix", "pp": "Power prior"},
                       OUT / "fig16_headtohead_coverage.png", "95% interval coverage under the method-neutral DGP (Dupuis Fig. 16 analogue)")
+    if "multinomial" in which:
+        from multinomial import CATS
+        sub_b, sub_p = ["block", "hotcold"], ["neighbors", "distance", "crisis_idp", "into_urban"]
+        cat_rows = [("rmse", f"RMSE reduction\n{c}", -1, c) for c in CATS]
+        for study, method, ref, fname, title, note in [
+            ("prediction", "pp", "naive", "fig9_multinomial_prediction_heatmap.png",
+             "Multinomial power prior vs migration-naive (Dupuis Fig. 9 analogue)", None),
+            ("estimation", "amatrix", "naive", "fig12_multinomial_estimation_heatmap.png",
+             "Multinomial A-matrix vs migration-naive (Dupuis Fig. 12 analogue)", None),
+            ("headtohead", "pp", "amatrix", "fig15m_multinomial_headtohead_heatmap.png",
+             "Multinomial power prior vs A-matrix, method-neutral DGP (Dupuis Fig. 15 analogue)",
+             "orange: power prior better; blue: A-matrix better")]:
+            p = Path(f"results/raw/multinomial_{study}.parquet")
+            if not p.exists():
+                continue
+            raw = pd.read_parquet(p)
+            scen, _ = scenario_metrics(raw)
+            metrics = [("bias", "TVD reduction", -1, "TVD")] + cat_rows
+            heatmap_grid(scen, method, metrics, title, OUT / fname, reference=ref, bases=sub_b, patterns=sub_p, note=note)
+            if study == "headtohead":
+                cov = scen[scen["category"] != "TVD"].groupby(["method", "category"])["coverage"].mean().unstack("category")
+                cov.to_csv(OUT.parent / "multinomial_headtohead_coverage_by_category.csv")
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:] or ["base", "prediction", "estimation", "headtohead"])
+    main(sys.argv[1:] or ["base", "prediction", "estimation", "headtohead", "multinomial"])
