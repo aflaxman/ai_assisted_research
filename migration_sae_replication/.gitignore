@@ -1,3 +1,6 @@
 .venv/
 __pycache__/
 *.pyc
+results/raw/
+logs/
+.pytest_cache/

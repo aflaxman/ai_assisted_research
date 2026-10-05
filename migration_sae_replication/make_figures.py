@@ -84,14 +84,14 @@ def heatmap_grid(scen, method, metrics, title, path, reference="naive"):
             ax.set_yticks(np.arange(-0.5, len(BASES)), minor=True)
             ax.grid(which="minor", color="white", linewidth=2)
             ax.tick_params(which="minor", length=0)
-        cb = fig.colorbar(im, ax=axes[i, :].tolist(), fraction=0.02, pad=0.01)
+        cb = fig.colorbar(im, ax=axes[i, :].tolist(), fraction=0.015, pad=0.03)
         cb.set_label(label, fontsize=8, color=INK2)
         cb.outline.set_visible(False)
         cb.ax.tick_params(labelsize=7, length=2, color=MUTED)
     fig.suptitle(title, fontsize=11, x=0.02, ha="left", y=0.995)
     fig.text(0.02, 0.962, "orange: migration-adjusted method better; blue: migration-naive method better",
              fontsize=8, color=INK2)
-    fig.subplots_adjust(top=0.88, bottom=0.2 if nrow <= 3 else 0.14, left=0.09, right=0.9, hspace=0.25, wspace=0.08)
+    fig.subplots_adjust(top=0.88, bottom=0.2 if nrow <= 3 else 0.14, left=0.09, right=0.86, hspace=0.25, wspace=0.08)
     fig.savefig(path, dpi=160)
     plt.close(fig)
 
