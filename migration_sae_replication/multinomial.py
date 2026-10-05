@@ -20,9 +20,8 @@ os.environ.setdefault("JAX_PLATFORMS", "cpu")
 
 import argparse
 import itertools
-import multiprocessing as mp
 import time
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from runner import run_tasks
 from pathlib import Path
 
 import numpy as np
@@ -337,20 +336,8 @@ def main():
     else:
         tasks = [(headtohead_task, (b, k, args.patterns, args.levels)) for b in args.bases for k in reps]
     out = Path(args.out or f"results/raw/multinomial_{args.study}.parquet")
-    out.parent.mkdir(parents=True, exist_ok=True)
-    t0 = time.time()
-    frames, diags = [], []
-    with ProcessPoolExecutor(max_workers=args.workers, mp_context=mp.get_context("spawn"), max_tasks_per_child=16) as ex:
-        futs = [ex.submit(fn, *a) for fn, a in tasks]
-        for i, f in enumerate(as_completed(futs), 1):
-            df, dg = f.result()
-            frames.append(df)
-            diags.extend(dg)
-            print(f"{i}/{len(futs)} tasks done, {time.time() - t0:.0f}s", flush=True)
-    res = pd.concat(frames, ignore_index=True)
-    res.to_parquet(out, index=False)
-    pd.DataFrame(diags).to_csv(out.with_suffix(".diagnostics.csv"), index=False)
-    print(f"wrote {out} ({len(res)} rows) in {time.time() - t0:.0f}s")
+    chunk = {'prediction': 10, 'estimation': 40, 'headtohead': 10}[args.study]
+    run_tasks(tasks, out, args.workers, chunk)
 
 
 if __name__ == "__main__":
