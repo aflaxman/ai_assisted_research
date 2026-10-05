@@ -67,6 +67,21 @@ def unit_level_sae(X, area, n, y, w, eigvals, eigvecs, A=None, hyper=None):
     numpyro.factor("pseudo_loglik", jnp.sum(w * (y * psi - n * jax.nn.softplus(psi))))
 
 
+_MCMC_CACHE = {}
+
+
+def _cached_mcmc(model, variant, num_warmup, num_samples, progress_bar=False):
+    """One MCMC object per (model variant, settings) per process. With jit_model_args=True
+    numpyro reuses the compiled sampler for new data of the same shapes, which avoids
+    recompiling (and exhausting XLA's JIT code memory) across hundreds of fits."""
+    key = (model.__name__, variant, num_warmup, num_samples, progress_bar)
+    if key not in _MCMC_CACHE:
+        kernel = NUTS(model, init_strategy=init_to_median(), target_accept_prob=0.8)
+        _MCMC_CACHE[key] = MCMC(kernel, num_warmup=num_warmup, num_samples=num_samples, num_chains=1,
+                                progress_bar=progress_bar, jit_model_args=True)
+    return _MCMC_CACHE[key]
+
+
 def fit_sae(cells, eig, A_draws=None, num_warmup=500, num_samples=500, num_chains=2,
             seed=0, hyper=None, progress_bar=False):
     """Run NUTS. If A_draws is given (num_chains, r, r), chain c uses A_draws[c]."""
@@ -79,14 +94,13 @@ def fit_sae(cells, eig, A_draws=None, num_warmup=500, num_samples=500, num_chain
         w=jnp.asarray(cells["w"], jnp.float32),
         eigvals=jnp.asarray(eigvals), eigvecs=jnp.asarray(eigvecs),
     )
-    kernel = NUTS(unit_level_sae, init_strategy=init_to_median(), target_accept_prob=0.8)
+    mcmc = _cached_mcmc(unit_level_sae, "amatrix" if A_draws is not None else "naive",
+                        num_warmup, num_samples, progress_bar)
     out = {"beta": [], "eta": [], "sigma_eta2": [], "sigma_beta2": [], "diverging": [], "A": []}
     rng = jax.random.PRNGKey(seed)
     for c in range(num_chains):
         rng, sub = jax.random.split(rng)
         A_c = None if A_draws is None else jnp.asarray(A_draws[c], jnp.float32)
-        mcmc = MCMC(kernel, num_warmup=num_warmup, num_samples=num_samples, num_chains=1,
-                    progress_bar=progress_bar, jit_model_args=True)
         mcmc.run(sub, A=A_c, hyper=hyper, **data)
         s = mcmc.get_samples()
         for k in ("beta", "eta", "sigma_eta2", "sigma_beta2"):

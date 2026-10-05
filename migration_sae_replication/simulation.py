@@ -228,7 +228,7 @@ def main():
     out.parent.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     frames, diags = [], []
-    with ProcessPoolExecutor(max_workers=args.workers, mp_context=mp.get_context("spawn")) as ex:
+    with ProcessPoolExecutor(max_workers=args.workers, mp_context=mp.get_context("spawn"), max_tasks_per_child=16) as ex:
         futs = [ex.submit(fn, *a) for fn, a in tasks]
         for i, f in enumerate(as_completed(futs), 1):
             df, dg = f.result()

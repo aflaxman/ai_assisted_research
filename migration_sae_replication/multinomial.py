@@ -116,19 +116,18 @@ def multinomial_sae(X, area, Y, w, eigvals, eigvecs, A=None, hyper=None):
 def fit_multinomial(cells, eig, A_draws=None, seed=0, **mcmc):
     import jax
     import jax.numpy as jnp
-    from numpyro.infer import MCMC as _MCMC, NUTS, init_to_median
     eigvals, eigvecs = eig
     data = dict(X=jnp.asarray(cells["X"], jnp.float32), area=jnp.asarray(cells["area"], jnp.int32),
                 Y=jnp.asarray(cells["Y"], jnp.float32), w=jnp.asarray(cells["w"], jnp.float32),
                 eigvals=jnp.asarray(eigvals), eigvecs=jnp.asarray(eigvecs))
-    kernel = NUTS(multinomial_sae, init_strategy=init_to_median(), target_accept_prob=0.8)
+    from models import _cached_mcmc
+    m = _cached_mcmc(multinomial_sae, "amatrix" if A_draws is not None else "naive",
+                     mcmc["num_warmup"], mcmc["num_samples"])
     out = {"beta": [], "eta": [], "sigma_eta2": [], "diverging": [], "A": []}
     rng = jax.random.PRNGKey(seed)
     for c in range(mcmc["num_chains"]):
         rng, sub = jax.random.split(rng)
         A_c = None if A_draws is None else jnp.asarray(A_draws[c], jnp.float32)
-        m = _MCMC(kernel, num_warmup=mcmc["num_warmup"], num_samples=mcmc["num_samples"], num_chains=1,
-                  progress_bar=False, jit_model_args=True)
         m.run(sub, A=A_c, **data)
         s = m.get_samples()
         for k in ("beta", "eta", "sigma_eta2"):
@@ -341,7 +340,7 @@ def main():
     out.parent.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     frames, diags = [], []
-    with ProcessPoolExecutor(max_workers=args.workers, mp_context=mp.get_context("spawn")) as ex:
+    with ProcessPoolExecutor(max_workers=args.workers, mp_context=mp.get_context("spawn"), max_tasks_per_child=16) as ex:
         futs = [ex.submit(fn, *a) for fn, a in tasks]
         for i, f in enumerate(as_completed(futs), 1):
             df, dg = f.result()
