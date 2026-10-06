@@ -73,9 +73,10 @@ admin-2 units, excluding Crimea and Sevastopol as the dissertation does).
 | Dissertation component | Here |
 |---|---|
 | Ch. 2 binomial power prior vs. naive prediction (4 base patterns × 8 migration patterns × 3 levels, 50 replications) | same grid, 10 replications |
-| Ch. 3 binomial A-matrix vs. naive estimation (same grid) | same grid, 10 replications |
-| Ch. 4 method-neutral head-to-head (multinomial) | binomial analogue, same grid, 10 replications |
-| Ch. 4 multinomial extensions, misspecification study, runtimes | not replicated |
+| Ch. 3 binomial A-matrix vs. naive estimation (same grid) | same grid, 8 replications |
+| Ch. 4 method-neutral head-to-head (multinomial) | binomial analogue, same grid, 8 replications; multinomial on a reduced grid |
+| Ch. 4 multinomial extensions | reduced grid (2 base × 4 migration patterns × 3 levels, 5 replications) |
+| Ch. 4 misspecification study, runtimes | not replicated |
 | Ukraine registry case loads, covariates, drive times, observed RR pattern | stand-ins (see below) |
 
 ## Results
@@ -171,7 +172,54 @@ sample proportions carry the informative over-sampling of previously treated
 cases that the model-based baseline corrects for. The full-population variant
 inherits the design correction through the imputed counts.
 
-<!-- RESULTS-ESTIMATION -->
+### A-matrix vs. migration-naive estimation (Chapter 3)
+
+![A-matrix heatmap](results/figures/fig5_estimation_heatmap.png)
+
+Here the data are generated the way the A-matrix model assumes (district
+effects mixed through the realized composition matrix before outcomes are
+drawn), so the method is favoured by design, as the dissertation notes.
+Averaged over the 32 scenarios per level (8 replications):
+
+| migration level | method | bias | bias² | RMSE | Spearman | 95% coverage | posterior sd |
+|---|---|---|---|---|---|---|---|
+| low | naive | 0.0000 | 0.0005 | 0.039 | 0.86 | 0.96 | 0.043 |
+| low | A-matrix | 0.0000 | 0.0005 | 0.038 | 0.86 | 0.96 | 0.042 |
+| medium | naive | +0.0006 | 0.0005 | 0.039 | 0.84 | 0.96 | 0.043 |
+| medium | A-matrix | +0.0005 | 0.0005 | 0.037 | 0.85 | 0.96 | 0.041 |
+| high | naive | +0.0001 | 0.0007 | 0.041 | 0.81 | 0.96 | 0.045 |
+| high | A-matrix | +0.0004 | 0.0006 | 0.038 | 0.83 | 0.96 | 0.043 |
+
+- **RMSE** (dissertation: consistently lower, gains growing with migration,
+  largest for Distance, Neighbors, Into-Urban and Into-Hot-Cold): replicated
+  in direction and shape. The A-matrix model has lower RMSE in 74 of 96
+  scenarios with 14 ties and 8 losses, all of them tiny (≤ 0.0003) and at low
+  migration. Gains grow from 0.0004 (low) to 0.0024 (high) on average and
+  concentrate in the Distance and Neighbors patterns (0.007-0.011 at high
+  migration); they are near zero when migrants leave from a few districts.
+  The Into-Urban and Into-Hot-Cold gains of the dissertation do not appear
+  here because our eight destination districts receive flows from everywhere
+  and are already well estimated. The dissertation's gains were larger (up to
+  0.03), with the same ordering by pattern.
+- **Bias** (dissertation: no meaningful difference, all |differences| below
+  0.005): replicated. The largest absolute bias difference is 0.004 and the
+  forest plot below shows nearly every interval covering zero.
+- **Bias²** (dissertation: favours the A-matrix everywhere): largely
+  replicated, 73 of 96 scenarios.
+- **Spearman correlation**: higher for the A-matrix model in 85 of 96
+  scenarios.
+- **Coverage** (dissertation: 85-99% for both, lowest for the Random base
+  pattern): replicated. Both methods cover 88-99%, averaging 96%, and the
+  Random base pattern is the lowest at 94%.
+
+![A-matrix bias forest](results/figures/fig6_estimation_bias_forest.png)
+
+![A-matrix coverage](results/figures/fig8_estimation_coverage.png)
+
+District-level RMSE maps for the SE-gradient base pattern at medium
+migration are in `results/figures/fig7_estimation_rmse_maps.png` (Dupuis
+Figure 7 analogue). Diagnostics: one of 1,536 fits had a divergent transition
+and one had an R-hat above 1.05 (1.058); the rest were below.
 
 <!-- RESULTS-HEADTOHEAD -->
 
@@ -234,8 +282,9 @@ cd migration_sae_replication
 uv sync
 uv run pytest -q                                   # unit tests (~40 s)
 uv run python simulation.py --study prediction     # ~7 min on 4 cores
-uv run python simulation.py --study estimation     # ~2 h
-uv run python simulation.py --study headtohead     # ~1 h
+uv run python simulation.py --study estimation --reps 8   # ~85 min on 4 cores
+uv run python simulation.py --study headtohead --reps 8   # ~45 min
+uv run python multinomial.py --study headtohead --reps 5 --bases block hotcold --patterns neighbors distance crisis_idp into_urban
 uv run python summarize.py results/raw/*.parquet   # scenario metrics -> results/*.csv
 uv run python make_figures.py                      # -> results/figures/
 ```
