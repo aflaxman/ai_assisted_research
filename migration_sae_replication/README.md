@@ -7,7 +7,27 @@ Disease Burden*, PhD dissertation, Boston University Biostatistics, 2026
 CC BY-NC-ND 4.0: <https://hdl.handle.net/2144/53596> (the ProQuest record is
 32703879).
 
-<!-- TLDR -->
+**TL;DR.** Both of the dissertation's methods were re-implemented in numpyro
+and run through its three binomial simulation designs on the full
+96-scenario grid (8-10 replications) plus a reduced multinomial grid, all on
+the real post-2020 Ukrainian district map with synthetic registry data.
+
+- *Replicated:* the power prior cuts RMSE (86 of 96 scenarios, most for
+  all-district migration) while its 95% intervals cover only about half the
+  time versus 92% for the naive model; the A-matrix model cuts RMSE without
+  adding bias and keeps 95% coverage; head to head the A-matrix covers 0.24-0.62
+  more often; the multinomial analogues (total variation distance,
+  category RMSE, prevalent categories gaining most) follow suit.
+- *Not replicated:* the power prior's bias² advantage over the naive model
+  and its RMSE edge over the A-matrix under the method-neutral design; the
+  two methods tie on precision here.
+- *New:* the under-coverage has a mechanical cause (each area's full case
+  count is used twice, inflating precision by about 1 + 1/f for sampling
+  fraction f), and a zero-cost variant that pushes the naive model's random
+  effects through the composition matrix beats both methods on RMSE with
+  about 95% coverage.
+- *Caveat:* every input the dissertation drew from the Ukraine TB registry is
+  a stand-in here, and effect sizes are roughly half the dissertation's.
 
 ## What the dissertation does
 
@@ -270,7 +290,56 @@ composition matrix) predicts the post-migration population. Averaged over the
 Diagnostics: 8 of 800 fits had an R-hat above 1.05 (maximum 1.11) and 2 had a
 divergent transition.
 
-<!-- RESULTS-MULTINOMIAL -->
+### Multinomial extension (Chapter 4), reduced grid
+
+Four drug-resistance categories (DS-TB; RR-TB; other DR-TB; pre-XDR/XDR-TB),
+built from the binomial patterns exactly as in the dissertation: the DS share
+is the binomial non-resistant share and the remainder splits 0.6/0.2/0.2. The
+model is a multinomial-logit unit-level SAE with DS as reference, sampled by
+NUTS on the softmax likelihood instead of the stick-breaking Gibbs sampler;
+`A` is shared across categories as in the dissertation. The grid is reduced to
+the Block and Hot-Cold base patterns, four migration patterns (Neighbors,
+Distance, Crisis-IDPs, Into-Urban), three levels and 5 replications.
+
+| study | comparison | lower TVD in | lower category RMSE in | 95% coverage |
+|---|---|---|---|---|
+| prediction DGP (Fig. 9-11) | power prior vs naive | 19 of 24 scenarios | 89 of 96 category-scenarios | 55-65% vs 92-96% |
+| estimation DGP (Fig. 12-14) | A-matrix vs naive | 24 of 24 | 83 of 96 | 96-98% for both |
+| neutral DGP (Fig. 15-18) | power prior vs A-matrix | 13 of 24 | 50 of 96 | 53-58% vs 94-97% |
+
+![multinomial power prior heatmap](results/figures/fig9_multinomial_prediction_heatmap.png)
+
+- **Power prior vs naive** (dissertation: lower TVD everywhere, RMSE lower by
+  0.01-0.05 with the largest absolute gains in the prevalent categories):
+  replicated in shape with smaller magnitudes. TVD falls from 0.049 to 0.039
+  at high migration; the category RMSE reductions are 0.008-0.009 for DS-TB
+  and RR-TB and 0.003 for the two rare categories, and Spearman correlations
+  rise for every category. Coverage, which the dissertation does not report
+  for this study, drops to 55-65% exactly as in the binomial case.
+- **A-matrix vs naive** (dissertation: lower TVD everywhere, RMSE lower by
+  0.001-0.02, differences largest for the low-prevalence categories): TVD and
+  coverage replicate (TVD lower in every scenario, coverage 96-98% for both
+  methods); the RMSE gains are smaller (up to 0.006) and, unlike the
+  dissertation, largest for the most prevalent category.
+- **Head to head** (dissertation: negligible TVD differences within ±0.01,
+  the power prior up to 0.04 better in RMSE, the A-matrix 0.3-0.7 better in
+  coverage): the TVD and coverage findings replicate (TVD differences
+  −0.015 to +0.002; coverage gap 0.19-0.54), the precision advantage does
+  not. Both migration-adjusted methods beat the naive model in nearly every
+  category-scenario, and the projection variant again has the lowest RMSE.
+  (`results/figures/fig12_multinomial_estimation_heatmap.png`,
+  `results/figures/fig15m_multinomial_headtohead_heatmap.png`.)
+
+Diagnostics: none of the 380 multinomial fits had a divergent transition or an
+R-hat above 1.05.
+
+## Compute
+
+Each binomial fit (2 chains × 800 iterations, 128 districts, 2,048 cells)
+takes about 13 s on one CPU core and each multinomial fit about 22 s. The
+runs reported here total roughly 4.5 hours on 4 cores: prediction 7 min,
+estimation 84 min, head-to-head 51 min, multinomial 40 min, plus the
+sensitivity run.
 
 ## Implementation notes
 
@@ -328,12 +397,16 @@ divergent transition.
 cd migration_sae_replication
 uv sync
 uv run pytest -q                                   # unit tests (~40 s)
-uv run python simulation.py --study prediction     # ~7 min on 4 cores
-uv run python simulation.py --study estimation --reps 8   # ~85 min on 4 cores
-uv run python simulation.py --study headtohead --reps 8   # ~45 min
-uv run python multinomial.py --study headtohead --reps 5 --bases block hotcold --patterns neighbors distance crisis_idp into_urban
-uv run python summarize.py results/raw/*.parquet   # scenario metrics -> results/*.csv
-uv run python make_figures.py                      # -> results/figures/
+uv run python simulation.py --study prediction --reps 10          # ~7 min on 4 cores
+uv run python simulation.py --study estimation --reps 8           # ~85 min
+uv run python simulation.py --study headtohead --reps 8           # ~50 min
+P="neighbors distance crisis_idp into_urban"
+for s in prediction estimation headtohead; do                     # ~40 min in total
+  uv run python multinomial.py --study $s --reps 5 --bases block hotcold --patterns $P
+done
+uv run python summarize.py results/raw/*.parquet                  # scenario metrics -> results/*.csv
+uv run python make_figures.py                                     # -> results/figures/
+uv run python sensitivity_sampling.py                             # ~5 min
 ```
 
 `data/ukraine_adm2.geojson` is derived from HDX files with `prepare_data.py`;
@@ -345,7 +418,8 @@ the raw downloads (85 MB) are not committed.
 - `synthetic.py` - covariates, base patterns, migration patterns, population and sampling
 - `models.py` - numpyro unit-level SAE model (naive and A-matrix), prediction
 - `power_prior.py` - migration-adjusted power prior (binomial and multinomial)
-- `simulation.py` - the three studies, parallel over scenarios
+- `simulation.py` - the three binomial studies; `multinomial.py` - their multinomial versions
+- `runner.py` - chunked, resumable parallel task runner
 - `summarize.py`, `make_figures.py` - metrics and figures
 - `sensitivity_sampling.py` - power prior coverage vs. share of cases with known status
-- `test_synthetic.py`, `test_models.py` - unit tests
+- `test_synthetic.py`, `test_models.py`, `test_multinomial.py` - unit tests
