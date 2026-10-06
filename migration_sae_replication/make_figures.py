@@ -117,7 +117,7 @@ def heatmap_grid_abs_bias(scen, method, path, title, reference="naive"):
 
 
 # ----------------------------------------------------------------------------- coverage dots
-def coverage_dots(scen, methods, labels, path, title):
+def coverage_dots(scen, methods, labels, path, title, ylim=(0, 102), yticks=(25, 50, 75, 95)):
     scen = scen.copy()
     scen["scenario"] = scen["level"].map({"low": 0, "medium": 1, "high": 2}) * len(PATTERNS) + scen["pattern"].map(PATTERNS.index)
     fig, axes = plt.subplots(len(BASES), 1, figsize=(11, 7.5), sharex=True, sharey=True)
@@ -134,13 +134,14 @@ def coverage_dots(scen, methods, labels, path, title):
                        edgecolor="white", linewidth=0.6, label=labels[m], zorder=3)
         ax.set_ylabel("Coverage (%)")
         ax.set_title(BASE_LABELS[base], loc="left", fontsize=9, color=INK2, pad=3)
-        ax.set_ylim(0, 102)
-        ax.set_yticks([25, 50, 75, 95])
+        ax.set_ylim(*ylim)
+        ax.set_yticks(list(yticks))
         _style_ax(ax)
     axes[-1].set_xticks(range(3 * len(PATTERNS)))
     axes[-1].set_xticklabels([PATTERN_LABELS[p] for _ in LEVELS for p in PATTERNS], rotation=45, ha="right", fontsize=7.5)
     for k, level in enumerate(LEVELS):
-        axes[0].text(k * len(PATTERNS) + len(PATTERNS) / 2 - 0.5, 118, LEVEL_LABELS[level], ha="center", fontsize=9, color=INK)
+        axes[0].text(k * len(PATTERNS) + len(PATTERNS) / 2 - 0.5, ylim[1] + 0.16 * (ylim[1] - ylim[0]), LEVEL_LABELS[level],
+                     ha="center", fontsize=9, color=INK)
     axes[0].legend(loc="lower left", frameon=False, fontsize=8, ncol=2, bbox_to_anchor=(0.0, -0.02))
     fig.suptitle(title, fontsize=11, x=0.02, ha="left", y=0.995)
     fig.subplots_adjust(top=0.9, bottom=0.14, left=0.07, right=0.98, hspace=0.35)
@@ -258,7 +259,8 @@ def main(which):
                   ["naive", "amatrix"], {"naive": "Migration-naive", "amatrix": "A-matrix"}, OUT / "fig7_estimation_rmse_maps.png",
                   "District RMSE, SE-gradient base, medium migration (Dupuis Fig. 7 analogue)")
         coverage_dots(scen, ["naive", "amatrix"], {"naive": "Migration-naive", "amatrix": "A-matrix (migration-adjusted)"},
-                      OUT / "fig8_estimation_coverage.png", "95% interval coverage: A-matrix study (Dupuis Fig. 8 analogue)")
+                      OUT / "fig8_estimation_coverage.png", "95% interval coverage: A-matrix study (Dupuis Fig. 8 analogue)",
+                      ylim=(84, 100.5), yticks=(85, 90, 95, 100))
     if "headtohead" in which:
         raw = pd.read_parquet("results/raw/headtohead.parquet")
         scen, per_district = scenario_metrics(raw)
