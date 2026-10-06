@@ -95,11 +95,11 @@ def heatmap_grid(scen, method, metrics, title, path, reference="naive", bases=No
         cb.set_label(label, fontsize=8, color=INK2)
         cb.outline.set_visible(False)
         cb.ax.tick_params(labelsize=7, length=2, color=MUTED)
-    fig.suptitle(title, fontsize=11, x=0.02, ha="left", y=0.995)
-    fig.text(0.02, 0.962, note or "orange: migration-adjusted method better; blue: migration-naive method better",
-             fontsize=8, color=INK2)
-    fig.subplots_adjust(top=0.88 if nrow <= 4 else 0.9, bottom=0.2 if nrow <= 3 else (0.14 if nrow <= 4 else 0.1),
-                        left=0.09, right=0.86, hspace=0.25, wspace=0.08)
+    h = fig.get_size_inches()[1]
+    fig.suptitle(title, fontsize=11, x=0.02, ha="left", y=1 - 0.08 / h, va="top")
+    fig.text(0.02, 1 - 0.32 / h, note or "orange: migration-adjusted method better; blue: migration-naive method better",
+             fontsize=8, color=INK2, va="top")
+    fig.subplots_adjust(top=1 - 0.8 / h, bottom=0.95 / h, left=0.09, right=0.86, hspace=0.25, wspace=0.08)
     fig.savefig(path, dpi=160)
     plt.close(fig)
 
