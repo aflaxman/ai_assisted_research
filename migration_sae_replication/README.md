@@ -221,7 +221,54 @@ migration are in `results/figures/fig7_estimation_rmse_maps.png` (Dupuis
 Figure 7 analogue). Diagnostics: one of 1,536 fits had a divergent transition
 and one had an R-hat above 1.05 (1.058); the rest were below.
 
-<!-- RESULTS-HEADTOHEAD -->
+### Power prior vs. A-matrix under a method-neutral DGP (Chapter 4, binomial analogue)
+
+The dissertation's head-to-head generates the truth without either method's
+assumptions: cases migrate, and every case at `t1` inherits the resistance
+status of a randomly chosen "infector" among the cases now living in its
+district. Both methods are fitted to the `t0` sample; the power prior adjusts
+the naive `t0` posterior, while the A-matrix model (fitted with the realized
+composition matrix) predicts the post-migration population. Averaged over the
+32 scenarios per level (8 replications):
+
+| migration level | method | bias | RMSE | Spearman | 95% coverage | posterior sd |
+|---|---|---|---|---|---|---|
+| low | naive | −0.001 | 0.042 | 0.85 | 0.94 | 0.043 |
+| low | power prior | +0.001 | 0.041 | 0.85 | 0.54 | 0.016 |
+| low | A-matrix | −0.001 | 0.041 | 0.85 | 0.97 | 0.047 |
+| medium | naive | −0.003 | 0.044 | 0.83 | 0.93 | 0.043 |
+| medium | power prior | +0.002 | 0.041 | 0.84 | 0.51 | 0.015 |
+| medium | A-matrix | −0.002 | 0.041 | 0.85 | 0.96 | 0.046 |
+| high | naive | −0.003 | 0.049 | 0.80 | 0.89 | 0.043 |
+| high | power prior | +0.003 | 0.042 | 0.82 | 0.49 | 0.015 |
+| high | A-matrix | −0.003 | 0.044 | 0.83 | 0.94 | 0.045 |
+
+![head-to-head heatmap](results/figures/fig15_headtohead_heatmap.png)
+
+- **Coverage** (dissertation: A-matrix higher by 0.3-0.7 everywhere):
+  replicated. The A-matrix intervals cover 75-99% of the time, the power
+  prior's 35-60%, a gap of 0.24-0.62 in every scenario.
+- **Precision** (dissertation: power prior lower RMSE in nearly all
+  scenarios, by up to 0.04): not replicated. The two methods tie: the power
+  prior has the lower RMSE in 44 of 96 scenarios, and the mean difference is
+  0.000 at low and medium migration and 0.001 at high. The power prior wins
+  clearly only for Distance migration at high levels (0.012) and loses for
+  Out-Urban (0.005), where it over-weights the large cities' data.
+- **Bias** (dissertation: differences negligible, slightly favouring the
+  power prior): replicated as a tie (power prior lower |bias| in 53 of 96).
+- **Both beat the naive model.** Under this neutral DGP the A-matrix model
+  has lower RMSE than naive in 85 of 96 scenarios and the power prior in 69.
+- **A cheaper variant does best.** Fitting the naive model at `t0` and
+  pushing its random effects through `A` for the `t1` population
+  (`amatrix_proj`) has the lowest RMSE of all (lower than naive in 88 of 96
+  scenarios, mean gain 0.008 at high migration) with 93-96% coverage. It
+  costs nothing beyond the naive fit, which supports the dissertation's
+  reading of `A eta` as a post-migration mixture of area risks.
+
+![head-to-head coverage](results/figures/fig16_headtohead_coverage.png)
+
+Diagnostics: 8 of 800 fits had an R-hat above 1.05 (maximum 1.11) and 2 had a
+divergent transition.
 
 <!-- RESULTS-MULTINOMIAL -->
 
