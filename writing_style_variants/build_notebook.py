@@ -104,12 +104,20 @@ fig = bar_panels(
     "Surface style metrics by variant (mean and 95% CI)",
 )
 """),
-    md("## Recall of planted facts, by task\n\nThe PR's judges complained that texts which named ASD-STE100 were missing content. This grid shows where content goes missing: the share of each task's planted facts that the judge found in the text."),
+    md("## Recall of planted facts and accuracy, by task\n\nThe PR's judges complained that texts which named ASD-STE100 were missing content. The first grid shows where content goes missing: the share of each task's planted facts that the judge found in the text (color range 85% to 100%). The second grid shows the accuracy score by task (color range 3 to 5), where the variants differ most."),
     code("""
-piv = df.pivot_table(index="variant_label", columns="task", values="facts_recall", aggfunc="mean", observed=True)
-piv = piv.loc[[VARIANTS[v]["label"] for v in VORDER]]
-piv.columns = [TASKS[t]["title"] for t in piv.columns]
-fig = heatmap(piv, "Share of planted facts the text states, by task and variant")
+from analyze import SHORT_TASK
+
+def grid(col):
+    piv = df.pivot_table(index="variant_label", columns="task", values=col, aggfunc="mean", observed=True)
+    piv = piv.loc[[VARIANTS[v]["label"] for v in VORDER]]
+    piv.columns = [SHORT_TASK[str(t)] for t in piv.columns]
+    return piv
+
+fig = heatmap(grid("facts_recall"), "Share of planted facts the text states, by task and variant", vmin=0.85, vmax=1.0)
+"""),
+    code("""
+fig = heatmap(grid("accuracy"), "Accuracy score (1 to 5) by task and variant", fmt="{:.1f}", vmin=3.0, vmax=5.0)
 """),
     md("## Accuracy details: traps, unsupported claims, and marked judgments\n\n`Traps stated as fact` counts claims the source does not support that the text states anyway (for example a motive for a change that the ticket does not give). `Judgments marked` is the share of runs where every guess or judgment in the text was labelled as one. The last column counts a formatting quirk: the whole reply delivered inside a ```` ```markdown ```` code fence, which renders as raw text in a PR or ticket."),
     code("""
@@ -129,12 +137,13 @@ wide_table(df, COST_COLS, digits=3)
 Repetition 0 of every variant for each task, in variant order. Nothing is cherry-picked. The line under each heading gives the word count, the mean sentence length, and the blind judge's scores for that exact text.
 """),
     code("""
-def show_task(task):
+def show_task(task, data=None):
+    data = df if data is None else data
     t = TASKS[task]
     display(Markdown(f"## {t['title']}\\n\\n**Prompt given to the writer:**"))
     print(t["prompt"])
     display(Markdown("**Facts the judge checks:**\\n\\n" + "\\n".join(f"{i + 1}. {f}" for i, f in enumerate(t["facts"]))))
-    sub = df[(df.task == task) & (df.rep == 0)]
+    sub = data[(data.task == task) & (data.rep == 0)]
     for _, r in sub.iterrows():
         line = f"{r.words} words, {r.mean_sentence_words:.0f} words per sentence, {r.output_tokens} output tokens, ${r.cost_usd:.3f}"
         if "clarity" in r.index and pd.notna(r.clarity):
@@ -150,6 +159,48 @@ def show_task(task):
     code("show_task('pr_description')"),
     code("show_task('jira_ticket')"),
     code("show_task('doc_review')"),
+    md("""
+## Does the model matter? The same test on `claude-sonnet-5-5`
+
+The PR's review agents declare `model: sonnet`, so the one-line rule is read by Sonnet in production, and the PR's subagent evals ran there. The runs above all used Opus 5.5. This section repeats the control, the two shipped PR texts, the PR's rejected named variant, and Karpathy's "Write in ASD-STE100" on `claude-sonnet-5-5` (5 reps x 4 tasks each). The judge is unchanged (Opus 5.5), so the scores are comparable across the two tables.
+"""),
+    code("""
+from analyze import RESULTS
+HAVE_SONNET = (RESULTS / "judgments_sonnet.jsonl").exists()
+if HAVE_SONNET:
+    dfs = load_all(suffix="_sonnet")
+    print(f"{len(dfs)} Sonnet runs, generation ${dfs.cost_usd.sum():.2f}, judge ${dfs.judge_cost_usd.sum():.2f}")
+    display(wide_table(dfs, JUDGE_COLS))
+else:
+    print("no Sonnet results yet")
+"""),
+    code("""
+if HAVE_SONNET:
+    fig = dot_plot(
+        summarize(dfs, JUDGE_COLS), JUDGE_COLS,
+        "Blind judge scores by variant on claude-sonnet-5-5 (mean and 95% bootstrap CI over 4 tasks x 5 reps)",
+        xlim={c: (0.8, 5.4) for c in JUDGE_COLS[:-1]} | {"facts_recall": (0, 1.1)},
+    )
+"""),
+    code("""
+if HAVE_SONNET:
+    d = delta_vs(dfs, JUDGE_COLS, ref="none")
+    d["cell"] = d.apply(lambda r: f"{r['delta']:+.2f} [{r['lo']:+.2f}, {r['hi']:+.2f}]", axis=1)
+    w = d.pivot(index="label", columns="metric", values="cell")[JUDGE_COLS]
+    w.columns = [PRETTY[c] for c in w.columns]
+    w.index.name = None
+    display(w)
+    display(wide_table(dfs, ["words", "mean_sentence_words", "pct_sentences_over_20", "passive_per_100_sentences", "hedges"], digits=1))
+    acc_s = wide_table(dfs, ["traps_hit_n", "unsupported_claims"], digits=2)
+    acc_s["Judgments marked (share of runs)"] = dfs.groupby("variant_label", observed=True)["judgments_marked"].mean().round(2).reindex(acc_s.index)
+    acc_s["Whole reply wrapped in a code fence (share of runs)"] = dfs.groupby("variant_label", observed=True)["wrapped_in_code_fence"].mean().round(2).reindex(acc_s.index)
+    display(acc_s)
+"""),
+    md("### Sonnet outputs side by side: the chat task, repetition 0"),
+    code("""
+if HAVE_SONNET:
+    show_task("chat_reply", dfs)
+"""),
     md("## Discussion\n\n" + DISCUSSION),
     md("""
 ## Reproduce

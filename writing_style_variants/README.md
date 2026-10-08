@@ -91,7 +91,51 @@ who already use the config loader"), and a documentation review with six planted
 carries six facts the source supports and three or four traps (claims it does not support, such as a
 motive the ticket never gives).
 
-<!-- RESULTS -->
+## Results
+
+### Opus 5.5 writer, blind Opus 5.5 judge (140 runs)
+
+Judge scores, mean over 20 runs per variant, with 95% bootstrap intervals in the notebook:
+
+| Variant | Clarity | Accuracy | Completeness | Actionability | Facts recalled |
+|---|---|---|---|---|---|
+| V0 no rules (control) | 4.80 | 4.35 | 4.90 | 4.95 | 0.97 |
+| V1 PR one-line agent rule | 4.85 | 4.55 | 4.95 | 5.00 | 0.98 |
+| V2 PR hook text | 4.90 | **4.70** | 5.00 | 5.00 | 1.00 |
+| V3 PR hook text + names ASD-STE100 | 4.90 | **4.75** | 5.00 | 5.00 | 1.00 |
+| V4 "Write in ASD-STE100" | 4.85 | 4.30 | 4.95 | 4.95 | 0.98 |
+| V5 "80% of the way to ASD-STE100" | 4.90 | 4.35 | 4.85 | 4.95 | 0.97 |
+| V6 prefer a diagram | 4.55 | 4.25 | 4.90 | 4.95 | 0.98 |
+
+Paired difference from the control on accuracy, with 95% intervals: V1 +0.20 [-0.05, +0.45],
+V2 +0.35 [0.00, +0.70], V3 +0.40 [+0.05, +0.75], V4 -0.05 [-0.40, +0.30], V5 0.00 [-0.35, +0.35],
+V6 -0.10 [-0.40, +0.20]. Every clarity, completeness, and actionability difference has an interval
+that includes zero.
+
+Surface style of the prose (code removed), means over 20 runs:
+
+| Variant | Words | Words per sentence | Sentences over 20 words | Passive hits per 100 sentences | Contractions | Hedge words |
+|---|---|---|---|---|---|---|
+| V0 no rules (control) | 310 | 9.6 | 6.5% | 9.9 | 2.5 | 0.9 |
+| V1 PR one-line agent rule | 277 | 8.9 | 2.7% | 1.5 | 0.0 | 0.6 |
+| V2 PR hook text | 340 | 9.5 | 4.1% | 2.6 | 0.0 | 2.5 |
+| V3 PR hook text + names ASD-STE100 | 340 | 8.9 | 3.3% | 2.4 | 0.0 | 1.9 |
+| V4 "Write in ASD-STE100" | 280 | 8.6 | 2.4% | 1.6 | 0.0 | 0.2 |
+| V5 "80% of the way to ASD-STE100" | 330 | 8.6 | 3.5% | 3.8 | 0.0 | 0.3 |
+| V6 prefer a diagram | 273 | 9.8 | 9.0% | 10.6 | 2.4 | 0.6 |
+
+Semicolons and Latin abbreviations were near zero for every variant, including the control.
+Runs that stated a trap as fact: control 5 of 20 (all on the Jira ticket), V1 3, V2 0, V3 0,
+V4 1, V5 2, V6 4. Runs where every judgment was marked as one: control 60%, V1 70%, V2 85%,
+V3 90%, V4 60%, V5 45%, V6 65%. The diagram variant drew a diagram in 65% of runs. Two of 20
+replies under V1 and two under V4 arrived wrapped whole in a ```` ```markdown ```` fence.
+
+<!-- SONNET_README -->
+
+### Takeaways
+
+<!-- TAKEAWAYS -->
+
 
 ## Files
 

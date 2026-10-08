@@ -17,6 +17,7 @@ HERE = Path(__file__).resolve().parent
 RESULTS = HERE / "results"
 
 JUDGE_COLS = ["clarity", "accuracy", "completeness", "actionability", "facts_recall"]
+SHORT_TASK = {"pr_description": "PR description", "jira_ticket": "Jira ticket", "chat_reply": "Chat reply", "doc_review": "Doc review"}
 STYLE_COLS = [
     "words", "mean_sentence_words", "pct_sentences_over_20", "fk_grade",
     "semicolons", "contractions", "latin_abbreviations", "passive_per_100_sentences", "hedges",
@@ -62,13 +63,14 @@ def read_jsonl(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
 
-def load_all() -> pd.DataFrame:
-    gens = pd.DataFrame(read_jsonl(RESULTS / "generations.jsonl"))
+def load_all(suffix: str = "") -> pd.DataFrame:
+    """Load results/generations{suffix}.jsonl and results/judgments{suffix}.jsonl into one table."""
+    gens = pd.DataFrame(read_jsonl(RESULTS / f"generations{suffix}.jsonl"))
     if gens.empty:
-        raise FileNotFoundError("no generations yet; run run_variants.py")
+        raise FileNotFoundError(f"no generations{suffix}.jsonl yet; run run_variants.py")
     m = pd.DataFrame([text_metrics(o) for o in gens["output"]])
     df = pd.concat([gens.reset_index(drop=True), m], axis=1)
-    judg = read_jsonl(RESULTS / "judgments.jsonl")
+    judg = read_jsonl(RESULTS / f"judgments{suffix}.jsonl")
     if judg:
         j = pd.DataFrame(judg).drop(columns=["n_facts"], errors="ignore")
         df = df.merge(j, on=["variant", "task", "rep"], how="left")
