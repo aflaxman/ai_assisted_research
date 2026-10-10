@@ -68,6 +68,12 @@ mean, risky health behaviour, intimate partner violence.
 
 The full side-by-side table is in `table1_comparison.md` / `table1_comparison.csv`.
 
+## Depression
+
+See `DEPRESSION.md`: the paper's South Africa depression row uses a provider-screening item rather
+than the PHQ-9, and the full Ethiopia Module 1 to 5 data (including delivery and postpartum
+depression) is openly deposited on Zenodo by a coauthor.
+
 ## Possible extensions with the open data
 
 - The perinatal-outcome file (Q0YKOT) has stillbirth, neonatal death, late miscarriage and low

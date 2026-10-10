@@ -1,0 +1,82 @@
+==========================================================================================
+eCOANC1: PHQ-9 mild-or-worse (`depress`) vs `anc1depression`, by country
+                 n  phq9_mild_plus  anc1depression  asked_anx_dep  discussed_mh  referred_mh  prior_mh_dx  mh_drug
+country                                                                                                           
+Ethiopia      1000           0.247           0.037          0.037         0.000        0.001        0.005    0.005
+India         1022           0.090           0.142          0.142         0.400        0.108        0.010    0.056
+Kenya         1002           0.196           0.260          0.260         0.200        0.004        0.010    0.001
+South Africa  1044           0.354           0.145          0.145         0.176        0.004        0.021    0.003
+
+agreement between depress and anc1depression (all countries):
+anc1depression   0.0  1.0   All
+depress                        
+0.0             2663  483  3146
+1.0              793  107   900
+All             3456  590  4046
+
+PHQ-9 mild+ by country x adolescent:
+              size         mean       
+adol         False True   False  True 
+country                               
+Ethiopia       914    86  0.253  0.186
+India          944    78  0.090  0.090
+Kenya          882   120  0.198  0.175
+South Africa   871   173  0.332  0.468
+
+Detection gap: among PHQ-9 screen-positive women, share asked about anxiety/depression and referred:
+                        n  asked  referred
+country      depress                      
+Ethiopia     0.0      753  0.037     0.000
+             1.0      247  0.036     0.004
+India        0.0      930  0.150     0.117
+             1.0       92  0.056     0.022
+Kenya        0.0      806  0.278     0.001
+             1.0      196  0.185     0.015
+South Africa 0.0      674  0.139     0.001
+             1.0      370  0.155     0.008
+
+Correlates of PHQ-9 mild+ (row %), pooled 4 countries:
+  adol: False: 0.22 (n=3611), True: 0.27 (n=457)
+  marriedp: 0.0: 0.34 (n=1162), 1.0: 0.18 (n=2900)
+  intended: 0.0: 0.31 (n=1600), 1.0: 0.16 (n=2447)
+  tertile: 1.0: 0.23 (n=1268), 2.0: 0.20 (n=1566), 3.0: 0.24 (n=1202)
+  healthlit_corr: 0.0: 0.23 (n=2880), 1.0: 0.21 (n=1188)
+  m1_dangersigns: 0.0: 0.15 (n=2978), 1.0: 0.41 (n=1088)
+  hiv_known: 0.0: 0.21 (n=3720), 1.0: 0.41 (n=338)
+  prior_mh_dx: 0.0: 0.22 (n=4020), 1.0: 0.47 (n=47)
+  trimester: 1.0: 0.25 (n=1408), 2.0: 0.20 (n=2201), 3.0: 0.23 (n=437)
+  primipara: 0.0: 0.23 (n=2549), 1.0: 0.22 (n=1519)
+  poorhealth: 0.0: 0.20 (n=3631), 1.0: 0.44 (n=436)
+  anemic: 0.0: 0.20 (n=1785), 1.0: 0.22 (n=1095)
+  maln_underw: 0.0: 0.23 (n=3576), 1.0: 0.18 (n=442)
+
+==========================================================================================
+econut (Ethiopia): PHQ-9 items at follow-up rounds
+coding of m2_205a_r1: {0.0: 520, 1.0: 185, 2.0: 69, 3.0: 19, nan: 18}
+ round  interviewed  phq9_complete  mean_ga_wk  mean_phq9  pct_ge5  pct_ge10  pct_item9_any
+     1          811            785   22.021999      4.217    0.369     0.130          0.105
+     2          795            753   28.025999      3.772    0.321     0.100          0.079
+     3          748            652   32.610001      3.515    0.281     0.094          0.071
+     4          649            458   36.330002      3.476    0.293     0.090          0.056
+     5          426            225   39.106998      3.462    0.311     0.084          0.076
+     6          198             78   40.859001      3.615    0.308     0.077          0.064
+     7           49             11   42.084999      5.636    0.455     0.364          0.091
+     8            2              0   41.785999        NaN      NaN       NaN            NaN
+
+baseline `depress` (ANC1 PHQ-9 mild+): {0.0: 614, 1.0: 197}
+baseline depress by adolescent: {'size': {False: 741, True: 70}, 'mean': {False: 0.25099998712539673, True: 0.15700000524520874}}
+
+follow-up PHQ-9 by baseline status:
+           n  fu_rounds_mean  fu_mean_score any_fu_ge5
+depress                                               
+0.0      614           3.544          3.241   0.467554
+1.0      197           3.990          5.638   0.756477
+
+follow-up PHQ-9 by adolescent:
+         n  fu_mean_score any_fu_ge5
+adol                                
+False  741          3.861   0.545455
+True    70          3.425   0.455882
+
+within-woman: share of women with >=3 scored rounds whose scores cross 5 in both directions:
+  n= 667  ever>=5: 0.549  always>=5: 0.118
