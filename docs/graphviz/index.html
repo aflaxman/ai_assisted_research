@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="utf-8">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Graphviz Online: compartmental models</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div id="editor-toggle">
+    <button id="toggle-btn"></button>
+  </div>
+  <div id="editor-pane">
+    <pre id="editor">digraph {
+  graph [rankdir = LR]
+  node [shape = box, fixedsize = true,
+        width = 1, height = 1]
+  S -> I [label = "λS"]
+  I -> R [label = "νI"]
+}</pre>
+  </div>
+  <div id="splitter"></div>
+  <div id="review-pane">
+    <div id="options">
+      <label id="examples">
+        Example:
+        <select>
+          <option selected="">SIR</option>
+          <option>SIS</option>
+          <option>SEIR</option>
+          <option>SIR with births and deaths</option>
+          <option>SIR with vaccination</option>
+        </select>
+      </label>
+
+      <label id="engine">
+        Engine:
+        <select>
+          <option>circo</option>
+          <option selected="">dot</option>
+          <option>fdp</option>
+          <option>nop</option>
+          <option>nop2</option>
+          <option>neato</option>
+          <option>sfdp</option>
+          <option>twopi</option>
+          <option>osage</option>
+          <option>patchwork</option>
+        </select>
+      </label>
+
+      <label id="format">
+        Format:
+        <select>
+          <option selected="">svg</option>
+          <option>png</option>
+          <option>json</option>
+          <option>xdot</option>
+          <option>plain</option>
+          <option>ps</option>
+        </select>
+      </label>
+
+      <label id="raw" class="disabled">
+        <input type="checkbox" disabled=""> Show raw output
+      </label>
+
+      <label>
+        <a href="#" target="_blank" id="download">Download</a>
+      </label>
+
+      <label>
+        <input type="button" value="Share" id="share">
+      </label>
+
+      <input type="input" value="" id="shareurl">
+
+      <div style="flex-grow: 1;">
+        <a id="github-link" href="https://github.com/aflaxman/ai_assisted_research/tree/main/docs/graphviz" title="Source on GitHub"></a>
+      </div>
+    </div>
+    <div id="review">
+      <div id="error"></div>
+    </div>
+  </div>
+  <div id="status"></div>
+
+  <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"
+    integrity="sha512-qtX0GLM3qX8rxJN1gyDfcnMFFrKvixfoEOwbBib9VafR5vbChV5LeE5wSI/x+IlCkTY5ZFddFDCCfaVJJNnuKQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="viz-global.js"></script>
+  <script src="svg-pan-zoom.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="hammer.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="main.js" type="text/javascript" charset="utf-8"></script>
+  <script src="examples.js" type="text/javascript" charset="utf-8"></script>
+</body>
+
+</html>
