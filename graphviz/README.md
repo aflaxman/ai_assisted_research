@@ -40,8 +40,8 @@ in the [upstream README](https://github.com/dreampuf/GraphvizOnline#readme).
 
 ## Making this a proper fork
 
-This copy lives in `docs/graphviz/` so GitHub Pages for this repository
-serves it. To have it at `aflaxman.github.io/GraphvizOnline` instead:
+This copy lives in `graphviz/` at the repository root, which is where
+GitHub Pages for this repository serves from. To have it at `aflaxman.github.io/GraphvizOnline` instead:
 
 1. Fork https://github.com/dreampuf/GraphvizOnline on GitHub.
 2. Copy `index.html` and `examples.js` from this directory over the fork's.
