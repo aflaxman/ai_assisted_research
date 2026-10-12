@@ -1,0 +1,370 @@
+:root {
+  --splitter-width: 5px;
+  --editor-width: calc(50% - var(--splitter-width));
+}
+:root.hide-options:not(.show-engine,.show-format,.show-raw,.show-download,.show-share) #options,
+:root.hide-options #options > :not(div:last-child),
+:root.hide-editor-toggle #editor-toggle {
+  display: none;
+}
+:root.show-engine #engine, :root.show-format #format, :root.show-raw #raw, :root.show-download :has(>#download), :root.show-share :has(>#share) {
+  display: initial!important;
+}
+:root:not(.ready) body {
+  display: none;
+}
+
+body {
+  overflow: hidden;
+  margin: 0 0;
+}
+
+#editor-toggle {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  z-index: 10;
+  transform: translateY(-50%);
+}
+
+#toggle-btn {
+  cursor: pointer;
+  padding: 10px 6px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(222, 226, 230, 0.7);
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  color: #495057;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 2px 0 4px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 20px;
+}
+
+#toggle-btn::before { content: "▶"; }
+#toggle-btn::after { content: "◀"; }
+#toggle-btn::before, #toggle-btn::after {
+  position: absolute;
+  transition: visibility 0.2s ease;
+}
+:root:not(.editor-collapsed) #toggle-btn::before,
+:root.editor-collapsed #toggle-btn::after {
+  visibility: hidden;
+}
+
+#toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 2px 0 6px rgba(0,0,0,0.12);
+  color: #212529;
+}
+
+#toggle-btn:active {
+  background: rgba(233, 236, 239, 0.8);
+  box-shadow: 1px 0 3px rgba(0,0,0,0.05);
+}
+
+:root.editor-collapsed #toggle-btn {
+  background: linear-gradient(to right, #ffffff, #f8f9fa);
+  border: 1px solid #dee2e6;
+  box-shadow: 2px 0 4px rgba(0,0,0,0.08);
+  color: #495057;
+}
+
+:root.editor-collapsed #toggle-btn:hover {
+  background: linear-gradient(to right, #f8f9fa, #e9ecef);
+  color: #212529;
+}
+
+#editor-pane {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  transition: width 0.3s ease;
+  width: var(--editor-width);
+}
+
+#editor {
+  flex-grow: 1;
+  min-height: 1px;
+  position: relative;
+  margin: 0;
+}
+
+:root.editor-collapsed #editor-pane {
+  width: 0 !important;
+}
+
+#splitter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--editor-width);
+  width: var(--splitter-width);
+  background: #ccc;
+  cursor: col-resize;
+  z-index: 5;
+  transition: left 0.3s ease, visibility 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 0 4px rgba(0,0,0,0.08);
+}
+
+:root.editor-collapsed #splitter {
+  visibility: hidden;
+  left: 0!important;
+  cursor: initial;
+}
+
+#splitter::before {
+  content: '⋮';
+  color: #555;
+  font-size: 20px;
+  font-weight: bold;
+  pointer-events: none;
+  line-height: 1;
+}
+
+#splitter:hover {
+  background: #999;
+}
+
+#splitter:hover::before {
+  color: #222;
+}
+
+:root.splitter-is-dragging #splitter {
+  background: #666;
+}
+
+:root.splitter-is-dragging :is(#splitter, #editor-pane, #review-pane) {
+  transition: none;
+}
+
+:root.splitter-is-dragging #splitter::before {
+  color: #fff;
+}
+
+:root.splitter-is-dragging body {
+  cursor: col-resize;
+}
+
+#review-pane {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: calc(var(--editor-width) + var(--splitter-width));
+  transition: left 0.3s ease;
+}
+
+#review {
+  flex-grow: 1;
+  min-height: 1px;
+  position: relative;
+}
+
+:root.editor-collapsed :has(>#review) {
+  left: 0 !important;
+}
+
+#options {
+  flex: 0 0 auto;
+  background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+  border-bottom: 1px solid #dee2e6;
+  padding: 8px 12px;
+  overflow: hidden;
+  transition: left 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  z-index: 10;
+}
+
+#options label {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #495057;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+#options select {
+  padding: 4px 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: white;
+  color: #212529;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+#options select:hover {
+  border-color: #adb5bd;
+}
+
+#options select:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+#options input[type="checkbox"] {
+  cursor: pointer;
+}
+
+#options input[type="button"] {
+  padding: 5px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: white;
+  color: #212529;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#options input[type="button"]:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+#options input[type="button"]:active {
+  background: #e9ecef;
+}
+
+#options #raw.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#options #raw.disabled input {
+  cursor: not-allowed;
+}
+
+#options > div:last-child {
+  text-align: right;
+}
+
+#github-link {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32px" height="32px" fill="black"><path d="M10.303 16.652c-2.837-.344-4.835-2.385-4.835-5.028 0-1.074.387-2.235 1.031-3.008-.279-.709-.236-2.214.086-2.837.86-.107 2.02.344 2.708.967.816-.258 1.676-.386 2.728-.386 1.053 0 1.913.128 2.686.365.666-.602 1.848-1.053 2.708-.946.3.581.344 2.085.064 2.815.688.817 1.053 1.913 1.053 3.03 0 2.643-1.998 4.641-4.877 5.006.73.473 1.224 1.504 1.224 2.686v2.235c0 .644.537 1.01 1.182.752 3.889-1.483 6.94-5.372 6.94-10.185 0-6.081-4.942-11.044-11.022-11.044-6.081 0-10.98 4.963-10.98 11.044a10.84 10.84 0 0 0 7.112 10.206c.58.215 1.139-.172 1.139-.752v-1.719a2.768 2.768 0 0 1-1.032.215c-1.418 0-2.256-.773-2.857-2.213-.237-.58-.495-.924-.989-.988-.258-.022-.344-.129-.344-.258 0-.258.43-.451.86-.451.623 0 1.16.386 1.719 1.181.43.623.881.903 1.418.903.537 0 .881-.194 1.375-.688.365-.365.645-.687.903-.902Z"></path></svg>');
+}
+
+#status {
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  display: block;
+  color: #FFF;
+  z-index: 999;
+}
+
+#review svg {
+  width: 100%;
+  height: 100%;
+}
+
+#review #text {
+  font-size: 12px;
+  font-family: monaco, courier, monospace;
+  white-space: pre;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+#review img {
+  display: block;
+  margin: 0 auto;
+}
+
+#review.working svg,
+#output.error svg,
+#review.working #text,
+#output.error #text,
+#review.working img,
+#output.error img {
+  opacity: 0.4;
+}
+
+#review.error #error {
+  display: inherit;
+}
+
+#review #error {
+  display: none;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  margin-right: 20px;
+  padding: 0 1ex;
+  background: red;
+  color: white;
+  z-index: 1;
+}
+
+#download {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  background: white;
+  color: #212529;
+  padding: 5px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  display: inline-block;
+  transition: all 0.15s ease;
+}
+
+#download:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+#download:active {
+  background: #e9ecef;
+}
+
+#shareurl {
+  display: none;
+  padding: 4px 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: white;
+  color: #212529;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  width: 300px;
+}
+
+#shareurl:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
