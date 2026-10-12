@@ -311,4 +311,5 @@ sensitivity columns come from `MYRIAD_REMISSION_NON_IDU=1` and
 - `myriad/data/background_mortality_monthly.csv` - supplement Table B27
 - `run_replication.py`, `plot_results.py`, `test_myriad.py`
 - `gbd_comparison.py` - model vs GBD 2023 comparison tables and figure
+- `explainer.html` - standalone explainer page with interactive charts (open in a browser)
 - `results/` - CSV outputs, comparison tables and figures
