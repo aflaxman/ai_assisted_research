@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+.pytest_cache/
+# Raw downloads from third-party repositories without a stated license (see PLAN.md section 6).
+data/raw/
+.quarto/
+/_site/
+*_files/

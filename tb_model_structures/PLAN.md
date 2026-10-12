@@ -12,7 +12,7 @@ Contents
 4. Transmission embedding, GBD targets, hold-outs, ACT3
 5. Software design and milestones
 6. Data inventory: obtained vs missing
-7. Decisions I need from you before coding
+7. Decisions (resolved 2026-10-12)
 
 ---
 
@@ -287,7 +287,21 @@ Missing or unverifiable:
 | Relative infectiousness of subclinical TB (number) | computable from the epidemery pipeline, but I have not run it and will not quote a value until I do | parameter with prior to be derived in M4 |
 | Licenses for Richards and Horton repos | none stated | I will not commit copies of their files; a pinned-commit fetch script will populate `data/raw/` locally, and DuckDB will be built from it. Dataverse (CC0) and epidemery (MIT) files can be vendored |
 
-## 7. Decisions I need from you
+## 7. Decisions (resolved 2026-10-12)
+
+| # | decision | resolution |
+|---|---|---|
+| 1 | Shared disease-exit block for classic structures | **Yes.** One common I→self-cure, I→death block, informed by Tiemersma 2011 Table 3 |
+| 2 | Likelihood blocks | **Blocks**, as in §3. A standalone HTML explainer (`docs/likelihood_blocks.html`) sets out the reasoning |
+| 3 | Country panel | **Keep** Viet Nam, South Africa, India, Kenya, Netherlands. Fetch the South Africa 2018, Kenya 2016 and India 2019–21 survey symptom data; if any cannot be fetched, report it so the user can supply it |
+| 4 | Age structure | **None in v1** |
+| 5 | ART coverage | **Try UNAIDS** (directly or via the World Bank mirror of UNAIDS estimates). The data layer keeps a `source` column so a GBD ART covariate pulled on the IHME cluster (vivarium `gbd_mapping`) can replace it |
+| 6 | MDR | **Proportion split in v1**, but strain is implemented as a generic stratum (like HIV) with per-stratum multipliers and an optional treatment-amplification transition, so a two-strain model is a config change later |
+| 7 | Unlicensed repos | **Fetch script** at pinned commits into `data/raw/` (git-ignored); CC0 and MIT files vendored |
+
+### Original questions (kept for the record)
+
+#### Questions as originally posed
 
 1. **Shared disease-exit block for the classic structures** (I→self-cure,
    I→death, informed by Tiemersma Table 3): acceptable, or do you want the
