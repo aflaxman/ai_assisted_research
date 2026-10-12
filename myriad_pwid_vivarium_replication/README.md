@@ -87,6 +87,74 @@ The Sustained Decline scenario's larger infection gain in the replication
 per-capita infection rate than the paper's; the direction and the death
 effects agree.
 
+## How the model's inputs and outputs compare with GBD 2023
+
+`gbd_comparison.py` sets the model's inputs and 2023 outputs beside the
+IHME Global Burden of Disease 2023 estimates for the United States (pulled
+with the GBD MCP tools; values and 95% uncertainty intervals are transcribed
+in the script). The full table with notes is in `results/gbd_comparison.md`.
+The main caveat is scope: MYRIAD follows 3.7 million people with active
+injection drug use, whereas GBD estimates cover the whole US population, so
+most rows compare a subset with a total.
+
+![Model vs GBD](results/fig_gbd_comparison.png)
+
+| Quantity (2023) | MYRIAD, PWID cohort | GBD 2023, United States (95% UI) |
+|---|---:|---:|
+| People who inject drugs | 3.69M (2018 input); 3.37M alive in 2023 | 1.06% of males and 0.48% of females inject (2022 exposure), about 2.6M people |
+| Opioid use disorder | 2.77M in the high-risk state | 6.99M (6.06M–7.96M) prevalent cases |
+| Overdose deaths | 48,800 | 95,300 (76,100–115,300) drug-use-disorder deaths; 72,700 (57,800–89,700) opioid |
+| Overdose death probability, people with OUD | 1.66% per year (input) | 72,697 / 6,990,364 = 1.04% per year |
+| People with HIV | 183,000 | 1.80M (1.08M–2.55M); drug-use share of HIV disability 6.9% |
+| HIV deaths | 1,090 | 5,676 (5,351–5,993); 376 (310–474) attributable to drug use |
+| People with chronic HCV | 1.55M | 4.62M (3.77M–5.62M) |
+| New HCV infections | 23,100 | 210,000 (180,000–244,000) acute infections |
+| HCV-related deaths | 5,800 | 37,964 (33,634–42,777); 33,769 (28,456–38,580) attributable to drug use |
+| Endocarditis | 7,310 hospitalisations, about 420 deaths | 67,728 (59,676–77,844) cases; 9,450 (8,160–10,666) deaths |
+
+What the comparison says:
+
+- **Overdose deaths are consistent.** The model's 48,800 overdose deaths
+  among PWID in 2023 are 51% of GBD's 95,300 drug-use-disorder deaths, close
+  to the 45.1% injection share the paper applies to national counts; in 2018
+  the model's 30,200 compares with GBD's 62,900.
+- **The OUD population is a subset.** The 2.8 million people the model holds
+  in the OUD state are 40% of GBD's 7.0 million prevalent cases, and their
+  overdose death probability (1.66% per year in 2023) is above the 1.04% per
+  year implied by GBD's deaths and prevalence, as expected for the injecting
+  subset. The 2023 model paper calibrated against an NSDUH-based 22.8 million
+  people misusing opioids (2015), with 35% OUD, which is about twice GBD's 2015
+  OUD count of 4.3 million.
+- **The number of PWID is the largest input disagreement.** Bradley et al.'s
+  3.7 million (past-year injection, the model's cohort) exceeds the 2.6 million
+  implied by GBD's injected-drug-use exposure proportions, and the paper's
+  sensitivity range (1.9M–7.3M) spans both.
+- **HIV: the model carries more HIV among PWID than GBD attributes to drug
+  use.** Its 183,000 people with HIV among PWID are a tenth of GBD's 1.8
+  million US prevalence, while GBD puts only 6.9% of HIV disability and 6.6%
+  of HIV deaths on drug use; the model's 1,090 HIV deaths among PWID are
+  three times GBD's 376 drug-use-attributable HIV deaths. The paper's own
+  introduction cites "nearly 100,000 PWID living with HIV", half its 5.12%
+  input.
+- **HCV: the burden sits mostly outside the active-IDU cohort.** GBD
+  attributes 89% of the 38,000 US HCV-related deaths to drug use (lifetime
+  injection), but the model's active injectors account for 5,800 of them;
+  the rest fall among older former injectors the closed cohort does not
+  include. The model's 1.55 million chronic infections are a third of GBD's
+  4.6 million, and its 23,000 new infections a ninth of GBD's 210,000 acute
+  infections (CDC's estimate, about 67,000, is far below GBD's).
+- **Endocarditis is in range.** PWID account for about a tenth of GBD's
+  67,700 US endocarditis cases, in line with published injection-associated
+  shares; osteomyelitis, CNS abscess and SSTI hospitalisations have no
+  comparable GBD cause.
+- **Background mortality checks out.** The supplement's cause-deleted life
+  table, cumulated to five-year probabilities, is below GBD's 2023 all-cause
+  q(x) at ages 25-49 (where drug, HIV and HCV deaths are concentrated and
+  were removed) and matches it within 2 per 1,000 from age 50 (`results/gbd_comparison.md`).
+  All-cause mortality in the simulated cohort runs at 21.5 per 1,000
+  person-years in 2023, about eight times the general-population rate at the
+  cohort's mean age.
+
 ## Where the two readings of the methods matter
 
 Sensitivity runs (100,000 simulants, seed 0) with the alternative readings:
@@ -242,4 +310,5 @@ sensitivity columns come from `MYRIAD_REMISSION_NON_IDU=1` and
 - `myriad/simulation.py` - builds the simulation, scales and discounts results
 - `myriad/data/background_mortality_monthly.csv` - supplement Table B27
 - `run_replication.py`, `plot_results.py`, `test_myriad.py`
+- `gbd_comparison.py` - model vs GBD 2023 comparison tables and figure
 - `results/` - CSV outputs, comparison tables and figures
