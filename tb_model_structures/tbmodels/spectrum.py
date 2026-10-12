@@ -80,6 +80,10 @@ def _spectrum(name, *, include_min: bool, include_clear: bool) -> Structure:
         Transition("Clin", "Dead", const("mort"), "TB death"),
     ]
     params += ["sub_clin", "clin_sub", "mort"]
+    # phi: share of a just-infectious cohort that is subclinical (vs clinical) at
+    # t=0.  An observation-model nuisance for the transition data only; it does
+    # not appear in any transition rate, so it is inert in the ODE.
+    params.append("phi")
 
     return Structure(
         name=name, family="spectrum", compartments=comps, transitions=trans,

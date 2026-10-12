@@ -6,3 +6,7 @@ data/raw/
 .quarto/
 /_site/
 *_files/
+
+# Generated posterior draws (regenerate with scripts/calibrate_cohort.py)
+data/derived/posteriors/*/samples.npz
+data/derived/posteriors/*/pointwise_loglik.npz
