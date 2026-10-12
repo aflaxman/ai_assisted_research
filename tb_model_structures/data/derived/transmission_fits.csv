@@ -1,0 +1,6 @@
+structure,family,country,year,beta,detection_rate,converged,hiv_prev,art_cov,inc_model,inc_gbd,prev_model,prev_gbd,prev_ratio,deaths_model,deaths_gbd,ltbi_model,ltbi_gbd,subclinical_fraction
+SP-full,spectrum,Viet Nam,2019,46.216,2.017,True,0.0025,0.61,139.9,139.9,92.4,417.8,0.22,5.91,17.64,0.6206,0.431,0.818
+SP-full,spectrum,South Africa,2019,21.925,1.619,True,0.1505,0.73,442.0,442.0,304.2,921.5,0.33,23.32,40.04,0.7215,0.4365,0.798
+SP-full,spectrum,India,2019,46.785,1.628,True,0.0013,0.65,180.5,180.5,124.4,425.5,0.29,8.9,28.76,0.6943,0.2777,0.797
+SP-full,spectrum,Kenya,2019,33.732,1.475,True,0.0335,0.78,171.2,171.2,120.4,525.3,0.23,9.16,17.9,0.6146,0.26,0.787
+SP-full,spectrum,Netherlands,2019,35.363,2.777,True,0.0011,0.87,4.2,4.2,2.6,5.2,0.51,0.14,0.4,0.0376,0.0536,0.85

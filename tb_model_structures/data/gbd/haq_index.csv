@@ -1,0 +1,171 @@
+covariate_name,covariate_id,location_name,location_id,year,age_group,unit,value_combined,lower_combined,upper_combined
+Healthcare access and quality index,1099,India,163,1990,All Ages,index (0-100),19.8648799918988,18.4063251264011,21.1378213890984
+Healthcare access and quality index,1099,India,163,1991,All Ages,index (0-100),20.1678443338201,19.0363536280521,21.3770796300302
+Healthcare access and quality index,1099,India,163,1992,All Ages,index (0-100),20.4433649537978,19.3522129473222,21.8665791235567
+Healthcare access and quality index,1099,India,163,1993,All Ages,index (0-100),20.7734809484053,19.6334411926448,21.9407151106925
+Healthcare access and quality index,1099,India,163,1994,All Ages,index (0-100),21.0610051659212,20.2143953623437,22.1053472385144
+Healthcare access and quality index,1099,India,163,1995,All Ages,index (0-100),21.3522463528245,20.3492930860423,22.4060592023629
+Healthcare access and quality index,1099,India,163,1996,All Ages,index (0-100),21.689978687388,20.7928874755831,22.8268412534788
+Healthcare access and quality index,1099,India,163,1997,All Ages,index (0-100),22.0585198466922,21.0128462867714,23.0654181296959
+Healthcare access and quality index,1099,India,163,1998,All Ages,index (0-100),22.5125297244462,21.3414939021051,23.7733187282986
+Healthcare access and quality index,1099,India,163,1999,All Ages,index (0-100),23.1221881351463,21.9364616015737,24.1953330477487
+Healthcare access and quality index,1099,India,163,2000,All Ages,index (0-100),23.7465488277256,22.8530199922796,24.9068447091728
+Healthcare access and quality index,1099,India,163,2001,All Ages,index (0-100),24.3366100681982,23.3971877862237,25.4386073852162
+Healthcare access and quality index,1099,India,163,2002,All Ages,index (0-100),25.1076400849679,23.8457160090449,26.4241294938218
+Healthcare access and quality index,1099,India,163,2003,All Ages,index (0-100),25.9074502509203,24.6996105572301,27.1359876974218
+Healthcare access and quality index,1099,India,163,2004,All Ages,index (0-100),26.5767802468744,25.4407734839568,27.818908075383
+Healthcare access and quality index,1099,India,163,2005,All Ages,index (0-100),27.1744937660818,26.0626794702516,28.6010772155276
+Healthcare access and quality index,1099,India,163,2006,All Ages,index (0-100),27.7043429043378,26.6287657887469,29.0332009328893
+Healthcare access and quality index,1099,India,163,2007,All Ages,index (0-100),28.2807742951482,27.1638917322583,29.3811134927623
+Healthcare access and quality index,1099,India,163,2008,All Ages,index (0-100),28.9179790720166,27.6355065754409,30.3209080759804
+Healthcare access and quality index,1099,India,163,2009,All Ages,index (0-100),29.6680279506676,28.3372769031338,30.8962786260812
+Healthcare access and quality index,1099,India,163,2010,All Ages,index (0-100),30.3486581646136,29.2239180311781,31.5695176394717
+Healthcare access and quality index,1099,India,163,2011,All Ages,index (0-100),30.9668343306692,29.6983625998833,32.2597498458459
+Healthcare access and quality index,1099,India,163,2012,All Ages,index (0-100),31.7634762940407,30.7359725070974,32.9465761001273
+Healthcare access and quality index,1099,India,163,2013,All Ages,index (0-100),32.7772310567002,31.6797513597013,34.045314254093
+Healthcare access and quality index,1099,India,163,2014,All Ages,index (0-100),33.7894585621776,32.3350670460615,35.1865366843833
+Healthcare access and quality index,1099,India,163,2015,All Ages,index (0-100),34.5671745839476,33.2030841377167,35.8277359544658
+Healthcare access and quality index,1099,India,163,2016,All Ages,index (0-100),35.1992735054734,33.9361200213521,36.2435107486777
+Healthcare access and quality index,1099,India,163,2017,All Ages,index (0-100),35.8072308848511,34.2071936721136,37.0746808164168
+Healthcare access and quality index,1099,India,163,2018,All Ages,index (0-100),36.5818741999123,35.2004408362628,37.7833331719147
+Healthcare access and quality index,1099,India,163,2019,All Ages,index (0-100),37.62700880408,35.9450731680461,38.9765313994536
+Healthcare access and quality index,1099,India,163,2020,All Ages,index (0-100),38.7865213074849,37.3267668939301,40.2033697727485
+Healthcare access and quality index,1099,India,163,2021,All Ages,index (0-100),40.0068702033196,38.6371299391366,41.4462081316958
+Healthcare access and quality index,1099,India,163,2022,All Ages,index (0-100),40.860162515609,38.1978224102638,43.11636862369
+Healthcare access and quality index,1099,India,163,2023,All Ages,index (0-100),41.7174619392674,37.7593834777378,44.9016174264726
+Healthcare access and quality index,1099,Kenya,180,1990,All Ages,index (0-100),25.7578359468696,24.1991155597497,27.4812666800123
+Healthcare access and quality index,1099,Kenya,180,1991,All Ages,index (0-100),26.0889354044979,25.0486215020952,27.1001284193009
+Healthcare access and quality index,1099,Kenya,180,1992,All Ages,index (0-100),26.3615837827536,25.1902986067098,27.7746182972764
+Healthcare access and quality index,1099,Kenya,180,1993,All Ages,index (0-100),26.6806502647861,25.3236466411768,27.9555418424065
+Healthcare access and quality index,1099,Kenya,180,1994,All Ages,index (0-100),26.9268980763685,25.8592927824945,28.0291840346134
+Healthcare access and quality index,1099,Kenya,180,1995,All Ages,index (0-100),27.0457469087148,25.7583821040832,28.2258186740648
+Healthcare access and quality index,1099,Kenya,180,1996,All Ages,index (0-100),27.0554289057401,25.9736517667008,28.4692870930908
+Healthcare access and quality index,1099,Kenya,180,1997,All Ages,index (0-100),26.9819976669226,25.7821339999865,28.1793268820768
+Healthcare access and quality index,1099,Kenya,180,1998,All Ages,index (0-100),26.9241316836618,25.8393824954633,28.1456895511693
+Healthcare access and quality index,1099,Kenya,180,1999,All Ages,index (0-100),26.9128378261971,25.6072309550268,28.1779176448705
+Healthcare access and quality index,1099,Kenya,180,2000,All Ages,index (0-100),26.8001207617335,25.4379892706289,28.1596577423594
+Healthcare access and quality index,1099,Kenya,180,2001,All Ages,index (0-100),26.5744943981607,25.3795052620678,27.9629061416192
+Healthcare access and quality index,1099,Kenya,180,2002,All Ages,index (0-100),26.412099223059,25.2338034998989,27.4625427092551
+Healthcare access and quality index,1099,Kenya,180,2003,All Ages,index (0-100),26.3122143135543,25.058539714249,27.3292722664601
+Healthcare access and quality index,1099,Kenya,180,2004,All Ages,index (0-100),26.0739122227369,24.9203329922991,27.1220323010798
+Healthcare access and quality index,1099,Kenya,180,2005,All Ages,index (0-100),25.7601063751893,24.6078762675118,26.6894506629292
+Healthcare access and quality index,1099,Kenya,180,2006,All Ages,index (0-100),25.381367903283,24.0708473376028,26.4581439878731
+Healthcare access and quality index,1099,Kenya,180,2007,All Ages,index (0-100),25.1212687059773,24.0496994192128,26.150270660659
+Healthcare access and quality index,1099,Kenya,180,2008,All Ages,index (0-100),24.9573056042551,23.9087205934613,26.2529871168004
+Healthcare access and quality index,1099,Kenya,180,2009,All Ages,index (0-100),25.0207430118046,23.9467816995658,26.0310123893198
+Healthcare access and quality index,1099,Kenya,180,2010,All Ages,index (0-100),25.2674030722954,24.224283744949,26.5805486401638
+Healthcare access and quality index,1099,Kenya,180,2011,All Ages,index (0-100),25.6036625084753,24.4771483355994,26.8272683332813
+Healthcare access and quality index,1099,Kenya,180,2012,All Ages,index (0-100),26.0623868062808,24.9875181331581,27.1040974454661
+Healthcare access and quality index,1099,Kenya,180,2013,All Ages,index (0-100),26.6101511353057,25.4914015245736,27.6331305866121
+Healthcare access and quality index,1099,Kenya,180,2014,All Ages,index (0-100),27.1244235521936,26.0029851870091,28.3003487901861
+Healthcare access and quality index,1099,Kenya,180,2015,All Ages,index (0-100),27.6692480402581,26.1522587543964,28.7535815284576
+Healthcare access and quality index,1099,Kenya,180,2016,All Ages,index (0-100),28.421736059358,27.1487338112258,29.6094110189823
+Healthcare access and quality index,1099,Kenya,180,2017,All Ages,index (0-100),29.3843411141254,28.2627226857398,30.7954284545416
+Healthcare access and quality index,1099,Kenya,180,2018,All Ages,index (0-100),30.1509923935223,29.1093046911634,31.4907039290181
+Healthcare access and quality index,1099,Kenya,180,2019,All Ages,index (0-100),30.6823113464916,29.5796240870738,32.248514933894
+Healthcare access and quality index,1099,Kenya,180,2020,All Ages,index (0-100),31.1681737249424,29.753890188858,32.5497683275422
+Healthcare access and quality index,1099,Kenya,180,2021,All Ages,index (0-100),31.7738636688243,30.3515250353564,33.3772240409236
+Healthcare access and quality index,1099,Kenya,180,2022,All Ages,index (0-100),32.41324520351,30.6633827047335,34.6072404931416
+Healthcare access and quality index,1099,Kenya,180,2023,All Ages,index (0-100),33.3361368639703,30.2895316823353,36.8300474309293
+Healthcare access and quality index,1099,Netherlands,89,1990,All Ages,index (0-100),74.3679822090168,72.8212277379383,75.8257779047085
+Healthcare access and quality index,1099,Netherlands,89,1991,All Ages,index (0-100),74.7898016123801,73.528572118268,75.9632559188195
+Healthcare access and quality index,1099,Netherlands,89,1992,All Ages,index (0-100),75.1026359771683,73.7916489685755,75.9623421594994
+Healthcare access and quality index,1099,Netherlands,89,1993,All Ages,index (0-100),75.4169670962479,74.0896659630749,76.4668565627744
+Healthcare access and quality index,1099,Netherlands,89,1994,All Ages,index (0-100),76.0192507873372,74.6112813609638,77.2315621938956
+Healthcare access and quality index,1099,Netherlands,89,1995,All Ages,index (0-100),76.6987936695241,75.5651686037925,77.858526465281
+Healthcare access and quality index,1099,Netherlands,89,1996,All Ages,index (0-100),77.2564388857357,75.9687453829025,78.4391180436034
+Healthcare access and quality index,1099,Netherlands,89,1997,All Ages,index (0-100),77.7604961664723,76.6647348063388,78.8080340440238
+Healthcare access and quality index,1099,Netherlands,89,1998,All Ages,index (0-100),78.2785405961549,77.1505047600866,79.3345657297001
+Healthcare access and quality index,1099,Netherlands,89,1999,All Ages,index (0-100),78.7504504639897,77.4642828715873,79.8995521587901
+Healthcare access and quality index,1099,Netherlands,89,2000,All Ages,index (0-100),79.2173519888291,77.883137896611,80.4493777194828
+Healthcare access and quality index,1099,Netherlands,89,2001,All Ages,index (0-100),79.7224301465835,78.5213440698889,80.9100080159313
+Healthcare access and quality index,1099,Netherlands,89,2002,All Ages,index (0-100),80.213631718929,79.2409513639587,81.2046160929674
+Healthcare access and quality index,1099,Netherlands,89,2003,All Ages,index (0-100),80.9798700387633,79.8830423018304,82.0703330180091
+Healthcare access and quality index,1099,Netherlands,89,2004,All Ages,index (0-100),82.1277417448772,80.8047665909448,83.2587993535332
+Healthcare access and quality index,1099,Netherlands,89,2005,All Ages,index (0-100),83.464140669282,82.4720123017985,84.4573815639053
+Healthcare access and quality index,1099,Netherlands,89,2006,All Ages,index (0-100),84.8401074602987,83.9348339267955,85.8266607690055
+Healthcare access and quality index,1099,Netherlands,89,2007,All Ages,index (0-100),86.0345747041236,84.9858324836846,87.4276732688794
+Healthcare access and quality index,1099,Netherlands,89,2008,All Ages,index (0-100),86.8951657134145,85.753184298618,87.8880807928637
+Healthcare access and quality index,1099,Netherlands,89,2009,All Ages,index (0-100),87.4752904477489,86.3827967834483,88.4216155219665
+Healthcare access and quality index,1099,Netherlands,89,2010,All Ages,index (0-100),87.9504138592735,86.9369355633637,88.7111214775185
+Healthcare access and quality index,1099,Netherlands,89,2011,All Ages,index (0-100),88.3513136369055,87.2064181730101,89.2501225741075
+Healthcare access and quality index,1099,Netherlands,89,2012,All Ages,index (0-100),88.6974447256526,87.5204310524615,89.6960455161446
+Healthcare access and quality index,1099,Netherlands,89,2013,All Ages,index (0-100),89.0713572312814,87.915185108469,90.0851121901588
+Healthcare access and quality index,1099,Netherlands,89,2014,All Ages,index (0-100),89.3770847868666,88.3872092090386,90.2995199300506
+Healthcare access and quality index,1099,Netherlands,89,2015,All Ages,index (0-100),89.5154117333089,88.4695155903243,90.3527360824941
+Healthcare access and quality index,1099,Netherlands,89,2016,All Ages,index (0-100),89.5425017261888,88.440991422799,90.5190966140111
+Healthcare access and quality index,1099,Netherlands,89,2017,All Ages,index (0-100),89.5956472934002,88.6664455306747,90.5080128723087
+Healthcare access and quality index,1099,Netherlands,89,2018,All Ages,index (0-100),89.6830366334785,88.877030174656,90.5253025204293
+Healthcare access and quality index,1099,Netherlands,89,2019,All Ages,index (0-100),89.8596238921717,89.0483855375139,90.7995290972036
+Healthcare access and quality index,1099,Netherlands,89,2020,All Ages,index (0-100),90.0989635904402,89.2623455154516,91.0414749669306
+Healthcare access and quality index,1099,Netherlands,89,2021,All Ages,index (0-100),90.4058270047103,89.5747580585484,91.4529292332454
+Healthcare access and quality index,1099,Netherlands,89,2022,All Ages,index (0-100),90.582160428066,89.4698161158601,91.7518609692833
+Healthcare access and quality index,1099,Netherlands,89,2023,All Ages,index (0-100),90.7039274701965,89.3040627203606,92.2861900980906
+Healthcare access and quality index,1099,South Africa,196,1990,All Ages,index (0-100),31.3780298580805,29.6735370294023,33.2753112896313
+Healthcare access and quality index,1099,South Africa,196,1991,All Ages,index (0-100),31.6085519681419,30.4945433410027,32.701364157375
+Healthcare access and quality index,1099,South Africa,196,1992,All Ages,index (0-100),31.8070933647038,30.523584225908,33.3133733425183
+Healthcare access and quality index,1099,South Africa,196,1993,All Ages,index (0-100),32.2121493738065,30.7229138028235,33.6437354841272
+Healthcare access and quality index,1099,South Africa,196,1994,All Ages,index (0-100),32.3290099282212,31.1668575711449,33.4946950122714
+Healthcare access and quality index,1099,South Africa,196,1995,All Ages,index (0-100),32.1790690158093,30.8111738566761,33.391727555844
+Healthcare access and quality index,1099,South Africa,196,1996,All Ages,index (0-100),31.7295116790654,30.5623221467359,33.2336758917231
+Healthcare access and quality index,1099,South Africa,196,1997,All Ages,index (0-100),31.2227740684037,29.9633239332983,32.6866385336152
+Healthcare access and quality index,1099,South Africa,196,1998,All Ages,index (0-100),31.0341629796956,29.8844705693395,32.4638617275449
+Healthcare access and quality index,1099,South Africa,196,1999,All Ages,index (0-100),31.0420973373117,29.642740366694,32.530771081704
+Healthcare access and quality index,1099,South Africa,196,2000,All Ages,index (0-100),30.8212776344225,29.4724738076108,32.1993159016532
+Healthcare access and quality index,1099,South Africa,196,2001,All Ages,index (0-100),30.2713568468834,28.93496607541,31.5192245778338
+Healthcare access and quality index,1099,South Africa,196,2002,All Ages,index (0-100),29.5864478068946,28.142217002497,30.6963707108644
+Healthcare access and quality index,1099,South Africa,196,2003,All Ages,index (0-100),28.9358680331479,27.7336281510268,30.266178617014
+Healthcare access and quality index,1099,South Africa,196,2004,All Ages,index (0-100),28.565959730175,27.1296884255633,29.7998773280222
+Healthcare access and quality index,1099,South Africa,196,2005,All Ages,index (0-100),28.5936889946969,27.3876546428055,30.0688474932456
+Healthcare access and quality index,1099,South Africa,196,2006,All Ages,index (0-100),28.8762169765376,27.7767081664883,30.2155474012507
+Healthcare access and quality index,1099,South Africa,196,2007,All Ages,index (0-100),29.3570903663632,28.1371809701721,30.4877474816433
+Healthcare access and quality index,1099,South Africa,196,2008,All Ages,index (0-100),29.9270106042218,28.6584615129228,31.0652106690591
+Healthcare access and quality index,1099,South Africa,196,2009,All Ages,index (0-100),30.5687093642479,29.322052089713,32.0352929968149
+Healthcare access and quality index,1099,South Africa,196,2010,All Ages,index (0-100),31.3671656196572,30.1734156975615,32.9858809151335
+Healthcare access and quality index,1099,South Africa,196,2011,All Ages,index (0-100),32.4202136160574,31.0289512905475,33.7280097357675
+Healthcare access and quality index,1099,South Africa,196,2012,All Ages,index (0-100),33.5381968388011,32.2783284134503,34.7680615041092
+Healthcare access and quality index,1099,South Africa,196,2013,All Ages,index (0-100),34.5021687454992,33.2075618599251,35.7601944260313
+Healthcare access and quality index,1099,South Africa,196,2014,All Ages,index (0-100),35.0638224892912,33.4782426273537,36.1889451913396
+Healthcare access and quality index,1099,South Africa,196,2015,All Ages,index (0-100),35.3071380325246,33.7391325851573,36.6810568251156
+Healthcare access and quality index,1099,South Africa,196,2016,All Ages,index (0-100),35.5769583157797,34.2310836141172,36.8303390604187
+Healthcare access and quality index,1099,South Africa,196,2017,All Ages,index (0-100),36.1094531848328,34.7966464150667,37.5962584946257
+Healthcare access and quality index,1099,South Africa,196,2018,All Ages,index (0-100),36.7027085882983,35.6796238678531,38.0410587332551
+Healthcare access and quality index,1099,South Africa,196,2019,All Ages,index (0-100),37.2261772628712,36.1528243515647,38.6102778917368
+Healthcare access and quality index,1099,South Africa,196,2020,All Ages,index (0-100),37.6686455680987,36.4206415461715,39.1482184913816
+Healthcare access and quality index,1099,South Africa,196,2021,All Ages,index (0-100),38.1823554736126,36.444906341897,39.859535054142
+Healthcare access and quality index,1099,South Africa,196,2022,All Ages,index (0-100),38.4751835776557,35.766535135756,41.1354786224024
+Healthcare access and quality index,1099,South Africa,196,2023,All Ages,index (0-100),38.8262908240044,35.6030000285023,42.7188458077751
+Healthcare access and quality index,1099,Viet Nam,20,1990,All Ages,index (0-100),36.7363724686836,35.2318573068812,38.059958306981
+Healthcare access and quality index,1099,Viet Nam,20,1991,All Ages,index (0-100),37.4301873674677,36.2796403861197,38.6651957870938
+Healthcare access and quality index,1099,Viet Nam,20,1992,All Ages,index (0-100),38.1975780123854,36.8997078903512,39.2902196870392
+Healthcare access and quality index,1099,Viet Nam,20,1993,All Ages,index (0-100),38.9710460550518,37.8426520563442,40.2006627137268
+Healthcare access and quality index,1099,Viet Nam,20,1994,All Ages,index (0-100),39.7040251131416,38.5124108128114,41.0263386321099
+Healthcare access and quality index,1099,Viet Nam,20,1995,All Ages,index (0-100),40.3495082316607,38.9631995945123,41.6728525473384
+Healthcare access and quality index,1099,Viet Nam,20,1996,All Ages,index (0-100),40.9950287828586,39.6564576399142,42.0485799112008
+Healthcare access and quality index,1099,Viet Nam,20,1997,All Ages,index (0-100),41.7217505346887,40.2336797962031,43.0890617846861
+Healthcare access and quality index,1099,Viet Nam,20,1998,All Ages,index (0-100),42.5072019053108,41.275345584512,43.7177668951274
+Healthcare access and quality index,1099,Viet Nam,20,1999,All Ages,index (0-100),43.1937231558123,42.0790526949083,44.2491287552354
+Healthcare access and quality index,1099,Viet Nam,20,2000,All Ages,index (0-100),43.7417181850625,42.4101051617556,45.0185253296486
+Healthcare access and quality index,1099,Viet Nam,20,2001,All Ages,index (0-100),44.2309391078587,43.050140242011,45.4555838426975
+Healthcare access and quality index,1099,Viet Nam,20,2002,All Ages,index (0-100),44.6428541298636,43.5839004244048,45.8281490297336
+Healthcare access and quality index,1099,Viet Nam,20,2003,All Ages,index (0-100),45.1817527942641,44.0861737702939,46.3610107449834
+Healthcare access and quality index,1099,Viet Nam,20,2004,All Ages,index (0-100),45.7744235642761,44.6515800792313,46.9229913160201
+Healthcare access and quality index,1099,Viet Nam,20,2005,All Ages,index (0-100),46.2155144235213,44.9413060557186,47.2268338605741
+Healthcare access and quality index,1099,Viet Nam,20,2006,All Ages,index (0-100),46.5997690854177,45.3635905800809,47.9121863557128
+Healthcare access and quality index,1099,Viet Nam,20,2007,All Ages,index (0-100),47.0214233392549,45.7287635463696,48.0961909076859
+Healthcare access and quality index,1099,Viet Nam,20,2008,All Ages,index (0-100),47.6127515501586,46.1643501879535,48.8189168674861
+Healthcare access and quality index,1099,Viet Nam,20,2009,All Ages,index (0-100),48.2892552985564,47.0389915760117,49.5637817728161
+Healthcare access and quality index,1099,Viet Nam,20,2010,All Ages,index (0-100),49.0651643568345,47.8827462024367,50.3897967700385
+Healthcare access and quality index,1099,Viet Nam,20,2011,All Ages,index (0-100),49.8819548623267,48.5948696218529,51.1594079669723
+Healthcare access and quality index,1099,Viet Nam,20,2012,All Ages,index (0-100),50.6613101279152,49.3063628881536,52.0777923477766
+Healthcare access and quality index,1099,Viet Nam,20,2013,All Ages,index (0-100),51.2655642684507,50.1199384286867,52.3781661508963
+Healthcare access and quality index,1099,Viet Nam,20,2014,All Ages,index (0-100),51.8142664691559,50.6398020487622,53.0971831716453
+Healthcare access and quality index,1099,Viet Nam,20,2015,All Ages,index (0-100),52.5946890443374,51.1753215156535,53.5769681450192
+Healthcare access and quality index,1099,Viet Nam,20,2016,All Ages,index (0-100),53.4357104693092,52.2769919062772,54.8098232566886
+Healthcare access and quality index,1099,Viet Nam,20,2017,All Ages,index (0-100),54.1030099176393,52.8214295748761,55.4139198212478
+Healthcare access and quality index,1099,Viet Nam,20,2018,All Ages,index (0-100),54.6601130969797,53.566545812555,55.8643524444234
+Healthcare access and quality index,1099,Viet Nam,20,2019,All Ages,index (0-100),55.3152594650709,54.3888149838097,56.4545819094024
+Healthcare access and quality index,1099,Viet Nam,20,2020,All Ages,index (0-100),56.0639043123259,54.9342608449379,57.496117221992
+Healthcare access and quality index,1099,Viet Nam,20,2021,All Ages,index (0-100),56.9359932887545,55.4272062391641,58.1809892759088
+Healthcare access and quality index,1099,Viet Nam,20,2022,All Ages,index (0-100),57.678150839498,55.3587068667299,60.0265392667766
+Healthcare access and quality index,1099,Viet Nam,20,2023,All Ages,index (0-100),58.2447063251934,55.1801200187886,62.1441239055011
