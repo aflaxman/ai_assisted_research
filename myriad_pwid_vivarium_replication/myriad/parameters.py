@@ -203,6 +203,14 @@ SBI_DEATH_P = {"endocarditis": pct(5.8), "osteomyelitis": pct(1.5), "cns": pct(3
 SBI_SELF_DISCHARGE_P = {"oud": pct(19.2), "non_oud": pct(2.7)}
 # C23: people with an uncured ("active") infection are re-evaluated each month
 # with the same cure probability; an active infection blocks a new one.
+# Whether an uncured infection keeps exposing the person to the infection's
+# death probability each month until cured. C23 says infection type affects
+# mortality "only in the month the infection occurs", which gives a 1.75%
+# case fatality per hospitalisation (type-weighted S-B8); the paper's own
+# counts imply 2.2% (37,658 / 1,714,773), and the extra ~0.24 uncured months
+# per OUD hospitalisation (19.2% self-discharge, 80.8%/month cure) accounts for
+# the difference. Set False for the 2023 reading.
+SBI_ACTIVE_INFECTION_CARRIES_MORTALITY = os.environ.get("MYRIAD_SBI_MONTH_ONLY", "0") != "1"
 
 # --------------------------------------------------------------------------
 # HIV (T1; S-B part 4)

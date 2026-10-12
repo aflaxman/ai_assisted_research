@@ -394,9 +394,14 @@ class HCV(Component):
 
 
 class SevereBacterialInfection(Component):
-    """Hospitalisation for SSTI, endocarditis, osteomyelitis or CNS infection."""
+    """Hospitalisation for SSTI, endocarditis, osteomyelitis or CNS infection.
 
-    COLUMNS = ["sbi_active", "new_sbi"]
+    ``sbi_active`` holds the type of an uncured infection ("none" if cured);
+    ``new_sbi`` the type hospitalised this month; ``sbi_risk`` the type whose
+    death probability applies this month.
+    """
+
+    COLUMNS = ["sbi_active", "new_sbi", "sbi_risk"]
 
     def __init__(self, calendar: Calendar):
         super().__init__()
@@ -411,7 +416,7 @@ class SevereBacterialInfection(Component):
 
     def on_initialize_simulants(self, pop_data: SimulantData) -> None:
         self.population_view.initialize(
-            pd.DataFrame({"sbi_active": False, "new_sbi": "none"}, index=pop_data.index)
+            pd.DataFrame({"sbi_active": "none", "new_sbi": "none", "sbi_risk": "none"}, index=pop_data.index)
         )
 
     def on_time_step(self, event: Event) -> None:
@@ -422,17 +427,22 @@ class SevereBacterialInfection(Component):
         idu = _infection_risk_is_idu(pop["drug_state"])
         out = pop[self.COLUMNS].copy()
         out["new_sbi"] = "none"
+        out["sbi_risk"] = "none"
 
         # --- cure of previously uncured infections -------------------------------
         oud = pop["drug_state"] == "high"
         p_cure = np.where(oud, 1 - P.SBI_SELF_DISCHARGE_P["oud"], 1 - P.SBI_SELF_DISCHARGE_P["non_oud"])
         p_cure = pd.Series(p_cure, index=pop.index)
-        active = pop.index[pop["sbi_active"]]
+        active = pop.index[pop["sbi_active"] != "none"]
         cured = self.randomness.filter_for_probability(active, p_cure.loc[active], additional_key="cure")
-        out.loc[cured, "sbi_active"] = False
+        out.loc[cured, "sbi_active"] = "none"
+        if P.SBI_ACTIVE_INFECTION_CARRIES_MORTALITY:
+            # uncured at the start of the month: exposed to the infection's
+            # mortality this month, whether or not cure comes during the month
+            out.loc[active, "sbi_risk"] = pop.loc[active, "sbi_active"]
 
         # --- new hospitalisations among those without an active infection --------
-        at_risk = pop.index[~pop["sbi_active"]]
+        at_risk = pop.index[pop["sbi_active"] == "none"]
         p_base = np.where(
             idu.loc[at_risk],
             P.annual_to_monthly(P.sbi_annual_probability_idu(year)),
@@ -443,16 +453,17 @@ class SevereBacterialInfection(Component):
         new = self.randomness.filter_for_probability(at_risk, p, additional_key="incidence")
         kind = self.randomness.choice(new, P.SBI_TYPES, p=P.SBI_TYPE_P, additional_key="type")
         out.loc[new, "new_sbi"] = kind
+        out.loc[new, "sbi_risk"] = kind
         # survivors of the hospitalisation are cured unless self-directed discharge
         uncured = self.randomness.filter_for_probability(
             new, 1 - p_cure.loc[new], additional_key="discharge"
         )
-        out.loc[uncured, "sbi_active"] = True
+        out.loc[uncured, "sbi_active"] = kind.loc[uncured]
 
         self.population_view.update(self.COLUMNS, lambda _: out)
 
     def add_sbi_death(self, index: pd.Index, value: pd.DataFrame) -> pd.DataFrame:
-        kind = self.population_view.get(index, "new_sbi")
+        kind = self.population_view.get(index, "sbi_risk")
         value.loc[index, "sbi"] += kind.map(P.SBI_DEATH_P).fillna(0.0).to_numpy()
         return value
 
