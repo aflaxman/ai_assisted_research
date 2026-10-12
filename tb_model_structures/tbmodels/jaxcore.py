@@ -115,9 +115,13 @@ def jax_first_passage_from(s: Structure, p: dict, times, start: str, target):
 def cumhaz_K(p: dict, t):
     """integral_0^t x1 * max(1, s)^x2 ds."""
     x1, x2 = p["x1"], p["x2"]
-    # for t <= 1: x1*t ; for t > 1: x1*(1 + (t^(x2+1) - 1)/(x2+1))
+    # for t <= 1: x1*t ; for t > 1: x1*(1 + (t^(x2+1) - 1)/(x2+1)).
+    # Use a safe (>=1) base in the upper branch so its value and gradient are
+    # finite even where the branch is unused (t=0 would give 0**negative = inf,
+    # and jnp.where would then propagate a NaN gradient).
+    t_safe = jnp.maximum(t, 1.0)
     below = x1 * t
-    above = x1 * (1.0 + (t ** (x2 + 1.0) - 1.0) / (x2 + 1.0))
+    above = x1 * (1.0 + (t_safe ** (x2 + 1.0) - 1.0) / (x2 + 1.0))
     return jnp.where(t <= 1.0, below, above)
 
 

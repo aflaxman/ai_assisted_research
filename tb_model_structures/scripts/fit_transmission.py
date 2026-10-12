@@ -29,7 +29,7 @@ OUT = ROOT / "data" / "derived" / "transmission_fits.csv"
 REINF_PROTECTION = 0.5
 HIV_PROG_RR = 20.0
 HIV_MORT_RR = 2.0
-BURN_YEARS = 400.0
+BURN_YEARS = 1000.0
 
 
 def detection_from_haq(h: float) -> float:
@@ -57,16 +57,7 @@ def equilibrium(tm, hiv_prev, art_cov, beta, detection):
         detection_rate=lambda t: detection, birth_rate=1 / 65, bg_mortality=1 / 65)
     tp = TransmissionParams(beta=beta, reinf_protection=REINF_PROTECTION,
                             hiv_prog_rr=HIV_PROG_RR, hiv_mort_rr=HIV_MORT_RR)
-    times = np.linspace(0, BURN_YEARS, int(BURN_YEARS) + 1)
-    traj = tm.simulate(times, inp, tp)
-    out = tm.outputs(traj, times)
-    # use the final-year increments for incidence/mortality
-    N = out["N"][-1]
-    cum_inc, cum_death = traj[:, tm.n], traj[:, tm.n + 2]
-    inc = (cum_inc[-1] - cum_inc[-2]) / N * 1e5
-    dth = (cum_death[-1] - cum_death[-2]) / N * 1e5
-    return dict(incidence=inc, prevalence=out["prevalence"][-1], deaths=dth,
-                ltbi=out["ltbi"][-1], subclinical_fraction=out["subclinical_fraction"][-1])
+    return tm.equilibrium(inp, tp)
 
 
 def fit_beta_to_incidence(tm, tgt, hiv_prev, art_cov, detection):
@@ -80,7 +71,7 @@ def fit_beta_to_incidence(tm, tgt, hiv_prev, art_cov, detection):
     def inc_at(beta):
         return equilibrium(tm, hiv_prev, art_cov, beta, detection)["incidence"]
 
-    grid = np.geomspace(2.0, 250.0, 24)
+    grid = np.geomspace(2.0, 500.0, 16)
     incs = np.array([inc_at(b) for b in grid])
     # find the bracket where modelled incidence crosses the target
     below = incs < inc_t

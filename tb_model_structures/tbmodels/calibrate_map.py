@@ -111,11 +111,17 @@ def calibrate_map(s: Structure, n_restarts: int = 8, n_draws: int = 2000, seed: 
         try:
             res = minimize(scipy_obj, u0, jac=True, method="L-BFGS-B",
                            options=dict(maxiter=500))
+            if not np.isfinite(res.fun):
+                raise ValueError("non-finite objective")
         except Exception:  # noqa: BLE001
-            continue
-        if res.success or np.isfinite(res.fun):
-            if best is None or res.fun < best.fun:
-                best = res
+            # gradient-free fallback for awkward (e.g. time-varying-hazard) models
+            try:
+                res = minimize(lambda u: scipy_obj(u)[0], u0, method="Nelder-Mead",
+                               options=dict(maxiter=4000, xatol=1e-5, fatol=1e-5))
+            except Exception:  # noqa: BLE001
+                continue
+        if np.isfinite(res.fun) and (best is None or res.fun < best.fun):
+            best = res
     if best is None:
         raise RuntimeError(f"{s.name}: MAP optimisation failed")
 

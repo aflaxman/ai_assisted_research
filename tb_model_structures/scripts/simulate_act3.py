@@ -78,8 +78,8 @@ def run(structure: str, coverage: float, xpert_sens: float) -> list[dict]:
                              detection_rate=lambda t: det, birth_rate=1 / 65, bg_mortality=1 / 65)
     tp = TransmissionParams(beta=beta, reinf_protection=0.5, hiv_prog_rr=20.0, hiv_mort_rr=2.0)
 
-    # equilibrate
-    x = tm.simulate(np.linspace(0, 400, 401), inp, tp)[-1, : tm.n]
+    # equilibrate (fast steady-state solve)
+    x = tm.equilibrium(inp, tp)["state"].copy()
     bact_states = [tm.idx[c.name] for c in tm.nh.compartments if c.bact_positive]
     rec_i = tm.idx["Rec"] if "Rec" in tm.idx else None
     f = coverage * xpert_sens
@@ -105,7 +105,7 @@ def run(structure: str, coverage: float, xpert_sens: float) -> list[dict]:
     rows.append(dict(structure=structure, family=nh.family, round=4,
                      model_prevalence=round(prev4, 1), observed_prevalence=OBSERVED[4]))
     # control arm = equilibrium prevalence with no screening
-    xc = tm.simulate(np.linspace(0, 404, 405), inp, tp)[-1, : tm.n]
+    xc = tm.equilibrium(inp, tp)["state"]
     prev_ctrl = bactpos_prevalence(tm, np.concatenate([xc, [0, 0, 0]]))
     rows.append(dict(structure=structure, family=nh.family, round="control_y4",
                      model_prevalence=round(prev_ctrl, 1), observed_prevalence=OBSERVED_CONTROL_Y4))

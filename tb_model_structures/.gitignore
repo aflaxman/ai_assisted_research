@@ -10,3 +10,6 @@ data/raw/
 # Generated posterior draws (regenerate with scripts/calibrate_cohort.py)
 data/derived/posteriors/*/samples.npz
 data/derived/posteriors/*/pointwise_loglik.npz
+
+# DuckDB build artifact (regenerate with scripts/build_db.py)
+results/tb_model_structures.duckdb

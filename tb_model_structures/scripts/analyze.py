@@ -17,6 +17,7 @@ import csv
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 POST = ROOT / "data" / "derived" / "posteriors"
@@ -24,7 +25,13 @@ DERIVED = ROOT / "data" / "derived"
 FIG = ROOT / "results" / "figures"
 
 # Viet Nam prevalence-survey subclinical fraction (epidemery data), as a hold-out
-SURVEY_SUBFRAC = {"Viet Nam": (0.66, 0.70)}  # 2018, 2007
+# Prevalence-survey subclinical-fraction hold-out targets.  Viet Nam from the
+# epidemery per-survey counts; South Africa from the 2017-19 national survey
+# (CXR-only share, Moyo 2022); Kenya/India have no reachable country-specific
+# value, so the Frascella 2021 pooled estimate (0.50, IQR 0.40-0.62) is the
+# comparison.  See data/derived/survey_subclinical_targets.csv.
+SURVEY_SUBFRAC = {"Viet Nam": (0.66, 0.70), "South Africa": (0.577, 0.577),
+                  "India": (0.40, 0.62), "Kenya": (0.40, 0.62), "Netherlands": (0.40, 0.62)}
 
 
 def shared_infectious_cohorts():
@@ -37,51 +44,57 @@ def shared_infectious_cohorts():
     return [c for c in prep_converter(df) if c["band"] == "infectious"]
 
 
-def waic_shared(structure, samples, cohorts):
-    """WAIC on the shared infectious-converter curve (comparable across families)."""
-    import jax.numpy as jnp
+def waic_shared(structure, samples, cohorts, max_draws=400):
+    """WAIC on the shared infectious-converter curve (comparable across families).
+
+    Vectorised over draws with jax.vmap + jit so the whole posterior sample is
+    evaluated in one compiled pass (a per-draw Python loop is far too slow)."""
+    import jax, jax.numpy as jnp
     from tbmodels import jaxcore as J
     from tbmodels.likelihood import converter_target
     names = list(structure.param_names)
-    draws = {k: np.asarray(samples[k]) for k in names}
-    nd = len(draws[names[0]])
-    # per-observation log-lik matrix (draws x obs)
-    ll = []
-    for d in range(nd):
-        p = {k: jnp.asarray(draws[k][d]) for k in names}
+    nd = len(np.asarray(samples[names[0]]))
+    sel = np.linspace(0, nd - 1, min(max_draws, nd)).astype(int)
+    stacked = jnp.asarray(np.stack([np.asarray(samples[k])[sel] for k in names], axis=1))  # (D, P)
+    tgt = converter_target(structure, "infectious")
+    isKL = structure.name in ("K", "L")
+
+    def one_draw(theta):
+        p = {names[i]: theta[i] for i in range(len(names))}
         row = []
         for co in cohorts:
-            tgt = converter_target(structure, "infectious")
             tgrid = jnp.asarray(np.concatenate([[0.0], co["year"]]))
-            ci = J.jax_first_passage_KL(structure.name, p, tgrid) if structure.name in ("K", "L") \
+            ci = J.jax_first_passage_KL(structure.name, p, tgrid) if isKL \
                 else J.jax_first_passage(structure, p, tgrid, tgt)
             surv = 1.0 - ci
             q = jnp.clip((surv[:-1] - surv[1:]) / jnp.clip(surv[:-1], 1e-9, 1.0), 1e-9, 1 - 1e-9)
             ev, n = jnp.asarray(co["events"]), jnp.asarray(co["at_risk"])
-            row.extend(np.asarray(ev * jnp.log(q) + (n - ev) * jnp.log1p(-q)))
-        ll.append(row)
-    ll = np.array(ll)  # (draws, obs)
+            row.append(ev * jnp.log(q) + (n - ev) * jnp.log1p(-q))
+        return jnp.concatenate(row)
+
+    ll = np.asarray(jax.jit(jax.vmap(one_draw))(stacked))  # (D, obs)
     lppd = np.sum(np.log(np.mean(np.exp(ll - ll.max(0)), 0)) + ll.max(0))
     p_waic = np.sum(np.var(ll, axis=0, ddof=1))
     waic = -2 * (lppd - p_waic)
     return waic, p_waic, ll.shape[1]
 
 
-def derived_duration(structure, samples):
-    """Infectious-disease duration (years) over the posterior."""
-    import jax.numpy as jnp
+def derived_duration(structure, samples, max_draws=400):
+    """Infectious-disease duration (years) over the posterior (vmapped)."""
+    import jax, jax.numpy as jnp
     from tbmodels.likelihood import duration_infectious
     names = list(structure.param_names)
-    draws = {k: np.asarray(samples[k]) for k in names}
-    nd = len(draws[names[0]])
-    vals = []
-    for d in range(0, nd, max(1, nd // 400)):
-        p = {k: jnp.asarray(draws[k][d]) for k in names}
-        try:
-            vals.append(float(duration_infectious(structure, p)))
-        except Exception:  # noqa: BLE001
-            pass
-    vals = np.array(vals)
+    nd = len(np.asarray(samples[names[0]]))
+    sel = np.linspace(0, nd - 1, min(max_draws, nd)).astype(int)
+    stacked = jnp.asarray(np.stack([np.asarray(samples[k])[sel] for k in names], axis=1))
+
+    def one(theta):
+        return duration_infectious(structure, {names[i]: theta[i] for i in range(len(names))})
+    try:
+        vals = np.asarray(jax.jit(jax.vmap(one))(stacked))
+        vals = vals[np.isfinite(vals)]
+    except Exception:  # noqa: BLE001
+        vals = np.array([])
     return np.percentile(vals, [50, 2.5, 97.5]) if len(vals) else (np.nan, np.nan, np.nan)
 
 
@@ -96,21 +109,23 @@ def main():
         if not f.exists():
             continue
         samples = {k: v for k, v in np.load(f).items()}
-        summ = {}
-        import csv as _csv
-        with open(POST / name / "summary.csv") as fh:
-            for r in _csv.DictReader(fh):
-                summ[r["param"]] = r
-        max_rhat = max(float(r["rhat"]) for r in summ.values() if r["rhat"] not in ("", "nan"))
+        # identifiability condition number + count of well-constrained parameters
+        cond = np.nan; well = 0
+        idf = POST / name / "identifiability.csv"
+        if idf.exists():
+            lines = idf.read_text().splitlines()
+            cond = next((float(l.split(",")[1]) for l in lines if l.startswith("# condition_number")), np.nan)
+            body = pd.read_csv(idf, comment="#")
+            well = int((body["contraction"] > 0.3).sum())
         waic, pw, nobs = waic_shared(s, samples, cohorts)
         dmed, dlo, dhi = derived_duration(s, samples)
         comp_rows.append(dict(
             structure=name, family=s.family, n_params=len(s.param_names),
             waic_shared_converters=round(waic, 2), p_waic=round(pw, 2), n_obs=nobs,
             duration_infectious_med=round(dmed, 2), duration_lo=round(dlo, 2), duration_hi=round(dhi, 2),
-            max_rhat=round(max_rhat, 3),
+            condition_number=round(cond, 1), well_constrained_params=well,
         ))
-        print(f"{name:16s} WAIC={waic:7.1f} dur={dmed:.2f}y rhat={max_rhat:.2f}")
+        print(f"{name:16s} WAIC={waic:7.1f} dur={dmed:.2f}y cond={cond:.0f} well={well}/{len(s.param_names)}")
 
     if comp_rows:
         comp_rows.sort(key=lambda r: r["waic_shared_converters"])

@@ -21,6 +21,9 @@ dev = [
     "pytest>=8",
     "nbformat>=5.10",
     "nbclient>=0.10",
+    "ipykernel>=6.29",
+    "jupyter-client>=8",
+    "pyyaml>=6",
 ]
 
 [build-system]
@@ -32,3 +35,9 @@ packages = ["tbmodels"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.4.0",
+    "jupyter-client>=8.10.0",
+]

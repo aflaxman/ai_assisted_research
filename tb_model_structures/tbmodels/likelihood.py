@@ -175,11 +175,17 @@ def loglik_transitions(s: Structure, p: dict, groups: list[dict]) -> jnp.ndarray
     For observables whose start is 'INF' (started infectious), the infectious
     initial state is split Sub:Clin as phi:(1-phi), matching the source models.
     """
+    present = {c.name for c in s.compartments}
     bact = tuple(c.name for c in s.compartments if getattr(c, "bact_positive", False))
     ll = 0.0
     for grp in groups:
         start, observe, kind = _TRANSITION_MAP[grp["trans"]]
         obs = bact if observe == "INF" else observe
+        # skip rows that reference a compartment this structure lacks (e.g. the
+        # minimal-state transitions are not applicable to the no-minimal ablation)
+        starts = ("Sub", "Clin") if start == "INF" else (start,)
+        if any(x not in present for x in starts) or any(x not in present for x in obs):
+            continue
         times = jnp.asarray(grp["years"])
         if start == "INF":
             # start split phi Sub, (1-phi) Clin

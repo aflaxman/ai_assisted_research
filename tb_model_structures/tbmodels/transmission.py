@@ -176,14 +176,17 @@ class TransmissionModel:
                     dx[self.idx[rec]] += flow
                 d_notif += flow
 
-        # demography: births into S, background mortality from all living
-        dx[self.idx["S"]] += inp.birth_rate * N
+        # demography: constant population -- births into S replace background
+        # mortality AND TB deaths, so N is conserved.  This gives the system a
+        # true fixed point (proportions are the quantity of interest) and avoids
+        # the stiffness of a slowly shrinking population.
         dx -= inp.bg_mortality * x
+        dx[self.idx["S"]] += inp.bg_mortality * N + d_death
 
         return np.concatenate([dx, [d_inc, d_notif, d_death]])
 
     def simulate(self, times, inp: TransmissionInputs, tp: TransmissionParams,
-                 x0=None, screening_rate=None):
+                 x0=None, screening_rate=None, method="LSODA"):
         times = np.asarray(times, dtype=float)
         if x0 is None:
             x0 = self.initial_state()
@@ -191,11 +194,46 @@ class TransmissionModel:
         sol = solve_ivp(
             lambda t, y: self.rhs(t, y, inp, tp, screening_rate),
             (times.min(), times.max()), y0, t_eval=times,
-            method="LSODA", rtol=1e-7, atol=1e-7,
+            method=method, rtol=1e-6, atol=1e-8,
         )
         if not sol.success:
             raise RuntimeError(f"{self.nh.name}: transmission ODE failed: {sol.message}")
         return sol.y.T
+
+    def equilibrium(self, inp: TransmissionInputs, tp: TransmissionParams,
+                    N: float = 1e5, burn: float = 300.0):
+        """Endemic steady state and its observable rates.
+
+        Integrates a short burn-in (constant inputs) to a warm start, then
+        refines to the fixed point with a root solve on the living-state RHS
+        (one equation replaced by the conserved total N).  Returns a dict with
+        incidence, prevalence, deaths (per 100k), LTBI fraction and the
+        subclinical fraction, computed from the equilibrium state and flows.
+        """
+        from scipy.optimize import root
+        x0 = self.initial_state(N=N)
+        warm = self.simulate(np.array([0.0, burn]), inp, tp, x0=x0, method="BDF")[-1, : self.n]
+
+        def living_rhs(x):
+            full = self.rhs(0.0, np.concatenate([x, [0, 0, 0]]), inp, tp)[: self.n]
+            full[self.idx["S"]] = x.sum() - N   # replace redundant eq with N constraint
+            return full
+
+        sol = root(living_rhs, warm, method="hybr", tol=1e-8)
+        xeq = sol.x if sol.success and (sol.x >= -1e-6).all() else warm
+        xeq = np.clip(xeq, 0.0, None)
+        # observable rates from the equilibrium state and flows
+        full = self.rhs(0.0, np.concatenate([xeq, [0, 0, 0]]), inp, tp)
+        inc = full[self.n] / N * 1e5
+        dth = full[self.n + 2] / N * 1e5
+        bact = [self.idx[c.name] for c in self.nh.compartments if c.bact_positive]
+        prevalence = xeq[bact].sum() / N * 1e5
+        ltbi = 1.0 - xeq[self.idx["S"]] / N
+        sub = [self.idx[c.name] for c in self.nh.compartments
+               if getattr(c, "band", None) == "subclinical"]
+        subfrac = (xeq[sub].sum() / xeq[bact].sum()) if (sub and xeq[bact].sum() > 0) else np.nan
+        return dict(incidence=inc, prevalence=prevalence, deaths=dth, ltbi=ltbi,
+                    subclinical_fraction=subfrac, state=xeq)
 
     # -- observable outputs ---------------------------------------------
     def outputs(self, traj: np.ndarray, times: np.ndarray) -> dict:
