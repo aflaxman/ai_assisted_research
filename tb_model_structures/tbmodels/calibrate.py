@@ -15,7 +15,8 @@ from numpyro.infer import MCMC, NUTS
 
 from . import likelihood as L
 from .core import Structure
-from .data import load_converter_cohorts, load_spectrum_transitions
+import pandas as pd
+from .data import load_converter_cohorts, load_ferebee_converter, load_spectrum_transitions
 
 jax.config.update("jax_enable_x64", True)
 
@@ -41,12 +42,14 @@ def _sample_param(name: str, family: str):
     if family == "spectrum":
         hi = 6.0 if name == "infclr" else 3.0
         return numpyro.sample(name, dist.Uniform(0.0, hi))
-    # classic progression / transfer rates
-    return numpyro.sample(name, dist.Uniform(0.0, 12.0))
+    # classic progression / transfer rates: half-normal gives NUTS a smoother
+    # geometry than a hard uniform box (which caused boundary-sticking)
+    return numpyro.sample(name, dist.HalfNormal(4.0))
 
 
 def build_model(s: Structure):
-    cohorts = L.prep_converter(load_converter_cohorts())
+    conv_df = pd.concat([load_converter_cohorts(), load_ferebee_converter()], ignore_index=True)
+    cohorts = L.prep_converter(conv_df)
     transitions = L.prep_transitions(load_spectrum_transitions()) if s.family == "spectrum" else None
 
     def model():
@@ -59,9 +62,11 @@ def build_model(s: Structure):
             use = cohorts
         numpyro.factor("ll_converters", L.loglik_converters(s, p, use))
         if s.family == "classic":
-            # classic has only one disease state, so duration + case fatality
-            # pin the self-cure / TB-death exit rates
-            numpyro.factor("ll_duration", L.loglik_duration(s, p))
+            # classic has one disease state: the TB-death prior pins tb_death and
+            # the case-fatality target pins self_cure given it.  Duration is a
+            # derived prediction (reported, not fit) -- symmetric with the
+            # spectrum family, and avoids over-constraining two exit rates with
+            # three mutually-inconsistent targets (which pinched the posterior).
             numpyro.factor("ll_casefatality", L.loglik_case_fatality(s, p))
         else:
             # spectrum rates (incl. infectious-disease duration) are pinned by
@@ -98,7 +103,8 @@ def pointwise_loglik(s: Structure, samples: dict):
     import numpy as np
     from . import jaxcore as J
 
-    cohorts = L.prep_converter(load_converter_cohorts())
+    conv_df = pd.concat([load_converter_cohorts(), load_ferebee_converter()], ignore_index=True)
+    cohorts = L.prep_converter(conv_df)
     if s.family == "classic":
         cohorts = [c for c in cohorts if c["band"] == "infectious"]
     transitions = L.prep_transitions(load_spectrum_transitions()) if s.family == "spectrum" else []

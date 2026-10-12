@@ -177,3 +177,18 @@ def load_horton_traces() -> pd.DataFrame:
     """150,000 posterior draws of the Horton main-model parameters."""
     p = RAW / "horton_traces" / "param_traces.csv"
     return pd.read_csv(p)
+
+
+def load_ferebee_converter() -> "pd.DataFrame":
+    """Ferebee 1970 reactivation curve as converter-format rows (infectious-band):
+    yearly incident active-TB cases among at-risk tuberculin converters.  Uses the
+    5% lifetime-progression scaling; the 10% columns are available in load_ferebee.
+    This is the canonical infection->disease time-course from the Menzies review."""
+    f = load_ferebee()
+    return pd.DataFrame(dict(
+        study="Ferebee 1970", band="infectious",
+        year=f["Year"].astype(float),
+        events=f["Calc_Count_5p"].round().astype(float),
+        at_risk=f["At_Risk_5p"].round().astype(float),
+        source="Ferebee 1970 (Menzies Dataverse)",
+    ))

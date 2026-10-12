@@ -20,11 +20,39 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
-from jax.scipy.linalg import expm
 
 from .core import Structure
 
 jax.config.update("jax_enable_x64", True)
+
+
+_EXPM_SQUARINGS = 16     # 2^16 = 65536 >> any ||M*t|| encountered here
+_EXPM_TAYLOR = 6         # Taylor order for the scaled matrix (||.|| ~ 1e-3)
+
+
+def _expm_action(M, x0, times):
+    """Return expm(M*t) @ x0 for each t in times, shape (len(times), n).
+
+    Fixed-count scaling and squaring, batched over times: scale M*t down by
+    2^16, approximate the exponential of the tiny matrix with a 6th-order Taylor
+    series (exact to machine precision at that norm), then square 16 times.  All
+    pure matmuls with a data-independent operation count, so it is fast to
+    evaluate and to differentiate in NUTS (unlike jax.scipy.linalg.expm, whose
+    dynamic squaring makes the reverse-mode gradient expensive), and robust for
+    defective (non-diagonalisable) generators such as the chain structures.
+    """
+    times = jnp.asarray(times, float)
+    n = M.shape[0]
+    A = times[:, None, None] * M[None]            # (T, n, n) = M*t
+    As = A / (2.0 ** _EXPM_SQUARINGS)
+    eye = jnp.eye(n)[None]
+    # Horner form of I + X + X^2/2! + ... + X^k/k!
+    E = eye + As / _EXPM_TAYLOR
+    for k in range(_EXPM_TAYLOR - 1, 0, -1):
+        E = eye + (As @ E) / k
+    for _ in range(_EXPM_SQUARINGS):
+        E = E @ E
+    return (E @ x0[None, :, None])[:, :, 0]        # (T, n)
 
 
 def jax_generator(s: Structure, p: dict, absorbing: frozenset[str] | None = None):
@@ -57,11 +85,9 @@ def _entry_vector(s: Structure, p: dict):
 def jax_first_passage(s: Structure, p: dict, times, target):
     """Fraction ever reaching any ``target`` compartment by each time
     (constant-rate structures)."""
-    tset = frozenset(target)
     tidx = jnp.array([s.idx(n) for n in target])
-    Q = jax_generator(s, p, absorbing=tset)
-    x0 = _entry_vector(s, p)
-    occ = jnp.stack([expm(Q * t) @ x0 for t in times])
+    Q = jax_generator(s, p, absorbing=frozenset(target))
+    occ = _expm_action(Q, _entry_vector(s, p), jnp.asarray(times, float))
     return occ[:, tidx].sum(axis=1)
 
 
@@ -71,18 +97,17 @@ def jax_occupancy_from(s: Structure, p: dict, times, start: str, observe):
     oidx = jnp.array([s.idx(n) for n in observe])
     Q = jax_generator(s, p, absorbing=None)
     x0 = jnp.zeros(s.n).at[s.idx(start)].add(1.0)
-    occ = jnp.stack([expm(Q * t) @ x0 for t in times])
+    occ = _expm_action(Q, x0, jnp.asarray(times, float))
     return occ[:, oidx].sum(axis=1)
 
 
 def jax_first_passage_from(s: Structure, p: dict, times, start: str, target):
     """First-passage cumulative incidence to ``target`` given the cohort started
     in ``start`` (target absorbing)."""
-    tset = frozenset(target)
     tidx = jnp.array([s.idx(n) for n in target])
-    Q = jax_generator(s, p, absorbing=tset)
+    Q = jax_generator(s, p, absorbing=frozenset(target))
     x0 = jnp.zeros(s.n).at[s.idx(start)].add(1.0)
-    occ = jnp.stack([expm(Q * t) @ x0 for t in times])
+    occ = _expm_action(Q, x0, jnp.asarray(times, float))
     return occ[:, tidx].sum(axis=1)
 
 
