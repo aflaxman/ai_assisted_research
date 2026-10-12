@@ -49,9 +49,19 @@ def comparison_table(summary: dict[str, float], sd: dict[str, float] | None) -> 
         ("Average annual cost per person-year ($)", t2["per_person_annual_cost"], summary["per_person_annual_cost"], 0),
         ("Life-years per person (per 2025 PWID)", t2["life_years_per_person"], summary["life_years_per_pwid_2025"], 2),
     ]
-    lines = ["| Outcome, 2025-2034 | Paper | This replication | Ratio |", "|---|---:|---:|---:|"]
-    for name, paper, mine, d in rows:
-        lines.append(f"| {name} | {fmt(paper, d)} | {fmt(mine, d)} | {mine / paper:.2f} |")
+    keys = ["pwid_2025", "new_sbi", "new_hiv", "new_hcv", "deaths_overdose", "deaths_sbi", "deaths_hiv",
+            "deaths_hcv", "deaths_other", "deaths_total", "cost_drug_use_billion", "cost_sbi_billion",
+            "cost_hiv_billion", "cost_hcv_billion", "cost_total_billion", "per_person_annual_cost",
+            "life_years_per_pwid_2025"]
+    if sd:
+        lines = ["| Outcome, 2025-2034 | Paper | This replication (mean of seeds) | Seed SD | Ratio |",
+                 "|---|---:|---:|---:|---:|"]
+        for (name, paper, mine, d), k in zip(rows, keys):
+            lines.append(f"| {name} | {fmt(paper, d)} | {fmt(mine, d)} | {fmt(sd[k], d)} | {mine / paper:.2f} |")
+    else:
+        lines = ["| Outcome, 2025-2034 | Paper | This replication | Ratio |", "|---|---:|---:|---:|"]
+        for name, paper, mine, d in rows:
+            lines.append(f"| {name} | {fmt(paper, d)} | {fmt(mine, d)} | {mine / paper:.2f} |")
     return "\n".join(lines)
 
 

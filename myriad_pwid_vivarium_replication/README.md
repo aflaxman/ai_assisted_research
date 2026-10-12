@@ -7,7 +7,136 @@ Dis, 9 Oct 2026, [doi:10.1093/ofid/ofag675](https://doi.org/10.1093/ofid/ofag675
 (CC BY-NC-ND). The model, MYRIAD, was first described and validated in
 [Chiosi et al. 2023, BMC Health Serv Res 23:760](https://doi.org/10.1186/s12913-023-09773-1).
 
-RESULTS_PLACEHOLDER
+![Cumulative deaths by cause, replication vs paper](results/fig1_cumulative_deaths.png)
+
+## TL;DR
+
+- **Tool choice: vivarium.** MYRIAD is a monthly individual-level
+  microsimulation with no transmission dynamics, per-person costs and
+  proportional cause-of-death attribution. That is a vivarium model almost
+  line for line; camdl is for stochastic compartmental models fitted to time
+  series and has nothing to fit here (see below).
+- **The epidemiology replicates.** Running the paper's published inputs
+  (Table 1 plus the 31 supplement tables) through the re-implementation
+  reproduces the base-case 10-year totals for new severe injection-related
+  infections (ratio 0.99), new HIV (0.96), overdose deaths (1.00), HCV deaths
+  (0.98), total deaths (1.01) and the 2025 cohort size (3.24M vs the paper's
+  3.25M), and the year-by-year curves (Figure 1). Both overdose scenarios
+  reproduce the paper's reported effects on deaths to within 2% (-160k vs
+  -158k; +87k vs +85k).
+- **Two readings of the methods were needed to get there**, both documented
+  as flags: people in remission keep the PWID infection inputs (otherwise
+  infections fall 13-23% short), and an uncured bacterial infection keeps its
+  in-hospital mortality until cure (otherwise case fatality is 1.75% instead
+  of the paper's 2.2%).
+- **What does not replicate: the cost split.** Drug-use costs come out 25%
+  high, HIV costs 17% high and HCV costs 16% low, for a total of $680bn vs
+  $565bn. The drug-use state mix is pinned by the overdose deaths (which
+  match), so the gap is in how costs were accrued, which the paper does not
+  describe in enough detail to resolve. Severe-infection costs match (1.00).
+- **Two reported summary statistics cannot be reproduced from the paper's
+  definitions**: "6.4 life-years per person" (the model gives 9.0 per 2025
+  PWID; the paper's own death counts imply the same) and the per-person
+  annual cost, which equals total cost / (3.254M x 10 years) in the paper's
+  arithmetic.
+
+## Results: base case, 2025-2034
+
+Three seeds of 369,450 simulants each (one simulant per ten PWID); the paper
+reports means of its own runs with a simulation SD of about 36k new
+infections, 29k deaths and $2.7bn.
+
+| Outcome, 2025-2034 | Paper | This replication (mean of seeds) | Seed SD | Ratio |
+|---|---:|---:|---:|---:|
+| PWID alive at start of 2025 | 3,300,000 | 3,243,760 | 2,710 | 0.98 |
+| New severe injection-related infections | 1,714,773 | 1,694,783 | 4,417 | 0.99 |
+| New HIV infections | 29,715 | 28,623 | 232 | 0.96 |
+| New HCV infections or reinfections | 218,186 | 194,783 | 327 | 0.89 |
+| Deaths: drug overdose | 348,650 | 348,313 | 540 | 1.00 |
+| Deaths: severe injection-related infections | 37,658 | 35,243 | 106 | 0.94 |
+| Deaths: HIV | 10,455 | 8,673 | 227 | 0.83 |
+| Deaths: HCV | 90,486 | 88,263 | 601 | 0.98 |
+| Deaths: other causes | 179,966 | 192,403 | 1,755 | 1.07 |
+| Deaths: total | 667,216 | 672,897 | 1,482 | 1.01 |
+| Costs, drug use ($bn, disc.) | 430.5 | 536.9 | 0.4 | 1.25 |
+| Costs, severe infections ($bn) | 24.0 | 24.0 | 0.1 | 1.00 |
+| Costs, HIV ($bn) | 77.2 | 90.5 | 0.6 | 1.17 |
+| Costs, HCV ($bn) | 33.8 | 28.4 | 0.1 | 0.84 |
+| Costs, total ($bn) | 565.4 | 679.7 | 0.3 | 1.20 |
+| Average annual cost per person-year ($) | 17,375 | 20,955 | 25 | 1.21 |
+| Life-years per person (per 2025 PWID) | 6.40 | 9.03 | 0.00 | 1.41 |
+
+The annual series (paper supplement Tables C1-C3 vs replication) are in
+`results/comparison_annual.csv`; Figures 1 and 2 plot them.
+
+![New infections by year](results/fig2_new_infections.png)
+
+## Results: overdose scenarios
+
+![Scenario analyses](results/fig3_scenarios.png)
+
+The paper reports the scenarios only as 10-year differences from the base case:
+
+| Scenario | Δ deaths (paper) | Δ deaths (model) | Δ new infections (paper) | Δ new infections (model) | Δ overdose deaths (model) |
+|---|---:|---:|---:|---:|---:|
+| sustained_decline | -158,169 | -160,027 | +36,679 | +44,720 | -165,363 |
+| precipitous_increase | +84,744 | +86,893 | -33,443 | -26,140 | +92,487 |
+
+The Sustained Decline scenario's larger infection gain in the replication
+(+45k vs +37k) follows from the cohort surviving longer at a slightly higher
+per-capita infection rate than the paper's; the direction and the death
+effects agree.
+
+## Where the two readings of the methods matter
+
+Sensitivity runs (100,000 simulants, seed 0) with the alternative readings:
+
+| 10-year outcome | Paper | Default | Remission on non-IDU infection inputs | SBI mortality in hospitalisation month only |
+|---|---:|---:|---:|---:|
+| New severe infections | 1,714,773 | 1,694,783 | 1,444,697 | 1,714,248 |
+| New HIV | 29,715 | 28,623 | 23,830 | 28,411 |
+| New HCV | 218,186 | 194,783 | 166,954 | 195,402 |
+| Deaths, severe infections | 37,658 | 35,243 | 29,113 | 28,189 |
+| Deaths, HIV | 10,455 | 8,673 | 8,534 | 9,162 |
+| Deaths, total | 667,216 | 672,897 | 670,441 | 670,219 |
+
+The 2023 model paper describes remission as a "former IDU" state carrying
+non-IDU infection risk, and infection-type mortality as applying "only in the
+month the infection occurs". The 2026 results are consistent only with the
+readings used by default here; the supplement's own wording ("not engaging in
+active IDU") is ambiguous about infection risk, and the 2026 model may simply
+differ from the 2023 one.
+
+## What remains unexplained
+
+1. **Drug-use costs (+25%).** The paper's 2025 figure, $53.5bn, is $1,370 per
+   person-month. With 83% of the cohort in the high-risk state ($1,791/month
+   plus $115 syringe cost) and 16% in remission ($765), the inputs give
+   $1,715. The state mix cannot be the difference: the overdose deaths, which
+   depend on the same mix, match the paper to 1%. Dropping the syringe cost
+   or discounting from 2018 instead of 2025 each closes part of the gap, but
+   neither is stated and the severe-infection cost per hospitalisation
+   ($16.0k implied by the paper, $16.2k from Table 1) rules out a hidden
+   discount factor.
+2. **HIV costs (+17%) and HIV deaths (-17%).** Both point the same way: the
+   replication keeps more people with HIV on ART (56% from 2021 on, 38% with
+   CD4 < 200) than the paper. The ART start/stop inputs are reproduced as
+   printed; the paper may apply them differently (for example only to people
+   diagnosed during the simulation).
+3. **HCV costs (-16%) while HCV deaths match (0.98).** Deaths pin the
+   decompensated-cirrhosis and HCC pools, so the paper's higher cost per
+   person with HCV ($218 vs $156 per month in 2025) must come from the
+   cheaper stages or from costing people who cleared infection; neither is
+   described.
+4. **New HCV infections (-11%).** Incidence applies to the HCV-negative pool;
+   the paper's 2025 count implies a pool equal to the initial 56.5% of the
+   cohort, as if no net depletion occurred over 2018-2024.
+5. **Other-cause deaths (+7%)**, with the same life table: an ageing
+   difference, possibly an age cap.
+6. **Life-years per person: 9.0 vs 6.4.** The paper's 667k deaths in a 3.25M
+   cohort cannot produce fewer than about 9 life-years per person over 10
+   years, so the paper's figure uses some other definition.
+
 
 ## Why vivarium rather than camdl
 
@@ -99,8 +228,12 @@ uv run python plot_results.py
 ```
 
 `run_replication.py` writes monthly and annual CSVs, `summary.csv`, and the
-comparison tables under `results/`. The full runs reported above used
-`--n 369450` (one simulant per ten PWID) and three seeds for the base case.
+comparison tables under `results/`. The full runs reported above were five
+separate invocations (`--n 369450`, about 7 minutes each on one core; base
+case seeds 0-2 and the two scenarios with `--tag _full_...`) combined with
+`--aggregate _full_base0 _full_base1 _full_base2 _full_sd _full_pi`. The
+sensitivity columns come from `MYRIAD_REMISSION_NON_IDU=1` and
+`MYRIAD_SBI_MONTH_ONLY=1` with `--n 100000`.
 
 ## Files
 
