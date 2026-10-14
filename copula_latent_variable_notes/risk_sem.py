@@ -48,7 +48,7 @@ from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score  # noqa: E
 
 import copulas as cp  # noqa: E402
 
-FAMILIES = ("gaussian", "gumbel", "clayton")
+FAMILIES = ("gaussian", "gumbel", "joe", "clayton")
 GLOBAL_SITES = ("lam", "nu", "sig", "prev", "ktau", "rho")
 
 

@@ -4,6 +4,8 @@ Families
 --------
 "gaussian"  symmetric, tail independent (the usual multivariate-normal choice)
 "gumbel"    upper-tail dependence (the family used by Kwon & Zhang)
+"joe"       upper-tail dependence, stronger in the tail and weaker elsewhere
+            than Gumbel at the same Kendall's tau
 "clayton"   lower-tail dependence
 
 The Archimedean families (gumbel, clayton) are parameterised by Kendall's
@@ -32,13 +34,32 @@ import jax.numpy as jnp
 from jax.scipy.stats import norm as jnorm
 from scipy import stats as sps
 
-FAMILIES = ("gaussian", "gumbel", "clayton")
+FAMILIES = ("gaussian", "gumbel", "joe", "clayton")
 ROTATIONS = (0, 90, 180, 270)
+
+
+def _log1mexp(a):
+    """log(1 - exp(a)) for a <= 0, stable at both ends (double-where trick)."""
+    big = a > -0.693
+    a1 = jnp.where(big, a, -1.0)
+    a2 = jnp.where(big, -1.0, a)
+    return jnp.where(big, jnp.log(-jnp.expm1(a1)), jnp.log1p(-jnp.exp(a2)))
 
 
 # --------------------------------------------------------------------------
 # Parameter conversions
 # --------------------------------------------------------------------------
+
+def _joe_ktau_np(delta, terms=4000):
+    """Kendall's tau of the Joe copula: 1 - 4 sum_k 1 / (k (d k + 2) (d (k - 1) + 2))."""
+    delta = np.asarray(delta, dtype=float)[..., None]
+    k = np.arange(1, terms + 1, dtype=float)
+    return 1.0 - 4.0 * np.sum(1.0 / (k * (delta * k + 2.0) * (delta * (k - 1.0) + 2.0)), axis=-1)
+
+
+# tau(delta) has no closed-form inverse; tabulate once and interpolate (monotone)
+_JOE_DELTA_GRID = np.exp(np.linspace(np.log(1.0), np.log(500.0), 4000))
+_JOE_KTAU_GRID = _joe_ktau_np(_JOE_DELTA_GRID)
 
 def ktau_to_param(family, ktau):
     """Kendall's tau -> native parameter (rho for gaussian, delta otherwise)."""
@@ -46,6 +67,8 @@ def ktau_to_param(family, ktau):
         return jnp.sin(jnp.pi * ktau / 2.0)
     if family == "gumbel":
         return 1.0 / (1.0 - ktau)
+    if family == "joe":
+        return jnp.interp(ktau, jnp.asarray(_JOE_KTAU_GRID), jnp.asarray(_JOE_DELTA_GRID))
     if family == "clayton":
         return 2.0 * ktau / (1.0 - ktau)
     raise ValueError(f"unknown family {family!r}")
@@ -58,6 +81,8 @@ def param_to_ktau(family, param):
         return 2.0 / np.pi * np.arcsin(param)
     if family == "gumbel":
         return 1.0 - 1.0 / param
+    if family == "joe":
+        return _joe_ktau_np(param)
     if family == "clayton":
         return param / (param + 2.0)
     raise ValueError(f"unknown family {family!r}")
@@ -72,7 +97,7 @@ def tail_dependence(family, ktau, rotation=0):
     if family == "gaussian" or rotation in (90, 270):
         return (0.0, 0.0)
     d = float(ktau_to_param(family, ktau))
-    if family == "gumbel":
+    if family in ("gumbel", "joe"):
         lo, up = 0.0, 2.0 - 2.0 ** (1.0 / d)
     else:
         lo, up = 2.0 ** (-1.0 / d), 0.0
@@ -132,6 +157,24 @@ def _clayton_logh(logu, logv, delta):
     return (1.0 + delta) * (lmin - logu) - (1.0 + 1.0 / delta) * r
 
 
+def _joe_logA(lub, lvb, delta):
+    """log(ubar^d + vbar^d - ubar^d vbar^d) from lub = log(1-u), lvb = log(1-v)."""
+    a, b = delta * lub, delta * lvb               # both <= 0
+    return jnp.logaddexp(a, b + _log1mexp(a))     # e^a + e^b (1 - e^a), both terms >= 0
+
+
+def _joe_logpdf(lub, lvb, delta):
+    logA = _joe_logA(lub, lvb, delta)
+    return ((delta - 1.0) * (lub + lvb) + (1.0 / delta - 2.0) * logA
+            + jnp.log(delta - 1.0 + jnp.exp(logA)))
+
+
+def _joe_logh(lub, lvb, delta):
+    """log dC/du = log P(V <= v | U = u) for the Joe copula."""
+    logA = _joe_logA(lub, lvb, delta)
+    return (1.0 / delta - 1.0) * logA + (delta - 1.0) * lub + _log1mexp(delta * lvb)
+
+
 def _gaussian_logpdf(z1, z2, rho):
     r2 = rho ** 2
     return (-0.5 * jnp.log1p(-r2)
@@ -146,6 +189,8 @@ def _base_logpdf(z1, z2, family, ktau):
     p = ktau_to_param(family, ktau)
     if family == "gaussian":
         return _gaussian_logpdf(z1, z2, p)
+    if family == "joe":
+        return _joe_logpdf(jnorm.logcdf(-z1), jnorm.logcdf(-z2), p)
     logu, logv = jnorm.logcdf(z1), jnorm.logcdf(z2)
     if family == "gumbel":
         return _gumbel_logpdf(logu, logv, p)
@@ -158,20 +203,14 @@ def _base_logh(z1, z2, family, ktau):
     p = ktau_to_param(family, ktau)
     if family == "gaussian":
         return _gaussian_logh(z1, z2, p)
+    if family == "joe":
+        return _joe_logh(jnorm.logcdf(-z1), jnorm.logcdf(-z2), p)
     logu, logv = jnorm.logcdf(z1), jnorm.logcdf(z2)
     if family == "gumbel":
         return _gumbel_logh(logu, logv, p)
     if family == "clayton":
         return _clayton_logh(logu, logv, p)
     raise ValueError(f"unknown family {family!r}")
-
-
-def _log1mexp(a):
-    """log(1 - exp(a)) for a <= 0, stable at both ends (double-where trick)."""
-    big = a > -0.693
-    a1 = jnp.where(big, a, -1.0)
-    a2 = jnp.where(big, -1.0, a)
-    return jnp.where(big, jnp.log(-jnp.expm1(a1)), jnp.log1p(-jnp.exp(a2)))
 
 
 # --------------------------------------------------------------------------
@@ -227,9 +266,19 @@ def _base_cdf(u, v, family, ktau):
     if family == "gumbel":
         x, y = -np.log(u), -np.log(v)
         return np.exp(-(x ** p + y ** p) ** (1.0 / p))
+    if family == "joe":
+        ub, vb = 1.0 - u, 1.0 - v
+        A = ub ** p + vb ** p - ub ** p * vb ** p
+        return -np.expm1(np.log(A) / p)        # 1 - A^(1/d), accurate when small
     if family == "clayton":
         return (u ** (-p) + v ** (-p) - 1.0) ** (-1.0 / p)
     raise ValueError(f"unknown family {family!r}")
+
+
+def _joe_h_np(u, v, p):
+    ub, vb = 1.0 - u, 1.0 - v
+    A = ub ** p + vb ** p - ub ** p * vb ** p
+    return A ** (1.0 / p - 1.0) * ub ** (p - 1.0) * (1.0 - vb ** p)
 
 
 def cdf(u, v, family, ktau, rotation=0):
@@ -281,6 +330,15 @@ def sample(family, ktau, n, rng, rotation=0):
         elif family == "clayton":
             frailty = rng.gamma(1.0 / p, 1.0, size=n)
             uv = (1.0 + e / frailty[:, None]) ** (-1.0 / p)
+        elif family == "joe":
+            # conditional inversion: solve h(v | u) = w by bisection (h increases in v)
+            u0, w = rng.uniform(size=n), rng.uniform(size=n)
+            lo, hi = np.zeros(n), np.ones(n)
+            for _ in range(60):
+                mid = 0.5 * (lo + hi)
+                above = _joe_h_np(u0, mid, p) > w
+                hi, lo = np.where(above, mid, hi), np.where(above, lo, mid)
+            uv = np.stack([u0, 0.5 * (lo + hi)], axis=1)
         else:
             raise ValueError(f"unknown family {family!r}")
         u, v = uv[:, 0], uv[:, 1]

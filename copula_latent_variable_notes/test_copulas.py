@@ -17,6 +17,9 @@ CASES = [
     ("gumbel", 0.5, 0),
     ("gumbel", 0.3, 180),
     ("gumbel", 0.6, 90),
+    ("joe", 0.5, 0),
+    ("joe", 0.3, 180),
+    ("joe", 0.6, 90),
     ("clayton", 0.5, 0),
     ("clayton", 0.4, 270),
 ]
@@ -111,11 +114,20 @@ def test_param_roundtrip():
     for fam in cp.FAMILIES:
         for t in (0.2, 0.5, 0.7):
             p = float(cp.ktau_to_param(fam, t))
-            assert abs(float(cp.param_to_ktau(fam, p)) - t) < 1e-12
+            tol = 1e-4 if fam == "joe" else 1e-12     # joe: tabulated series
+            assert abs(float(cp.param_to_ktau(fam, p)) - t) < tol
+
+
+def test_joe_known_values():
+    # Joe with tau = 0.5 has delta ~ 2.856 and the same lambda_U formula as Gumbel
+    d = float(cp.ktau_to_param("joe", 0.5))
+    assert abs(d - 2.856) < 0.01, d
+    assert abs(cp.tail_dependence("joe", 0.5)[1] - (2 - 2 ** (1 / d))) < 1e-12
+    assert abs(float(cp.param_to_ktau("joe", 1.0))) < 1e-6          # independence
 
 
 def test_gradients_finite_in_tails():
-    for fam in ("gumbel", "clayton"):
+    for fam in ("gumbel", "joe", "clayton"):
         f = lambda z1, z2: jnp.sum(cp.logpdf_z(z1, z2, fam, 0.5))  # noqa: E731
         g = jax.grad(f, argnums=(0, 1))
         z1 = jnp.array([-7.0, -3.0, 0.0, 3.0, 7.0])
@@ -141,6 +153,10 @@ def test_far_tails_of_conditional_cdf():
     lh = np.asarray(cp.log_hfunc_z(z, jnp.full(7, 1.88), "gumbel", 0.5))
     assert np.all(np.isfinite(lh)) and np.all(np.diff(lh) < 0), lh
     lc = np.asarray(cp.logpdf_z(z, -z, "gumbel", 0.5))
+    assert np.all(np.isfinite(lc))
+    ls = np.asarray(cp.log_survival_hfunc_z(z, jnp.full(7, 1.88), "joe", 0.5))
+    assert np.all(np.isfinite(ls)) and np.all(np.diff(ls) >= 0), ls
+    lc = np.asarray(cp.logpdf_z(z, -z, "joe", 0.5))
     assert np.all(np.isfinite(lc))
     # Clayton's 1 - h ~ u^d underflows float64 beyond z ~ -27 (u^d ~ e^-745), so stop at -20
     z = jnp.array([-20.0, -7.0, 0.0, 7.0, 20.0])

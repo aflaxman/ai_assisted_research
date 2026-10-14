@@ -16,6 +16,7 @@ Four NumPyro models are fit to the same data set:
     2pl_only   responses only (no response-time information)
     gaussian   van der Linden's bivariate-normal hierarchical model
     gumbel     the speaker's model (upper-tail dependence)
+    joe        the other upper-tail family the speaker likes
     clayton    an asymmetric copula with the *wrong* tail (lower)
 
 Run:  uv run python speed_accuracy.py --out results/study1
@@ -47,6 +48,7 @@ MODELS = {
     "2pl_only": dict(family=None, use_rt=False),
     "gaussian": dict(family="gaussian", use_rt=True),
     "gumbel": dict(family="gumbel", use_rt=True),
+    "joe": dict(family="joe", use_rt=True),
     "clayton": dict(family="clayton", use_rt=True),
 }
 GLOBAL_SITES = ("a", "b", "beta", "alpha", "sigma_tau", "ktau", "rho")
@@ -188,7 +190,8 @@ def psis_loo(ll):
     try:
         import arviz as az
         from arviz_base import from_dict
-        idata = from_dict({"log_likelihood": {"obs": ll[None]}})
+        idata = from_dict({"posterior": {"dummy": np.zeros((1, ll.shape[0]))},
+                           "log_likelihood": {"obs": ll[None]}})
         res = az.loo(idata, var_name="obs")
         return dict(elpd_loo=float(res.elpd), se=float(res.se), p_loo=float(res.p),
                     pareto_k_max=float(np.max(np.asarray(res.pareto_k))),
@@ -214,14 +217,39 @@ def rt_dispersion_by_score(Y, logT, n_bins=5):
     return sd, mean
 
 
-def posterior_predictive_dispersion(mcmc, data, family, n_reps=200, seed=0, n_bins=5):
-    """Replicate the dispersion statistic under the fitted joint model."""
+def tail_concentration(Y, logT, qs=(0.8, 0.9)):
+    """Observable tail concentration of (score, speed proxy).
+
+    For each q: upper = P(speed proxy in its top (1-q) | score in its top (1-q)),
+    lower = the same at the bottom.  Upper-tail dependence between ability and
+    speed shows up as upper > lower; a Gaussian copula gives upper ~ lower.
+    Returns [upper_q1, lower_q1, upper_q2, lower_q2].  Score ties are broken
+    with a fixed tiny jitter so the groups have exactly (1-q) N persons.
+    """
+    n = Y.shape[0]
+    rng = np.random.default_rng(12345)
+    score = Y.sum(1) + rng.uniform(0.0, 1e-6, n)
+    speed = -logT.mean(1)
+    rank_score = np.argsort(np.argsort(score)) / n
+    rank_speed = np.argsort(np.argsort(speed)) / n
+    out = []
+    for q in qs:
+        out.append(np.mean(rank_speed[rank_score >= q] >= q))
+        out.append(np.mean(rank_speed[rank_score < 1.0 - q] < 1.0 - q))
+    return np.array(out)
+
+
+TAIL_LABELS = ["upper 20%", "lower 20%", "upper 10%", "lower 10%"]
+
+
+def posterior_predictive_checks(mcmc, data, family, n_reps=200, seed=0, n_bins=5):
+    """Replicate the tail-concentration and dispersion statistics under the fitted model."""
     samples = mcmc.get_samples()
     n_persons, n_items = data["Y"].shape
     n_total = samples["a"].shape[0]
     idx = np.linspace(0, n_total - 1, n_reps).astype(int)
     rng = np.random.default_rng(seed)
-    sds, means = [], []
+    sds, means, tails = [], [], []
     for s in idx:
         a, b = np.asarray(samples["a"][s]), np.asarray(samples["b"][s])
         beta, alpha = np.asarray(samples["beta"][s]), np.asarray(samples["alpha"][s])
@@ -238,7 +266,8 @@ def posterior_predictive_dispersion(mcmc, data, family, n_reps=200, seed=0, n_bi
         sd, mean = rt_dispersion_by_score(Y, logT, n_bins)
         sds.append(sd)
         means.append(mean)
-    return np.array(sds), np.array(means)
+        tails.append(tail_concentration(Y, logT))
+    return dict(sd=np.array(sds), mean=np.array(means), tail=np.array(tails))
 
 
 # --------------------------------------------------------------------------
@@ -269,13 +298,16 @@ def main():
                     seed=args.seed)
     np.savez(os.path.join(args.out, "data.npz"), **{k: v for k, v in data.items() if isinstance(v, np.ndarray)})
     obs_sd, obs_mean = rt_dispersion_by_score(data["Y"], data["logT"])
+    obs_tail = tail_concentration(data["Y"], data["logT"])
     lam_l, lam_u = cp.tail_dependence("gumbel", args.ktau)
     results = dict(
         config=vars(args),
         truth=dict(ktau=args.ktau, family="gumbel", sigma_tau=args.sigma_tau,
                    lambda_upper=lam_u, delta=float(cp.ktau_to_param("gumbel", args.ktau)),
                    observed_rt_sd_by_score_quintile=obs_sd.tolist(),
-                   observed_rt_mean_by_score_quintile=obs_mean.tolist()),
+                   observed_rt_mean_by_score_quintile=obs_mean.tolist(),
+                   observed_tail_concentration=dict(zip(TAIL_LABELS, obs_tail.tolist())),
+                   realized_ktau=float(__import__("scipy.stats", fromlist=["kendalltau"]).kendalltau(data["theta"], data["tau"]).statistic)),
         models={},
     )
     elpd_pointwise = {}
@@ -288,29 +320,42 @@ def main():
         theta_hat = np.asarray(samples["theta"]).mean(0)
         theta_sd = np.asarray(samples["theta"]).std(0)
         rec = theta_recovery(theta_hat, data["theta"])
+        t1 = time.time()
         diag = global_diagnostics(mcmc)
+        print(f"[{name}] diagnostics {time.time() - t1:.0f}s", flush=True)
         entry = dict(seconds=secs, theta=rec, diagnostics=diag)
         if spec["use_rt"]:
             kt = np.asarray(samples["ktau"])
             entry["ktau"] = dict(mean=float(kt.mean()), sd=float(kt.std()),
                                  q05=float(np.quantile(kt, 0.05)), q95=float(np.quantile(kt, 0.95)))
-            if spec["family"] in ("gumbel", "clayton"):
+            if spec["family"] in ("gumbel", "joe", "clayton"):
                 lam = np.array([cp.tail_dependence(spec["family"], k) for k in kt])
                 entry["lambda_lower"] = dict(mean=float(lam[:, 0].mean()), q05=float(np.quantile(lam[:, 0], 0.05)), q95=float(np.quantile(lam[:, 0], 0.95)))
                 entry["lambda_upper"] = dict(mean=float(lam[:, 1].mean()), q05=float(np.quantile(lam[:, 1], 0.05)), q95=float(np.quantile(lam[:, 1], 0.95)))
             st = np.asarray(samples["sigma_tau"])
             entry["sigma_tau"] = dict(mean=float(st.mean()), sd=float(st.std()))
+            t1 = time.time()
             ll = pointwise_loglik(mcmc, data["Y"], data["logT"], spec["family"], 0, True)
+            print(f"[{name}] log-likelihood {time.time() - t1:.0f}s", flush=True)
             w, elpd_i = waic(ll)
             elpd_pointwise[name] = elpd_i
             entry["waic"] = w
+            t1 = time.time()
             entry["loo"] = psis_loo(ll)
-            ppc_sd, ppc_mean = posterior_predictive_dispersion(mcmc, data, spec["family"], seed=args.seed)
+            print(f"[{name}] loo {time.time() - t1:.0f}s", flush=True)
+            t1 = time.time()
+            ppc = posterior_predictive_checks(mcmc, data, spec["family"], seed=args.seed)
+            ppc_sd, ppc_mean, ppc_tail = ppc["sd"], ppc["mean"], ppc["tail"]
+            print(f"[{name}] ppc {time.time() - t1:.0f}s", flush=True)
             entry["ppc_rt_sd_by_score_quintile"] = dict(
                 mean=ppc_sd.mean(0).tolist(), q05=np.quantile(ppc_sd, 0.05, axis=0).tolist(),
                 q95=np.quantile(ppc_sd, 0.95, axis=0).tolist())
+            entry["ppc_tail_concentration"] = dict(
+                labels=TAIL_LABELS, mean=ppc_tail.mean(0).tolist(),
+                q05=np.quantile(ppc_tail, 0.05, axis=0).tolist(), q95=np.quantile(ppc_tail, 0.95, axis=0).tolist(),
+                p_value_upper10_minus_lower10=float(np.mean((ppc_tail[:, 2] - ppc_tail[:, 3]) >= (obs_tail[2] - obs_tail[3]))))
             np.savez(os.path.join(args.out, f"posterior_{name}.npz"), ktau=kt, sigma_tau=st,
-                     theta_mean=theta_hat, theta_sd=theta_sd, ppc_sd=ppc_sd, ppc_mean=ppc_mean,
+                     theta_mean=theta_hat, theta_sd=theta_sd, ppc_sd=ppc_sd, ppc_mean=ppc_mean, ppc_tail=ppc_tail,
                      elpd_i=elpd_i, rho=np.asarray(samples["rho"]) if "rho" in samples else np.array([]))
         else:
             np.savez(os.path.join(args.out, f"posterior_{name}.npz"), theta_mean=theta_hat, theta_sd=theta_sd)

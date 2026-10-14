@@ -21,11 +21,13 @@ COLORS = {
     "gaussian": "#2a78d6",   # slot 1 blue
     "gumbel": "#eb6834",     # slot 2 orange
     "clayton": "#1baf7a",    # slot 3 aqua
+    "joe": "#eda100",        # slot 4 yellow
     "2pl_only": "#898781",   # muted ink
     "truth": "#0b0b0b",      # primary ink
 }
 LABELS = {"gaussian": "Gaussian copula (van der Linden)", "gumbel": "Gumbel copula (Kwon & Zhang)",
-          "clayton": "Clayton copula (wrong tail)", "2pl_only": "2PL only (no response times)"}
+          "joe": "Joe copula (upper tail)", "clayton": "Clayton copula (wrong tail)",
+          "2pl_only": "2PL only (no response times)"}
 INK, INK2, MUTED, GRID, AXIS, SURFACE = "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#c3c2b7", "#fcfcfb"
 
 plt.rcParams.update({
@@ -56,61 +58,65 @@ def fig_study1_dgp(out_dir, fig_dir, n_show=1000, seed=0):
     z1g, z2g = cp.sample_z("gaussian", ktau, n_show, rng)
     panels = [("gumbel", data["theta"][:n_show], data["tau"][:n_show]),
               ("gaussian", z1g, sigma_tau * z2g)]
-    fig, axes = plt.subplots(1, 3, figsize=(13.5, 4.2))
+    fig, axes = plt.subplots(1, 3, figsize=(13.5, 4.4))
+    fig.subplots_adjust(wspace=0.28)
     for ax, (fam, th, ta) in zip(axes[:2], panels):
         ax.scatter(th, ta, s=9, lw=0, color=COLORS[fam], alpha=0.55)
         lam_u = cp.tail_dependence(fam, ktau)[1]
-        ax.set_title(f"{'Gumbel' if fam == 'gumbel' else 'Gaussian'} copula: Kendall's tau {ktau}, "
-                     f"upper-tail dep. {lam_u:.2f}")
+        ax.set_title(f"{'Gumbel' if fam == 'gumbel' else 'Gaussian'} copula\n"
+                     f"Kendall's tau {ktau}, upper-tail dependence {lam_u:.2f}")
         ax.set_xlabel("latent ability theta")
         ax.set_xlim(-3.6, 4.4)
         ax.set_ylim(-1.8, 1.5)
     axes[0].set_ylabel("latent speed tau")
     axes[1].set_ylabel("latent speed tau")
-    # (c) spread of speed within ability deciles: the fan the Gumbel copula creates
+    # (c) conditional spread of speed given ability, from a large sample in equal-width bins
     ax = axes[2]
-    for fam, th, ta in panels:
-        edges = np.quantile(th, np.linspace(0, 1, 11))
-        mids, sds = [], []
-        for lo, hi in zip(edges[:-1], edges[1:]):
-            m = (th >= lo) & (th <= hi)
-            mids.append(th[m].mean())
-            sds.append(ta[m].std())
-        ax.plot(mids, sds, color=COLORS[fam], lw=2, marker="o", ms=4,
-                label=f"{'Gumbel' if fam == 'gumbel' else 'Gaussian'} copula")
-    ax.set_xlabel("mean latent ability in decile")
-    ax.set_ylabel("SD of latent speed within ability decile")
-    ax.set_title("Low-ability persons vary more in speed under Gumbel")
+    edges = np.linspace(-2.5, 2.5, 21)
+    mids = 0.5 * (edges[:-1] + edges[1:])
+    for fam in ("gaussian", "gumbel"):
+        z1, z2 = cp.sample_z(fam, ktau, 400_000, rng)
+        th, ta = z1, sigma_tau * z2
+        sds = [ta[(th >= lo) & (th < hi)].std() for lo, hi in zip(edges[:-1], edges[1:])]
+        ax.plot(mids, sds, color=COLORS[fam], lw=2, label=f"{'Gumbel' if fam == 'gumbel' else 'Gaussian'} copula")
+    ax.set_xlabel("latent ability theta (bin centre)")
+    ax.set_ylabel("SD of latent speed given ability")
+    ax.set_title("Speed is tightly tied to ability at the top,\nloosely at the bottom, under Gumbel")
     ax.set_ylim(0, None)
     ax.legend(loc="lower left")
     fig.suptitle("Simulated persons with the same margins and the same Kendall's tau",
-                 fontsize=11, color=INK, fontweight="bold")
+                 fontsize=11, color=INK, fontweight="bold", y=1.03)
     fig.savefig(os.path.join(fig_dir, "study1_dgp.png"))
     plt.close(fig)
 
 
 def fig_study1_results(out_dir, fig_dir):
     summ = load(os.path.join(out_dir, "summary.json"))
-    models = [m for m in ("2pl_only", "gaussian", "gumbel", "clayton") if m in summ["models"]]
+    models = [m for m in ("2pl_only", "gaussian", "gumbel", "clayton", "joe") if m in summ["models"]]
     fig, axes = plt.subplots(1, 3, figsize=(13.5, 4.2))
 
-    # (a) posterior predictive check of the motivating pattern
+    # (a) posterior predictive check: tail concentration of (score, speed proxy)
     ax = axes[0]
-    obs = np.array(summ["truth"]["observed_rt_sd_by_score_quintile"])
-    x = np.arange(1, 6)
-    for m in models:
-        if m == "2pl_only":
-            continue
-        ppc = summ["models"][m]["ppc_rt_sd_by_score_quintile"]
-        ax.fill_between(x, ppc["q05"], ppc["q95"], color=COLORS[m], alpha=0.18, lw=0)
-        ax.plot(x, ppc["mean"], color=COLORS[m], lw=2, label=LABELS[m])
-    ax.plot(x, obs, "o", color=INK, ms=7, label="observed (simulated data)", zorder=5)
+    obs = summ["truth"]["observed_tail_concentration"]
+    labels = ["lower 10%", "lower 20%", "upper 20%", "upper 10%"]
+    x = np.arange(len(labels))
+    fit_models = [m for m in models if m != "2pl_only"]
+    width = 0.8 / len(fit_models)
+    for i, m in enumerate(fit_models):
+        ppc = summ["models"][m]["ppc_tail_concentration"]
+        idx = [ppc["labels"].index(lab) for lab in labels]
+        pos = x + (i - (len(fit_models) - 1) / 2) * width
+        lo, hi = np.array(ppc["q05"])[idx], np.array(ppc["q95"])[idx]
+        mean = np.array(ppc["mean"])[idx]
+        ax.vlines(pos, lo, hi, color=COLORS[m], lw=2.2, alpha=0.9)
+        ax.plot(pos, mean, "_", color=COLORS[m], ms=9, mew=2, label=LABELS[m].split(" (")[0] + " fit (90% PPC)")
+    ax.plot(x, [obs[lab] for lab in labels], "o", color=INK, ms=7, label="observed (simulated data)", zorder=5)
     ax.set_xticks(x)
-    ax.set_xticklabels(["lowest", "2", "3", "4", "highest"])
-    ax.set_xlabel("score quintile")
-    ax.set_ylabel("SD across persons of mean log RT")
-    ax.set_title("Posterior predictive check: RT spread by score")
-    ax.legend(loc="upper right")
+    ax.set_xticklabels(labels)
+    ax.set_xlabel("tail of the observed score distribution")
+    ax.set_ylabel("share of those persons also in that tail of speed")
+    ax.set_title("Posterior predictive check: tail concentration")
+    ax.legend(loc="lower right", fontsize=8)
 
     # (b) ability recovery by tercile
     ax = axes[1]
@@ -154,7 +160,7 @@ def fig_study2(out_dir, fig_dir):
     truth = np.load(os.path.join(out_dir, "curves_truth.npz"))
     data = np.load(os.path.join(out_dir, "data.npz"))
     y_test = data["test_Y"]
-    fams = [f for f in ("gaussian", "gumbel", "clayton") if f in summ["models"]]
+    fams = [f for f in ("gaussian", "gumbel", "clayton", "joe") if f in summ["models"]]
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.4))
 
     # (a) P(Y = 1 | eta): truth vs fitted
@@ -198,7 +204,7 @@ def fig_study2(out_dir, fig_dir):
     ax.set_xlabel("mean predicted P(outcome | indicators), by predicted-risk bin")
     ax.set_ylabel("observed outcome rate in bin")
     ax.set_title("Calibration on 20,000 held-out persons")
-    ax.text(0.3, 0.2, "bins: bottom 50%, 50-80, 80-90,\n90-95, 95-98, 98-99, top 1%", fontsize=7.5, color=INK2)
+    ax.text(0.02, 3.5e-4, "bins: bottom 50%, 50-80, 80-90,\n90-95, 95-98, 98-99, top 1%", fontsize=7.5, color=INK2)
     ax.legend(loc="upper left")
     fig.savefig(os.path.join(fig_dir, "study2_results.png"))
     plt.close(fig)
