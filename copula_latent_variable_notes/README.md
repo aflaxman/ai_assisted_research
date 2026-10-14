@@ -17,7 +17,32 @@ Neither paper is public yet, so this directory simulates data from each setting
 as I understand it from the abstracts, fits the copula models and the usual
 Gaussian-dependence versions with NumPyro (NUTS), and compares them.
 
-RESULTS_TLDR
+## TL;DR
+
+- **The whole trick is one `numpyro.factor`.** Draw each latent variable from
+  `Normal(0, 1)` for its margin and add the log copula density of their
+  normal CDFs; the joint is then exactly "normal margins + chosen copula".
+  For a binary outcome the copula's conditional CDF is the link function, so
+  the latent propensity never has to be sampled. Gumbel, Joe and Clayton
+  log-densities and conditional CDFs are in `copulas.py`, rearranged so the
+  tails do not cancel in float64.
+- **Study 1 (speed and accuracy).** Response times cut the ability RMSE from
+  0.469 to 0.428 under the usual bivariate-normal link; the Gumbel link cuts
+  it further to 0.423, in all ten simulated data sets, with the gain
+  concentrated in the top third of ability where the tail dependence lives.
+  WAIC prefers Gumbel over Gaussian by 5.7 ± 1.9 and rejects the wrong-tail
+  Clayton by 48. A posterior predictive check on observable tail
+  concentration shows the asymmetry the Gaussian model cannot produce.
+- **Study 2 (rare binary outcome).** Every copula ranks persons the same way
+  (AUC 0.945), so the gain is not in discrimination. The Gaussian fit
+  under-predicts the outcome rate in the top 1% risk group by 12 points
+  (0.61 predicted, 0.73 observed) and inflates Kendall's tau to 0.63 from a
+  true 0.5; the Gumbel fit is within 4 points, recovers tau, and closes two
+  thirds of the Gaussian fit's log-loss gap to the oracle.
+- **Gumbel versus Joe.** Same upper-tail formula, different shape elsewhere.
+  Response-time data tell them apart (WAIC 7.6 ± 1.7 for the true Gumbel);
+  a rare binary outcome does not (WAIC 1.5 ± 1.7, paired log-loss difference
+  0.00006).
 
 ## Why a copula
 
@@ -32,11 +57,12 @@ want. The Gumbel copula has upper-tail dependence
 
 ![Gumbel vs Gaussian persons](figures/study1_dgp.png)
 
-Both panels have the same margins and the same Kendall's tau. In the Gumbel
-panel (left) the fast-and-able corner is tight while speed among low-ability
-persons is spread out, which is the empirical pattern Kwon & Zhang cite as
-motivation (Domingue et al., 2022: more response-time variability among lower
-ability test-takers).
+The two scatter panels have the same margins and the same Kendall's tau. In
+the Gumbel panel the fast-and-able corner is tight while speed among
+low-ability persons is spread out; the right panel shows the same thing as
+the conditional spread of speed given ability, from a large sample. This is
+the empirical pattern Kwon & Zhang cite as motivation (Domingue et al., 2022:
+more response-time variability among lower-ability test-takers).
 
 ## Gumbel, Joe, and what a vine would add
 
@@ -123,7 +149,7 @@ For a binary outcome (Study 2) there is a second ingredient. If the outcome is
 P(Y = 1 | eta) = 1 - h(Phi(c) | Phi(eta)),   h(v | u) = dC(u, v) / du
 ```
 
-The conditional CDF `h` is closed-form for all three families
+The conditional CDF `h` is closed-form for all four families
 (`copulas.log_hfunc_z`), so `y*` never has to be sampled; the model is a
 Bernoulli likelihood with a copula-shaped link (`risk_sem.py:99`). Under a
 Gaussian copula this reduces to the familiar probit regression on `eta`.
@@ -148,7 +174,7 @@ theta_i ~ N(0, 1),  tau_i ~ N(0, 0.4^2),  (Phi(theta_i), Phi(tau_i / 0.4)) ~ Gum
 Kendall's tau between ability and speed is 0.5 and the upper-tail dependence
 coefficient is 0.59.
 
-**Models.** Four NumPyro models on the same data set, NUTS with 2 chains of
+**Models.** Five NumPyro models on the same data set, NUTS with 2 chains of
 1,000 warmup and 1,000 draws each:
 
 | model | dependence between ability and speed |
@@ -200,9 +226,9 @@ Three things stand out.
   where the data have it.
 - **The posterior predictive check sees the tail.** In the left panel the
   Gumbel fit's 90% intervals cover all four observed tail concentrations;
-  the Gaussian fit cannot produce the asymmetry (0.24 of the slowest-scoring
-  10% are also in the slowest 10% for speed, against 0.44 at the top) and
-  misses two of the four. Across the ten data sets the upper-minus-lower
+  the Gaussian fit cannot produce the asymmetry (among the lowest-scoring 10%
+  of persons, 0.24 are also among the slowest 10%; among the highest-scoring
+  10%, 0.44 are also among the fastest 10%) and misses two of the four. Across the ten data sets the upper-minus-lower
   asymmetry has a posterior predictive p-value outside (0.05, 0.95) in 8 of
   10 for the Gaussian fit, 3 of 10 for Gumbel, 7 of 10 for Joe (which
   overshoots the asymmetry) and 10 of 10 for Clayton.
@@ -238,7 +264,47 @@ indicators alone (`eta | x` is Gaussian under the linear measurement model, so
 the prediction integrates `P(Y=1 | eta)` over it by Gauss-Hermite quadrature,
 averaged over posterior draws).
 
-RESULTS_STUDY2
+**Results.** The figure is the main data set (seed 0): on the left the
+outcome probability along the latent risk factor, truth against the four
+fits with 90% posterior bands; on the right the calibration of the
+predictions for the 20,000 held-out persons, by predicted-risk bin. The table
+averages ten further simulated data sets (81 to 101 training events each).
+
+![Study 2 results](figures/study2_results.png)
+
+| model | Kendall's tau (true 0.5) | AUC | log-loss (oracle 0.0739) | top 1% predicted (observed 0.73) | WAIC vs Gaussian (elpd) |
+|---|---|---|---|---|---|
+| Gaussian copula | 0.633 ± 0.015 | 0.945 | 0.0757 ± 0.0012 | 0.61 ± 0.02 | 0 |
+| Gumbel copula | 0.488 ± 0.017 | 0.945 | 0.0745 ± 0.0012 | 0.69 ± 0.02 | +5.6 ± 2.1 |
+| Joe copula | 0.367 ± 0.015 | 0.945 | 0.0746 ± 0.0012 | 0.71 ± 0.02 | +4.0 ± 1.0 |
+| Clayton copula | 0.917 ± 0.008 | 0.945 | 0.0796 ± 0.0013 | 0.47 ± 0.03 | −4.6 ± 1.6 |
+| oracle (true model and parameters) | 0.5 | 0.945 | 0.0739 ± 0.0012 | 0.71 ± 0.01 | |
+
+- **The gain is calibration at the top, not ranking.** All four copulas
+  order persons by the same posterior mean of the risk factor, so AUC is
+  identical. In the top 1% predicted-risk group the Gaussian fit predicts
+  0.12 ± 0.03 less than is observed; the Gumbel and Joe fits are within
+  0.04 ± 0.03 and 0.02 ± 0.03, the oracle within 0.01. Lower down the risk
+  distribution all models agree (top 20%: predicted 0.13, observed 0.14).
+  This is the abstract's "underestimated joint risk" made concrete.
+- **Log-loss moves by small absolute amounts, consistently.** The Gaussian
+  fit is worse than the Gumbel fit in all ten data sets, by 0.0012 ± 0.0001;
+  its excess over the oracle is 0.0019 against 0.0007 for Gumbel. The
+  numbers are small because 97% of persons are low risk and every model
+  gets them right.
+- **A misspecified copula bends the dependence parameter.** The Gaussian
+  fit's Kendall's tau is 0.63 for data generated at 0.5: it inflates overall
+  dependence to buy some of the tail it cannot represent. In the left panel
+  of the figure its curve is too high through the middle of the risk
+  distribution and too low at the top. Clayton, with no upper-tail
+  dependence at all, saturates near 0.6 even for extreme risk factors.
+- **Model fit prefers the tail-dependent families, narrowly.** WAIC favours
+  Gumbel over Gaussian in 9 of 10 data sets (5.6 ± 2.1) and Joe over
+  Gaussian in 9 of 10 (4.0 ± 1.0), but cannot separate Gumbel from Joe
+  (1.5 ± 1.7): with about 90 events the data constrain the upper tail only.
+
+The latent-variable sampling was unproblematic (split R-hat at most 1.04 on
+the global parameters, at most 1.01 on the person parameters).
 
 ## Files
 
@@ -274,7 +340,7 @@ once: the CPU oversubscription slows both by an order of magnitude.
   Another reading puts the copula among several latent predictors with an
   ordinary logistic outcome; the mechanics in `copulas.py` cover that too.
 - **Kwon & Zhang use stochastic-approximation EM; this uses NUTS.** At this
-  scale NUTS is fast (seconds per model) and gives the copula parameter a
+  scale NUTS is fast (about a minute per model) and gives the copula parameter a
   posterior interval for free. The latent variables enter as 1,000 to 3,000
   extra parameters, which NUTS handles without trouble.
 - **The pattern that motivates Study 1 is subtle at this dependence level.**
@@ -287,7 +353,7 @@ once: the CPU oversubscription slows both by an order of magnitude.
   example ability-dependent residual variance or rapid guessing. Worth asking
   which statistic they use and whether the copula model reproduces it.
 - **A misspecified copula distorts the dependence parameter, not only the
-  tail.** The Gaussian fit in Study 2 returns Kendall's tau of 0.64 for data
+  tail.** The Gaussian fit in Study 2 returns Kendall's tau of 0.63 for data
   generated with 0.5: it inflates the overall dependence to buy some of the
   tail it cannot represent.
 - **AUC cannot show the gain.** All copulas rank persons by the same

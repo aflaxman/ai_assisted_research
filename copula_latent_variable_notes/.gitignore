@@ -3,4 +3,3 @@ __pycache__/
 .pytest_cache/
 logs/
 results/study*_reps/seed*/*.npz
-results/study*_reps/

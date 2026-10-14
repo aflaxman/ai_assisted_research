@@ -1,0 +1,328 @@
+{
+  "config": {
+    "n_train": 3000,
+    "n_test": 20000,
+    "n_indicators": 6,
+    "ktau": 0.5,
+    "prevalence": 0.03,
+    "warmup": 1000,
+    "samples": 1000,
+    "chains": 2,
+    "seed": 5,
+    "families": "gaussian,gumbel,joe,clayton",
+    "out": "results/study2_reps/seed5",
+    "smoke": false
+  },
+  "truth": {
+    "family": "gumbel",
+    "ktau": 0.5,
+    "prevalence": 0.03,
+    "lambda_upper": 0.5857864376269049,
+    "train_events": 96,
+    "test_events": 587,
+    "joint_tail_p_eta_gt_q90_and_Y": 0.026125345231035935,
+    "joint_tail_p_eta_gt_q99_and_Y": 0.008434445804376467,
+    "oracle_from_indicators": {
+      "auc": 0.9479279897355352,
+      "log_loss": 0.0724597907835584,
+      "brier": 0.01938912481665656,
+      "mean_pred": 0.029946079314268247,
+      "prevalence": 0.02935,
+      "top1pct": {
+        "observed_rate": 0.69,
+        "predicted_rate": 0.7080090246440676,
+        "share_of_events": 0.23509369676320271
+      },
+      "top5pct": {
+        "observed_rate": 0.384,
+        "predicted_rate": 0.3743730741903522,
+        "share_of_events": 0.6541737649063032
+      },
+      "top20pct": {
+        "observed_rate": 0.1345,
+        "predicted_rate": 0.13694671398745084,
+        "share_of_events": 0.9165247018739353
+      }
+    },
+    "oracle_from_true_eta": {
+      "auc": 0.9634199004846767,
+      "log_loss": 0.06031829583346562,
+      "brier": 0.01592391773288346,
+      "mean_pred": 0.030398697793452424,
+      "prevalence": 0.02935,
+      "top1pct": {
+        "observed_rate": 0.87,
+        "predicted_rate": 0.8497986426607593,
+        "share_of_events": 0.29642248722316866
+      },
+      "top5pct": {
+        "observed_rate": 0.444,
+        "predicted_rate": 0.44531125519510395,
+        "share_of_events": 0.7563884156729132
+      },
+      "top20pct": {
+        "observed_rate": 0.13975,
+        "predicted_rate": 0.1437017819839552,
+        "share_of_events": 0.9522998296422487
+      }
+    }
+  },
+  "models": {
+    "gaussian": {
+      "seconds": 49.117666482925415,
+      "diagnostics": {
+        "max_rhat_global": 1.0082057748037458,
+        "min_ess_global": 749.935687342021,
+        "max_rhat_eta": 1.0021239843063916,
+        "min_ess_eta": 2586.794130709974
+      },
+      "ktau": {
+        "mean": 0.5678887675823489,
+        "q05": 0.5212372075359457,
+        "q95": 0.6143628367988025
+      },
+      "prevalence": {
+        "mean": 0.03237217306703308,
+        "q05": 0.027539955165516626,
+        "q95": 0.037709877763008354
+      },
+      "loadings_mean": [
+        0.8267878231325402,
+        0.8348948692580305,
+        0.7028103659870525,
+        0.6130539978904966,
+        0.5100470597899482,
+        0.65117359592804
+      ],
+      "joint_tail_p_eta_gt_q90_and_Y": 0.023962255043308654,
+      "joint_tail_p_eta_gt_q99_and_Y": 0.006214340036469805,
+      "waic": {
+        "elpd_waic": -20242.49714981024,
+        "p_waic": 1485.7868430775206,
+        "se": 90.9023409809047
+      },
+      "test": {
+        "auc": 0.9479439610489502,
+        "log_loss": 0.07479270153895869,
+        "brier": 0.020050307442844143,
+        "mean_pred": 0.030083331664613133,
+        "prevalence": 0.02935,
+        "top1pct": {
+          "observed_rate": 0.695,
+          "predicted_rate": 0.5305036739309003,
+          "share_of_events": 0.23679727427597955
+        },
+        "top5pct": {
+          "observed_rate": 0.384,
+          "predicted_rate": 0.29842804954994556,
+          "share_of_events": 0.6541737649063032
+        },
+        "top20pct": {
+          "observed_rate": 0.1345,
+          "predicted_rate": 0.12969293106090388,
+          "share_of_events": 0.9165247018739353
+        }
+      }
+    },
+    "gumbel": {
+      "seconds": 57.99918222427368,
+      "diagnostics": {
+        "max_rhat_global": 1.006899048556693,
+        "min_ess_global": 667.1225077723666,
+        "max_rhat_eta": 1.0018307694385,
+        "min_ess_eta": 2648.4023612880874
+      },
+      "ktau": {
+        "mean": 0.4199846997019248,
+        "q05": 0.36047340005652917,
+        "q95": 0.4761642118025201
+      },
+      "prevalence": {
+        "mean": 0.032642690661719036,
+        "q05": 0.027489254453463764,
+        "q95": 0.0378522462759016
+      },
+      "loadings_mean": [
+        0.8274204278530529,
+        0.8350098375030385,
+        0.7026093052006307,
+        0.6136252288081971,
+        0.5094813140235257,
+        0.6513988490564969
+      ],
+      "lambda_lower": 0.0,
+      "lambda_upper": 0.5047082194033919,
+      "joint_tail_p_eta_gt_q90_and_Y": 0.02518442375873112,
+      "joint_tail_p_eta_gt_q99_and_Y": 0.0076199838549672,
+      "waic": {
+        "elpd_waic": -20240.61293735142,
+        "p_waic": 1487.680922756093,
+        "se": 91.01518404751587
+      },
+      "test": {
+        "auc": 0.947930446860676,
+        "log_loss": 0.07387271434535203,
+        "brier": 0.01957342662858549,
+        "mean_pred": 0.030628035748070145,
+        "prevalence": 0.02935,
+        "top1pct": {
+          "observed_rate": 0.695,
+          "predicted_rate": 0.6306291507692982,
+          "share_of_events": 0.23679727427597955
+        },
+        "top5pct": {
+          "observed_rate": 0.384,
+          "predicted_rate": 0.33310988259918123,
+          "share_of_events": 0.6541737649063032
+        },
+        "top20pct": {
+          "observed_rate": 0.1345,
+          "predicted_rate": 0.1293597000465046,
+          "share_of_events": 0.9165247018739353
+        }
+      }
+    },
+    "joe": {
+      "seconds": 60.65893578529358,
+      "diagnostics": {
+        "max_rhat_global": 1.0084623446502254,
+        "min_ess_global": 625.2781692208562,
+        "max_rhat_eta": 1.0017997633025029,
+        "min_ess_eta": 2969.3222810898587
+      },
+      "ktau": {
+        "mean": 0.3100200740532117,
+        "q05": 0.26318930586694267,
+        "q95": 0.3582775407077972
+      },
+      "prevalence": {
+        "mean": 0.03275976555588312,
+        "q05": 0.027812807785737668,
+        "q95": 0.03797263415125624
+      },
+      "loadings_mean": [
+        0.8274680577081291,
+        0.8352778139623501,
+        0.7023738075147118,
+        0.6135987820692984,
+        0.5096208357277261,
+        0.6514427988501195
+      ],
+      "lambda_lower": 0.0,
+      "lambda_upper": 0.5325414508062718,
+      "joint_tail_p_eta_gt_q90_and_Y": 0.0256279651762838,
+      "joint_tail_p_eta_gt_q99_and_Y": 0.007895168443798345,
+      "waic": {
+        "elpd_waic": -20239.44242429602,
+        "p_waic": 1485.6597979079174,
+        "se": 91.02504164017947
+      },
+      "test": {
+        "auc": 0.9479298325793908,
+        "log_loss": 0.07391420853390333,
+        "brier": 0.019508834452911444,
+        "mean_pred": 0.03086513663182225,
+        "prevalence": 0.02935,
+        "top1pct": {
+          "observed_rate": 0.695,
+          "predicted_rate": 0.6509934618750942,
+          "share_of_events": 0.23679727427597955
+        },
+        "top5pct": {
+          "observed_rate": 0.384,
+          "predicted_rate": 0.341911418779173,
+          "share_of_events": 0.6541737649063032
+        },
+        "top20pct": {
+          "observed_rate": 0.1345,
+          "predicted_rate": 0.13005737291839656,
+          "share_of_events": 0.9165247018739353
+        }
+      }
+    },
+    "clayton": {
+      "seconds": 62.444244146347046,
+      "diagnostics": {
+        "max_rhat_global": 1.0079372194918899,
+        "min_ess_global": 708.1208196958643,
+        "max_rhat_eta": 1.0020288650036253,
+        "min_ess_eta": 2803.133317871762
+      },
+      "ktau": {
+        "mean": 0.8779347329747307,
+        "q05": 0.8474546779075977,
+        "q95": 0.904414428113378
+      },
+      "prevalence": {
+        "mean": 0.03336369524835697,
+        "q05": 0.028081243423251207,
+        "q95": 0.03898035486211022
+      },
+      "loadings_mean": [
+        0.8287372514954121,
+        0.8374600519846712,
+        0.7047182690194893,
+        0.6152995019434478,
+        0.5113533257998132,
+        0.6534920682700814
+      ],
+      "lambda_lower": 0.9528305494363513,
+      "lambda_upper": 0.0,
+      "joint_tail_p_eta_gt_q90_and_Y": 0.02524019669226117,
+      "joint_tail_p_eta_gt_q99_and_Y": 0.003902756567276216,
+      "waic": {
+        "elpd_waic": -20245.48126777057,
+        "p_waic": 1476.347552147738,
+        "se": 91.06931359343962
+      },
+      "test": {
+        "auc": 0.9479364141645894,
+        "log_loss": 0.07826148001829226,
+        "brier": 0.02126790059442481,
+        "mean_pred": 0.0313891535017907,
+        "prevalence": 0.02935,
+        "top1pct": {
+          "observed_rate": 0.695,
+          "predicted_rate": 0.3695430008730892,
+          "share_of_events": 0.23679727427597955
+        },
+        "top5pct": {
+          "observed_rate": 0.384,
+          "predicted_rate": 0.2771148615901783,
+          "share_of_events": 0.6541737649063032
+        },
+        "top20pct": {
+          "observed_rate": 0.1345,
+          "predicted_rate": 0.13916737986420127,
+          "share_of_events": 0.9165247018739353
+        }
+      }
+    }
+  },
+  "waic_comparisons": {
+    "gaussian_minus_gumbel": {
+      "elpd_diff": -1.8842124588148703,
+      "se": 5.44727340978057
+    },
+    "gaussian_minus_joe": {
+      "elpd_diff": -3.0547255142144025,
+      "se": 5.854494887842606
+    },
+    "gaussian_minus_clayton": {
+      "elpd_diff": 2.984117960337266,
+      "se": 6.269851809422296
+    },
+    "gumbel_minus_joe": {
+      "elpd_diff": -1.1705130553995327,
+      "se": 2.965719197484745
+    },
+    "gumbel_minus_clayton": {
+      "elpd_diff": 4.8683304191521355,
+      "se": 9.194875775844006
+    },
+    "joe_minus_clayton": {
+      "elpd_diff": 6.038843474551669,
+      "se": 9.64798236518103
+    }
+  }
+}
