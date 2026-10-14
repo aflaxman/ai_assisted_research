@@ -64,7 +64,7 @@ def fig_study1_dgp(out_dir, fig_dir, n_show=1000, seed=0):
         ax.scatter(th, ta, s=9, lw=0, color=COLORS[fam], alpha=0.55)
         lam_u = cp.tail_dependence(fam, ktau)[1]
         ax.set_title(f"{'Gumbel' if fam == 'gumbel' else 'Gaussian'} copula\n"
-                     f"Kendall's tau {ktau}, upper-tail dependence {lam_u:.2f}")
+                     f"tau {ktau}, upper-tail dep. {lam_u:.2f}")
         ax.set_xlabel("latent ability theta")
         ax.set_xlim(-3.6, 4.4)
         ax.set_ylim(-1.8, 1.5)

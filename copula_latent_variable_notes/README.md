@@ -170,7 +170,49 @@ bottom. Upper-tail dependence makes the top share exceed the bottom share; a
 Gaussian copula makes them equal. Each model is refit to 10 further simulated
 data sets so the comparisons carry standard errors.
 
-RESULTS_STUDY1
+**Results.** The figure is the main data set (seed 0); the table averages
+ten further simulated data sets (mean ± SE across data sets).
+
+![Study 1 results](figures/study1_results.png)
+
+| model | RMSE of ability | lowest third | middle third | highest third | Kendall's tau (true 0.5) | WAIC vs Gaussian (elpd) |
+|---|---|---|---|---|---|---|
+| 2PL only | 0.469 ± 0.010 | 0.482 ± 0.013 | 0.420 ± 0.008 | 0.499 ± 0.017 | | |
+| Gaussian copula | 0.428 ± 0.008 | 0.452 ± 0.012 | 0.393 ± 0.007 | 0.436 ± 0.014 | 0.497 ± 0.007 | 0 |
+| Gumbel copula | 0.423 ± 0.008 | 0.451 ± 0.012 | 0.390 ± 0.007 | 0.424 ± 0.014 | 0.508 ± 0.007 | +5.7 ± 1.9 |
+| Joe copula | 0.429 ± 0.008 | 0.462 ± 0.011 | 0.392 ± 0.007 | 0.428 ± 0.014 | 0.497 ± 0.008 | −1.9 ± 2.9 |
+| Clayton copula | 0.452 ± 0.009 | 0.465 ± 0.014 | 0.405 ± 0.007 | 0.481 ± 0.016 | 0.422 ± 0.009 | −42.2 ± 2.8 |
+
+Three things stand out.
+
+- **Response times are the big win; the copula is a smaller, consistent
+  one.** Using response times at all cuts the ability RMSE from 0.469 to
+  0.428. Replacing the Gaussian link with the (true) Gumbel link cuts it
+  further to 0.423, a paired difference of 0.005 ± 0.001 that favours Gumbel
+  in all ten data sets. The gain sits where the tail dependence is: in the
+  highest-ability third the paired difference is 0.012 ± 0.002, in the lowest
+  third it is zero. Joe, which has the right tail but the wrong shape
+  elsewhere, matches Gaussian overall and beats it only at the top.
+- **Model fit picks the right family.** Per-person WAIC prefers Gumbel over
+  Gaussian by 5.7 ± 1.9 (8 of 10 data sets), over Joe by 7.6 ± 1.7, and over
+  Clayton, the wrong-tail copula, by 48 ± 3. Clayton also pulls the
+  dependence estimate down (0.42) because it cannot place the dependence
+  where the data have it.
+- **The posterior predictive check sees the tail.** In the left panel the
+  Gumbel fit's 90% intervals cover all four observed tail concentrations;
+  the Gaussian fit cannot produce the asymmetry (0.24 of the slowest-scoring
+  10% are also in the slowest 10% for speed, against 0.44 at the top) and
+  misses two of the four. Across the ten data sets the upper-minus-lower
+  asymmetry has a posterior predictive p-value outside (0.05, 0.95) in 8 of
+  10 for the Gaussian fit, 3 of 10 for Gumbel, 7 of 10 for Joe (which
+  overshoots the asymmetry) and 10 of 10 for Clayton.
+
+The Gaussian fit's Kendall's tau is unbiased here (0.497), so in this setting
+the Gaussian model gets the overall dependence right and only the shape wrong.
+MCMC diagnostics were acceptable throughout the eleven data sets: split R-hat
+at most 1.06 on the item and dependence parameters and at most 1.01 on the
+person parameters, with the smallest effective sample size among the global
+parameters about 100 of 2,000 draws.
 
 ## Study 2: a rare binary risk outcome
 
