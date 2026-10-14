@@ -209,7 +209,7 @@ RESULTS_STUDY2
 | `copula_families_figure.py` | the Gaussian / Gumbel / Joe explainer figure |
 | `aggregate_reps.py` | tables from the 10 replication seeds |
 | `make_figures.py` | the other figures, from `results/` |
-| `run_all.sh` | reproduces everything, sequentially (about RUNTIME_ALL) |
+| `run_all.sh` | reproduces everything, sequentially (about 2 hours) |
 | `results/study*/summary.json`, `results/replications.json` | every number quoted here |
 
 ```bash
@@ -218,9 +218,10 @@ uv run pytest
 ./run_all.sh          # or: uv run python speed_accuracy.py; uv run python risk_sem.py; uv run python make_figures.py
 ```
 
-One model fit (NUTS, 2 chains of 1,000 + 1,000) takes under 10 seconds on 4
-CPU cores for either study; do not run two JAX processes at once, the CPU
-oversubscription slows both by an order of magnitude.
+One model fit (NUTS, 2 chains of 1,000 + 1,000) takes about a minute on 4 CPU
+cores for either study, so a full study is about 5 minutes and `run_all.sh`
+with its 10 replication seeds about 2 hours. Do not run two JAX processes at
+once: the CPU oversubscription slows both by an order of magnitude.
 
 ## Caveats, and questions for the speaker
 

@@ -107,6 +107,7 @@ def fit(X, Y, family, rotation, warmup, samples, chains, seed):
     t0 = time.time()
     mcmc.run(jax.random.PRNGKey(seed), X=jnp.asarray(X), Y=jnp.asarray(Y),
              family=family, rotation=rotation)
+    jax.block_until_ready(mcmc.get_samples())   # JAX dispatches asynchronously; wait for the sampling
     return mcmc, time.time() - t0
 
 

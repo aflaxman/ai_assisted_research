@@ -131,6 +131,7 @@ def fit(Y, logT, family, rotation, use_rt, warmup, samples, chains, seed):
     t0 = time.time()
     mcmc.run(jax.random.PRNGKey(seed), Y=jnp.asarray(Y),
              logT=jnp.asarray(logT) if use_rt else None, family=family, rotation=rotation)
+    jax.block_until_ready(mcmc.get_samples())   # JAX dispatches asynchronously; wait for the sampling
     return mcmc, time.time() - t0
 
 
