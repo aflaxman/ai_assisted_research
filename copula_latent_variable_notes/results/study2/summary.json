@@ -69,7 +69,7 @@
   },
   "models": {
     "gaussian": {
-      "seconds": 6.753000736236572,
+      "seconds": 5.065487623214722,
       "diagnostics": {
         "max_rhat_global": 1.0037197358312286,
         "min_ess_global": 753.8246695802993,
@@ -125,7 +125,7 @@
       }
     },
     "gumbel": {
-      "seconds": 5.628027439117432,
+      "seconds": 5.609762907028198,
       "diagnostics": {
         "max_rhat_global": 1.0025107524095538,
         "min_ess_global": 711.6874997372643,
@@ -183,7 +183,7 @@
       }
     },
     "joe": {
-      "seconds": 5.484055519104004,
+      "seconds": 6.046096086502075,
       "diagnostics": {
         "max_rhat_global": 1.0030192668002977,
         "min_ess_global": 802.0198313435266,
@@ -241,7 +241,7 @@
       }
     },
     "clayton": {
-      "seconds": 6.022224187850952,
+      "seconds": 5.898234844207764,
       "diagnostics": {
         "max_rhat_global": 1.0044383782940811,
         "min_ess_global": 754.7428982353873,
