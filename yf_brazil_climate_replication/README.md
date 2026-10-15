@@ -151,7 +151,9 @@ Published values map to `beta1 = 218.685636`, `beta2 = 2.09469e-4` per week.
 | `yf_model.py` | camdl driver, Table 3 polynomials, outcome definitions, R₀ |
 | `run_replication.py` | runs every scenario and writes `results/*.tsv` |
 | `plot_replication.py` | the four-panel summary figure |
-| `yf_replication.html` | the interactive write-up |
+| `yf_replication.html` | the interactive write-up, authored for the Artifact host |
+| `index.html` | generated standalone copy of it, for GitHub Pages |
+| `build_standalone.py` | wraps the former into the latter |
 | `data/yf_brazil_201718_cases.tsv` | digitised weekly cases |
 
 ## Reproducing
@@ -167,7 +169,14 @@ camdl fit run fit_yf_mle_t23.toml    --seed 1
 camdl fit run fit_yf_mle.toml        --seed 1
 .venv/bin/python run_replication.py
 .venv/bin/python plot_replication.py
+.venv/bin/python build_standalone.py    # regenerate index.html
 ```
+
+`yf_replication.html` omits the document skeleton because Claude's Artifact host
+supplies it at publish time. `build_standalone.py` adds an equivalent skeleton and
+writes `index.html`, which is the copy to open locally or serve from Pages; without
+it the raw file renders in quirks mode with no viewport meta. Edit the former and
+regenerate the latter.
 
 ## Caveats
 
