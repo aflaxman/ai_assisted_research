@@ -1,0 +1,172 @@
+{
+  "model": "yf_brazil",
+  "mode": "indexed",
+  "states": [ "S", "E", "I", "A", "R", "Dead", "X", "Y", "Z" ],
+  "dimensions": [],
+  "parameters": [
+    {
+      "name": "n_ref",
+      "symbol": "n_{ref}",
+      "description": "total human population (UN World Population Prospects 2019)"
+    },
+    {
+      "name": "m_ref",
+      "symbol": "m_{ref}",
+      "description": "total mosquito population (assumed twice the human population)"
+    },
+    {
+      "name": "beta1",
+      "symbol": "β₁",
+      "description": "mosquito-to-human transmission, per-capita form (= beta1_paper * m_ref)"
+    },
+    {
+      "name": "beta2",
+      "symbol": "β₂",
+      "description": "human-to-mosquito transmission, per-capita form (= beta2_paper * n_ref)"
+    },
+    {
+      "name": "phi",
+      "symbol": "φ",
+      "description": "proportion of infections that become symptomatic (Johansson 2014)"
+    },
+    {
+      "name": "omega",
+      "symbol": "ω",
+      "description": "YF-induced death rate among symptomatic humans"
+    },
+    {
+      "name": "lambda1",
+      "symbol": "λ₁",
+      "description": "rate of symptom onset after infection (1/intrinsic incubation period)"
+    },
+    {
+      "name": "lambda2",
+      "symbol": "λ₂",
+      "description": "rate of viraemic onset in mosquitoes (1/extrinsic incubation period)"
+    },
+    {
+      "name": "gamma",
+      "symbol": "γ",
+      "description": "rate of viraemia completion in humans (recovery)"
+    },
+    { "name": "mu", "symbol": "μ", "description": "mosquito death rate" },
+    {
+      "name": "delta",
+      "symbol": "δ",
+      "description": "mosquito development (recruitment) rate from hatching to adult"
+    },
+    {
+      "name": "immune",
+      "symbol": "\\mathrm{immune}",
+      "description": "proportion of the human population immune at outbreak start (natural + vaccine-acquired; paper's baseline is 0.80)"
+    },
+    {
+      "name": "y0",
+      "symbol": "y_{0}",
+      "description": "initial exposed mosquitoes (fitted by the paper; its value 150)"
+    },
+    {
+      "name": "z0",
+      "symbol": "z_{0}",
+      "description": "initial infectious mosquitoes (fitted by the paper; its value 995)"
+    }
+  ],
+  "definitions": [],
+  "transitions": [
+    {
+      "name": "infection",
+      "reactants": "S",
+      "products": "E",
+      "rate": "\\frac{β₁\\,S\\,Z}{m_{ref}}"
+    },
+    {
+      "name": "onset_sym",
+      "reactants": "E",
+      "products": "I",
+      "rate": "φ\\,λ₁\\,E"
+    },
+    {
+      "name": "onset_asym",
+      "reactants": "E",
+      "products": "A",
+      "rate": "\\left(1 - φ\\right)\\,λ₁\\,E"
+    },
+    {
+      "name": "recov_sym",
+      "reactants": "I",
+      "products": "R",
+      "rate": "γ\\,I"
+    },
+    {
+      "name": "death_sym",
+      "reactants": "I",
+      "products": "D_{ead}",
+      "rate": "ω\\,I"
+    },
+    {
+      "name": "recov_asym",
+      "reactants": "A",
+      "products": "R",
+      "rate": "γ\\,A"
+    },
+    {
+      "name": "m_recruit",
+      "reactants": "\\varnothing",
+      "products": "X",
+      "rate": "δ\\,m_{ref}"
+    },
+    {
+      "name": "m_infect",
+      "reactants": "X",
+      "products": "Y",
+      "rate": "\\frac{β₂\\,X\\,\\left(I + A\\right)}{n_{ref}}"
+    },
+    {
+      "name": "m_eip",
+      "reactants": "Y",
+      "products": "Z",
+      "rate": "λ₂\\,Y"
+    },
+    {
+      "name": "m_death_x",
+      "reactants": "X",
+      "products": "\\varnothing",
+      "rate": "μ\\,X"
+    },
+    {
+      "name": "m_death_y",
+      "reactants": "Y",
+      "products": "\\varnothing",
+      "rate": "μ\\,Y"
+    },
+    {
+      "name": "m_death_z",
+      "reactants": "Z",
+      "products": "\\varnothing",
+      "rate": "μ\\,Z"
+    }
+  ],
+  "dynamics": [
+    { "state": "S", "tex": "\\dot{S} = -\\frac{β₁\\,S\\,Z}{m_{ref}}" },
+    {
+      "state": "E",
+      "tex": "\\dot{E} = \\frac{β₁\\,S\\,Z}{m_{ref}} - φ\\,λ₁\\,E - \\left(1 - φ\\right)\\,λ₁\\,E"
+    },
+    { "state": "I", "tex": "\\dot{I} = φ\\,λ₁\\,E - γ\\,I - ω\\,I" },
+    {
+      "state": "A",
+      "tex": "\\dot{A} = \\left(1 - φ\\right)\\,λ₁\\,E - γ\\,A"
+    },
+    { "state": "R", "tex": "\\dot{R} = γ\\,I + γ\\,A" },
+    { "state": "Dead", "tex": "\\dot{D}_{ead} = ω\\,I" },
+    {
+      "state": "X",
+      "tex": "\\dot{X} = δ\\,m_{ref} - \\frac{β₂\\,X\\,\\left(I + A\\right)}{n_{ref}} - μ\\,X"
+    },
+    {
+      "state": "Y",
+      "tex": "\\dot{Y} = \\frac{β₂\\,X\\,\\left(I + A\\right)}{n_{ref}} - λ₂\\,Y - μ\\,Y"
+    },
+    { "state": "Z", "tex": "\\dot{Z} = λ₂\\,Y - μ\\,Z" }
+  ]
+}

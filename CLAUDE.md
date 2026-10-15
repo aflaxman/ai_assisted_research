@@ -25,6 +25,99 @@ I would like to keep the environments easy to create and isolated, e.g. for mpld
 
 - for mpld3_notes: Test scripts follow the pattern `test_pr<NUMBER>_<description>.py`
 
+## camdl (compartmental model DSL)
+
+[camdl](https://github.com/vsbuffalo/camdl) is a DSL + compiler + inference stack
+for stochastic compartmental models (OCaml frontend `camdlc` → IR JSON → Rust
+backend `camdl`). Used in `camdl_replication/` and
+`yf_brazil_climate_replication/`. Notes below are from camdl 0.1.0+e8219d1
+(Oct 2026) and cover things that cost real time to rediscover.
+
+### Getting the binaries
+
+Both toolchains are needed: `camdlc` compiles `.camdl` → IR, `camdl` simulates and
+fits. `./install.sh` in the camdl repo does everything, but in a sandbox it is
+usually faster to build the two halves separately:
+
+```bash
+# Rust half (~6 min, 4 cores) — gives `camdl`
+cd rust && cargo build --release --workspace --bins
+
+# OCaml half — gives `camdlc`. Needs opam + OCaml >= 5.2.
+opam init --bare --no-setup --yes --disable-sandboxing   # no bubblewrap in containers
+opam switch create camdl 5.2.0 --yes
+opam install dune menhir yojson fmt --yes
+printf 'let value = "%s"\n' "$(tr -d '[:space:]' < ir/VERSION)" \
+  > ocaml/lib/ir/ir_version_generated.ml     # Makefile normally generates this
+cd ocaml && dune build                       # test targets need alcotest; ignore those failures
+cp ocaml/_build/default/bin/camdlc.exe ~/.local/bin/camdlc
+cp rust/target/release/camdl              ~/.local/bin/camdl
+```
+
+`camdl docs <topic>` is version-matched and offline — prefer it to memory.
+`docs/dsl-cheatsheet.md` and `docs/fit-toml.md` in the repo are the fastest read.
+
+### Gotchas that cost time
+
+- **No inverse-count dimension.** The dimension lattice has only `[1]`, `[P]`,
+  `[T]`, `[1/T]`, `[T^-1]`, `[P/T]`, `[P*T^-1]`. A mass-action term written
+  `beta * S * I` (no `/N`) is E300 and *cannot* be expressed by annotating `beta`.
+  Write it per-capita against a fixed reference count:
+  `beta * S * (I / n_ref)` with `beta = beta_raw * n_ref`. Exactly equivalent.
+- **`let` bound to a numeric literal is dimensionless**, even with a unit literal
+  (`let m = 4e8 'count` does not carry `[P]`). For a constant that must carry a
+  dimension, declare it as a `count` parameter and fix it in `[fixed]`.
+- **`count`-kind initial values are rounded to whole numbers.** `y0 = 0.6` and
+  `y0 = 1.0` give identical runs. This silently breaks any scaling argument that
+  pushes an initial count below 1.
+- **Incidence observation streams need `covers`** (E350). On a weekly model,
+  `closing_at(time, 1 'weeks)` puts week *k*'s window at `(k-1, k]`;
+  `ending_on(time, 1 'weeks)` anchors to the last included *day* and lands the
+  boundary at `k + 1/7`, which is then "not a recorded output time".
+- **`emit_schedule` is separate from `covers`.** Without it a stream is fit-only
+  and `simulate --obs` refuses it.
+- **`flow_<name>` columns are per-interval, not cumulative.** With
+  `--output-every 1`, row *t = k* already holds week *k*'s incidence; do not diff
+  them (that silently yields negative "incidence"). Row *t = 0* is a zero-width
+  interval — drop it.
+- **`ivp = true` is gone**; the `[estimate]` field is now `perturb_only_at_t0`
+  (an IF2 concept, irrelevant on the `ode` backend). `camdl_replication/`'s
+  configs predate this.
+- **Pick `dt` exact in binary** (`0.0625`, `0.125`) so observation-period
+  boundaries land on recorded output times. `1/7` does not.
+- **Use `log_uniform` priors for scale parameters.** `uniform` over `[1e-12, 100]`
+  puts essentially every Latin-hypercube start in the top decade, and the fit
+  never finds a small optimum.
+- **A chain-agreement FAIL is not automatically a bad fit.** With broad priors most
+  starts land in hopeless regions. Check `chain_results.tsv` and see whether the
+  *best* chains agree before believing the verdict either way.
+- **`mle_params.toml` has a nested `[provenance]` table.** Read only top-level
+  scalars as parameters, or `chain`/`log_likelihood` leak in and `simulate` errors
+  with "unknown parameter".
+
+### Backends and algorithms
+
+| algorithm | backend | gives |
+|---|---|---|
+| `if2` / `pgas` / `pmmh` / `pfilter` | `chain_binomial` | stochastic-process likelihood |
+| `nl-sbplx` / `nl-bobyqa` | `ode` | deterministic MLE (`chains` = LHS starts) |
+| `mh` / `nuts` | `ode` | posterior on the deterministic ODE marginal |
+
+For large populations where demographic noise is negligible, the `ode` backend is
+much faster and is the right analogue of a published least-squares fit. `nuts`
+additionally needs a differentiable model and fixed `rk4` (not adaptive `rk45`).
+
+### Workflow
+
+Runs are content-addressed under `results/`, so an identical re-run is a cache hit
+and nothing is overwritten. `camdl check` type-checks (including every rate's
+dimension) before anything runs — always run it first. Browse with
+`camdl list --kind fit`, `camdl fit summary <dir>`, `camdl cat <id>`.
+
+Drive scenario sweeps from Python by shelling out to `camdl simulate` with a
+generated params TOML (see `yf_brazil_climate_replication/yf_model.py`); pass
+`--output-dir` to a temp dir for throwaway runs so the project store stays clean.
+
 ## NHANES Data Analysis
 
 **Always apply NHANES survey weights.** NHANES uses a complex, multistage probability

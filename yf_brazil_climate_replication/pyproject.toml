@@ -1,0 +1,8 @@
+[project]
+name = "yf-brazil-climate-replication"
+version = "0.1.0"
+description = "camdl replication of Sadeghieh et al. (2021), yellow fever in Brazil under current and future climate"
+requires-python = ">=3.11"
+dependencies = [
+    "matplotlib>=3.9",
+]

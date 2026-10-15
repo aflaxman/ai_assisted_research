@@ -1,0 +1,114 @@
+{
+  "model": "yf_brazil",
+  "nodes": [
+    { "id": "S", "label": "S" },
+    { "id": "E", "label": "E" },
+    { "id": "I", "label": "I" },
+    { "id": "A", "label": "A" },
+    { "id": "R", "label": "R" },
+    { "id": "Dead", "label": "D_{ead}" },
+    { "id": "X", "label": "X" },
+    { "id": "Y", "label": "Y" },
+    { "id": "Z", "label": "Z" }
+  ],
+  "plates": [],
+  "edges": [
+    {
+      "id": "infection",
+      "from": "S",
+      "to": "E",
+      "rate": "\\frac{β₁\\,S\\,Z}{m_{ref}}",
+      "advances": null,
+      "reads_pool": false
+    },
+    {
+      "id": "onset_sym",
+      "from": "E",
+      "to": "I",
+      "rate": "φ\\,λ₁\\,E",
+      "advances": null,
+      "reads_pool": false
+    },
+    {
+      "id": "onset_asym",
+      "from": "E",
+      "to": "A",
+      "rate": "\\left(1 - φ\\right)\\,λ₁\\,E",
+      "advances": null,
+      "reads_pool": false
+    },
+    {
+      "id": "recov_sym",
+      "from": "I",
+      "to": "R",
+      "rate": "γ\\,I",
+      "advances": null,
+      "reads_pool": false
+    },
+    {
+      "id": "death_sym",
+      "from": "I",
+      "to": "Dead",
+      "rate": "ω\\,I",
+      "advances": null,
+      "reads_pool": false
+    },
+    {
+      "id": "recov_asym",
+      "from": "A",
+      "to": "R",
+      "rate": "γ\\,A",
+      "advances": null,
+      "reads_pool": false
+    },
+    {
+      "id": "m_recruit",
+      "from": null,
+      "to": "X",
+      "rate": "δ\\,m_{ref}",
+      "advances": null,
+      "reads_pool": false
+    },
+    {
+      "id": "m_infect",
+      "from": "X",
+      "to": "Y",
+      "rate": "\\frac{β₂\\,X\\,\\left(I + A\\right)}{n_{ref}}",
+      "advances": null,
+      "reads_pool": false
+    },
+    {
+      "id": "m_eip",
+      "from": "Y",
+      "to": "Z",
+      "rate": "λ₂\\,Y",
+      "advances": null,
+      "reads_pool": false
+    },
+    {
+      "id": "m_death_x",
+      "from": "X",
+      "to": null,
+      "rate": "μ\\,X",
+      "advances": null,
+      "reads_pool": false
+    },
+    {
+      "id": "m_death_y",
+      "from": "Y",
+      "to": null,
+      "rate": "μ\\,Y",
+      "advances": null,
+      "reads_pool": false
+    },
+    {
+      "id": "m_death_z",
+      "from": "Z",
+      "to": null,
+      "rate": "μ\\,Z",
+      "advances": null,
+      "reads_pool": false
+    }
+  ],
+  "couplings": []
+}

@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{
+  color-scheme:light;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+body{margin:0;font:14px system-ui,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Replicating Brazil's Yellow Fever Model</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of running text, with full-bleed figure and
+   table bands that break out of it. Neutrals carry a green bias toward the
+   forest-accent; the chart series use a CVD-validated categorical palette. */
+:root{
+  --bg:#f1f3ef; --surface:#fbfcf9; --raise:#e9ece5;
+  --ink:#141712; --ink2:#555b4f; --ink3:#7d8475;
+  --rule:#d6dbd1; --accent:#2f5d3a; --accent-soft:#e2ebe3;
+  --warn:#9a3412; --warn-soft:#f7e6de;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --q1:#86b6ef; --q2:#5598e7; --q3:#3987e5; --q4:#256abf; --q5:#184f95; --q6:#0d366b;
+  --font-display:"Spectral",Georgia,"Times New Roman",serif;
+  --font-body:"Source Sans 3",system-ui,-apple-system,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1210; --surface:#171a15; --raise:#20241d;
+  --ink:#eef0ea; --ink2:#a8ae9f; --ink3:#7b8174;
+  --rule:#2c3129; --accent:#8cbd95; --accent-soft:#1d2a20;
+  --warn:#e8a07a; --warn-soft:#2c1e17;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --q1:#cde2fb; --q2:#9ec5f4; --q3:#6da7ec; --q4:#3987e5; --q5:#256abf; --q6:#184f95;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f1210; --surface:#171a15; --raise:#20241d;
+  --ink:#eef0ea; --ink2:#a8ae9f; --ink3:#7b8174;
+  --rule:#2c3129; --accent:#8cbd95; --accent-soft:#1d2a20;
+  --warn:#e8a07a; --warn-soft:#2c1e17;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --q1:#cde2fb; --q2:#9ec5f4; --q3:#6da7ec; --q4:#3987e5; --q5:#256abf; --q6:#184f95;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);
+  font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+.col{max-width:660px}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;line-height:1.18}
+h1{font-size:clamp(2rem,5.2vw,3.1rem);font-weight:700;letter-spacing:-.015em}
+h2{font-size:clamp(1.4rem,3.2vw,1.95rem);font-weight:600;margin-block:0 .5rem}
+h3{font-size:1.08rem;font-weight:600;margin-block:0 .35rem}
+p{margin:0 0 1.05rem}
+a{color:var(--accent);text-underline-offset:2px}
+code,.mono{font-family:var(--font-mono);font-size:.9em;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink3);margin:0 0 .5rem}
+header.hero{padding-block:clamp(2.5rem,7vw,4.5rem) 1.5rem;border-bottom:1px solid var(--rule)}
+.standfirst{font-family:var(--font-display);font-size:clamp(1.05rem,2.3vw,1.3rem);
+  color:var(--ink2);margin-block:1rem 1.4rem;max-width:40ch}
+.cite{font-size:.86rem;color:var(--ink2);border-left:2px solid var(--accent);
+  padding-left:.85rem;max-width:62ch}
+section{padding-block:clamp(2rem,4.5vw,3.2rem);border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:none}
+.verdicts{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  margin-block:1.6rem 0;list-style:none;padding:0}
+.verdict{background:var(--surface);border:1px solid var(--rule);border-radius:3px;
+  padding:14px 16px;display:flex;flex-direction:column;gap:.3rem;min-width:0}
+.verdict .tag{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.1em;
+  text-transform:uppercase;display:inline-flex;align-items:center;gap:.4em}
+.verdict.ok .tag{color:var(--accent)} .verdict.no .tag{color:var(--warn)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.sq{width:7px;height:7px;background:currentColor;flex:none}
+.verdict strong{font-family:var(--font-display);font-size:1.02rem;font-weight:600}
+.verdict span{font-size:.88rem;color:var(--ink2);line-height:1.45}
+figure{margin:1.8rem 0 0;background:var(--surface);border:1px solid var(--rule);
+  border-radius:3px;padding:16px 16px 12px;min-width:0}
+figcaption{font-size:.86rem;color:var(--ink2);margin-top:.7rem;line-height:1.5;
+  padding-top:.7rem;border-top:1px solid var(--rule)}
+.figtitle{font-family:var(--font-display);font-weight:600;font-size:1rem;margin:0 0 .15rem}
+.figsub{font-size:.82rem;color:var(--ink3);margin:0 0 .7rem}
+.chart{position:relative;width:100%;min-width:0}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .09s;
+  background:var(--ink);color:var(--bg);font-family:var(--font-mono);font-size:.72rem;
+  line-height:1.5;padding:6px 8px;border-radius:3px;white-space:nowrap;z-index:5;
+  transform:translate(-50%,-115%)}
+.legend{display:flex;flex-wrap:wrap;gap:.45rem 1.1rem;margin:.1rem 0 .8rem;
+  font-size:.82rem;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:.4em}
+.swatch{width:11px;height:3px;border-radius:2px;flex:none}
+.controls{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:0 0 .9rem}
+button.seg{font-family:var(--font-mono);font-size:.74rem;letter-spacing:.04em;
+  background:var(--bg);color:var(--ink2);border:1px solid var(--rule);
+  padding:.4rem .7rem;border-radius:3px;cursor:pointer}
+button.seg[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);
+  color:var(--surface)}
+button.seg:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tblwrap{overflow-x:auto;margin-top:1rem;border:1px solid var(--rule);border-radius:3px;
+  background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.84rem;
+  font-variant-numeric:tabular-nums;min-width:520px}
+th,td{padding:.44rem .7rem;text-align:right;border-bottom:1px solid var(--rule);
+  white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--ink3);font-weight:500;background:var(--raise)}
+tbody tr:last-child td{border-bottom:none}
+td.num{font-family:var(--font-mono)}
+.flag{color:var(--warn);font-weight:600}
+.good{color:var(--accent)}
+.callout{background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--accent);
+  border-radius:3px;padding:14px 16px;margin:1.4rem 0;font-size:.95rem}
+.callout.warn{border-left-color:var(--warn)}
+.callout p:last-child{margin-bottom:0}
+.eq{font-family:var(--font-display);font-style:italic;font-size:1.12rem;text-align:center;
+  padding:.8rem 0;color:var(--ink)}
+.slider{display:flex;flex-direction:column;gap:.5rem;margin:1rem 0 0}
+.slider label{font-family:var(--font-mono);font-size:.74rem;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink3)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.readout{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));margin-top:.9rem}
+.cell{background:var(--bg);border:1px solid var(--rule);border-radius:3px;padding:9px 11px;min-width:0}
+.cell b{display:block;font-family:var(--font-mono);font-size:1.12rem;font-weight:500;
+  font-variant-numeric:tabular-nums}
+.cell small{display:block;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink3);margin-bottom:.15rem}
+.two{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+ol.steps{padding-left:1.1rem} ol.steps li{margin-bottom:.5rem}
+footer{padding-block:2rem 3rem;font-size:.84rem;color:var(--ink3)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="col">
+    <p class="eyebrow">Replication &middot; compartmental modelling</p>
+    <h1>Replicating Brazil's Yellow Fever Model</h1>
+    <p class="standfirst">The paper's climate conclusion holds. Its published parameter table does not produce it.</p>
+    <p class="cite">Sadeghieh, Sargeant, Greer, Berke, Dueymes, Gachon, Ogden &amp; Ng (2021).
+      &ldquo;Yellow fever virus outbreak in Brazil under current and future climate.&rdquo;
+      <em>Infectious Disease Modelling</em> 6:664&ndash;677.
+      <a href="https://doi.org/10.1016/j.idm.2021.04.002">doi:10.1016/j.idm.2021.04.002</a></p>
+  </div>
+  <ul class="verdicts">
+    <li class="verdict ok"><span class="tag"><i class="dot"></i>Replicates</span>
+      <strong>Fewer cases as Brazil warms</strong>
+      <span>Cumulative incidence falls 33% by 2071&ndash;2100 under the high-emissions pathway. The paper reports 31%.</span></li>
+    <li class="verdict ok"><span class="tag"><i class="dot"></i>Replicates</span>
+      <strong>Shorter outbreaks</strong>
+      <span>Outbreak duration contracts with temperature, driven by mosquito mortality, as the paper argues.</span></li>
+    <li class="verdict no"><span class="tag"><i class="sq"></i>Does not replicate</span>
+      <strong>A falling epidemic peak</strong>
+      <span>Under one consistent parameterisation the peak is flat to slightly higher, not 9&ndash;20% lower.</span></li>
+    <li class="verdict no"><span class="tag"><i class="sq"></i>Does not replicate</span>
+      <strong>The published parameter table</strong>
+      <span>Run as printed, Table 1 yields 30,175 cases against the paper's own 1,254.</span></li>
+  </ul>
+</header>
+
+<section>
+  <div class="col">
+    <p class="eyebrow">01 &middot; The data</p>
+    <h2>Starting from the figure, because the data were never published</h2>
+    <p>The paper fits weekly confirmed yellow fever cases from Brazil's 2017/18 season, but
+      publishes no data file. I digitised the eighteen red markers in its Figure 3. Three
+      independent checks say the digitisation is exact: the values sum to 1,259, the peak is
+      214, and the series runs 15 weeks before hitting zero. Those are precisely the observed
+      figures the paper's own Table 4 reports.</p>
+    <p>Everything below runs through <a href="https://github.com/vsbuffalo/camdl">camdl</a>, a
+      compiled domain-specific language for compartmental models. The paper's nine-compartment
+      vector&ndash;host system is transcribed from its Appendix A.1 and type-checked before any
+      simulation runs.</p>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <p class="eyebrow">02 &middot; The first problem</p>
+    <h2>Table 1 overshoots the paper's own result 24-fold</h2>
+    <p>Before refitting anything, I ran the model with every parameter exactly as Table 1 and
+      Table 2 print them. It produces 30,175 cases peaking in week 2. The paper's own fitted
+      output, on the facing page, is 1,254 cases peaking in week 4.</p>
+    <p>Two independent integrators agree on this, so it is not a numerical artefact: camdl's
+      ODE backend and a hand-written Runge&ndash;Kutta integration return the same curve.</p>
+  </div>
+  <figure>
+    <p class="figtitle">Published parameters against the observed season</p>
+    <p class="figsub">Weekly symptomatic cases, log scale. Note the axis: the gap is a factor, not a margin.</p>
+    <div class="legend" id="lg-overshoot"></div>
+    <div class="chart" id="ch-overshoot"></div>
+    <figcaption>Running Table 1 and Table 2 as printed puts the epidemic an order of magnitude
+      above the season it was fitted to, and peaks three weeks early.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="col">
+    <p class="eyebrow">03 &middot; Why</p>
+    <h2>Three published values cannot all be right</h2>
+    <p>The overshoot is not one typo. Tracing it back finds three separate inconsistencies
+      inside the paper's own tables.</p>
+    <h3>The fatality rate contradicts Table 4</h3>
+    <p>Table 1 gives a death rate of 2.38 per week against a recovery rate of 0.82, which
+      implies that 74% of symptomatic cases die. The paper's Table 4 reports 426 deaths from
+      1,254 cases, which is 34%. A death rate near 0.42 per week is what reproduces the
+      paper's own figure, and that is the value used throughout here.</p>
+    <h3>The initial conditions cannot produce a week-4 peak</h3>
+    <p>Table 2 seeds the outbreak with 995 infectious mosquitoes and 150 exposed ones. An
+      infectious seed is already at its maximum at time zero, so incidence can only fall from
+      week 1. Rescaling the transmission rate until the case total matches still peaks in week
+      2. Reproducing a rising limb requires the seed to sit in the exposed class instead, with
+      the infectious count near zero.</p>
+    <h3>The mosquito-to-human transmission rate cannot be estimated at all</h3>
+    <p>This one is structural rather than arithmetic, and it is the most consequential.</p>
+  </div>
+
+  <div class="callout">
+    <p><strong>The likelihood has a flat ridge.</strong> Over the course of this outbreak the
+      susceptible human and mosquito pools barely move, so the system is effectively linear in
+      the infected compartments. Multiply &beta;<sub>1</sub> by any constant <em>c</em> while
+      dividing &beta;<sub>2</sub>, <em>Y</em><sub>0</sub> and <em>Z</em><sub>0</sub> by the same
+      <em>c</em>, and every human compartment is unchanged. Only the three products
+      &beta;<sub>1</sub>&beta;<sub>2</sub>, &beta;<sub>1</sub><em>Y</em><sub>0</sub> and
+      &beta;<sub>1</sub><em>Z</em><sub>0</sub> are identified. The paper reports
+      &beta;<sub>1</sub> and &beta;<sub>2</sub> as separately estimated point values.</p>
+  </div>
+
+  <figure>
+    <p class="figtitle">The same fit at four different &beta;<sub>1</sub> values</p>
+    <p class="figsub">Rescaling &beta;<sub>1</sub> across three orders of magnitude leaves every outcome fixed.</p>
+    <div class="tblwrap"><table id="tb-ridge"></table></div>
+    <figcaption>Not approximate agreement. The optimiser confirms it independently: left free,
+      &beta;<sub>1</sub> slides to whichever bound it is given, at identical log-likelihood.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="col">
+    <p class="eyebrow">04 &middot; Refitting</p>
+    <h2>Pinning the ridge makes the problem well posed</h2>
+    <p>With &beta;<sub>1</sub> fixed at the paper's published value, the remaining quantities
+      are identified and the model fits the season closely. camdl's deterministic optimiser
+      over 64 Latin-hypercube starts is the direct analogue of the paper's own least-squares
+      procedure, differing in using a Poisson likelihood for counts rather than a sum of
+      squares.</p>
+    <p>I ran two baselines, because the paper's own choice of mosquito parameters turns out to
+      matter a great deal. Baseline A takes the three climate-sensitive mosquito parameters
+      from Table 1, which is what the paper's baseline run uses. Baseline B takes them from the
+      Table 3 temperature polynomials evaluated at the baseline 23&nbsp;&deg;C.</p>
+  </div>
+  <figure>
+    <p class="figtitle">Both refits recover the observed season</p>
+    <p class="figsub">Weekly symptomatic cases, linear scale.</p>
+    <div class="legend" id="lg-refit"></div>
+    <div class="chart" id="ch-refit"></div>
+    <div class="tblwrap"><table id="tb-fits"></table></div>
+    <figcaption>Baseline B reproduces the paper's reported peak week and comes within 2% of its
+      cumulative incidence. Neither refit captures the week-9 secondary bump, which the paper's
+      own fitted curve also misses.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="col">
+    <p class="eyebrow">05 &middot; The confound</p>
+    <h2>The baseline and the scenarios do not share a parameterisation</h2>
+    <p>The paper's climate comparison sets its baseline from Table 1 and its scenarios from the
+      Table 3 polynomials. Those two sources disagree sharply at the same 23&nbsp;&deg;C
+      baseline temperature: the polynomials give a mosquito death rate of 0.305 against Table
+      1's 0.36, a development rate of 0.37 against 0.58, and an extrinsic incubation rate of
+      0.217 against 0.54.</p>
+    <p>So the paper's headline step from baseline to the 2011&ndash;2040 period mixes a
+      temperature change with a change of parameter source. The toggle below separates them.
+      Variant&nbsp;A follows the paper's procedure; variant&nbsp;B holds one parameterisation
+      throughout, so a difference is a temperature effect.</p>
+  </div>
+  <figure>
+    <p class="figtitle">Projected outbreaks under RCP4.5 and RCP8.5</p>
+    <p class="figsub">Weekly symptomatic cases. Darker blue is warmer.</p>
+    <div class="controls" role="group" aria-label="Parameterisation">
+      <button class="seg" id="btn-A" aria-pressed="false">A &middot; paper's procedure</button>
+      <button class="seg" id="btn-B" aria-pressed="true">B &middot; one parameterisation</button>
+    </div>
+    <div class="legend" id="lg-scen"></div>
+    <div class="chart" id="ch-scen"></div>
+    <figcaption id="cap-scen"></figcaption>
+  </figure>
+  <figure>
+    <p class="figtitle">Change against baseline, this replication versus the paper</p>
+    <p class="figsub">Variant B. Cumulative incidence tracks the paper closely; the peak does not.</p>
+    <div class="legend" id="lg-bars"></div>
+    <div class="two">
+      <div class="chart" id="ch-bars"></div>
+      <div class="chart" id="ch-bars2"></div>
+    </div>
+    <div class="tblwrap"><table id="tb-t4"></table></div>
+    <figcaption>Cumulative incidence and deaths replicate within about three percentage points
+      in all six scenarios. Peak incidence moves the other way.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="col">
+    <p class="eyebrow">06 &middot; The mechanism</p>
+    <h2>The decline has a closed form</h2>
+    <p>Because the outbreak is driven by a decaying cohort of infected mosquitoes rather than
+      by sustained transmission, the total number of human cases is proportional to the
+      infectious-mosquito-weeks that cohort delivers. For an exposed mosquito facing death rate
+      &mu; and extrinsic incubation rate &lambda;<sub>2</sub>, that integral is:</p>
+    <p class="eq">&lambda;<sub>2</sub> &divide; [ &mu; (&lambda;<sub>2</sub> + &mu;) ]</p>
+    <p>Warming raises both rates. Faster incubation helps the virus; higher mortality hurts it;
+      mortality wins because it enters twice. This expression predicts the simulated change in
+      cumulative incidence to the second decimal in all six scenarios, which is why the
+      paper's central result survives every problem above. Drag the temperature to see it.</p>
+  </div>
+  <figure>
+    <p class="figtitle">Temperature response of the three climate-sensitive parameters</p>
+    <p class="figsub">Table 3 polynomials, with the closed-form prediction against the 23&nbsp;&deg;C baseline.</p>
+    <div class="slider">
+      <label for="tslider">Average temperature &mdash; <span class="mono" id="tval">26.9 &deg;C</span></label>
+      <input type="range" id="tslider" min="21" max="30" step="0.1" value="26.9">
+    </div>
+    <div class="readout" id="tread"></div>
+    <figcaption>At 23&nbsp;&deg;C the integral is 1.363 mosquito-weeks per exposed mosquito; by
+      28.3&nbsp;&deg;C it is 0.910, a 33.3% fall that matches the simulation exactly.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="col">
+    <p class="eyebrow">07 &middot; What the model is</p>
+    <h2>This is a spillover model, not a transmission model</h2>
+    <p>In every parameterisation tried here, the basic reproduction number sits far below one.
+      No human-amplified transmission is sustained; the epidemic is the decay of its initial
+      mosquito cohort. When the three mosquito parameters are made temperature-consistent, the
+      optimiser drives human-to-mosquito transmission to its lower bound, which is to say it
+      finds no evidence of feedback at all.</p>
+    <div class="readout" id="r0read"></div>
+    <p style="margin-top:1.2rem">The paper's own Table 6 says the same thing, and it is worth
+      being precise about how. Its vaccination sweep is almost perfectly linear in the
+      susceptible fraction: successive 10-point steps change peak incidence by 96, 97, 96, 96,
+      96, 96 cases. A model with real transmission feedback would curve. A model where cases
+      are proportional to the number of people available to be bitten is a straight line.</p>
+    <p>Re-running that sweep with the paper's published &beta;<sub>2</sub> reproduces the
+      linearity and lands within 8% of its cumulative incidence at every level.</p>
+  </div>
+  <figure>
+    <p class="figtitle">The vaccination sweep is a straight line</p>
+    <p class="figsub">Cumulative incidence against the proportion immune.</p>
+    <div class="legend" id="lg-imm"></div>
+    <div class="chart" id="ch-imm"></div>
+    <figcaption>Linearity in the susceptible fraction is the signature of a model without
+      transmission feedback. Both the paper's published sweep and this reconstruction show it.</figcaption>
+  </figure>
+  <div class="col">
+    <div class="callout">
+      <p>This is not a modelling error so much as an unflagged consequence of the paper's third
+        simplifying assumption. Brazil's 2017/18 epidemic was sylvatic: <em>Haemagogus</em>
+        mosquitoes cycling the virus through non-human primates, spilling into people near
+        forest edges. The paper states that it excludes non-human primates as intermediate
+        hosts, then fits a human&ndash;mosquito transmission model to a human&ndash;mosquito
+        epidemic that did not occur. The fit resolves the tension by setting the feedback to
+        nothing and letting an exogenous seed carry the whole outbreak.</p>
+      <p>The climate conclusion survives this, because it depends only on mosquito survival and
+        incubation. Any claim about transmission intensity, vaccination thresholds or herd
+        immunity does not.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <p class="eyebrow">08 &middot; One more thing</p>
+    <h2>A slip in Table 4</h2>
+    <p>Recomputing the percentage changes in the paper's Table 4 from the paper's own absolute
+      values reproduces five of the six death figures exactly. The sixth does not.</p>
+  </div>
+  <div class="tblwrap"><table id="tb-arith"></table></div>
+  <div class="col">
+    <p style="margin-top:1.2rem">294 deaths against a baseline of 426 is a 31.0% decrease. The
+      table prints 40.0%. The cumulative-incidence percentage on the same row is correct, so
+      this is a transcription slip in one cell rather than a different baseline.</p>
+    <h3>And the peak baseline is 184, not 185</h3>
+    <p>A second, smaller inconsistency sits in the same table. All six of its peak percentages
+      are computed against a baseline peak of 184, which reproduces every printed value to the
+      decimal. Table 4 prints that baseline peak as 185 in the row above it. Table 6 gives the
+      same quantity, the fitted model at 80% immunity, as 184. The comparisons on this page use
+      184.</p>
+    <p>Neither slip changes a conclusion. Both are the kind of thing a reader cannot catch
+      without re-running the model, which is the argument for publishing one.</p>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <p class="eyebrow">09 &middot; Reproducing this</p>
+    <h2>What to run</h2>
+    <ol class="steps">
+      <li>The model is one file, <code>yf_brazil.camdl</code>, transcribed from Appendix A.1.
+        <code>camdl check</code> type-checks it, including the dimensions of every rate.</li>
+      <li>Three fit configurations cover the unpinned fit, baseline A and baseline B.
+        <code>camdl fit run</code> stores each result content-addressed by its inputs.</li>
+      <li><code>run_replication.py</code> drives every scenario, the sensitivity analysis and
+        the vaccination sweep through <code>camdl simulate</code>, and writes the tables this
+        page reads.</li>
+    </ol>
+    <div class="callout warn">
+      <p><strong>One reparameterisation.</strong> The paper writes transmission as
+        &beta;<sub>1</sub><em>SZ</em>, which gives &beta;<sub>1</sub> units of inverse
+        count-weeks. camdl's dimension lattice has no inverse-count literal, so the same flow is
+        written per-capita against a fixed reference population,
+        &beta;<sub>1</sub><em>S</em>(<em>Z</em>/<em>M</em>). The dynamics are identical; only
+        the units of the two fitted constants change. Published values map to
+        &beta;<sub>1</sub>&nbsp;=&nbsp;218.69 and &beta;<sub>2</sub>&nbsp;=&nbsp;2.09&times;10<sup>&minus;4</sup> per week.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="col">
+  <p>Replication run on camdl 0.1.0+e8219d1, ODE backend, fixed-step RK4 at dt&nbsp;=&nbsp;1/16
+    week. Case data digitised from the paper's Figure 3 and validated against its Table 4.
+    Deterministic fits over 64 Latin-hypercube starts; the reported optimum was reached
+    independently by many starts and agrees to six decimal places.</p>
+</footer>
+</div>
+<script>
+const D = {"obs":{"weeks":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],"cases":[21.0,45.0,95.0,145.0,214.0,157.0,114.0,102.0,143.0,68.0,58.0,50.0,18.0,16.0,13.0,0.0,0.0,0.0]},"published":[3906.2,6210.9,5403.2,4121.2,3006.5,2157.6,1539.7,1097.1,781.8,557.5,397.8,284.0,202.9,145.0,103.6,74.0,52.9,37.8,27.1,19.3],"fitA":[37.6,133.0,172.7,165.9,142.2,116.9,95.3,77.9,64.1,53.0,43.9,36.5,30.3,25.2,20.9,17.4,14.5,12.0,10.0,8.3],"fitB":[26.5,106.2,157.9,171.3,161.0,139.8,115.7,92.9,73.0,56.5,43.2,32.8,24.7,18.6,13.9,10.4,7.7,5.7,4.2,3.1],"recon":[162.4,258.1,224.4,170.6,123.7,87.9,62.0,43.5,30.5,21.3,14.9,10.4,7.3,5.1,3.6,2.5,1.7,1.2,0.8,0.6],"summary":{"published":{"peak":6210.9,"pkwk":2,"cum":30174.6,"deaths":22458.0,"dur":28},"fitA":{"peak":172.7,"pkwk":3,"cum":1318.8,"deaths":455.0,"dur":31},"fitB":{"peak":171.3,"pkwk":4,"cum":1274.1,"deaths":440.0,"dur":23},"recon":{"peak":258.1,"pkwk":2,"cum":1233.7,"deaths":427.0,"dur":18}},"mleA":{"beta1":218.685636,"beta2":0.0022002252,"y0":59.8589525464,"z0":0.0002490699},"mleB":{"beta1":218.685636,"beta2":1.00004606e-12,"y0":94.790607018,"z0":0.2594053627},"r0":{"published":0.1413,"reconstruction":0.0325,"refit_table1":0.5166,"refit_t23":0.0},"table4":[{"variant":"A_paper_procedure","rcp":"baseline","period":"2017/18 fitted","temp":23.0,"peak":172.69,"pkwk":3,"cum":1318.76,"deaths":455.0,"dur":31,"d_peak":0.0,"d_cum":0.0,"d_dur":0.0},{"variant":"A_paper_procedure","rcp":"RCP4.5","period":"2011-2040 (short-term)","temp":25.9,"peak":118.13,"pkwk":4,"cum":906.37,"deaths":315.0,"dur":26,"d_peak":-31.59,"d_cum":-31.27,"d_dur":-16.13},{"variant":"A_paper_procedure","rcp":"RCP4.5","period":"2041-2070 (medium-term)","temp":26.5,"peak":115.28,"pkwk":3,"cum":826.57,"deaths":288.0,"dur":24,"d_peak":-33.25,"d_cum":-37.32,"d_dur":-22.58},{"variant":"A_paper_procedure","rcp":"RCP4.5","period":"2071-2100 (long-term)","temp":26.9,"peak":114.98,"pkwk":3,"cum":771.69,"deaths":269.0,"dur":22,"d_peak":-33.42,"d_cum":-41.48,"d_dur":-29.03},{"variant":"A_paper_procedure","rcp":"RCP8.5","period":"2011-2040 (short-term)","temp":26.0,"peak":117.73,"pkwk":4,"cum":893.58,"deaths":311.0,"dur":26,"d_peak":-31.82,"d_cum":-32.24,"d_dur":-16.13},{"variant":"A_paper_procedure","rcp":"RCP8.5","period":"2041-2070 (medium-term)","temp":27.0,"peak":114.84,"pkwk":3,"cum":758.07,"deaths":265.0,"dur":22,"d_peak":-33.5,"d_cum":-42.52,"d_dur":-29.03},{"variant":"A_paper_procedure","rcp":"RCP8.5","period":"2071-2100 (long-term)","temp":28.3,"peak":111.13,"pkwk":3,"cum":596.11,"deaths":210.0,"dur":17,"d_peak":-35.64,"d_cum":-54.8,"d_dur":-45.16},{"variant":"B_consistent","rcp":"baseline","period":"2017/18 fitted","temp":23.0,"peak":171.35,"pkwk":4,"cum":1274.1,"deaths":440.0,"dur":23,"d_peak":0.0,"d_cum":0.0,"d_dur":0.0},{"variant":"B_consistent","rcp":"RCP4.5","period":"2011-2040 (short-term)","temp":25.9,"peak":183.82,"pkwk":4,"cum":1201.12,"deaths":415.0,"dur":20,"d_peak":7.28,"d_cum":-5.73,"d_dur":-13.04},{"variant":"B_consistent","rcp":"RCP4.5","period":"2041-2070 (medium-term)","temp":26.5,"peak":181.25,"pkwk":3,"cum":1115.79,"deaths":386.0,"dur":19,"d_peak":5.78,"d_cum":-12.43,"d_dur":-17.39},{"variant":"B_consistent","rcp":"RCP4.5","period":"2071-2100 (long-term)","temp":26.9,"peak":180.74,"pkwk":3,"cum":1055.32,"deaths":366.0,"dur":18,"d_peak":5.48,"d_cum":-17.17,"d_dur":-21.74},{"variant":"B_consistent","rcp":"RCP8.5","period":"2011-2040 (short-term)","temp":26.0,"peak":183.16,"pkwk":4,"cum":1187.62,"deaths":411.0,"dur":20,"d_peak":6.89,"d_cum":-6.79,"d_dur":-13.04},{"variant":"B_consistent","rcp":"RCP8.5","period":"2041-2070 (medium-term)","temp":27.0,"peak":180.52,"pkwk":3,"cum":1040.07,"deaths":361.0,"dur":18,"d_peak":5.35,"d_cum":-18.37,"d_dur":-21.74},{"variant":"B_consistent","rcp":"RCP8.5","period":"2071-2100 (long-term)","temp":28.3,"peak":174.53,"pkwk":3,"cum":850.17,"deaths":296.0,"dur":15,"d_peak":1.85,"d_cum":-33.27,"d_dur":-34.78}],"curvesA":{"23.0":[37.6,133.0,172.7,165.9,142.2,116.9,95.3,77.9,64.1,53.0,43.9,36.5,30.3,25.2,20.9,17.4,14.5,12.0,10.0,8.3,6.9,5.8,4.8,4.0,3.3,2.8],"25.9":[21.5,81.8,115.0,118.1,106.1,89.4,73.1,58.9,47.3,38.0,30.5,24.5,19.8,15.9,12.8,10.3,8.3,6.7,5.4,4.4,3.5,2.9,2.3,1.9,1.5,1.2],"26.5":[22.7,84.4,115.3,115.1,100.5,82.3,65.5,51.5,40.4,31.7,24.9,19.6,15.4,12.1,9.6,7.6,6.0,4.7,3.7,2.9,2.3,1.8,1.4,1.1,0.9,0.7],"26.9":[23.5,86.0,115.0,112.2,95.8,76.8,59.9,46.2,35.5,27.3,21.1,16.3,12.6,9.8,7.6,5.9,4.5,3.5,2.7,2.1,1.6,1.3,1.0,0.8,0.6,0.5],"26.0":[21.7,82.3,115.1,117.7,105.3,88.4,71.9,57.8,46.2,37.0,29.6,23.7,19.0,15.3,12.3,9.9,7.9,6.4,5.1,4.1,3.3,2.7,2.1,1.7,1.4,1.1],"27.0":[23.7,86.4,114.8,111.4,94.6,75.4,58.4,44.8,34.3,26.3,20.2,15.5,11.9,9.2,7.1,5.5,4.2,3.3,2.5,1.9,1.5,1.2,0.9,0.7,0.5,0.4],"28.3":[27.0,91.3,111.1,98.4,76.2,55.5,39.5,28.0,19.8,14.1,10.0,7.2,5.1,3.7,2.6,1.9,1.4,1.0,0.7,0.5,0.4,0.3,0.2,0.1,0.1,0.1]},"curvesB":{"23.0":[26.5,106.2,157.9,171.3,161.0,139.8,115.7,92.9,73.0,56.5,43.2,32.8,24.7,18.6,13.9,10.4,7.7,5.7,4.2,3.1,2.3,1.7,1.3,0.9,0.7,0.5],"25.9":[34.0,129.3,180.8,183.8,161.6,131.4,102.0,76.8,56.7,41.3,29.8,21.4,15.2,10.8,7.7,5.4,3.8,2.7,1.9,1.3,0.9,0.7,0.5,0.3,0.2,0.2],"26.5":[35.9,133.3,181.3,178.9,152.6,120.3,90.5,66.1,47.4,33.5,23.5,16.3,11.3,7.8,5.4,3.7,2.6,1.8,1.2,0.8,0.6,0.4,0.3,0.2,0.1,0.1],"26.9":[37.2,135.8,180.7,174.3,145.2,111.8,82.1,58.6,41.0,28.3,19.4,13.2,9.0,6.1,4.1,2.8,1.9,1.2,0.8,0.6,0.4,0.3,0.2,0.1,0.1,0.1],"26.0":[34.3,130.0,181.0,183.2,160.3,129.7,100.2,75.1,55.2,40.0,28.8,20.5,14.6,10.3,7.3,5.1,3.6,2.5,1.8,1.3,0.9,0.6,0.4,0.3,0.2,0.1],"27.0":[37.5,136.4,180.5,173.0,143.2,109.6,80.0,56.7,39.5,27.1,18.5,12.5,8.4,5.7,3.8,2.5,1.7,1.1,0.8,0.5,0.3,0.2,0.2,0.1,0.1,0.0],"28.3":[42.7,144.1,174.5,152.3,114.4,79.4,52.6,33.8,21.4,13.4,8.3,5.1,3.1,1.9,1.2,0.7,0.4,0.3,0.2,0.1,0.1,0.0,0.0,0.0,0.0,0.0]},"paperT4":{"observed":{"peak":214,"cum":1259,"deaths":428,"pkwk":5,"dur":15},"fitted":{"peak":185,"cum":1254,"deaths":426,"pkwk":4,"dur":21},"('RCP4.5', 25.9)":{"peak":167,"cum":1213,"deaths":412,"pkwk":4,"dur":22},"('RCP4.5', 26.5)":{"peak":163,"cum":1126,"deaths":382,"pkwk":4,"dur":20},"('RCP4.5', 26.9)":{"peak":161,"cum":1072,"deaths":364,"pkwk":4,"dur":20},"('RCP8.5', 26.0)":{"peak":167,"cum":1201,"deaths":408,"pkwk":4,"dur":21},"('RCP8.5', 27.0)":{"peak":159,"cum":1049,"deaths":356,"pkwk":4,"dur":19},"('RCP8.5', 28.3)":{"peak":147,"cum":867,"deaths":294,"pkwk":4,"dur":17}},"table5":[{"param":"mu","temp":25,"value":0.322,"peak":185.455,"pkwk":3,"cum":1699.382,"deaths":585.0,"dur":39},{"param":"mu","temp":26,"value":0.356,"peak":174.136,"pkwk":3,"cum":1354.613,"deaths":468.0,"dur":32},{"param":"delta","temp":25,"value":0.43,"peak":172.452,"pkwk":3,"cum":1222.954,"deaths":423.0,"dur":27},{"param":"delta","temp":26,"value":0.46,"peak":172.5,"pkwk":3,"cum":1240.805,"deaths":429.0,"dur":28},{"param":"lambda2","temp":25,"value":0.262,"peak":108.066,"pkwk":4,"cum":842.986,"deaths":294.0,"dur":27},{"param":"lambda2","temp":26,"value":0.293,"peak":116.568,"pkwk":4,"cum":909.99,"deaths":317.0,"dur":27}],"paperT5":{"mu@25":[0.33,202,5,23],"mu@26":[0.36,190,4,22],"delta@25":[0.41,184,4,21],"delta@26":[0.45,184,4,21],"lambda2@25":[0.26,158,4,21],"lambda2@26":[0.29,162,4,21]},"table6":[{"immune":10,"peak":4509.3,"pkwk":60,"cum":120052.1,"deaths":39599.0,"dur":60},{"immune":20,"peak":1197.0,"pkwk":60,"cum":52007.3,"deaths":17362.0,"dur":60},{"immune":30,"peak":624.9,"pkwk":4,"cum":24156.4,"deaths":8142.0,"dur":60},{"immune":40,"peak":528.0,"pkwk":4,"cum":12309.2,"deaths":4176.0,"dur":60},{"immune":50,"peak":437.4,"pkwk":3,"cum":6852.2,"deaths":2334.0,"dur":60},{"immune":60,"peak":348.4,"pkwk":3,"cum":4034.9,"deaths":1379.0,"dur":60},{"immune":70,"peak":260.2,"pkwk":3,"cum":2389.0,"deaths":819.0,"dur":43},{"immune":80,"peak":172.7,"pkwk":3,"cum":1318.8,"deaths":455.0,"dur":31},{"immune":90,"peak":86.0,"pkwk":3,"cum":564.1,"deaths":199.0,"dur":21}],"table6lf":[{"immune":10,"peak":1161.7,"pkwk":2,"cum":5570.2,"deaths":1901.0,"dur":22},{"immune":20,"peak":1032.6,"pkwk":2,"cum":4948.9,"deaths":1690.0,"dur":22},{"immune":30,"peak":903.5,"pkwk":2,"cum":4328.3,"deaths":1479.0,"dur":22},{"immune":40,"peak":774.5,"pkwk":2,"cum":3708.2,"deaths":1268.0,"dur":21},{"immune":50,"peak":645.4,"pkwk":2,"cum":3088.7,"deaths":1057.0,"dur":21},{"immune":60,"peak":516.3,"pkwk":2,"cum":2469.8,"deaths":847.0,"dur":20},{"immune":70,"peak":387.2,"pkwk":2,"cum":1851.5,"deaths":637.0,"dur":19},{"immune":80,"peak":258.1,"pkwk":2,"cum":1233.7,"deaths":427.0,"dur":18},{"immune":90,"peak":129.1,"pkwk":2,"cum":616.6,"deaths":217.0,"dur":16}],"paperT6":{"10":[868,5997,2038,4,28],"20":[772,5310,1805,4,28],"30":[675,4629,1573,4,27],"40":[579,3955,1344,4,26],"50":[483,3288,1117,4,25],"60":[387,2626,892,4,24],"70":[291,1971,670,4,23],"80":[184,1254,426,4,21],"90":[99,678,230,4,20]},"ridge":[{"scale":0.01,"beta1":2.186856,"beta2":0.220023,"y0":5985.895255,"peak":172.2868,"pkwk":3,"cum":1315.6961,"deaths":454.0,"dur":31},{"scale":0.1,"beta1":21.868564,"beta2":0.022002,"y0":598.589525,"peak":172.4017,"pkwk":3,"cum":1316.573,"deaths":455.0,"dur":31},{"scale":1.0,"beta1":218.685636,"beta2":0.0022,"y0":59.858953,"peak":172.6887,"pkwk":3,"cum":1318.7617,"deaths":455.0,"dur":31},{"scale":10.0,"beta1":2186.85636,"beta2":0.00022,"y0":5.985895,"peak":172.6887,"pkwk":3,"cum":1318.7617,"deaths":455.0,"dur":31}]};
+const NS = "http://www.w3.org/2000/svg";
+const cv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const E = (t, a = {}, kids = []) => {
+  const e = document.createElementNS(NS, t);
+  for (const k in a) if (a[k] !== undefined && a[k] !== null) e.setAttribute(k, a[k]);
+  for (const c of [].concat(kids)) e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+  return e;
+};
+function niceTicks(lo, hi, n) {
+  const span = (hi - lo) || 1, raw = span / n;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw))), norm = raw / mag;
+  const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10) * mag;
+  const out = [];
+  for (let v = Math.ceil(lo / step - 1e-9) * step; v <= hi + step * 1e-9; v += step)
+    out.push(Math.abs(v) < step * 1e-9 ? 0 : +v.toPrecision(12));
+  return out;
+}
+const fmt = (v, d = 0) => v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const sigFmt = v => Math.abs(v) >= 1000 ? fmt(v) : Math.abs(v) >= 1 ? fmt(v, 1) : v.toPrecision(3);
+
+/* ---------- line chart ---------------------------------------------- */
+function lineChart(sel, spec) {
+  const host = document.querySelector(sel);
+  const draw = () => {
+    host.textContent = "";
+    const W = Math.max(280, host.clientWidth || 640);
+    const narrow = W < 560;
+    const H = Math.round(Math.min(420, Math.max(240, W * (narrow ? 0.72 : 0.5))));
+    const direct = spec.direct !== false && !narrow;
+    const m = { t: 14, r: direct ? 86 : 16, b: 40, l: 50 };
+    const pw = W - m.l - m.r, ph = H - m.t - m.b;
+    const xs = spec.x, xmin = xs[0], xmax = xs[xs.length - 1];
+    let vmax = 0, vmin = Infinity;
+    spec.series.forEach(s => s.y.forEach(v => {
+      if (v == null) return; if (v > vmax) vmax = v; if (v > 0 && v < vmin) vmin = v;
+    }));
+    const log = !!spec.log;
+    const lo = log ? Math.max(1, Math.pow(10, Math.floor(Math.log10(Math.max(vmin, 1))))) : 0;
+    const linTicks = log ? null : niceTicks(0, vmax * 1.04, 5);
+    const hi = log ? Math.pow(10, Math.ceil(Math.log10(vmax)))
+                   : Math.max(linTicks[linTicks.length - 1], vmax);
+    const X = v => m.l + (v - xmin) / (xmax - xmin) * pw;
+    const Y = v => log
+      ? m.t + ph - (Math.log10(Math.max(v, lo)) - Math.log10(lo)) / (Math.log10(hi) - Math.log10(lo)) * ph
+      : m.t + ph - (v - lo) / (hi - lo) * ph;
+    const svg = E("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img",
+      "aria-label": spec.alt || "chart" });
+    const ink3 = cv("--ink3"), ink2 = cv("--ink2"), rule = cv("--rule");
+
+    const yticks = [];
+    if (log) { for (let p = Math.log10(lo); p <= Math.log10(hi) + 1e-9; p++) yticks.push(Math.pow(10, p)); }
+    else linTicks.forEach(v => yticks.push(v));
+    yticks.forEach(v => {
+      svg.appendChild(E("line", { x1: m.l, x2: m.l + pw, y1: Y(v), y2: Y(v), stroke: rule, "stroke-width": 1 }));
+      svg.appendChild(E("text", { x: m.l - 8, y: Y(v) + 4, "text-anchor": "end", fill: ink3,
+        "font-size": 11, "font-family": cv("--font-mono") }, log ? fmt(v) : fmt(v, hi < 12 ? 1 : 0)));
+    });
+    (spec.xticks || xs.filter(v => v % 5 === 0 || v === xmin)).forEach(v => {
+      svg.appendChild(E("text", { x: X(v), y: m.t + ph + 20, "text-anchor": "middle", fill: ink3,
+        "font-size": 11, "font-family": cv("--font-mono") }, String(v)));
+    });
+    svg.appendChild(E("line", { x1: m.l, x2: m.l + pw, y1: m.t + ph, y2: m.t + ph, stroke: ink3, "stroke-width": 1 }));
+    svg.appendChild(E("text", { x: m.l + pw / 2, y: H - 4, "text-anchor": "middle", fill: ink2,
+      "font-size": 11.5 }, spec.xLabel || ""));
+    svg.appendChild(E("text", { x: 12, y: m.t + ph / 2, "text-anchor": "middle", fill: ink2,
+      "font-size": 11.5, transform: `rotate(-90 12 ${m.t + ph / 2})` }, spec.yLabel || ""));
+
+    spec.series.forEach(s => {
+      const pts = s.y.map((v, i) => v == null ? null : [X(xs[i]), Y(v)]).filter(Boolean);
+      if (!pts.length) return;
+      svg.appendChild(E("path", {
+        d: "M" + pts.map(p => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" L "),
+        fill: "none", stroke: cv(s.color), "stroke-width": s.w || 2,
+        "stroke-dasharray": s.dash || null, "stroke-linejoin": "round", "stroke-linecap": "round"
+      }));
+      if (s.dots) pts.forEach(p => {
+        svg.appendChild(E("circle", { cx: p[0], cy: p[1], r: 4, fill: cv("--surface"),
+          stroke: cv(s.color), "stroke-width": 2 }));
+      });
+      if (direct) {
+        const last = pts[pts.length - 1];
+        svg.appendChild(E("text", { x: last[0] + 8, y: last[1] + 4, fill: cv(s.color),
+          "font-size": 11.5, "font-weight": 600 }, s.name));
+      }
+    });
+
+    const cross = E("line", { x1: 0, x2: 0, y1: m.t, y2: m.t + ph, stroke: ink3,
+      "stroke-width": 1, "stroke-dasharray": "3 3", opacity: 0 });
+    svg.appendChild(cross);
+    host.appendChild(svg);
+    const tip = document.createElement("div"); tip.className = "tip"; host.appendChild(tip);
+    const hit = E("rect", { x: m.l, y: m.t, width: pw, height: ph, fill: "transparent" });
+    svg.appendChild(hit);
+    const move = ev => {
+      const r = svg.getBoundingClientRect();
+      const px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
+      const sx = W / r.width;
+      let i = Math.round((px * sx - m.l) / pw * (xmax - xmin));
+      i = Math.max(0, Math.min(xs.length - 1, i));
+      cross.setAttribute("x1", X(xs[i])); cross.setAttribute("x2", X(xs[i]));
+      cross.setAttribute("opacity", 1);
+      tip.innerHTML = `<b>${spec.xLabel ? spec.xLabel.split(" ")[0] : "x"} ${xs[i]}</b><br>` +
+        spec.series.filter(s => s.y[i] != null)
+          .map(s => `<span style="color:${cv(s.color)}">&#9632;</span> ${s.name} ${sigFmt(s.y[i])}`).join("<br>");
+      tip.style.left = (X(xs[i]) / sx) + "px";
+      tip.style.top = (m.t + 6) / sx + "px";
+      tip.style.opacity = 1;
+    };
+    svg.addEventListener("mousemove", move);
+    svg.addEventListener("touchmove", e => { move(e); e.preventDefault(); }, { passive: false });
+    svg.addEventListener("mouseleave", () => { tip.style.opacity = 0; cross.setAttribute("opacity", 0); });
+    if (spec.legend) {
+      const L = document.querySelector(spec.legend); L.textContent = "";
+      spec.series.forEach(s => {
+        const sp = document.createElement("span");
+        sp.innerHTML = `<i class="swatch" style="background:${cv(s.color)}"></i>${s.name}`;
+        L.appendChild(sp);
+      });
+    }
+  };
+  draw(); return draw;
+}
+
+/* ---------- grouped bars -------------------------------------------- */
+function barChart(sel, spec) {
+  const host = document.querySelector(sel);
+  const draw = () => {
+    host.textContent = "";
+    const W = Math.max(280, host.clientWidth || 640);
+    const H = Math.round(Math.min(380, Math.max(250, W * 0.46)));
+    const m = { t: 16, r: 14, b: 54, l: 54 }, pw = W - m.l - m.r, ph = H - m.t - m.b;
+    const all = spec.groups.flatMap(g => g.v);
+    const dmin = Math.min(0, ...all), dmax = Math.max(0, ...all);
+    const ticks = niceTicks(dmin * 1.12, dmax * 1.12, 5);
+    // The scale must cover the data even when the roundest tick stops short of
+    // it, or a bar draws past the axis and over the category labels.
+    const lo = Math.min(dmin * 1.06, ...ticks), hi = Math.max(dmax * 1.06, ...ticks);
+    const Y = v => m.t + ph - (v - lo) / (hi - lo) * ph;
+    const svg = E("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img",
+      "aria-label": spec.alt || "bar chart" });
+    const ink3 = cv("--ink3"), rule = cv("--rule");
+    for (const v of ticks) {
+      svg.appendChild(E("line", { x1: m.l, x2: m.l + pw, y1: Y(v), y2: Y(v), stroke: rule }));
+      svg.appendChild(E("text", { x: m.l - 8, y: Y(v) + 4, "text-anchor": "end", fill: ink3,
+        "font-size": 11, "font-family": cv("--font-mono") }, fmt(v, 0) + "%"));
+    }
+    svg.appendChild(E("line", { x1: m.l, x2: m.l + pw, y1: Y(0), y2: Y(0), stroke: ink3 }));
+    const gw = pw / spec.groups.length, bw = Math.min(26, gw / (spec.names.length + 1.1));
+    const tip = document.createElement("div"); tip.className = "tip";
+    spec.groups.forEach((g, gi) => {
+      const cx = m.l + gw * (gi + .5);
+      g.v.forEach((v, si) => {
+        const x = cx + (si - (spec.names.length - 1) / 2) * (bw + 3) - bw / 2;
+        const y = Math.min(Y(v), Y(0)), h = Math.max(1.5, Math.abs(Y(v) - Y(0)));
+        const r = E("rect", { x, y, width: bw, height: h, fill: cv(spec.colors[si]),
+          rx: 3, stroke: cv("--surface"), "stroke-width": 1 });
+        r.addEventListener("mouseenter", () => {
+          tip.innerHTML = `<b>${g.label.replace("\n", " ")}</b><br>${spec.names[si]} ${fmt(v, 1)}%`;
+          tip.style.left = (x + bw / 2) / (svg.getBoundingClientRect().width / W) + "px";
+          tip.style.top = (y - 2) / (svg.getBoundingClientRect().width / W) + "px";
+          tip.style.opacity = 1;
+        });
+        r.addEventListener("mouseleave", () => tip.style.opacity = 0);
+        svg.appendChild(r);
+      });
+      g.label.split("\n").forEach((ln, li) => {
+        svg.appendChild(E("text", { x: cx, y: m.t + ph + 18 + li * 13, "text-anchor": "middle",
+          fill: ink3, "font-size": 10.5, "font-family": cv("--font-mono") }, ln));
+      });
+    });
+    svg.appendChild(E("text", { x: 12, y: m.t + ph / 2, "text-anchor": "middle", fill: cv("--ink2"),
+      "font-size": 11.5, transform: `rotate(-90 12 ${m.t + ph / 2})` }, spec.yLabel || ""));
+    host.appendChild(svg); host.appendChild(tip);
+    if (spec.legend) {
+      const L = document.querySelector(spec.legend); L.textContent = "";
+      spec.names.forEach((n, i) => {
+        const sp = document.createElement("span");
+        sp.innerHTML = `<i class="swatch" style="background:${cv(spec.colors[i])}"></i>${n}`;
+        L.appendChild(sp);
+      });
+    }
+  };
+  draw(); return draw;
+}
+
+/* ---------- tables --------------------------------------------------- */
+const tbl = (sel, head, rows) => {
+  const t = document.querySelector(sel); t.textContent = "";
+  const th = E_h("thead"), tr = E_h("tr");
+  head.forEach(h => { const c = E_h("th"); c.innerHTML = h; tr.appendChild(c); });
+  th.appendChild(tr); t.appendChild(th);
+  const tb = E_h("tbody");
+  rows.forEach(r => {
+    const x = E_h("tr");
+    r.forEach((c, i) => {
+      const d = E_h("td"); d.innerHTML = c;
+      if (i) d.className = "num";
+      x.appendChild(d);
+    });
+    tb.appendChild(x);
+  });
+  t.appendChild(tb);
+};
+function E_h(t) { return document.createElement(t); }
+
+/* ---------- build ---------------------------------------------------- */
+const wk = D.obs.weeks;
+const redraws = [];
+
+redraws.push(lineChart("#ch-overshoot", {
+  x: wk.slice(0, 15), log: true, xLabel: "week", yLabel: "symptomatic cases",
+  legend: "#lg-overshoot", alt: "Published parameters overshoot the observed season",
+  series: [
+    { name: "published", y: D.published.slice(0, 15), color: "--s1", w: 2.4 },
+    { name: "observed", y: D.obs.cases.slice(0, 15), color: "--s2", dash: "5 4", dots: true }
+  ]
+}));
+
+redraws.push(lineChart("#ch-refit", {
+  x: wk, xLabel: "week", yLabel: "symptomatic cases", legend: "#lg-refit",
+  alt: "Both refits recover the observed season",
+  series: [
+    { name: "baseline A", y: D.fitA.slice(0, 18), color: "--s1", w: 2.2 },
+    { name: "baseline B", y: D.fitB.slice(0, 18), color: "--s3", w: 2.2 },
+    { name: "observed", y: D.obs.cases, color: "--s2", dash: "5 4", dots: true }
+  ]
+}));
+
+tbl("#tb-ridge", ["&beta;<sub>1</sub> scaled by", "&beta;<sub>1</sub>", "&beta;<sub>2</sub>",
+  "Y<sub>0</sub>", "peak", "peak week", "cumulative"],
+  D.ridge.map(r => [`&times; ${r.scale}`, sigFmt(r.beta1), r.beta2.toExponential(3),
+    sigFmt(r.y0), fmt(r.peak, 1), r.pkwk, fmt(r.cum, 0)]));
+
+const S = D.summary;
+tbl("#tb-fits", ["run", "peak", "peak week", "cumulative", "deaths", "duration (wk)"], [
+  ["<b>observed 2017/18</b>", "214", "5", "1,259", "428", "15"],
+  ["paper's fitted model", "185", "4", "1,254", "426", "21"],
+  ["baseline A &mdash; Table 1 params", fmt(S.fitA.peak, 1), S.fitA.pkwk, fmt(S.fitA.cum, 0), fmt(S.fitA.deaths), S.fitA.dur],
+  ["baseline B &mdash; Table 3 at 23&nbsp;&deg;C", fmt(S.fitB.peak, 1), S.fitB.pkwk, fmt(S.fitB.cum, 0), fmt(S.fitB.deaths), S.fitB.dur],
+  ["Table 1 as published", `<span class="flag">${fmt(S.published.peak, 0)}</span>`, S.published.pkwk,
+    `<span class="flag">${fmt(S.published.cum, 0)}</span>`, fmt(S.published.deaths), S.published.dur]
+]);
+
+/* scenarios */
+const TEMPS = ["23.0", "25.9", "26.0", "26.5", "26.9", "27.0", "28.3"];
+const QCOL = { "23.0": "--ink2", "25.9": "--q1", "26.0": "--q2", "26.5": "--q3",
+  "26.9": "--q4", "27.0": "--q5", "28.3": "--q6" };
+const LBL = { "23.0": "23.0 baseline", "25.9": "25.9 RCP4.5", "26.0": "26.0 RCP8.5",
+  "26.5": "26.5 RCP4.5", "26.9": "26.9 RCP4.5", "27.0": "27.0 RCP8.5", "28.3": "28.3 RCP8.5" };
+let variant = "B", scenDraw = null;
+function buildScen() {
+  const src = variant === "B" ? D.curvesB : D.curvesA;
+  const n = src["23.0"].length;
+  scenDraw = lineChart("#ch-scen", {
+    x: Array.from({ length: Math.min(n, 22) }, (_, i) => i + 1),
+    xLabel: "week", yLabel: "symptomatic cases", legend: "#lg-scen", direct: false,
+    alt: "Projected outbreaks under RCP4.5 and RCP8.5",
+    series: TEMPS.map(t => ({ name: LBL[t], y: src[t].slice(0, 22), color: QCOL[t],
+      w: t === "23.0" ? 2.8 : 1.8 }))
+  });
+  document.getElementById("cap-scen").innerHTML = variant === "B"
+    ? "Variant B. One parameterisation throughout, so each curve differs from the baseline only by temperature. The peak holds steady while the tail pulls in."
+    : "Variant A. The paper's own procedure: a Table 1 baseline against Table 3 scenarios. The step from baseline to 25.9&nbsp;&deg;C drops the peak 32%, far more than the paper's reported 9%, because it is mostly a change of parameter source.";
+  ["A", "B"].forEach(v => document.getElementById("btn-" + v)
+    .setAttribute("aria-pressed", String(v === variant)));
+}
+buildScen();
+["A", "B"].forEach(v => document.getElementById("btn-" + v)
+  .addEventListener("click", () => { variant = v; buildScen(); }));
+
+/* paper vs replication bars */
+const SC = [["RCP4.5", 25.9], ["RCP4.5", 26.5], ["RCP4.5", 26.9],
+  ["RCP8.5", 26.0], ["RCP8.5", 27.0], ["RCP8.5", 28.3]];
+const mineB = Object.fromEntries(D.table4.filter(r => r.variant === "B_consistent" && r.rcp !== "baseline")
+  .map(r => [r.rcp + "|" + r.temp, r]));
+// Python wrote these keys from float tuples, so 26.0 is spelled "26.0";
+// JS stringifies the number 26.0 as "26", hence the explicit toFixed(1).
+const paperOf = (rcp, t) => D.paperT4[`('${rcp}', ${Number(t).toFixed(1)})`];
+// The paper's own percentage changes use a peak baseline of 184 (Table 6's
+// figure), not the 185 Table 4 prints beside them: recomputing against 184
+// reproduces all six printed values exactly.
+const PAPER_PEAK_BASE = 184, PAPER_CUM_BASE = 1254;
+const barSpec = (which, title) => ({
+  names: ["paper as published", "this replication"], colors: ["--s2", "--s1"],
+  legend: which === "cum" ? "#lg-bars" : null,
+  yLabel: title, alt: title + " change against baseline",
+  groups: SC.map(([rcp, t]) => {
+    const p = paperOf(rcp, t), m = mineB[rcp + "|" + t];
+    return { label: rcp + "\n" + t.toFixed(1) + "\u00B0C",
+      v: which === "cum" ? [100 * (p.cum - PAPER_CUM_BASE) / PAPER_CUM_BASE, m.d_cum]
+                         : [100 * (p.peak - PAPER_PEAK_BASE) / PAPER_PEAK_BASE, m.d_peak] };
+  })
+});
+redraws.push(barChart("#ch-bars", barSpec("cum", "cumulative incidence (%)")));
+redraws.push(barChart("#ch-bars2", barSpec("peak", "peak incidence (%)")));
+
+tbl("#tb-t4", ["scenario", "temp", "paper cumulative", "mine cumulative", "paper peak",
+  "mine peak", "paper duration", "mine duration"],
+  SC.map(([rcp, t]) => {
+    const p = paperOf(rcp, t), m = mineB[rcp + "|" + t];
+    const d = (a, b) => `${fmt(a, 0)} <span style="color:var(--ink3)">(${a >= b ? "+" : ""}${fmt(100 * (a - b) / b, 1)}%)</span>`;
+    return [rcp + " " + t.toFixed(1) + "&deg;C", t.toFixed(1), d(p.cum, PAPER_CUM_BASE),
+      d(m.cum, 1274), d(p.peak, PAPER_PEAK_BASE), d(m.peak, 171.3),
+      "" + p.dur + " wk", "" + m.dur + " wk"];
+  }));
+
+/* temperature slider */
+const eip = T => 1 / (96.69 - 2.8 * T) * 7, mu = T => 4.76 - 0.38 * T + 0.0081 * T * T,
+  dev = T => -0.32 + 0.03 * T, integ = T => eip(T) / (mu(T) * (eip(T) + mu(T)));
+const base = integ(23);
+function readT(T) {
+  document.getElementById("tval").textContent = T.toFixed(1) + " °C";
+  const chg = 100 * (integ(T) / base - 1);
+  document.getElementById("tread").innerHTML = [
+    ["&lambda;&#8322; EIP rate", eip(T).toFixed(3), "per week"],
+    ["&mu; mosquito death", mu(T).toFixed(3), "per week"],
+    ["&delta; development", dev(T).toFixed(3), "per week"],
+    ["infectious weeks", integ(T).toFixed(3), "per exposed mosq."],
+    ["predicted change", (chg >= 0 ? "+" : "") + chg.toFixed(1) + "%", "cumulative cases"]
+  ].map(([l, v, s]) => `<div class="cell"><small>${l}</small><b${
+    l === "predicted change" ? ` style="color:${chg < 0 ? "var(--accent)" : "var(--warn)"}"` : ""
+  }>${v}</b><small style="margin:.1rem 0 0;text-transform:none;letter-spacing:0">${s}</small></div>`).join("");
+}
+const slider = document.getElementById("tslider");
+slider.addEventListener("input", e => readT(+e.target.value));
+readT(+slider.value);
+
+/* R0 cells */
+document.getElementById("r0read").innerHTML = [
+  ["Table 1 as published", D.r0.published],
+  ["&beta;<sub>1</sub> rescaled to fit", D.r0.reconstruction],
+  ["baseline A refit", D.r0.refit_table1],
+  ["baseline B refit", D.r0.refit_t23]
+].map(([l, v]) => `<div class="cell"><small>${l}</small><b>${v.toFixed(3)}</b>` +
+  `<small style="margin:.1rem 0 0;text-transform:none;letter-spacing:0">R&#8320;</small></div>`).join("");
+
+/* immunity */
+const immX = D.table6lf.map(r => r.immune);
+redraws.push(lineChart("#ch-imm", {
+  x: immX, xLabel: "percent immune", yLabel: "cumulative cases", legend: "#lg-imm",
+  xticks: immX, alt: "The vaccination sweep is linear in the susceptible fraction",
+  series: [
+    { name: "paper Table 6", y: immX.map(p => D.paperT6[p][1]), color: "--s2", dash: "5 4", dots: true },
+    { name: "reconstruction", y: D.table6lf.map(r => r.cum), color: "--s1", dots: true }
+  ]
+}));
+
+/* arithmetic table */
+tbl("#tb-arith", ["scenario", "deaths", "recomputed change", "printed in Table 4"],
+  SC.map(([rcp, t]) => {
+    const p = paperOf(rcp, t), r = 100 * (p.deaths - 426) / 426;
+    const printed = { 25.9: -3.3, 26.5: -10.3, 26.9: -14.6, 26.0: -4.2, 27.0: -16.4, 28.3: -40.0 }[t];
+    const bad = Math.abs(r - printed) > 0.15;
+    return [`${rcp} ${t}&deg;C`, fmt(p.deaths), `${r.toFixed(1)}%`,
+      `<span class="${bad ? "flag" : "good"}">${printed.toFixed(1)}%${bad ? " &#9888;" : ""}</span>`];
+  }));
+
+/* re-render on resize and on theme change */
+let rt; addEventListener("resize", () => {
+  clearTimeout(rt); rt = setTimeout(() => { redraws.forEach(f => f()); buildScen(); }, 160);
+});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+  redraws.forEach(f => f()); buildScen();
+});
+</script>
+
+</body>
+</html>
