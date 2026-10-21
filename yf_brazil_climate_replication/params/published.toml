@@ -1,0 +1,18 @@
+# Sadeghieh et al. (2021) Table 1 + Table 2 values, exactly as published.
+# beta1/beta2 are the per-capita reparameterisation (see yf_brazil.camdl):
+#   beta1 = 5.22e-7 * 418938000 = 218.685636
+#   beta2 = 1.00e-12 * 209469000 = 2.09469e-4
+beta1   = 218.685636
+beta2   = 2.09469e-4
+phi     = 0.45
+omega   = 2.38
+lambda1 = 1.31
+lambda2 = 0.54
+gamma   = 0.82
+mu      = 0.36
+delta   = 0.58
+immune  = 0.80
+y0      = 150.0
+z0      = 995.0
+n_ref   = 209469000.0
+m_ref   = 418938000.0

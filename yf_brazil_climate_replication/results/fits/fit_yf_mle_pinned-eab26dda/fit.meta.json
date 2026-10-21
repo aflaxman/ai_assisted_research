@@ -1,0 +1,96 @@
+{
+  "model_path": "yf_brazil.camdl",
+  "model_identity": "f507cd9fbc445d1b37f15b86caa60c2f99f9544e7371c6c8aee54391fd4bfb32",
+  "fit_toml_path": "fit_yf_mle_pinned.toml",
+  "fit_toml_hash": "8bc4fb88e1018352b6190d76a85cae7b4a90978dc20eaad5acbf76f7804947bd",
+  "data_hashes": {
+    "cases": "88bb58b8"
+  },
+  "estimated": [
+    "beta2",
+    "y0",
+    "z0"
+  ],
+  "fixed": {
+    "beta1": 218.685636,
+    "delta": 0.58,
+    "gamma": 0.82,
+    "immune": 0.8,
+    "lambda1": 1.31,
+    "lambda2": 0.54,
+    "m_ref": 418938000.0,
+    "mu": 0.36,
+    "n_ref": 209469000.0,
+    "omega": 0.42237,
+    "phi": 0.45
+  },
+  "resolved_priors": [],
+  "parameters_provenance": {},
+  "schema": {
+    "dimensions": {},
+    "streams": [
+      {
+        "name": "cases",
+        "index_dims": [],
+        "value_column": "cases",
+        "value_kind": "count",
+        "likelihood": "poisson"
+      }
+    ]
+  },
+  "docs": {
+    "parameters": {
+      "beta1": {
+        "text": "mosquito-to-human transmission, per-capita form (= beta1_paper * m_ref)",
+        "symbol": "β₁"
+      },
+      "beta2": {
+        "text": "human-to-mosquito transmission, per-capita form (= beta2_paper * n_ref)",
+        "symbol": "β₂"
+      },
+      "delta": {
+        "text": "mosquito development (recruitment) rate from hatching to adult",
+        "symbol": "δ"
+      },
+      "gamma": {
+        "text": "rate of viraemia completion in humans (recovery)",
+        "symbol": "γ"
+      },
+      "immune": {
+        "text": "proportion of the human population immune at outbreak start (natural + vaccine-acquired; paper's baseline is 0.80)"
+      },
+      "lambda1": {
+        "text": "rate of symptom onset after infection (1/intrinsic incubation period)",
+        "symbol": "λ₁"
+      },
+      "lambda2": {
+        "text": "rate of viraemic onset in mosquitoes (1/extrinsic incubation period)",
+        "symbol": "λ₂"
+      },
+      "m_ref": {
+        "text": "total mosquito population (assumed twice the human population)"
+      },
+      "mu": {
+        "text": "mosquito death rate",
+        "symbol": "μ"
+      },
+      "n_ref": {
+        "text": "total human population (UN World Population Prospects 2019)"
+      },
+      "omega": {
+        "text": "YF-induced death rate among symptomatic humans",
+        "symbol": "ω"
+      },
+      "phi": {
+        "text": "proportion of infections that become symptomatic (Johansson 2014)",
+        "symbol": "φ"
+      },
+      "y0": {
+        "text": "initial exposed mosquitoes (fitted by the paper; its value 150)"
+      },
+      "z0": {
+        "text": "initial infectious mosquitoes (fitted by the paper; its value 995)"
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+# camdl fit MLE — parameter values first, followed by a [provenance] block.
+# Editing any value in this params section invalidates provenance.content_hash.
+beta1 = 218.685636
+beta2 = 0.0022002252
+delta = 0.58
+gamma = 0.82
+immune = 0.8
+lambda1 = 1.31
+lambda2 = 0.54
+m_ref = 418938000.0
+mu = 0.36
+n_ref = 209469000.0
+omega = 0.42237
+phi = 0.45
+y0 = 59.8589525464
+z0 = 0.0002490699
+
+[provenance]
+camdl_version = "0.1.0+e8219d1"
+timestamp = "2026-10-15T18:30:32Z"
+content_hash = "dc78f37e"
+fit_hash = "eab26dda00784b3b9642b59fccf8adaba5e2f058c4e72d42fd3d1ab458af6f94"
+backend = "ode"
+dt = 0.0625
+model = "yf_brazil.camdl"
+model_identity = "f507cd9fbc445d1b37f15b86caa60c2f99f9544e7371c6c8aee54391fd4bfb32"
+seed = 1
+method = "nl-sbplx"
+chain = 14
+log_likelihood = -230.10363577552732
+loglik_sd = 0.0
+n_particles = 0
+
+[provenance.data.cases]
+path = "data/yf_brazil_201718_cases.tsv"
+hash = "88bb58b8"
