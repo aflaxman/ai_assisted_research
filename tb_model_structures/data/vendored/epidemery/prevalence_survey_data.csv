@@ -1,0 +1,16 @@
+survey,year,sub_neg,sub_pos,clin_neg,clin_pos,screened,symp_thresh,region
+Viet Nam,2007,87,76,33,36,94179,Cough > 2 weeks,Asia
+Viet Nam,2018,67,17,22,21,61763,Cough > 2 weeks,Asia
+Bangladesh,2015,116,56,54,52,98710,Cough > 2 weeks and/or other,Asia
+DPR Korea,2016,82,64,71,123,60683,Cough > 2 weeks and/or other,Asia
+Indonesia,2014,132,49,129,116,67944,Cough > 2 weeks and/or other,Asia
+Lao PDR,2011,83,36,47,71,39212,Cough > 2 weeks and/or other,Asia
+Philippines,2016,231,85,212,88,46689,Cough > 2 weeks and/or other,Asia
+Gambia,2012,18,9,25,18,43100,Cough > 2 weeks and/or other,Africa
+Rwanda,2012,11,9,5,13,43128,Any symptom,Africa
+Uganda,2014,51,30,43,36,41154,Cough > 2 weeks,Africa
+Cambodia,2011,163,58,48,45,37417,Cough > 2 weeks and/or other,Asia
+Mongolia,2015,139,56,21,30,50309,Cough > 2 weeks,Asia
+Myanmar,2009,164,81,24,42,51367,Any symptom,Asia
+Nigeria,2012,25,27,12,80,44186,Cough > 2 weeks,Africa
+Zimbabwe,2014,58,9,25,14,33736,Any symptom,Africa

@@ -1,0 +1,71 @@
+structure,family,country,model_subclinical_fraction,survey_subclinical_fraction
+A,classic,Viet Nam,n/a (single disease state),0.66-0.7
+A,classic,South Africa,n/a (single disease state),0.577-0.577
+A,classic,India,n/a (single disease state),0.4-0.62
+A,classic,Kenya,n/a (single disease state),0.4-0.62
+A,classic,Netherlands,n/a (single disease state),0.4-0.62
+B,classic,Viet Nam,n/a (single disease state),0.66-0.7
+B,classic,South Africa,n/a (single disease state),0.577-0.577
+B,classic,India,n/a (single disease state),0.4-0.62
+B,classic,Kenya,n/a (single disease state),0.4-0.62
+B,classic,Netherlands,n/a (single disease state),0.4-0.62
+C,classic,Viet Nam,n/a (single disease state),0.66-0.7
+C,classic,South Africa,n/a (single disease state),0.577-0.577
+C,classic,India,n/a (single disease state),0.4-0.62
+C,classic,Kenya,n/a (single disease state),0.4-0.62
+C,classic,Netherlands,n/a (single disease state),0.4-0.62
+D,classic,Viet Nam,n/a (single disease state),0.66-0.7
+D,classic,South Africa,n/a (single disease state),0.577-0.577
+D,classic,India,n/a (single disease state),0.4-0.62
+D,classic,Kenya,n/a (single disease state),0.4-0.62
+D,classic,Netherlands,n/a (single disease state),0.4-0.62
+E,classic,Viet Nam,n/a (single disease state),0.66-0.7
+E,classic,South Africa,n/a (single disease state),0.577-0.577
+E,classic,India,n/a (single disease state),0.4-0.62
+E,classic,Kenya,n/a (single disease state),0.4-0.62
+E,classic,Netherlands,n/a (single disease state),0.4-0.62
+F,classic,Viet Nam,n/a (single disease state),0.66-0.7
+F,classic,South Africa,n/a (single disease state),0.577-0.577
+F,classic,India,n/a (single disease state),0.4-0.62
+F,classic,Kenya,n/a (single disease state),0.4-0.62
+F,classic,Netherlands,n/a (single disease state),0.4-0.62
+G,classic,Viet Nam,n/a (single disease state),0.66-0.7
+G,classic,South Africa,n/a (single disease state),0.577-0.577
+G,classic,India,n/a (single disease state),0.4-0.62
+G,classic,Kenya,n/a (single disease state),0.4-0.62
+G,classic,Netherlands,n/a (single disease state),0.4-0.62
+H,classic,Viet Nam,n/a (single disease state),0.66-0.7
+H,classic,South Africa,n/a (single disease state),0.577-0.577
+H,classic,India,n/a (single disease state),0.4-0.62
+H,classic,Kenya,n/a (single disease state),0.4-0.62
+H,classic,Netherlands,n/a (single disease state),0.4-0.62
+I,classic,Viet Nam,n/a (single disease state),0.66-0.7
+I,classic,South Africa,n/a (single disease state),0.577-0.577
+I,classic,India,n/a (single disease state),0.4-0.62
+I,classic,Kenya,n/a (single disease state),0.4-0.62
+I,classic,Netherlands,n/a (single disease state),0.4-0.62
+J,classic,Viet Nam,n/a (single disease state),0.66-0.7
+J,classic,South Africa,n/a (single disease state),0.577-0.577
+J,classic,India,n/a (single disease state),0.4-0.62
+J,classic,Kenya,n/a (single disease state),0.4-0.62
+J,classic,Netherlands,n/a (single disease state),0.4-0.62
+SP-full,spectrum,Viet Nam,0.82,0.66-0.7
+SP-full,spectrum,South Africa,0.8,0.577-0.577
+SP-full,spectrum,India,0.799,0.4-0.62
+SP-full,spectrum,Kenya,0.789,0.4-0.62
+SP-full,spectrum,Netherlands,0.851,0.4-0.62
+SP-noclear,spectrum,Viet Nam,0.826,0.66-0.7
+SP-noclear,spectrum,South Africa,0.806,0.577-0.577
+SP-noclear,spectrum,India,0.805,0.4-0.62
+SP-noclear,spectrum,Kenya,0.796,0.4-0.62
+SP-noclear,spectrum,Netherlands,0.857,0.4-0.62
+SP-nomin,spectrum,Viet Nam,0.85,0.66-0.7
+SP-nomin,spectrum,South Africa,0.832,0.577-0.577
+SP-nomin,spectrum,India,0.831,0.4-0.62
+SP-nomin,spectrum,Kenya,0.822,0.4-0.62
+SP-nomin,spectrum,Netherlands,0.877,0.4-0.62
+SP-nomin-noclear,spectrum,Viet Nam,0.85,0.66-0.7
+SP-nomin-noclear,spectrum,South Africa,0.832,0.577-0.577
+SP-nomin-noclear,spectrum,India,0.83,0.4-0.62
+SP-nomin-noclear,spectrum,Kenya,0.822,0.4-0.62
+SP-nomin-noclear,spectrum,Netherlands,n/a (single disease state),0.4-0.62
