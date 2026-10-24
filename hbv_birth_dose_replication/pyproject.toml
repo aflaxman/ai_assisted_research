@@ -1,0 +1,12 @@
+[project]
+name = "hbv-birth-dose-replication"
+version = "0.1.0"
+description = "camdl replication of Seaman et al. (2020), CTC and CPAD devices for hepatitis B birth dose coverage in LMICs"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.12",
+    "pandas>=2.2",
+    "openpyxl>=3.1",
+    "matplotlib>=3.9",
+]

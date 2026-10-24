@@ -1,0 +1,245 @@
+# Perinatal hepatitis B: a birth cohort followed for life
+#
+# Replicates the disease model of Seaman, Morgan, Howell, Xiao, Spearman,
+# Sonderup, Lesi, Andersson, Hellard & Scott (2020), "Use of controlled
+# temperature chain and compact prefilled auto-disable devices to reach 2030
+# hepatitis B birth dose vaccination targets in LMICs: a modelling and
+# cost-optimisation study", Lancet Global Health 8:e931-41.
+# https://doi.org/10.1016/S2214-109X(20)30231-X
+# Code and inputs: https://github.com/ChrisSeaman-Burnet/Seaman-et-al.-HBV-Birth-Dose-Model
+#
+# Structure is the paper's Figure 1 and the `hbv_model` function in the
+# authors' model.py. A cohort of newborns is split at birth, by maternal
+# HBsAg / HBeAg status, birth location and the protection the birth dose
+# gives, into Immune (Z, completed the 3-dose series), Susceptible (S) and
+# Latent perinatal infection (L). Infected infants then progress
+#
+#     L -> A -> { C (chronic) | Z (cleared) }
+#     C -> CC -> DC -> HCC,  C -> HCC,  CC -> HCC,  C -> Z (spontaneous clearance)
+#
+# with hepatitis-B deaths from A, C, CC, DC and HCC, and age-specific
+# all-cause mortality from every living compartment. There is no
+# transmission within the cohort, so the system is linear in its initial
+# state. Two rates are age-dependent, exactly as in the authors' code:
+#
+#   * the probability an acute infection becomes chronic is 0.885 before six
+#     months of age and exp(-0.645 * age^0.455) after (Edmunds et al. 1993);
+#   * all-cause mortality is a step function of age in UN WPP bands
+#     (<1, 1-4, 5-9, ..., 95-99, 100+).
+#
+# Health and cost outcomes are reported as `quantities` discounted at
+# `disc` per year continuously, following the authors' code:
+#   yll          = integral of cumulative HBV deaths (years of life lost up
+#                  to the end of the horizon, not to a life table)
+#   yld          = integral of disability-weighted prevalence
+#   disease_cost = integral of annual management cost x prevalence
+#
+# Vaccination coverage enters only through `prot_fac` / `prot_com`: the
+# fraction of births in each location protected by an effective birth dose
+# (coverage x timing-weighted vaccine effectiveness). That arithmetic, the
+# cost-coverage curves and the optimisation live in hbv_model.py.
+
+time_unit = 'years
+
+compartments { Z, S, L, A, C, CC, DC, HCC, D_hbv, D_bg }
+
+parameters {
+  # ---- cohort and perinatal transmission (Figure 1) ------------------------
+  #' live births in the cohort
+  n_births : count in [1.0, 1.0e12]
+  #' proportion of births in a health facility
+  p_fac    : probability in [0.0, 1.0]
+  #' maternal HBsAg prevalence
+  prev     : probability in [0.0, 1.0]
+  #' HBeAg prevalence among HBsAg-positive mothers
+  hbe_prev : probability in [0.0, 1.0]
+  #' perinatal transmission risk, HBeAg-positive mother, no effective birth dose
+  risk_pos : probability in [0.0, 1.0]
+  #' perinatal transmission risk, HBeAg-negative mother, no effective birth dose
+  risk_neg : probability in [0.0, 1.0]
+  #' coverage of the complete three-dose series (uninfected -> immune)
+  hbv3     : probability in [0.0, 1.0]
+  #' share of facility births protected by an effective birth dose
+  prot_fac : probability in [0.0, 1.0]
+  #' share of community births protected by an effective birth dose
+  prot_com : probability in [0.0, 1.0]
+
+  # ---- disease progression (Table 1; authors' `global` sheet) ---------------
+  #' latent -> acute
+  r_LA   : rate in [0.01, 1000.0]
+  #' acute -> chronic (times the age-dependent chronicity probability)
+  r_AC   : rate in [0.01, 1000.0]
+  #' acute -> cleared/immune (times one minus that probability)
+  r_AZ   : rate in [0.01, 1000.0]
+  #' probability of chronicity for infection in the first six months of life
+  p_ac0  : probability in [0.0, 1.0]
+  #' chronic -> spontaneous clearance
+  r_CZ   : rate in [0.0, 10.0]
+  #' chronic -> compensated cirrhosis
+  r_CCC  : rate in [0.0, 10.0]
+  #' compensated -> decompensated cirrhosis
+  r_CDC  : rate in [0.0, 10.0]
+  #' decompensated cirrhosis -> hepatocellular carcinoma
+  r_DCHCC : rate in [0.0, 10.0]
+  #' compensated cirrhosis -> hepatocellular carcinoma
+  r_CHCC : rate in [0.0, 10.0]
+  #' chronic -> hepatocellular carcinoma
+  r_CHC  : rate in [0.0, 10.0]
+  #' hepatitis B mortality, acute
+  mu_A   : rate in [0.0, 10.0]
+  #' hepatitis B mortality, chronic
+  mu_C   : rate in [0.0, 10.0]
+  #' hepatitis B mortality, compensated cirrhosis
+  mu_CC  : rate in [0.0, 10.0]
+  #' hepatitis B mortality, decompensated cirrhosis
+  mu_DC  : rate in [0.0, 10.0]
+  #' hepatitis B mortality, hepatocellular carcinoma
+  mu_HCC : rate in [0.0, 10.0]
+
+  # ---- all-cause mortality by age band (UN WPP 2015-20, per year) ----------
+  acm_0   : rate in [0.0, 5.0]   # <1
+  acm_1   : rate in [0.0, 5.0]   # 1-4
+  acm_5   : rate in [0.0, 5.0]
+  acm_10  : rate in [0.0, 5.0]
+  acm_15  : rate in [0.0, 5.0]
+  acm_20  : rate in [0.0, 5.0]
+  acm_25  : rate in [0.0, 5.0]
+  acm_30  : rate in [0.0, 5.0]
+  acm_35  : rate in [0.0, 5.0]
+  acm_40  : rate in [0.0, 5.0]
+  acm_45  : rate in [0.0, 5.0]
+  acm_50  : rate in [0.0, 5.0]
+  acm_55  : rate in [0.0, 5.0]
+  acm_60  : rate in [0.0, 5.0]
+  acm_65  : rate in [0.0, 5.0]
+  acm_70  : rate in [0.0, 5.0]
+  acm_75  : rate in [0.0, 5.0]
+  acm_80  : rate in [0.0, 5.0]
+  acm_85  : rate in [0.0, 5.0]
+  acm_90  : rate in [0.0, 5.0]
+  acm_95  : rate in [0.0, 5.0]
+  acm_100 : rate in [0.0, 5.0]
+
+  # ---- valuation ------------------------------------------------------------
+  #' discount rate (continuous, per year)
+  disc   : rate in [0.0, 1.0]
+  #' disability weights (GBD 2017)
+  dw_A   : probability in [0.0, 1.0]
+  dw_C   : probability in [0.0, 1.0]
+  dw_CC  : probability in [0.0, 1.0]
+  dw_DC  : probability in [0.0, 1.0]
+  dw_HCC : probability in [0.0, 1.0]
+  #' annual disease-management cost, 2020 US$ per person-year
+  c_A    : positive [1] in [0.0, 1.0e6]
+  c_C    : positive [1] in [0.0, 1.0e6]
+  c_CC   : positive [1] in [0.0, 1.0e6]
+  c_DC   : positive [1] in [0.0, 1.0e6]
+  c_HCC  : positive [1] in [0.0, 1.0e6]
+}
+
+# Age in years as a dimensionless number, for the chronicity curve.
+let age = t * 1.0 'per_year
+
+# Probability that an acute infection at this age becomes chronic
+# (model.py: p_AC). 0.885 under six months, then Edmunds' curve.
+let p_chronic = if age < 0.5 then p_ac0 else exp(-0.645 * age ^ 0.455)
+
+# All-cause mortality: a step function of age over the UN WPP bands
+# (<1, 1-4, 5-9, ..., 95-99, 100+). Evaluated at run time from `t`.
+let acm =
+  if age < 1.0 then acm_0 else
+  if age < 5.0 then acm_1 else
+  if age < 10.0 then acm_5 else
+  if age < 15.0 then acm_10 else
+  if age < 20.0 then acm_15 else
+  if age < 25.0 then acm_20 else
+  if age < 30.0 then acm_25 else
+  if age < 35.0 then acm_30 else
+  if age < 40.0 then acm_35 else
+  if age < 45.0 then acm_40 else
+  if age < 50.0 then acm_45 else
+  if age < 55.0 then acm_50 else
+  if age < 60.0 then acm_55 else
+  if age < 65.0 then acm_60 else
+  if age < 70.0 then acm_65 else
+  if age < 75.0 then acm_70 else
+  if age < 80.0 then acm_75 else
+  if age < 85.0 then acm_80 else
+  if age < 90.0 then acm_85 else
+  if age < 95.0 then acm_90 else
+  if age < 100.0 then acm_95 else
+  acm_100
+
+transitions {
+  # --- hepatitis B natural history ---
+  onset        : L  --> A    @ r_LA * L
+  chronicity   : A  --> C    @ p_chronic * r_AC * A
+  clearance_a  : A  --> Z    @ (1.0 - p_chronic) * r_AZ * A
+  clearance_c  : C  --> Z    @ r_CZ * C
+  cirrhosis    : C  --> CC   @ r_CCC * C
+  decomp       : CC --> DC   @ r_CDC * CC
+  hcc_from_c   : C  --> HCC  @ r_CHC * C
+  hcc_from_cc  : CC --> HCC  @ r_CHCC * CC
+  hcc_from_dc  : DC --> HCC  @ r_DCHCC * DC
+
+  # --- hepatitis B deaths ---
+  die_a   : A   --> D_hbv @ mu_A * A
+  die_c   : C   --> D_hbv @ mu_C * C
+  die_cc  : CC  --> D_hbv @ mu_CC * CC
+  die_dc  : DC  --> D_hbv @ mu_DC * DC
+  die_hcc : HCC --> D_hbv @ mu_HCC * HCC
+
+  # --- background (all-cause) deaths ---
+  bg_z   : Z   --> D_bg @ acm * Z
+  bg_s   : S   --> D_bg @ acm * S
+  bg_l   : L   --> D_bg @ acm * L
+  bg_a   : A   --> D_bg @ acm * A
+  bg_c   : C   --> D_bg @ acm * C
+  bg_cc  : CC  --> D_bg @ acm * CC
+  bg_dc  : DC  --> D_bg @ acm * DC
+  bg_hcc : HCC --> D_bg @ acm * HCC
+}
+
+# Probability a newborn acquires perinatal infection, by birth location
+# (Figure 1; model.py `model_initializer`). Only unprotected infants of
+# HBsAg-positive mothers are at risk.
+let risk_unprot = prev * (hbe_prev * risk_pos + (1.0 - hbe_prev) * risk_neg)
+let p_inf_fac   = risk_unprot * (1.0 - prot_fac)
+let p_inf_com   = risk_unprot * (1.0 - prot_com)
+let p_inf       = p_fac * p_inf_fac + (1.0 - p_fac) * p_inf_com
+
+init {
+  L     = n_births * p_inf
+  Z     = n_births * (1.0 - p_inf) * hbv3
+  S     = n_births * (1.0 - p_inf) * (1.0 - hbv3)
+  A     = 0.0
+  C     = 0.0
+  CC    = 0.0
+  DC    = 0.0
+  HCC   = 0.0
+  D_hbv = 0.0
+  D_bg  = 0.0
+}
+
+quantities {
+  infections    = value_at(L, 0)
+  chronic_cases = integral(p_chronic * r_AC * A)
+  hbv_deaths    = final(D_hbv)
+  alive_at_end  = final(Z + S + L + A + C + CC + DC + HCC)
+  # Years of life lost: each HBV death counts the (discounted) years from
+  # death to the end of the horizon -- the authors' definition.
+  yll           = integral(exp(-disc * t) * D_hbv)
+  # Years lived with disability, discounted.
+  yld           = integral(exp(-disc * t) *
+                           (dw_A * A + dw_C * C + dw_CC * CC + dw_DC * DC + dw_HCC * HCC))
+  # Lifetime disease-management cost, discounted.
+  disease_cost  = integral(exp(-disc * t) *
+                           (c_A * A + c_C * C + c_CC * CC + c_DC * DC + c_HCC * HCC))
+}
+
+simulate {
+  from = 0 'years
+  to   = 100 'years
+  dt   = 0.03125 'years
+  integrator = rk4
+}
