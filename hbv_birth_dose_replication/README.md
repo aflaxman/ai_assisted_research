@@ -26,7 +26,7 @@ paper's "389 DALYs per 1000 births" is almost entirely that overcount.
 | Increase over current expenditure | $494.0 million | $494.0 million | **Replicates exactly** |
 | 90% optimum cost saving in 5 of 6 regions; South Asia ICER up to $37.49 | yes | yes; South Asia $36 per DALY (median $28.80, IQR 20.43–41.01) | **Replicates** |
 | Scenario 4 cost saving in 4 regions; exceptions Central/Eastern Europe & Central Asia (ICER ≤ $4.79) and South Asia (≤ $94.58) | yes | yes; $2.5 and $91 per DALY | **Replicates** |
-| 90% coverage cost saving in 40 of 46 LMICs | 40 | 38 (Peru and Colombia tip to +$0.04–0.05 per birth) | **Replicates in substance** |
+| 90% coverage cost saving in 40 of 46 LMICs | 40 | 38 (Peru and Colombia cost an extra $0.04–0.05 per birth; see finding 2) | **Replicates in substance** |
 | CPAD not needed in Suriname and Costa Rica; CPAD share elsewhere 0.04% (Lebanon) to 84.7% (Myanmar) | yes | yes; 0.04% to 84.7% | **Replicates exactly** |
 | Annual 90% cost highest in South Asia: Bhutan $10,486 to Timor-Leste $35,220 per 1000 births; Nigeria $6,501 | yes | $10,486; $35,220; $6,501 | **Replicates exactly** |
 | Baseline vaccine spend per 1000 births | $1,466 (IQR 1,383–1,566) | $1,461 (IQR 1,385–1,553) | **Replicates** |
@@ -115,10 +115,13 @@ continuously (camdl, RK4 at 1/32 year), more of them fall after six months.
 | Disease cost, baseline, per 1000 births | $10,533 | $10,015 |
 
 This 5% carries through every disease outcome and explains why camdl's point
-estimates sit a little below the authors' medians. It also tips the two most
-marginal countries: Peru and Colombia are cost saving by under $0.03 per birth in
-the authors' arithmetic and cost an extra $0.04–0.05 per birth here, giving 38
-rather than 40 cost-saving LMICs.
+estimates sit a little below the authors' medians. It also bears on the two most
+marginal countries. The paper counts Peru and Colombia among the 40 cost-saving
+LMICs; here reaching 90% costs them an extra $47 and $39 per 1000 births, about
+4 cents per birth. Scaling camdl's disease savings up by the 5% would narrow that
+to $34 and $31 but not close it, so the remaining difference is unexplained; the
+paper's country ICERs carry interquartile ranges, so they may come from its
+uncertainty analysis rather than a point run.
 
 ### 3. The disease model is linear, so the optimisation never needs it
 
