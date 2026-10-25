@@ -186,6 +186,127 @@ of them in sub-Saharan Africa, and does not say whether the total sums the regio
 rows or scales the aggregate row; it lies between the two. Sub-Saharan Africa
 agrees either way.
 
+## Since 2020: what has changed, and open questions
+
+Notes from a literature check in October 2026, kept here for a possible
+follow-up.
+
+### What has changed
+
+- **Still no CTC-licensed hepatitis B vaccine.** WHO's October 2023 CTC FAQ
+  lists four vaccines labelled for controlled-temperature-chain use, none of
+  them hepatitis B, though the birth dose has been a CTC priority since 2017.
+  Knudson et al. (*Vaccines* 2026) confirm no product and no national-scale
+  out-of-cold-chain use; pilot gains of 27–40 points still stand. PATH's 2026
+  Ethiopia brief: 95% of stakeholders want a CTC product and would pay a little
+  more. The paper's scenarios 2–4 remain hypothetical.
+- **Gavi now funds the birth dose, but not the delivery the optimum needs.**
+  Support launched June 2024 for 34 countries; 12 had applied by September 2025;
+  Ethiopia launched nationally in November 2025. Vaccine is $0.24 a dose ($0.34
+  landed) against a $0.20 co-financing floor. Gavi 6.0 protects procurement but
+  cuts country cash grants 20–40%, and the paper's 90% optimum spends 75% of its
+  money on community delivery. Gavi's 2018 investment case declined to fund
+  CPADs on price.
+- **Prices in the paper are still about right.** UNICEF (May 2025): single-dose
+  vials $0.48–0.60 (paper $0.55); the 2022 microarray-patch paper quotes Uniject
+  at $1.65 (paper $1.63).
+- **Coverage has stalled.** Timely birth dose 43% globally in 2025 (paper's 2017
+  baseline 44%), 119 countries introduced; Africa 17–18% (paper used 10% for
+  sub-Saharan Africa).
+- **Lower prevalence in Africa.** Riches et al. (*Lancet Global Health* 2025):
+  HBsAg prevalence in antenatal women in the WHO African region 6.2% (5.3–7.2)
+  for 2014–23, against the paper's 7.8%. The cohort model is linear in
+  infections, so sub-Saharan benefits scale by about 0.8; the 90% optimum there
+  still saves roughly $9,400 per 1,000 births. The same paper estimates 172,000
+  vertical transmissions in Africa in 2022; 90% birth dose cuts them 44%
+  (CI 12–78), adding maternal antiviral prophylaxis cuts them 86%.
+- **Maternal antivirals change the comparator.** WHO's 2024 guidelines expanded
+  tenofovir eligibility in pregnancy; Negasa et al. (BMC Public Health 2025)
+  find tenofovir for all HBsAg-positive women in Ethiopia cost-effective at
+  $220 per DALY. The paper excluded antivirals.
+- **Dynamic models find bigger, more fragile benefits.** De Villiers, Nayagam &
+  Hallett (*Nature Communications* 2021): 90% timely coverage by 2030 averts
+  710,000 deaths in the 2020–30 cohorts and 41 million chronic infections to
+  2100 (the cohort model here ignores onward transmission), but adult treatment
+  at 40% or 80% of eligible cuts the birth dose's deaths averted by 42% or 77%.
+- **Same group, same model, new device.** Seaman et al. (PLOS Global Public
+  Health 2022) apply this model to microarray patches: cost-effective in nearly
+  all 80 LMICs up to $5 a dose, $88.65 per DALY at that price. Seaman et al.
+  (*Lancet Gastroenterology & Hepatology* 2023) is the global investment case.
+
+### The YLD error in the 2022 code
+
+The microarray-patch code (ChrisSeaman-Burnet/HepB-BD-MAPs-Model,
+`code/model_run.py`) does **not** repeat finding 1. YLD accumulates as
+prevalence × disability weight × step length × discount, and YLL is deaths in
+each step × remaining life expectancy from a life table rather than the integral
+of cumulative deaths to a 100-year horizon. The fix is not mentioned in the
+paper. Two consequences: the 2020 and 2022 ICERs are on different scales (the
+2020 "up to $37.49 per DALY" in South Asia is about $215 on the 2022 scale), and
+the per-dose DALYs differ 12–30-fold between the papers (0.6 versus 0.02–0.05),
+most of which is the correction rather than epidemiology. The 2022 grid has a
+small inconsistency of its own: 24 sub-steps in year one, then annual steps from
+year two, so the step from year 1 to year 2 uses a step length of 1/24 while the
+clock jumps a year, and discounting after year one lags the clock by a year. Not
+run, only read.
+
+### Candidate questions for a follow-up model
+
+Ordered by how much a simulation adds over arithmetic. Marked ones are the ones
+I would pick up first.
+
+1. **Birth dose versus maternal antiviral prophylaxis for a fixed budget** (★).
+   Both act on HBeAg-positive, high-viral-load mothers, so each lowers the
+   other's marginal value, and the paper excluded antivirals. Antenatal
+   attendance is high where facility delivery and testing are low (Nigeria DHS
+   cascade, "contact without protection"), so the two reach partly different
+   women. Model the PMTCT cascade with correlated access; prophylaxis enters the
+   camdl model as a per-mother transmission multiplier. Bears on the 2026 Gavi
+   application window.
+2. **Adult treatment scale-up erodes the birth-dose payoff** (★). Add a
+   treatment cascade for the infected cohort under 2024 expanded eligibility and
+   plausible 2030–50 coverage; see how far the cost-saving verdicts survive on
+   the corrected DALY scale, where margins are thinner. Natural sensitivity
+   layer on question 1.
+3. **Horizontal childhood transmission and hepatitis D.** The cohort model
+   credits only the perinatal infection prevented in the vaccinated child. A
+   dynamic transmission model (camdl's strength) would show how much the paper
+   understated benefit in sub-Saharan Africa, which carries 70–80% of it, and
+   add the hepatitis D host removed with each carrier.
+4. **The Gavi 6.0 funding shape.** Procurement protected, cash cut: what
+   coverage does facility-only introduction reach, and what does delaying
+   community strategies to 2028 or 2030 cost in deaths? Existing model plus a
+   time dimension on introduction; de Villiers' 580,000-death delay estimate is
+   the global benchmark.
+5. **Vial presentation, wastage and timeliness at small facilities** (★). Births
+   arrive at random, a ten-dose vial opened for one child is used or discarded,
+   and effectiveness falls from 95% on day 1 to 52% by days 8–41. A
+   discrete-event simulation of facility births, vial-opening policy, stock-outs
+   and the race between birth notification and a community worker's visit gives
+   wastage, timeliness and coverage as outputs rather than inputs, and shows
+   where CTC adds the most value (PATH's open question). The 2020 model's
+   structure gives no help here; the most novel of the eight.
+6. **Facility births are rising on their own.** The paper froze the facility
+   share at 2017 levels (58% in sub-Saharan Africa). Project the trend and find
+   the facility share at which community strategies stop being cost saving.
+   Cheap, and could overturn the regional ranking.
+7. **Backtest the 65% ceiling.** Eight years of country-level WUENIC data now
+   exist to test whether countries that scaled facility delivery plateaued
+   where the model said. Not a new model; the cheapest credibility check.
+8. **Model-structure sensitivity.** Cohort versus dynamic, horizon versus
+   life-table YLL, Euler versus continuous chronicity: a deliberate comparison
+   would say which numbers across the 2020, 2022 and 2023 papers are comparable.
+
+Sources for this section: WHO CTC FAQ (2023); Knudson et al., *Vaccines* 14(7):554
+(2026); PATH, "HepB birth-dose brief, Ethiopia" (2026); World Hepatitis Alliance,
+Gavi birth-dose programme pages; MSF information note on birth-dose introduction
+in Gavi 6.0 (April 2026); UNICEF hepatitis B vaccine price data (7 May 2025); WHO
+immunization coverage fact sheet (2025); Riches et al., *Lancet Glob Health*
+13:e447–58 (2025); WHO guidelines for chronic hepatitis B (2024); Negasa et al.,
+*BMC Public Health* 25:1300 (2025); de Villiers, Nayagam & Hallett, *Nat Commun*
+12:6223 (2021); Seaman et al., *PLOS Glob Public Health* 2(5):e0000394 (2022);
+Seaman et al., *Lancet Gastroenterol Hepatol* 8:932–42 (2023).
+
 ## Files
 
 | File | What it is |
