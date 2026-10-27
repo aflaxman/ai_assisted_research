@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+data/
+results/*.npz
+results/*.parquet
+results_run*.log
