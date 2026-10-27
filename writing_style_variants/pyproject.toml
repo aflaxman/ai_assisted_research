@@ -1,0 +1,12 @@
+[project]
+name = "writing-style-variants"
+version = "0.1.0"
+description = "Compare plain-English and ASD-STE100 writing-rule variants for Claude Code prose (vivarium-suite PR #304 vs Karpathy's thread)"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.2",
+    "matplotlib>=3.9",
+    "nbformat>=5.10",
+    "nbclient>=0.10",
+    "ipykernel>=6.29",
+]

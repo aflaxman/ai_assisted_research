@@ -1,0 +1,97 @@
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+running 49 camdl cohorts ...
+              scenario                                       region  coverage  vaccine_cost  infections  hbv_deaths      yll     yld    dalys  dalys_as_published  disease_cost  dalys_averted_as_published  additional_cost
+0             baseline  Central and Eastern Europe and Central Asia     0.635      4335.543       4.135       1.740   21.251   4.063   25.314             143.019      3648.497                       0.000            0.000
+1            scenario1  Central and Eastern Europe and Central Asia     0.779      5262.318       2.847       1.198   14.632   2.798   17.430              98.479      2512.123                      44.540         -209.599
+2            scenario2  Central and Eastern Europe and Central Asia     0.874      5929.413       2.000       0.841   10.279   1.965   12.244              69.181      1764.749                      73.838         -289.877
+3            scenario3  Central and Eastern Europe and Central Asia     0.894      6395.855       1.824       0.767    9.374   1.792   11.166              63.073      1609.243                      79.946           21.059
+4            scenario4  Central and Eastern Europe and Central Asia     0.903      6657.355       1.740       0.732    8.942   1.710   10.652              60.189      1535.300                      82.829          208.616
+5   optimised_baseline  Central and Eastern Europe and Central Asia     0.675      4335.543       3.760       1.582   19.324   3.695   23.019             130.057      3317.711                      12.961         -330.785
+6         optimised_90  Central and Eastern Europe and Central Asia     0.900      6207.678       1.751       0.737    8.999   1.721   10.720              60.569      1545.012                      82.450         -231.349
+7             baseline                        East Asia and Pacific     0.790      1231.975       6.420       2.734   33.049   6.316   39.365             222.343      8945.717                       0.000            0.000
+8            scenario1                        East Asia and Pacific     0.790      1231.999       6.420       2.734   33.049   6.316   39.365             222.343      8945.717                       0.000            0.024
+9            scenario2                        East Asia and Pacific     0.880      1408.282       4.562       1.943   23.484   4.488   27.972             157.992      6356.739                      64.351        -2412.671
+10           scenario3                        East Asia and Pacific     0.903      1563.146       4.073       1.734   20.967   4.007   24.974             141.057      5675.333                      81.286        -2939.213
+11           scenario4                        East Asia and Pacific     0.904      1570.158       4.042       1.721   20.807   3.976   24.784             139.975      5632.026                      82.368        -2975.508
+12  optimised_baseline                        East Asia and Pacific     0.856      1231.975       4.917       2.094   25.312   4.837   30.149             170.285      6851.401                      52.058        -2094.316
+13        optimised_90                        East Asia and Pacific     0.900      1380.608       4.085       1.740   21.029   4.019   25.048             141.473      5692.043                      80.870        -3105.041
+14            baseline                  Latin America and Caribbean     0.725      1156.401       0.637       0.270    3.250   0.622    3.872              21.901      1037.014                       0.000            0.000
+15           scenario1                  Latin America and Caribbean     0.784      1245.746       0.537       0.227    2.739   0.525    3.264              18.468       874.416                       3.433          -73.254
+16           scenario2                  Latin America and Caribbean     0.878      1445.123       0.378       0.160    1.928   0.368    2.297              12.967       614.986                       8.934         -133.306
+17           scenario3                  Latin America and Caribbean     0.881      1454.595       0.372       0.157    1.898   0.363    2.260              12.767       605.393                       9.134         -133.427
+18           scenario4                  Latin America and Caribbean     0.903      1626.263       0.333       0.141    1.699   0.325    2.024              11.452       542.135                      10.449          -25.017
+19  optimised_baseline                  Latin America and Caribbean     0.762      1156.401       0.569       0.241    2.903   0.556    3.459              19.555       926.287                       2.346         -110.727
+20        optimised_90                  Latin America and Caribbean     0.900      1504.959       0.338       0.143    1.724   0.330    2.054              11.617       550.063                      10.284         -138.393
+21            baseline                 North Africa and Middle East     0.338       611.660       6.358       2.526   31.250   5.983   37.233             210.567      6826.857                       0.000            0.000
+22           scenario1                 North Africa and Middle East     0.569       959.289       4.435       1.762   21.798   4.173   25.972             146.875      4761.992                      63.692        -1717.236
+23           scenario2                 North Africa and Middle East     0.631      1089.983       3.922       1.558   19.277   3.691   22.968             129.895      4211.292                      80.673        -2137.241
+24           scenario3                 North Africa and Middle East     0.718      1449.793       3.208       1.274   15.767   3.019   18.786             106.244      3444.554                     104.323        -2544.170
+25           scenario4                 North Africa and Middle East     0.919      3385.261       1.460       0.580    7.176   1.374    8.550              48.355      1567.711                     162.213        -2485.546
+26  optimised_baseline                 North Africa and Middle East     0.407       611.660       5.629       2.236   27.667   5.297   32.964             186.418      6044.047                      24.150         -782.810
+27        optimised_90                 North Africa and Middle East     0.900      2414.265       1.592       0.632    7.824   1.498    9.323              52.731      1709.462                     157.836        -3314.790
+28            baseline                                   South Asia     0.455      3494.637       6.292       2.522   31.269   5.985   37.254             210.636      6769.557                       0.000            0.000
+29           scenario1                                   South Asia     0.647      3679.042       4.421       1.772   21.970   4.205   26.176             148.002      4756.556                      62.634        -1828.596
+30           scenario2                                   South Asia     0.720      3794.198       3.709       1.487   18.432   3.527   21.960             124.150      3990.328                      86.486        -2479.668
+31           scenario3                                   South Asia     0.757      5503.329       3.372       1.352   16.758   3.207   19.964             112.869      3627.762                      97.767        -1133.103
+32           scenario4                                   South Asia     0.913     22041.185       1.779       0.713    8.841   1.692   10.533              59.553      1914.020                     151.083        13691.011
+33  optimised_baseline                                   South Asia     0.739      3494.637       3.450       1.383   17.145   3.282   20.427             115.494      3711.873                      95.142        -3057.684
+34        optimised_90                                   South Asia     0.900     13551.059       1.888       0.757    9.383   1.795   11.178              63.185      2031.078                     147.451         5317.942
+35            baseline                           Sub-Saharan Africa     0.100       239.311      25.952       9.229  119.429  23.005  142.434             808.890     14520.703                       0.000            0.000
+36           scenario1                           Sub-Saharan Africa     0.491       619.011      15.784       5.613   72.636  13.992   86.628             491.967      8831.473                     316.923        -5309.530
+37           scenario2                           Sub-Saharan Africa     0.549       711.412      14.270       5.074   65.669  12.650   78.319             444.778      7984.344                     364.113        -6064.259
+38           scenario3                           Sub-Saharan Africa     0.606      1192.985      12.905       4.589   59.388  11.439   70.827             402.226      7220.543                     406.664        -6346.487
+39           scenario4                           Sub-Saharan Africa     0.921      8258.945       4.354       1.548   20.037   3.860   23.896             135.707      2436.142                     673.183        -4064.927
+40  optimised_baseline                           Sub-Saharan Africa     0.247       239.311      21.973       7.814  101.118  19.478  120.596             684.870     12294.311                     124.020        -2226.392
+41        optimised_90                           Sub-Saharan Africa     0.900      5029.234       4.855       1.726   22.342   4.304   26.646             151.324      2716.434                     657.566        -7014.347
+42            baseline                              All GBD Regions     0.442      1470.842       9.823       3.869   48.217   9.241   57.458             325.183     10015.033                       0.000            0.000
+43           scenario1                              All GBD Regions     0.650      1771.499       6.715       2.645   32.961   6.317   39.279             222.293      6846.216                     102.890        -2868.160
+44           scenario2                              All GBD Regions     0.725      1923.912       5.610       2.209   27.537   5.278   32.814             185.704      5719.543                     139.478        -3842.421
+45           scenario3                              All GBD Regions     0.766      2599.903       5.017       1.976   24.626   4.720   29.346             166.079      5115.057                     159.104        -3770.915
+46           scenario4                              All GBD Regions     0.913      7959.016       2.727       1.074   13.386   2.565   15.951              90.270      2780.243                     234.912         -746.616
+47  optimised_baseline                              All GBD Regions     0.708      1470.842       5.764       2.270   28.293   5.423   33.716             190.819      5876.763                     134.364        -4138.271
+48        optimised_90                              All GBD Regions     0.900      5224.979       2.887       1.137   14.171   2.716   16.887              95.577      2943.480                     229.605        -3317.416
+
+=== All GBD regions, population scale (US$ million / million DALYs) ===
+baseline             coverage 0.442  vaccine $   193.5M  DALYs(as published)  42.79M  averted   0.00M  extra cost $     0.0M
+scenario1            coverage 0.650  vaccine $   233.1M  DALYs(as published)  29.25M  averted  13.54M  extra cost $  -377.4M
+scenario2            coverage 0.725  vaccine $   253.1M  DALYs(as published)  24.43M  averted  18.35M  extra cost $  -505.6M
+scenario3            coverage 0.766  vaccine $   342.1M  DALYs(as published)  21.85M  averted  20.93M  extra cost $  -496.2M
+scenario4            coverage 0.913  vaccine $  1047.2M  DALYs(as published)  11.88M  averted  30.91M  extra cost $   -98.2M
+optimised_baseline   coverage 0.708  vaccine $   193.5M  DALYs(as published)  25.11M  averted  17.68M  extra cost $  -544.5M
+optimised_90         coverage 0.900  vaccine $   687.5M  DALYs(as published)  12.58M  averted  30.21M  extra cost $  -436.5M
+
+=== camdl vs authors' code: ratio camdl/code, All GBD regions, baseline ===
+  hbv_deaths_camdl            3.869  vs      4.050   ratio 0.955
+  yll_camdl                  48.217  vs     50.468   ratio 0.955
+  yld_as_published          276.966  vs    291.304   ratio 0.951
+  disease_cost_camdl      10015.033  vs  10533.400   ratio 0.951
+drawing 1000 parameter sets x 7 settings ...
+running 7000 camdl cohorts ...
+
+=== All GBD regions, per 1000 births, median (IQR) over 1000 draws ===
+baseline             cov 0.441  vacc $   1461 (1385-1553)  DALYs(pub)   369 (303-435)  disease $ 10900 (9278-12633)  averted(pub)    0 (0-0)  net cost $     0 (0-0)
+optimised_90         cov 0.900  vacc $   5225 (5225-5225)  DALYs(pub)   109 (90-130)  disease $  3228 (2742-3767)  averted(pub)  259 (214-307)  net cost $ -3891 (-5127--2778)
+optimised_baseline   cov 0.708  vacc $   1471 (1471-1471)  DALYs(pub)   210 (172-248)  disease $  6197 (5271-7231)  averted(pub)  159 (132-188)  net cost $ -4692 (-5462--4003)
+scenario1            cov 0.650  vacc $   1764 (1701-1843)  DALYs(pub)   252 (207-299)  disease $  7441 (6376-8719)  averted(pub)  115 (95-138)  net cost $ -3124 (-3682--2589)
+scenario2            cov 0.724  vacc $   1916 (1855-1993)  DALYs(pub)   211 (172-250)  disease $  6214 (5331-7324)  averted(pub)  156 (129-188)  net cost $ -4194 (-4911--3474)
+scenario3            cov 0.766  vacc $   2597 (2489-2707)  DALYs(pub)   189 (154-224)  disease $  5563 (4761-6572)  averted(pub)  179 (148-214)  net cost $ -4189 (-5001--3356)
+scenario4            cov 0.913  vacc $   7973 (7485-8394)  DALYs(pub)   103 (85-122)  disease $  3053 (2588-3579)  averted(pub)  265 (219-314)  net cost $ -1408 (-2590--90)
+
+=== Six-region sum, optimised 90% coverage, per cohort ===
+  dalys_averted_as_published_total     median    39.77M  IQR    33.80M -    46.29M
+  dalys_averted_total                  median     6.28M  IQR     5.36M -     7.20M
+  additional_cost_total                median  -324.17M  IQR  -416.62M -  -237.97M
+  Sub-Saharan Africa share of averted DALYs: 0.70
+
+=== ICER (US$ per DALY averted, as-published DALYs), regions where not always cost saving ===
+  All GBD Regions                               optimised_90   share cost-saving 1.00  ICER median  -14.67  q75  -11.82  max    0.66
+  All GBD Regions                               scenario4      share cost-saving 0.77  ICER median   -5.05  q75   -0.36  max   33.20
+  Central and Eastern Europe and Central Asia   optimised_90   share cost-saving 0.75  ICER median   -4.00  q75   -0.21  max   28.54
+  Central and Eastern Europe and Central Asia   scenario4      share cost-saving 0.45  ICER median    0.70  q75    6.24  max   45.89
+  Latin America and Caribbean                   optimised_90   share cost-saving 0.93  ICER median  -17.00  q75   -9.59  max   46.05
+  Latin America and Caribbean                   scenario4      share cost-saving 0.70  ICER median   -7.94  q75    2.08  max  107.59
+  North Africa and Middle East                  scenario4      share cost-saving 1.00  ICER median  -16.01  q75  -13.14  max    2.07
+  South Asia                                    optimised_90   share cost-saving 0.00  ICER median   28.80  q75   41.01  max  109.15
+  South Asia                                    scenario4      share cost-saving 0.00  ICER median   77.67  q75  100.88  max  241.96
+  Sub-Saharan Africa                            scenario4      share cost-saving 0.98  ICER median   -6.44  q75   -4.47  max    5.93
+exit=0

@@ -1,0 +1,86 @@
+{
+  "format_version": 1,
+  "kind": "fit_stage",
+  "run_id": "59c5343c33d22f228ed1f514768d6a3bd5b96e8062eec393573982a9ee597052",
+  "hash_version": 1,
+  "ir_version": "0.40",
+  "engine_version": "0.1.0+e8219d1",
+  "levels": [
+    {
+      "name": "fit",
+      "label": "fit_yf_mle_t23",
+      "hash": "c301102c5737f45a6631f6cafa00b527e21080189557fd4c90520db5794ffc51",
+      "schema_version": 1
+    },
+    {
+      "name": "method",
+      "label": "nl-sbplx",
+      "hash": "016560fbadcbca3715a917a045edcf2f158e9e70c01c1cf75d78a62a24d8de26",
+      "schema_version": 1
+    },
+    {
+      "name": "seed",
+      "label": "seed_1",
+      "hash": "06cbd6b391c65864e16d272dffdea34108941368977b15e9bd6f0c462c63c5b4",
+      "schema_version": 1
+    }
+  ],
+  "status": "completed",
+  "artifacts": {
+    "chain_results.tsv": {
+      "bytes": 4679,
+      "mtime": "1792089039.831838222",
+      "digest": "69bc6f512c7de47a59c319279bbe876a119224b80291a375a5fd6efac38107a4"
+    },
+    "fit_state.toml": {
+      "bytes": 2765,
+      "mtime": "1792089039.832587943",
+      "digest": "7d5abc9ab5a6d1536b3f0859ebebcfb58865acac6c801e3f4b68ffdc09d35c6f"
+    },
+    "mle_params.toml": {
+      "bytes": 905,
+      "mtime": "1792089039.832587943",
+      "digest": "c01f491eb611f19e4de260f3794f36237b7ab46f70287461c5f88a0b77f02a7c"
+    },
+    "progress.json": {
+      "bytes": 65,
+      "mtime": "1792089039.988587953",
+      "digest": "54adbedc9ef4fc8bd6d3dd58379d58cc1ed78c1d2314fb423f061ffc7a4cc529"
+    }
+  },
+  "inputs": {
+    "algorithm": {
+      "algorithm": "nl-sbplx",
+      "backend": "ode",
+      "chains": 64,
+      "max_evals": 8000,
+      "tolerance": 1e-6
+    },
+    "backend": "ode",
+    "best_chain": 46,
+    "best_loglik": -152.38063827452,
+    "chain_starts_kind": "spread",
+    "fit_hash": "c301102c5737f45a6631f6cafa00b527e21080189557fd4c90520db5794ffc51",
+    "method": "nl-sbplx",
+    "n_chains": 64,
+    "seed": 1,
+    "starts": "from_prior",
+    "wall_time_seconds": 7.543255231
+  },
+  "provenance": {
+    "argv": [
+      "camdl",
+      "fit",
+      "run",
+      "fit_yf_mle_t23.toml",
+      "--seed",
+      "1",
+      "--no-progress"
+    ],
+    "created_at": "2026-10-15T18:30:32Z",
+    "camdl_version": "0.1.0+e8219d1",
+    "source_paths": [
+      "yf_brazil.camdl"
+    ]
+  }
+}

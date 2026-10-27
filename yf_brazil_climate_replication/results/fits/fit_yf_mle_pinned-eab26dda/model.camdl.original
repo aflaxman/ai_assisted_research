@@ -1,0 +1,125 @@
+# Yellow fever virus transmission in Brazil, 2017/18 outbreak
+# Replicates Sadeghieh, Sargeant, Greer, Berke, Dueymes, Gachon, Ogden & Ng
+# (2021), "Yellow fever virus outbreak in Brazil under current and future
+# climate", Infectious Disease Modelling 6:664-677.
+# https://doi.org/10.1016/j.idm.2021.04.002
+#
+# Structure is the paper's Figure 1 / Appendix A.1 ODE system verbatim:
+#   humans     S -> E -> {I (symptomatic), A (asymptomatic)} -> R, with I -> Dead
+#   mosquitoes X -> Y -> Z, open population (recruitment delta*M, death mu)
+#
+# ONE reparameterisation, exactly value-preserving. The paper writes
+# mass-action as beta1*S*Z and beta2*X*(I+A), which makes beta1 and beta2
+# carry dimension 1/(count*week). camdl's dimension lattice has no inverse-
+# count literal (only [1], [P], [T], [1/T], [P/T]), so the same flow is
+# written per-capita against a FIXED reference population:
+#     beta1_paper * S * Z        ==  beta1 * S * (Z / m_ref)   with beta1 = beta1_paper * m_ref
+#     beta2_paper * X * (I + A)  ==  beta2 * X * ((I+A)/n_ref) with beta2 = beta2_paper * n_ref
+# m_ref and n_ref are constants, not the live totals, so the dynamics are
+# identical to the published equations - only the units of the two fitted
+# constants change. Published values map to beta1 = 218.68 /week and
+# beta2 = 2.0947e-4 /week.
+
+time_unit = 'weeks
+
+compartments { S, E, I, A, R, Dead, X, Y, Z }
+
+parameters {
+  # Fixed reference populations (Table 2). Held constant in every run, NOT
+  # live totals. Declared as parameters because a `let` bound to a numeric
+  # literal carries no dimension in camdl, and these must carry [P].
+  #' total human population (UN World Population Prospects 2019)
+  n_ref   : count in [1.0, 1.0e10]
+  #' total mosquito population (assumed twice the human population)
+  m_ref   : count in [1.0, 1.0e10]
+
+  #' mosquito-to-human transmission, per-capita form (= beta1_paper * m_ref)
+  #' @symbol β₁
+  beta1   : rate in [1.0e-3, 1.0e8]
+  #' human-to-mosquito transmission, per-capita form (= beta2_paper * n_ref)
+  #' @symbol β₂
+  beta2   : rate in [1.0e-12, 100.0]
+  #' proportion of infections that become symptomatic (Johansson 2014)
+  #' @symbol φ
+  phi     : probability in [0.0, 1.0]
+  #' YF-induced death rate among symptomatic humans
+  #' @symbol ω
+  omega   : rate in [0.01, 5.0]
+  #' rate of symptom onset after infection (1/intrinsic incubation period)
+  #' @symbol λ₁
+  lambda1 : rate in [0.1, 5.0]
+  #' rate of viraemic onset in mosquitoes (1/extrinsic incubation period)
+  #' @symbol λ₂
+  lambda2 : rate in [0.05, 3.0]
+  #' rate of viraemia completion in humans (recovery)
+  #' @symbol γ
+  gamma   : rate in [0.1, 3.0]
+  #' mosquito death rate
+  #' @symbol μ
+  mu      : rate in [0.05, 2.0]
+  #' mosquito development (recruitment) rate from hatching to adult
+  #' @symbol δ
+  delta   : rate in [0.01, 2.0]
+  #' proportion of the human population immune at outbreak start
+  #' (natural + vaccine-acquired; paper's baseline is 0.80)
+  immune  : probability in [0.0, 0.99]
+  #' initial exposed mosquitoes (fitted by the paper; its value 150)
+  y0      : count in [1.0e-6, 1.0e5]
+  #' initial infectious mosquitoes (fitted by the paper; its value 995)
+  z0      : count in [1.0e-6, 1.0e5]
+}
+
+transitions {
+  # --- humans (closed population: no births, no natural deaths) ---
+  infection  : S --> E    @ beta1 * S * (Z / m_ref)
+  onset_sym  : E --> I    @ phi * lambda1 * E
+  onset_asym : E --> A    @ (1.0 - phi) * lambda1 * E
+  recov_sym  : I --> R    @ gamma * I
+  death_sym  : I --> Dead @ omega * I
+  recov_asym : A --> R    @ gamma * A
+
+  # --- mosquitoes (open population) ---
+  m_recruit  :   --> X    @ delta * m_ref
+  m_infect   : X --> Y    @ beta2 * X * ((I + A) / n_ref)
+  m_eip      : Y --> Z    @ lambda2 * Y
+  m_death_x  : X -->      @ mu * X
+  m_death_y  : Y -->      @ mu * Y
+  m_death_z  : Z -->      @ mu * Z
+}
+
+init {
+  # Table 2: ~80% immune, 21 symptomatic and 25 asymptomatic cases on the
+  # first day of the case count.
+  R    = immune * n_ref
+  I    = 21.0
+  A    = 25.0
+  E    = 0.0
+  Dead = 0.0
+  S    = n_ref - immune * n_ref - 21.0 - 25.0
+  Y    = y0
+  Z    = z0
+  X    = m_ref - y0 - z0
+}
+
+# Weekly confirmed symptomatic cases: the flow E -> I accumulated over each
+# reporting week. Week k covers (k-1, k].
+observations {
+  cases {
+    columns   { time : time, cases : count }
+    covers        = closing_at(time, 1 'weeks)
+    emit_schedule = every 1 'weeks
+    projected = incidence(onset_sym)
+    cases     ~ poisson(rate = projected + 0.001)
+  }
+}
+
+quantities {
+  cum_cases  = integral(phi * lambda1 * E)   # cumulative symptomatic cases
+  cum_deaths = final(Dead)
+  peak_week  = time_of_max(E)
+}
+
+simulate {
+  from = 0 'weeks
+  to   = 18 'weeks
+}
