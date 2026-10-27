@@ -25,98 +25,162 @@ I would like to keep the environments easy to create and isolated, e.g. for mpld
 
 - for mpld3_notes: Test scripts follow the pattern `test_pr<NUMBER>_<description>.py`
 
-## camdl (compartmental model DSL)
+## Writing in my voice
 
-[camdl](https://github.com/vsbuffalo/camdl) is a DSL + compiler + inference stack
-for stochastic compartmental models (OCaml frontend `camdlc` → IR JSON → Rust
-backend `camdl`). Used in `camdl_replication/` and
-`yf_brazil_climate_replication/`. Notes below are from camdl 0.1.0+e8219d1
-(Oct 2026) and cover things that cost real time to rediscover.
+Any prose written for me to sign or send (blog posts, READMEs, notebook
+markdown, data notes, memos, email drafts, referee responses) should be in my
+voice: a researcher with a mathematics and computer science background who
+writes about statistical methods for global health, for smart readers who may
+be outside the field. Do not fall back on a generic "clear academic" register;
+the two are not the same. Before drafting, name the type of piece and the
+audience or venue, and set the register dial (below) accordingly. The targets
+here were measured on the Introduction and the eight solo-authored chapters of
+*An Integrative Metaregression Framework for Descriptive Epidemiology* (2015),
+about 25,000 words, so hit the numbers rather than interpreting adjectives.
 
-### Getting the binaries
+### Stance
 
-Both toolchains are needed: `camdlc` compiles `.camdl` → IR, `camdl` simulates and
-fits. `./install.sh` in the camdl repo does everything, but in a sandbox it is
-usually faster to build the two halves separately:
+- **Own the choices in the first person singular.** "I have used," "I prefer,"
+  "I recommend," "which I call." First-person singular runs about 7 per 1,000
+  words, five times the rate of "we." Use "we" only for something writer and
+  reader are doing together on the page ("we turn to an example now") or for
+  actual collaborators. Never hide a judgment behind "it was decided" or "the
+  literature suggests."
+- **Pragmatist, not purist.** Theory is judged by whether it helps in practice.
+  State the principled objection fairly and in full, then say what you actually
+  did and why the compromise is acceptable. The characteristic attitudes: a
+  method is "simply a method of convenience"; "something is better than
+  nothing"; a tool is "too convenient not to be used"; models are built up until
+  they are "just complicated enough."
+- **Put candor about weaknesses next to the recommendation**, not in a
+  limitations section. Every method gets its benefit and its drawback, usually
+  in one sentence: "X has the best balance of A and B, but cannot cope with C."
+  Say plainly when a result is "not very good," an approach is "crude," a
+  feature is "undesirable," or a term you coined "promises to be extremely
+  confusing!" Never sell.
+- **Respect the reader's time and intelligence.** Say what you are skipping and
+  why ("this would take us off our course"), point to where the full treatment
+  lives, and warn when something is hard ("first-time readers should proceed
+  knowing it will be easier the second time around"). Reassure without
+  condescending.
+- **Dry humor, about one wry line per section.** Deadpan statement of the
+  obvious ("The unfortunate truth is that no one lives forever") or
+  self-deprecation ("Unfortunately, I've seen the data"). Never at the reader's
+  expense, never whimsy for its own sake.
+- **An occasional personal anecdote makes an abstraction concrete.** A prior
+  belief explained by what smoking looked like in Pittsburgh bars versus
+  Seattle; a student who could not see why Bayes' rule deserved anyone's name.
+  At most one per piece, and it must do explanatory work.
 
-```bash
-# Rust half (~6 min, 4 cores) — gives `camdl`
-cd rust && cargo build --release --workspace --bins
+### Architecture
 
-# OCaml half — gives `camdlc`. Needs opam + OCaml >= 5.2.
-opam init --bare --no-setup --yes --disable-sandboxing   # no bubblewrap in containers
-opam switch create camdl 5.2.0 --yes
-opam install dune menhir yojson fmt --yes
-printf 'let value = "%s"\n' "$(tr -d '[:space:]' < ir/VERSION)" \
-  > ocaml/lib/ir/ir_version_generated.ml     # Makefile normally generates this
-cd ocaml && dune build                       # test targets need alcotest; ignore those failures
-cp ocaml/_build/default/bin/camdlc.exe ~/.local/bin/camdlc
-cp rust/target/release/camdl              ~/.local/bin/camdl
-```
+1. **Open in plain language.** Frame the problem in a paragraph or two before
+   any notation. A short etymological or historical aside is a favored hook
+   (where "spline" comes from; Mahalanobis and the harvest weight of plants;
+   al-Khwarizmi; Ulam's solitaire), but only if it lands on the point within
+   three sentences.
+2. **Announce the plan, then follow it.** "I will consider five: …" followed by
+   a short list.
+3. **Motivating example before general theory, and make it real.** A named
+   disease, a named study, actual numbers with units (782 data points; an
+   850-fold range; 40 times higher; 1,000 times longer to compute).
+4. **Simplest model first; add complexity one step at a time.** Name the
+   specific failure that forces each step, and show the failure (a figure, a
+   number) before proposing the fix.
+5. **Formalism, then intuition.** Give the equation, define every symbol in
+   words immediately, then "the intuition behind it is simple:" and tell the
+   story in plain terms (n people were tested, k tested positive). Reverse the
+   order when the equation looks worse than it is: "Although this equation may
+   look imposing, it has a simple representation as…"
+6. **Signpost.** Forward and backward references to specific sections are
+   frequent and exact.
+7. **Close with "Summary and future work."** Two or three sentences on what was
+   developed and which option you prefer, with its tradeoff. Then concrete open
+   directions, each carrying an honest weight: "promising," "worthy of
+   additional attention," "sure to be a fruitful area," "will certainly have its
+   own computational challenges."
 
-`camdl docs <topic>` is version-matched and offline — prefer it to memory.
-`docs/dsl-cheatsheet.md` and `docs/fit-toml.md` in the repo are the fastest read.
+### Sentences
 
-### Gotchas that cost time
+- **Long but unpadded.** Median about 23 words, mean about 27; one sentence in
+  five runs past 35 words, and short punchy sentences are rare (under 8% are 10
+  words or fewer). Length comes from subordination (commas, "which," "where," a
+  mid-sentence "however" or "but"), never from stacked adjectives. Every clause
+  adds a qualification, a tradeoff, or a pointer.
+- **Punctuation.** Commas and parentheses (word-bearing asides about 2.5 per
+  1,000 words); semicolons rare (under 1 per 1,000); dashes almost absent (0.2
+  per 1,000). Colons introduce equations and lists. One exclamation mark per
+  chapter, for real surprise or a joke. Rhetorical questions are rare and
+  arrive in a run of three ("Why minimize the squared residuals? Why not…? Why
+  not…?").
+- **Cohesion by demonstrative.** Roughly one sentence in ten opens with "This"
+  pointing at the previous idea ("This provides a way to critique the model").
+  "However" opens sentences freely and also sits mid-sentence between commas.
+- **Hedge with frequency, not confidence.** "Often," "sometimes," "usually,"
+  "in practice": words about how often something happens in the data. Almost
+  never "perhaps," "arguably," "it could be argued." Almost no intensifiers or
+  sincerity markers ("truly," "genuinely," "importantly"; "clearly" appears
+  about once per 4,000 words). Uncertainty is a fact about the data, stated
+  plainly, not a wobble in the prose.
+- **Terminology.** Coin names for methods and say so ("which I call rate
+  models," "hard-soft constraints"). Put jargon in quotation marks on first use,
+  then drop the quotes. Flag misleading names ("its strange name comes from…,"
+  "the somewhat opaque term…").
+- **Impersonal constructions for the machinery, first person for the choices.**
+  "Can be written as," "can be interpreted as," "is deferred to Section 8.7"
+  describe what the mathematics does; "I have used," "I prefer" describe what
+  the author did.
 
-- **No inverse-count dimension.** The dimension lattice has only `[1]`, `[P]`,
-  `[T]`, `[1/T]`, `[T^-1]`, `[P/T]`, `[P*T^-1]`. A mass-action term written
-  `beta * S * I` (no `/N`) is E300 and *cannot* be expressed by annotating `beta`.
-  Write it per-capita against a fixed reference count:
-  `beta * S * (I / n_ref)` with `beta = beta_raw * n_ref`. Exactly equivalent.
-- **`let` bound to a numeric literal is dimensionless**, even with a unit literal
-  (`let m = 4e8 'count` does not carry `[P]`). For a constant that must carry a
-  dimension, declare it as a `count` parameter and fix it in `[fixed]`.
-- **`count`-kind initial values are rounded to whole numbers.** `y0 = 0.6` and
-  `y0 = 1.0` give identical runs. This silently breaks any scaling argument that
-  pushes an initial count below 1.
-- **Incidence observation streams need `covers`** (E350). On a weekly model,
-  `closing_at(time, 1 'weeks)` puts week *k*'s window at `(k-1, k]`;
-  `ending_on(time, 1 'weeks)` anchors to the last included *day* and lands the
-  boundary at `k + 1/7`, which is then "not a recorded output time".
-- **`emit_schedule` is separate from `covers`.** Without it a stream is fit-only
-  and `simulate --obs` refuses it.
-- **`flow_<name>` columns are per-interval, not cumulative.** With
-  `--output-every 1`, row *t = k* already holds week *k*'s incidence; do not diff
-  them (that silently yields negative "incidence"). Row *t = 0* is a zero-width
-  interval — drop it.
-- **`ivp = true` is gone**; the `[estimate]` field is now `perturb_only_at_t0`
-  (an IF2 concept, irrelevant on the `ode` backend). `camdl_replication/`'s
-  configs predate this.
-- **Pick `dt` exact in binary** (`0.0625`, `0.125`) so observation-period
-  boundaries land on recorded output times. `1/7` does not.
-- **Use `log_uniform` priors for scale parameters.** `uniform` over `[1e-12, 100]`
-  puts essentially every Latin-hypercube start in the top decade, and the fit
-  never finds a small optimum.
-- **A chain-agreement FAIL is not automatically a bad fit.** With broad priors most
-  starts land in hopeless regions. Check `chain_results.tsv` and see whether the
-  *best* chains agree before believing the verdict either way.
-- **`mle_params.toml` has a nested `[provenance]` table.** Read only top-level
-  scalars as parameters, or `chain`/`log_likelihood` leak in and `simulate` errors
-  with "unknown parameter".
+### Do not
 
-### Backends and algorithms
+- Sell. No "novel," "powerful," "robust," "state-of-the-art," or
+  "comprehensive" as puffery; no superlative you cannot measure.
+- Perform confidence or sincerity ("it is crucial to note," "genuinely,"
+  "importantly").
+- Fragment argument into bullets. Bullets enumerate models, steps, or
+  properties; the argument happens in paragraphs.
+- Bury limitations at the end or soften them into "may have some limitations."
+  Name the drawback next to the claim.
+- Use dashes as the default rhythm, or chain semicolons.
+- Write short, choppy "impact" sentences. This voice trusts a long sentence to
+  carry a qualified thought.
+- Invent examples or numbers when real ones exist. If a value is not known, say
+  so.
 
-| algorithm | backend | gives |
-|---|---|---|
-| `if2` / `pgas` / `pmmh` / `pfilter` | `chain_binomial` | stochastic-process likelihood |
-| `nl-sbplx` / `nl-bobyqa` | `ode` | deterministic MLE (`chains` = LHS starts) |
-| `mh` / `nuts` | `ode` | posterior on the deterministic ODE marginal |
+### Calibration lines (my own)
 
-For large populations where demographic noise is negligible, the `ode` backend is
-much faster and is the right analogue of a published least-squares fit. `nuts`
-additionally needs a differentiable model and fixed `rk4` (not adaptive `rk45`).
+- "For the purposes of this book, however, it is simply a method of convenience."
+- "…make them more complicated until they are just complicated enough."
+- "Although this equation may appear opaque, the intuition behind it is simple:"
+- "On the other hand, something is better than nothing."
+- "This approach is crude, however, and leaves much room for further work."
+- "When the model is more flexible than the data, it is hard to fit…"
+- "…and if they show the opposite, that is interesting."
+- "Proceeding down this path with the proposed terminology promises to be
+  extremely confusing!"
 
-### Workflow
+### One rewrite, to fix the register
 
-Runs are content-addressed under `results/`, so an identical re-run is a cache hit
-and nothing is overwritten. `camdl check` type-checks (including every rate's
-dimension) before anything runs — always run it first. Browse with
-`camdl list --kind fit`, `camdl fit summary <dir>`, `camdl cat <id>`.
+Generic: "Our novel Bayesian framework robustly handles sparse and noisy data.
+Importantly, extensive simulations demonstrate superior performance across all
+metrics, highlighting its potential to significantly advance the field."
 
-Drive scenario sweeps from Python by shelling out to `camdl simulate` with a
-generated params TOML (see `yf_brazil_climate_replication/yf_model.py`); pass
-`--output-dir` to a temp dir for throwaway runs so the project store stays clean.
+In this voice: "The model I have used handles sparse, noisy data better than
+the alternatives I compared it to, in the sense that its uncertainty intervals
+cover the held-out observations about as often as they should (Table 2). This
+is a lower bar than it sounds. The simulation that generated those observations
+was designed by me, and a model tends to look good on data that share its
+assumptions. A comparison on data withheld from systematic review would be more
+convincing, and it is a direction for future work."
+
+### Register dial
+
+The targets above come from a monograph. For shorter pieces (op-ed, blog post,
+memo, email, README, notebook markdown), keep the stance intact: first person,
+verdict with tradeoff in the same sentence, one wry line, an honest note on what
+remains open. Bring median sentence length down toward 18 words, drop the
+section scaffolding and the "Summary and future work" header, and use at most
+one equation, or none.
 
 ## NHANES Data Analysis
 
@@ -176,7 +240,9 @@ Each blog post directory should include:
 
 ### Writing Style & Tone
 
-Based on healthyalgorithms.com established voice:
+Write in the voice described in "Writing in my voice" above, at the blog-post
+setting of the register dial. In addition, based on healthyalgorithms.com's
+established voice:
 
 1. **Accessible yet technical** - Balance rigor with conversational explanations
 2. **Use first person** - Write with "I" to create personal connection
@@ -211,7 +277,10 @@ Follow this proven narrative arc:
 
 ### Prose Style: Strunk and White Principles
 
-Apply these timeless writing principles for clarity and impact:
+Apply these timeless writing principles for clarity and impact. They operate
+inside the voice described in "Writing in my voice"; where they pull apart
+(Strunk and White's brevity against this voice's long, subordinated sentences),
+keep the sentence long and cut only the padding.
 
 1. **Omit needless words** - Cut ruthlessly. "The question as to whether" → "Whether"
 2. **Use the active voice** - "The bug was caught by the test" → "The test caught the bug"
