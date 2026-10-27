@@ -65,7 +65,8 @@ configuration:
     population:
         population_size: 100_000
         initialization_age_min: 0
-        initialization_age_max: 125
+        initialization_age_max: 110  # the GBD 95+ bin is open-ended; nobody starts older than 110
+        untracking_age: 124  # drop the rare survivor before they leave the last age bin
     mortality:
         unmodeled_causes: ['aortic_aneurysm']
     sodium_intervention:

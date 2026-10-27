@@ -46,14 +46,16 @@ def background_dw(artifact: Path = ARTIFACT_PATH) -> pd.DataFrame:
     dw = art.load("cause.background.disability_weight").reset_index()
     bins = age_bins()
     dw = dw.merge(bins, on=["age_start", "age_end"])
-    return dw[["sex", "age_group_name", "value"]].rename(
-        columns={"age_group_name": "age_group", "value": "background_dw"})
+    # The results stratifier writes age group names with underscores ("10_to_14").
+    dw["age_group"] = dw["age_group_name"].str.replace(" ", "_").str.lower()
+    return dw[["sex", "age_group", "value"]].rename(columns={"value": "background_dw"})
 
 
 def halys_by_year(run: dict[str, pd.DataFrame], bg: pd.DataFrame) -> pd.Series:
     """Undiscounted HALYs per event year for one run."""
     pt = run["person_time"].merge(bg, on=["sex", "age_group"], how="left")
-    pt["background_dw"] = pt["background_dw"].fillna(0.0)
+    if pt["background_dw"].isna().any():
+        raise ValueError("Background disability weights did not match every age group and sex")
     healthy = (pt["value"] * (1 - pt["background_dw"])).groupby(pt["event_year"]).sum()
     ylds = run["ylds"]
     ylds = ylds[ylds["entity"] != "all_causes"]
@@ -79,8 +81,8 @@ def summarize(scenario: str, seed: int, bg: pd.DataFrame) -> dict:
         "halys_discounted": float((halys * disc)[in_horizon].sum() * scale),
         "halys_undiscounted": float(halys[in_horizon].sum() * scale),
         "deaths_2024_2043": float(deaths[deaths.index.isin(HORIZON)].sum() * scale),
-        "deaths_2044": float(deaths.get(2044, np.nan) * scale),
-        "person_years_2044": float(pt.get(2044, np.nan) * scale),
+        "deaths_2040_2044": float(deaths[deaths.index >= 2040].sum() * scale),
+        "person_years_2040_2044": float(pt[pt.index >= 2040].sum() * scale),
     }
 
 
@@ -93,11 +95,14 @@ def main() -> pd.DataFrame:
     runs = pd.DataFrame(rows)
     bau = runs[runs["scenario"] == "bau"].set_index("seed")
     gains = runs[runs["scenario"] != "bau"].copy()
-    for col in ["halys_discounted", "halys_undiscounted", "deaths_2024_2043", "deaths_2044"]:
+    gains["acmr_2040_2044"] = gains["deaths_2040_2044"] / gains["person_years_2040_2044"]
+    bau["acmr_2040_2044"] = bau["deaths_2040_2044"] / bau["person_years_2040_2044"]
+    for col in ["halys_discounted", "halys_undiscounted", "deaths_2024_2043", "acmr_2040_2044"]:
         gains[col] = gains[col].to_numpy() - bau.loc[gains["seed"], col].to_numpy()
     gains["halys_gained"] = gains["halys_discounted"]
     gains["deaths_averted"] = -gains["deaths_2024_2043"]
-    gains["acmr_2044_pct_change"] = 100 * gains["deaths_2044"] / bau.loc[gains["seed"], "deaths_2044"].to_numpy()
+    # Crude all-cause mortality rate change over 2040-2044 (the paper reports 2044 alone).
+    gains["acmr_pct_change"] = 100 * gains["acmr_2040_2044"] / bau.loc[gains["seed"], "acmr_2040_2044"].to_numpy()
     gains.to_csv(ROOT / "results" / "gains_by_seed.csv", index=False)
 
     table = gains.groupby("scenario").agg(
@@ -105,7 +110,8 @@ def main() -> pd.DataFrame:
         halys_gained_sd=("halys_gained", "std"),
         halys_gained_undiscounted=("halys_undiscounted", "mean"),
         deaths_averted=("deaths_averted", "mean"),
-        acmr_2044_pct_change=("acmr_2044_pct_change", "mean"),
+        acmr_pct_change=("acmr_pct_change", "mean"),
+        acmr_pct_change_sd=("acmr_pct_change", "std"),
         n_seeds=("seed", "count"),
     )
     paper = pd.DataFrame.from_dict(PAPER_HALYS, orient="index",
@@ -119,7 +125,7 @@ def main() -> pd.DataFrame:
     with pd.option_context("display.width", 200, "display.float_format", "{:,.0f}".format):
         print(table[["label", "halys_gained", "halys_gained_sd", "paper_halys", "paper_lower",
                      "paper_upper", "deaths_averted", "n_seeds"]].to_string())
-    print(table[["ratio_to_paper", "acmr_2044_pct_change"]].round(3).to_string())
+    print(table[["ratio_to_paper", "acmr_pct_change", "acmr_pct_change_sd"]].round(3).to_string())
     return table
 
 

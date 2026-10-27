@@ -1,5 +1,5 @@
 .venv/
 artifacts/*.hdf
-results/raw/
 __pycache__/
 *.egg-info/
+results/raw/

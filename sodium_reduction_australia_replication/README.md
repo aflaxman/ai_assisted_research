@@ -7,16 +7,41 @@ Intake in Australia: A Modeling Study," J Nutr 155 (2025) 4486–4501,
 can be reproduced with IHME's
 [vivarium](https://github.com/ihmeuw/vivarium-suite) microsimulation framework
 and GBD 2023 inputs, using only what is in the published paper. Short answer:
-the ranking and the order of magnitude replicate, the absolute HALY gains come
-out RESULTS_RATIO of the paper's, and the mortality effect replicates closely.
-The costs, the socioeconomic inequality results, and the uncertainty intervals I
-did not attempt.*
+the ranking replicates, the absolute HALY gains come out at 65% to 88% of the
+paper's medians for the seven reformulation and substitution scenarios (within
+the paper's 95% uncertainty intervals for six of them), and the two smallest
+programs come out at half to 60%. The mortality reductions are about half to
+two-thirds of the paper's. The costs, the socioeconomic inequality results, and
+the uncertainty intervals I did not attempt.*
 
 ![HALYs gained, model versus paper](results/halys_comparison.png)
 
 ## Headline
 
-RESULTS_TABLE
+HALYs gained over 2024 to 2043 at a 3% discount rate, for Australia's
+population, from `results/comparison.csv`. The model column is the mean over
+three random seeds of 200,000 simulants each, with the seed-to-seed standard
+deviation; the paper column is the median and 95% uncertainty interval of
+Figure 1 in Dhungel et al.
+
+| Intervention | This model | Paper | Ratio |
+|---|---|---|---|
+| Mandating Australia's reformulation targets | 7,200 (sd 1,300) | 11,100 (7,530 to 15,800) | 0.65 |
+| Mandating the UK's targets | 18,700 (sd 1,200) | 25,300 (16,800 to 37,100) | 0.74 |
+| Mandating the WHO's targets | 29,200 (sd 2,800) | 40,100 (27,200 to 56,700) | 0.73 |
+| Australia then UK targets | 15,800 (sd 100) | 21,000 (14,200 to 30,500) | 0.75 |
+| 30% KCl substitution, all foods, immediate | 90,100 (sd 3,000) | 103,000 (71,100 to 145,000) | 0.88 |
+| 10% KCl substitution, all foods, over 10 years | 11,100 (sd 400) | 15,600 (10,500 to 22,900) | 0.71 |
+| 30% KCl substitution, discretionary salt, over 3 years | 10,200 (sd 900) | 13,100 (8,970 to 19,100) | 0.78 |
+| UK mass media campaign | 550 (sd 560) | 1,130 (560 to 2,100) | 0.49 |
+| UK salt reduction program | 4,100 (sd 480) | 6,880 (4,640 to 9,820) | 0.59 |
+
+The paper's Table 3 gives the age-standardised all-cause mortality rate in
+2044 by socioeconomic quintile. My crude rate over 2040 to 2044 falls by 0.14%
+under the WHO targets and 0.35% under immediate 30% substitution, against the
+paper's 0.29% and 0.66% in the most deprived quintile and 0.18% and 0.36% in
+the least deprived. For the four small programs the mortality change is within
+seed noise of zero in my runs, as it nearly is in the paper's.
 
 ## What the paper does
 
@@ -40,8 +65,8 @@ The model lives in `src/sodium_sim/` and leans on `vivarium.public_health` for
 everything generic. Each simulant has an age, sex, a sodium intake, and an SBP
 drawn from normal distributions whose means come from GBD 2023 exposure
 estimates, and progresses through twelve susceptible-infected disease models
-(the GBD 2023 outcomes of high SBP, which are fewer than GBD 2019's, plus
-stomach cancer), with an all-cause mortality model that deletes the modeled
+(the eleven GBD 2023 outcomes of high SBP that have nonfatal estimates, fewer
+than GBD 2019's, plus stomach cancer), with an all-cause mortality model that deletes the modeled
 causes and adds back each disease's excess mortality. The components from the
 framework are `BasePopulation`, `FertilityCrudeBirthRate`, `Mortality`, `SI`
 disease models, `Risk` exposures, `RiskEffect` log-linear risk effects,
@@ -99,7 +124,44 @@ noisy than the raw death counts would suggest.
 
 ## What replicates and what does not
 
-RESULTS_DISCUSSION
+The ordering of the nine interventions replicates exactly, and so does the
+scale: immediate 30% potassium substitution is worth about nine times the
+Australian reformulation targets in the paper and thirteen times in my model,
+and the UK mass media campaign is two orders of magnitude below the WHO
+targets in both. The absolute gains are lower than the paper's across the
+board, by a factor that is fairly stable at 0.65 to 0.88 for the seven
+scenarios with meaningful effect sizes and drops to about half for the two
+UK programs, where the sodium reductions are under 2% and seed noise is of
+the same size as the signal. Six of the nine model estimates fall inside the
+paper's 95% uncertainty interval, and the three that do not (Australian
+targets, the mass media campaign, and the UK program) sit just below its lower
+end.
+
+A shortfall this uniform points to the parts of the chain shared by every
+scenario rather than to the scenario schedules, and the decomposition in
+`results/haly_decomposition.csv` says where to look. Under the WHO targets my
+model gains 23,000 discounted life-years, loses 7,500 of them to the
+background disability of the extra years lived, and gains 13,800 from less
+disease-specific disability. The mortality reductions are half to two-thirds
+of the paper's, while the disability gains look about right, so the mortality
+pathway is the suspect. Three differences could account for it. GBD 2023
+models twelve outcomes of high SBP where GBD 2019 modeled seventeen, and the
+paper uses the 2019 set; rheumatic heart disease, cardiomyopathy, endocarditis,
+other cardiovascular disease, and CKD due to type 1 diabetes are missing from
+my model entirely. The relative risks I backed out of the GBD 2023 PAFs may be
+flatter than the GBD 2019 ones the paper used, especially where I capped the
+PAF at 90%. And the annual time step delays each death from an acute event to
+the year after onset, which for subarachnoid hemorrhage and stomach cancer
+means the first years of each intervention show less mortality benefit than
+a quarterly step would. The paper also lets net migration grow the population,
+which adds person-years and therefore HALYs that my closed-plus-births cohort
+does not have; I would guess this accounts for a few percent.
+
+The mortality comparison carries a second caveat: my rate is crude and
+averaged over 2040 to 2044, the paper's is age-standardised for 2044 alone,
+and with 200,000 simulants one death is worth 1,350 real deaths, so a seed
+standard deviation of 0.02 to 0.07 percentage points is the best I can do
+without a larger run.
 
 ## What I did not attempt
 
@@ -122,7 +184,8 @@ uv venv -p 3.12 && uv pip install -e ".[dev]"
 ./run_all.sh 200000 0 1 2                            # 10 scenarios x 3 seeds, 4 in parallel, ~90 minutes
 ```
 
-The last command ends by writing `results/comparison.csv`,
+The raw per-run output lands in `results/raw/` (43 MB, not committed) and the
+last command ends by writing `results/comparison.csv`,
 `results/gains_by_seed.csv` and `results/halys_comparison.png`. A single scenario
 runs with `python -m sodium_sim.run --scenarios mandate_who --seeds 0 --population 20000`
 in about four minutes. Tests: `.venv/bin/python -m pytest`.

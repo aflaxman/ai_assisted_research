@@ -1,0 +1,10 @@
+scenario,life_years,minus_background_disability,minus_modeled_ylds,halys
+mandate_australia,5588.0,-1849.0,3435.0,7174.0
+mandate_uk,15792.0,-5133.0,8074.0,18732.0
+mandate_who,22978.0,-7507.0,13768.0,29240.0
+mandate_australia_then_uk,13095.0,-4229.0,6929.0,15795.0
+kcl_30pct_all_immediate,73124.0,-24212.0,41222.0,90134.0
+kcl_10pct_all_10y,8493.0,-2735.0,5313.0,11072.0
+kcl_30pct_discretionary_3y,8004.0,-2614.0,4822.0,10212.0
+uk_mass_media,446.0,-147.0,254.0,553.0
+uk_salt_program,3235.0,-1087.0,1934.0,4082.0
