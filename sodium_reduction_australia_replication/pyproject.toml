@@ -1,0 +1,28 @@
+[project]
+name = "sodium-sim"
+version = "0.1.0"
+description = "Vivarium replication of Dhungel et al. (2025) sodium reduction interventions in Australia"
+requires-python = ">=3.12"
+dependencies = [
+    "vivarium-public-health>=6.8",
+    "pandas>=2.2",
+    "numpy",
+    "scipy",
+    "pyyaml",
+    "pyarrow",
+    "tables",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

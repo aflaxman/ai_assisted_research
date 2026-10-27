@@ -1,0 +1,2 @@
+location_id,year,location_name,measure,age_group,value_male,lower_male,upper_male,value_female,lower_female,upper_female,value_combined,lower_combined,upper_combined
+71,2023,Australia,live_births,birth,156222.273525188,139971.924876884,173391.455941293,148139.190187296,132729.649443204,164420.023399531,304361.463712484,272701.574320088,337811.479340824
