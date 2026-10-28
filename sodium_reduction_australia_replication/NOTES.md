@@ -151,3 +151,26 @@ CVD mortality and has the COVID years in the series; the five causes GBD
 risks with `get_draws` for a direct comparison, and testing whether
 `get_outputs(release_id=6)` can give the 2019 cause rates for a GBD 2019
 version of the artifact.
+
+### Time-step ablation (first artifact, 100k simulants, seed 0, BAU vs WHO targets)
+
+| step | HALYs gained | deaths averted | ACMR change 2040-44 |
+|---|---|---|---|
+| annual (365.25 d) | 24,700 | 6,470 | -0.18% |
+| quarterly (91.3 d) | 32,900 | 4,310 | -0.16% |
+
+One seed only, and at 100k a single death is 270 real deaths, so the death
+counts are noise; the HALY difference is mostly disability (prevalence
+dynamics), which is much less noisy. The quarterly step gives a third more
+HALYs. I had argued the annual step matched the paper's annual cycle, but
+vivarium's discretization is not a PMSLT cycle: incidence in a year lands in
+the state only at the next step, and the clipped probabilities delay acute
+deaths. The quarterly step is the better vivarium choice; the production
+runs on the cluster will use it (about four times the cost, affordable with
+16 cores).
+
+### GBD 2023 pull finished
+
+115 cause-measure and risk pulls done (one benign failure: other
+cardiomyopathy has no incidence in GBD 2023 and is not in the 2023 cause
+set anyway). Condensing into `data/gbd_vi/` and building the v2 artifact.

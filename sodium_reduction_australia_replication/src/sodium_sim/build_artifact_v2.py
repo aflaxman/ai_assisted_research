@@ -302,8 +302,15 @@ def solve_log_rr(paf: float, dist: str, mean: float, sd: float, tmrel: float, sc
     return brentq(f, 0.0, max_log_rr, xtol=1e-6)
 
 
-def risk_effect_tables_v2(risk: str, causes: list[str], targets: dict[str, tuple[str, str]] | None = None):
-    """Return (relative_risk, paf, diagnostics) for GBD RRs under the paper's exposure."""
+def risk_effect_tables_v2(risk: str, causes: list[str], targets: dict[str, tuple[str, str]] | None = None,
+                          source: str = "gbd2023"):
+    """Return (relative_risk, paf, diagnostics) for GBD RRs under the paper's exposure.
+
+    ``targets`` maps a cause to the (affected_entity, affected_measure) pair the
+    vivarium RiskEffect looks up; the default is the cause's incidence rate.
+    With ``source="gbd2019"`` every cause has a GBD relative risk, so nothing is
+    backed out of PAFs.
+    """
     targets = targets or {}
     tmred = {SBP: SBP_TMRED, SODIUM: SODIUM_TMRED}[risk]
     tmrel = 0.5 * (tmred["min"] + tmred["max"])
