@@ -174,3 +174,22 @@ runs on the cluster will use it (about four times the cost, affordable with
 115 cause-measure and risk pulls done (one benign failure: other
 cardiomyopathy has no incidence in GBD 2023 and is not in the 2023 cause
 set anyway). Condensing into `data/gbd_vi/` and building the v2 artifact.
+
+### GBD 2019 versus GBD 2023 inputs for Australia (men; full table in results/gbd2019_vs_gbd2023_rates_males.csv)
+
+| | age 55 | age 70 | age 85 |
+|---|---|---|---|
+| IHD deaths, 2019/2023 | 1.04 | 1.30 | 1.45 |
+| IHD incidence, 2019/2023 | 4.5 | 4.1 | 2.4 |
+| IHD prevalence, 2019/2023 | 1.6 | 2.6 | 2.4 |
+| ischemic stroke deaths, 2019/2023 | 1.04 | 1.55 | 1.65 |
+| ischemic stroke prevalence, 2019/2023 | 0.65 | 0.69 | 0.50 |
+| all-cause deaths, 2019/2023 | 1.06 | 1.19 | 1.12 |
+
+GBD 2023 cut Australian cardiovascular mortality at the ages that matter
+by a third or more relative to GBD 2019, and the GBD 2019 IHD incidence is
+a different quantity (it includes angina and chronic IHD, where GBD 2023
+counts acute MI only). Both push the paper's deaths averted above mine.
+The GBD 2019 artifact (`artifacts/australia_gbd2019.hdf`, 18 causes, GBD
+2019 relative risks per 10 mmHg, paper exposures) is built; smoke test
+running, then the full set on the cluster at quarterly steps.
