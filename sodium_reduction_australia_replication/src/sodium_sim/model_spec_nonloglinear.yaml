@@ -1,0 +1,110 @@
+# Sensitivity spec: GBD 2023 relative-risk curves (NonLogLinearRiskEffect) for the causes that have
+# them; log-linear effects elsewhere. Built from model_spec.yaml; keep the two in step.
+components:
+    vivarium.public_health:
+        population:
+            - BasePopulation()
+            - FertilityCrudeBirthRate()
+        disease:
+            - SI('ischemic_heart_disease')
+            - SI('ischemic_stroke')
+            - SI('intracerebral_hemorrhage')
+            - SI('subarachnoid_hemorrhage')
+            - SI('hypertensive_heart_disease')
+            - SI('atrial_fibrillation_and_flutter')
+            - SI('peripheral_arterial_disease')
+            - SI('ckd_due_to_diabetes_type_2')
+            - SI('ckd_due_to_hypertension')
+            - SI('ckd_due_to_glomerulonephritis')
+            - SI('ckd_due_to_other_causes')
+            - SI('stomach_cancer')
+        risks:
+            - Risk('risk_factor.high_systolic_blood_pressure')
+            - Risk('risk_factor.diet_high_in_sodium')
+            - NonLogLinearRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ischemic_heart_disease.incidence_rate')
+            - NonLogLinearRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ischemic_stroke.incidence_rate')
+            - NonLogLinearRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.intracerebral_hemorrhage.incidence_rate')
+            - NonLogLinearRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.subarachnoid_hemorrhage.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.hypertensive_heart_disease.incidence_rate')
+            - NonLogLinearRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.atrial_fibrillation_and_flutter.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.affected_unmodeled.cause_specific_mortality_rate')
+            - NonLogLinearRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.peripheral_arterial_disease.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ckd_due_to_diabetes_type_2.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ckd_due_to_hypertension.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ckd_due_to_glomerulonephritis.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ckd_due_to_other_causes.incidence_rate')
+            - NonLogLinearRiskEffect('risk_factor.diet_high_in_sodium', 'cause.stomach_cancer.incidence_rate')
+        results:
+            - ResultsStratifier()
+            - DisabilityObserver()
+            - MortalityObserver()
+    sodium_sim.components:
+        - SodiumReduction()
+        - SodiumToSBP()
+        - PersonTimeObserver()
+
+configuration:
+    # Non-log-linear effects read the GBD 2023 relative-risk curves and the PAFs computed from them.
+    non_log_linear_risk_effect.high_systolic_blood_pressure_on_cause.ischemic_heart_disease.incidence_rate:
+        data_sources:
+            relative_risk: risk_factor.high_systolic_blood_pressure.relative_risk_curve
+            population_attributable_fraction: risk_factor.high_systolic_blood_pressure.population_attributable_fraction_curve
+    non_log_linear_risk_effect.high_systolic_blood_pressure_on_cause.ischemic_stroke.incidence_rate:
+        data_sources:
+            relative_risk: risk_factor.high_systolic_blood_pressure.relative_risk_curve
+            population_attributable_fraction: risk_factor.high_systolic_blood_pressure.population_attributable_fraction_curve
+    non_log_linear_risk_effect.high_systolic_blood_pressure_on_cause.intracerebral_hemorrhage.incidence_rate:
+        data_sources:
+            relative_risk: risk_factor.high_systolic_blood_pressure.relative_risk_curve
+            population_attributable_fraction: risk_factor.high_systolic_blood_pressure.population_attributable_fraction_curve
+    non_log_linear_risk_effect.high_systolic_blood_pressure_on_cause.subarachnoid_hemorrhage.incidence_rate:
+        data_sources:
+            relative_risk: risk_factor.high_systolic_blood_pressure.relative_risk_curve
+            population_attributable_fraction: risk_factor.high_systolic_blood_pressure.population_attributable_fraction_curve
+    non_log_linear_risk_effect.high_systolic_blood_pressure_on_cause.atrial_fibrillation_and_flutter.incidence_rate:
+        data_sources:
+            relative_risk: risk_factor.high_systolic_blood_pressure.relative_risk_curve
+            population_attributable_fraction: risk_factor.high_systolic_blood_pressure.population_attributable_fraction_curve
+    non_log_linear_risk_effect.high_systolic_blood_pressure_on_cause.peripheral_arterial_disease.incidence_rate:
+        data_sources:
+            relative_risk: risk_factor.high_systolic_blood_pressure.relative_risk_curve
+            population_attributable_fraction: risk_factor.high_systolic_blood_pressure.population_attributable_fraction_curve
+    non_log_linear_risk_effect.diet_high_in_sodium_on_cause.stomach_cancer.incidence_rate:
+        data_sources:
+            relative_risk: risk_factor.diet_high_in_sodium.relative_risk_curve
+            population_attributable_fraction: risk_factor.diet_high_in_sodium.population_attributable_fraction_curve
+    input_data:
+        artifact_path: "../../artifacts/australia.hdf"
+        input_draw_number: 0
+    interpolation:
+        order: 0
+        extrapolate: True
+    randomness:
+        map_size: 5_000_000
+        key_columns: ['entrance_time', 'age']
+        random_seed: 0
+    time:
+        start:
+            year: 2024
+            month: 1
+            day: 1
+        end:
+            year: 2044
+            month: 12
+            day: 31  # the run loop stops after the step that covers 2044
+        step_size: 365.25  # days; annual cycles, as in the paper's lifetable
+    population:
+        population_size: 100_000
+        initialization_age_min: 0
+        initialization_age_max: 110  # the GBD 95+ bin is open-ended; nobody starts older than 110
+        untracking_age: 124  # drop the rare survivor before they leave the last age bin
+    mortality:
+        unmodeled_causes: ['aortic_aneurysm']
+    sodium_intervention:
+        scenario: bau
+    stratification:
+        default:
+            - 'age_group'
+            - 'sex'
+        mortality:
+            aggregate: True  # deaths and YLLs without a cause-of-death stratification

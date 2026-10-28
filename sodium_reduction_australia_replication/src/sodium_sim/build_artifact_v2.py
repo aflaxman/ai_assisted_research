@@ -239,6 +239,50 @@ def risk_effect_tables_v2(risk: str, causes: list[str], targets: dict[str, tuple
     return pd.DataFrame(rr_rows), pd.DataFrame(paf_rows), pd.DataFrame(diag_rows)
 
 
+def expected_rr_curve(grid_x: np.ndarray, grid_rr: np.ndarray, dist: str, mean: float, sd: float) -> float:
+    """E[max(RR(X), 1)] with RR interpolated on the GBD grid and held flat beyond it."""
+    lo = max(mean - 6 * sd, 1e-6) if dist == "lognormal" else mean - 6 * sd
+    x = np.linspace(lo, mean + 8 * sd, 6001)
+    w = exposure_grid(x, dist, mean, sd)
+    w /= w.sum()
+    rr = np.clip(np.interp(x, grid_x, grid_rr), 1.0, None)
+    return float((rr * w).sum())
+
+
+def curve_tables(risk: str, causes: list[str]) -> tuple[pd.DataFrame, pd.DataFrame, list[str]]:
+    """Return (relative_risk_curve, paf_curve, causes_with_curves) for NonLogLinearRiskEffect.
+
+    The curve is GBD 2023's Burden-of-Proof relative risk on its exposure grid
+    (thinned by ``prepare_gbd_vi``), and the PAF is computed under the paper's
+    exposure distribution so the two are consistent. Causes whose curve is all
+    zeros (hypertensive heart disease, a PAF-of-one cause) or absent are
+    skipped and keep the log-linear effect.
+    """
+    dist = DISTRIBUTION[risk]
+    curve = pd.read_csv(DATA_VI / f"risk.{risk}.relative_risk_curve.csv")
+    exposure = paper_exposure(risk)
+    rr_rows, paf_rows, with_curves = [], [], []
+    for cause in causes:
+        c = curve[(curve["affected_entity"] == vi_name(cause)) & (curve["affected_measure"] == "incidence_rate")]
+        if c.empty or (c["value"] <= 0).all():
+            continue
+        with_curves.append(cause)
+        for _, e in exposure.iterrows():
+            g = c[(c["sex"] == e["sex"]) & (c["age_start"] == e["age_start"])].sort_values("parameter")
+            base = dict(sex=e["sex"], age_start=e["age_start"], age_end=e["age_end"],
+                        year_start=YEAR_START, year_end=YEAR_END,
+                        affected_entity=cause, affected_measure="incidence_rate")
+            if g.empty or e["age_start"] < 25 or (g["value"] <= 0).all():
+                grid_x, grid_rr = np.array([0.0, 1000.0]), np.array([1.0, 1.0])
+            else:
+                grid_x, grid_rr = g["parameter"].to_numpy(), g["value"].to_numpy()
+            for x, rr in zip(grid_x, grid_rr):
+                rr_rows.append({**base, "parameter": float(x), "value": float(max(rr, 1.0))})
+            paf = 1 - 1 / expected_rr_curve(grid_x, grid_rr, dist, e["mean"], e["sd"])
+            paf_rows.append({**base, "value": float(paf)})
+    return pd.DataFrame(rr_rows), pd.DataFrame(paf_rows), with_curves
+
+
 def build(path: Path = ARTIFACT_V2_PATH) -> Artifact:
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
@@ -282,6 +326,10 @@ def build(path: Path = ARTIFACT_V2_PATH) -> Artifact:
         write(art, f"risk_factor.{risk}.relative_risk", rr)
         write(art, f"risk_factor.{risk}.population_attributable_fraction", paf)
         diag.to_csv(ROOT / "results" / f"risk_effect_diagnostics_v2_{risk}.csv", index=False)
+        rr_curve, paf_curve, with_curves = curve_tables(risk, causes)
+        write(art, f"risk_factor.{risk}.relative_risk_curve", rr_curve)
+        write(art, f"risk_factor.{risk}.population_attributable_fraction_curve", paf_curve)
+        print(f"{risk}: non-log-linear curves for {with_curves}")
 
     cols = ["cause", "max_prev", "max_inc", "max_csmr", "max_emr", "max_dw"]
     print(pd.DataFrame(summary, columns=cols).to_string())

@@ -27,7 +27,8 @@ RAW_RESULTS = ROOT / "results" / "raw"
 
 
 def run_one(scenario: str, seed: int, population: int, artifact: Path = ARTIFACT_PATH,
-            verbose: bool = False, step_days: float | None = None) -> dict[str, pd.DataFrame]:
+            verbose: bool = False, step_days: float | None = None,
+            spec: Path = MODEL_SPEC) -> dict[str, pd.DataFrame]:
     """Run a single simulation and return its results with one row per year.
 
     The model takes one step per year. After each step the cumulative observer
@@ -45,7 +46,7 @@ def run_one(scenario: str, seed: int, population: int, artifact: Path = ARTIFACT
     if step_days is not None:
         config["time"] = {"step_size": step_days}
     sim = InteractiveContext(
-        MODEL_SPEC, configuration=config, observe=True,
+        spec, configuration=config, observe=True,
         sim_name=f"{scenario}_{seed}_{time.time_ns()}", logging_verbosity=1 if verbose else 0,
     )
     start_year = sim.configuration.time.start.year
@@ -100,6 +101,8 @@ def main() -> None:
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--artifact", default=str(ARTIFACT_PATH), help="artifact HDF to simulate from")
     parser.add_argument("--tag", default="", help="results go to results/raw_<tag>/ instead of results/raw/")
+    parser.add_argument("--spec", default=str(MODEL_SPEC),
+                        help="model specification YAML (model_spec_nonloglinear.yaml uses the GBD RR curves)")
     parser.add_argument("--step-days", type=float, default=None,
                         help="time step in days (default from the model spec: 365.25); 91.3125 for quarterly")
     args = parser.parse_args()
@@ -107,7 +110,7 @@ def main() -> None:
         for scenario in args.scenarios:
             t0 = time.time()
             results = run_one(scenario, seed, args.population, artifact=Path(args.artifact),
-                              verbose=args.verbose, step_days=args.step_days)
+                              verbose=args.verbose, step_days=args.step_days, spec=Path(args.spec))
             out = save(results, scenario, seed, args.population, args.tag)
             print(f"{scenario} seed {seed}: {time.time() - t0:.0f}s -> {out}", flush=True)
 

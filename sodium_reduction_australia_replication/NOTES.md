@@ -122,3 +122,18 @@ without curves.
    deaths costs. Running now on this node, tags `v1_annual`, `v1_quarterly`.
    The raw results from the cloud session were never committed, so the
    annual run is needed as the matching baseline.
+
+### Log-linear or the GBD curves?
+
+Abie pointed out that `vivarium_public_health` has `NonLogLinearRiskEffect`
+for curve-form relative risks (the MACE RCT project stores the GBD curve
+under the standard `relative_risk` key with a numeric `parameter` column and
+computes PAFs in a separate PAF-calculation spec). The paper used GBD 2019
+incidence rate ratios per 10 mmHg, which are log-linear, so the log-linear
+fit stays the main specification as the closer match to the published
+method. The curves go into a second spec, `model_spec_nonloglinear.yaml`,
+for the six SBP causes with usable curves (IHD, the three strokes, AF, PAD)
+and for sodium on stomach cancer, with PAFs computed analytically from the
+curve under the paper's exposure distribution (keys `*.relative_risk_curve`
+and `*.population_attributable_fraction_curve`). Runs select the spec with
+`--spec`; this is a sensitivity analysis, not the headline.
