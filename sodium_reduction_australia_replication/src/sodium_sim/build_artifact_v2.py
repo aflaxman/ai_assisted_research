@@ -393,15 +393,16 @@ def curve_tables(risk: str, causes: list[str]) -> tuple[pd.DataFrame, pd.DataFra
         if c.empty or (c["value"] <= 0).all():
             continue
         with_curves.append(cause)
+        # The lookup table needs one exposure grid across every demographic group, so
+        # bands without a curve (under 25) get the common grid at RR 1.
+        common_grid = np.sort(c["parameter"].unique())
         for _, e in exposure.iterrows():
             g = c[(c["sex"] == e["sex"]) & (c["age_start"] == e["age_start"])].sort_values("parameter")
             base = dict(sex=e["sex"], age_start=e["age_start"], age_end=e["age_end"],
                         year_start=YEAR_START, year_end=YEAR_END,
                         affected_entity=cause, affected_measure="incidence_rate")
             if g.empty or e["age_start"] < 25 or (g["value"] <= 0).all():
-                # One flat point: NonLogLinearRiskEffect builds the bin below it and an open
-                # bin above, both at RR 1 (two points would share a left edge of 0 and fail).
-                grid_x, grid_rr = np.array([1000.0]), np.array([1.0])
+                grid_x, grid_rr = common_grid, np.ones(len(common_grid))
             else:
                 grid_x, grid_rr = g["parameter"].to_numpy(), g["value"].to_numpy()
             for x, rr in zip(grid_x, grid_rr):

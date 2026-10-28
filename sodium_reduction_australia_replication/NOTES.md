@@ -224,3 +224,22 @@ the three strokes, AF and PAD, PAF-backed-out slopes for CKD and aortic
 aneurysm (capped PAF for HHD and CKD due to hypertension), and curve-form
 relative risks plus consistent PAFs for the non-log-linear sensitivity
 spec. Smoke tests of both specs running (BAU and WHO, 20k, seed 0).
+
+### Smoke tests side by side (BAU vs WHO targets, 20k simulants, seed 0, annual steps)
+
+| inputs | HALYs gained | deaths averted | ACMR change 2040-44 | ratio to paper |
+|---|---|---|---|---|
+| first artifact (GBD 2023 MCP, my Huang reconstruction), 100k | 24,700 | 6,470 | -0.18% | 0.62 |
+| GBD 2023 via vivarium_inputs, appendix equation and exposures | 22,400 | 5,390 | -0.29% | 0.56 |
+| GBD 2019 via get_outputs, 18 causes, appendix equation and exposures | 46,900 | 9,430 | -0.28% | 1.17 |
+
+Twenty thousand simulants is noisy (the GBD 2023 line's deaths averted
+equals four simulant deaths), but the pattern is clear: the appendix's SBP
+equation and exposures do not by themselves close the gap under GBD 2023,
+while switching the disease rates and relative risks to GBD 2019, the
+release the paper used, overshoots it. The GBD release is the dominant
+driver. A bug found on the way: the slopes fitted to the GBD 2023 curves
+were stored per 1 mmHg while the artifact applies them per 10 mmHg, which
+made the first GBD 2023 smoke test show no effect at all; fixed before the
+numbers above. Production sets for both releases are on Slurm (quarterly
+steps, 200k, 3 seeds); the non-log-linear sensitivity follows.
