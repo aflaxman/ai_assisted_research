@@ -11,9 +11,11 @@ from __future__ import annotations
 
 from typing import Any
 
+import numpy as np
 import pandas as pd
 from vivarium.engine import Component
 from vivarium.engine.framework.engine import Builder
+from vivarium.public_health.disease import DiseaseModel
 from vivarium.public_health.results.observer import PublicHealthObserver
 from vivarium.public_health.utilities import to_years
 
@@ -111,3 +113,56 @@ class PersonTimeObserver(PublicHealthObserver):
 
     def person_years(self, pop: pd.DataFrame) -> float:
         return len(pop) * to_years(self.step_size)
+
+
+class RateTrends(Component):
+    """Apply the paper's business-as-usual time trends to disease rates.
+
+    Dhungel et al. forecast incidence, case fatality and all-cause mortality
+    from their 1990 to 2019 trends out to 2034, then hold them constant. This
+    component multiplies each cause's incidence and excess mortality pipelines,
+    the unmodeled-cause mortality pipeline and the all-cause mortality hazard
+    by ``exp(apc * (min(year, end_year) - base_year))``, with annual percentage
+    changes (as log slopes) read from a CSV with columns ``cause``, ``measure``
+    (``incidence``, ``case_fatality`` or ``deaths``) and ``apc``.
+    """
+
+    @property
+    def configuration_defaults(self) -> dict[str, Any]:
+        return {"rate_trends": {"file": "data/gbd2019/trends_apc.csv", "base_year": 2019, "end_year": 2034}}
+
+    def setup(self, builder: Builder) -> None:
+        from sodium_sim.build_artifact import ROOT
+
+        config = builder.configuration.rate_trends
+        self.base_year, self.end_year = int(config.base_year), int(config.end_year)
+        self.clock = builder.time.clock()
+        apc = pd.read_csv(ROOT / config.file)
+        self.apc = {(r.cause, r.measure): float(r.apc) for r in apc.itertuples()}
+        causes = [c.name for c in builder.components.get_components_by_type(DiseaseModel)]
+        for cause in causes:
+            if (cause, "incidence") in self.apc:
+                builder.value.register_attribute_modifier(
+                    f"{cause}.incidence_rate", modifier=self._scaler(cause, "incidence"),
+                    description="BAU incidence trend")
+            if (cause, "case_fatality") in self.apc:
+                builder.value.register_value_modifier(
+                    f"{cause}.excess_mortality_rate", modifier=self._scaler(cause, "case_fatality"),
+                    description="BAU case fatality trend")
+        if ("aortic_aneurysm", "deaths") in self.apc:
+            builder.value.register_attribute_modifier(
+                "affected_unmodeled.cause_specific_mortality_rate",
+                modifier=self._scaler("aortic_aneurysm", "deaths"), description="BAU aortic aneurysm trend")
+        if ("all_causes", "deaths") in self.apc:
+            builder.value.register_value_modifier(
+                "mortality_rate", modifier=self._scaler("all_causes", "deaths"), description="BAU all-cause trend")
+
+    def factor(self, cause: str, measure: str) -> float:
+        years = min(self.clock().year, self.end_year) - self.base_year
+        return float(np.exp(self.apc[(cause, measure)] * years))
+
+    def _scaler(self, cause: str, measure: str):
+        def scale(index: pd.Index, value):
+            return value * self.factor(cause, measure)
+
+        return scale

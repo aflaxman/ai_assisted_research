@@ -1,0 +1,96 @@
+# GBD 2019 spec with the paper's BAU rate trends (RateTrends component): the paper's 18 sodium-related causes (aortic aneurysm fatal-only through the
+# unmodeled-causes pipeline), log-linear SBP effects with GBD 2019 RRs. Built from model_spec.yaml.
+components:
+    vivarium.public_health:
+        population:
+            - BasePopulation()
+            - FertilityCrudeBirthRate()
+        disease:
+            - SI('ischemic_heart_disease')
+            - SI('ischemic_stroke')
+            - SI('intracerebral_hemorrhage')
+            - SI('subarachnoid_hemorrhage')
+            - SI('hypertensive_heart_disease')
+            - SI('atrial_fibrillation_and_flutter')
+            - SI('peripheral_arterial_disease')
+            - SI('ckd_due_to_diabetes_type_2')
+            - SI('ckd_due_to_hypertension')
+            - SI('ckd_due_to_glomerulonephritis')
+            - SI('ckd_due_to_other_causes')
+            - SI('stomach_cancer')
+            - SI('ckd_due_to_diabetes_type_1')
+            - SI('rheumatic_heart_disease')
+            - SI('endocarditis')
+            - SI('non_rheumatic_calcific_aortic_valve_disease')
+            - SI('other_cardiomyopathy')
+        risks:
+            - Risk('risk_factor.high_systolic_blood_pressure')
+            - Risk('risk_factor.diet_high_in_sodium')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ischemic_heart_disease.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ischemic_stroke.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.intracerebral_hemorrhage.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.subarachnoid_hemorrhage.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.hypertensive_heart_disease.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.atrial_fibrillation_and_flutter.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.affected_unmodeled.cause_specific_mortality_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.peripheral_arterial_disease.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ckd_due_to_diabetes_type_2.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ckd_due_to_hypertension.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ckd_due_to_glomerulonephritis.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ckd_due_to_other_causes.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ckd_due_to_diabetes_type_1.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.rheumatic_heart_disease.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.endocarditis.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.non_rheumatic_calcific_aortic_valve_disease.incidence_rate')
+            - RiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.other_cardiomyopathy.incidence_rate')
+            - RiskEffect('risk_factor.diet_high_in_sodium', 'cause.stomach_cancer.incidence_rate')
+        results:
+            - ResultsStratifier()
+            - DisabilityObserver()
+            - MortalityObserver()
+    sodium_sim.components:
+        - SodiumReduction()
+        - SodiumToSBP()
+        - PersonTimeObserver()
+        - RateTrends()
+
+configuration:
+    input_data:
+        artifact_path: "../../artifacts/australia_gbd2019.hdf"
+        input_draw_number: 0
+    interpolation:
+        order: 0
+        extrapolate: True
+    randomness:
+        map_size: 5_000_000
+        key_columns: ['entrance_time', 'age']
+        random_seed: 0
+    time:
+        start:
+            year: 2024
+            month: 1
+            day: 1
+        end:
+            year: 2044
+            month: 12
+            day: 31  # the run loop stops after the step that covers 2044
+        step_size: 365.25  # days; annual cycles, as in the paper's lifetable
+    population:
+        population_size: 100_000
+        initialization_age_min: 0
+        initialization_age_max: 110  # the GBD 95+ bin is open-ended; nobody starts older than 110
+        untracking_age: 124  # drop the rare survivor before they leave the last age bin
+    mortality:
+        unmodeled_causes: ['aortic_aneurysm']
+    sodium_intervention:
+        scenario: bau
+    rate_trends:
+        file: data/gbd2019/trends_apc.csv
+        base_year: 2019
+        end_year: 2034
+    stratification:
+        default:
+            - 'age_group'
+            - 'sex'
+        mortality:
+            aggregate: True  # deaths and YLLs without a cause-of-death stratification
