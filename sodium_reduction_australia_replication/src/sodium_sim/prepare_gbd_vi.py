@@ -23,6 +23,8 @@ from sodium_sim.build_artifact import ROOT
 OUT = ROOT / "data" / "gbd_vi"
 # Exposure range for the log-linear fit: above the TMREL and across the bulk of the population.
 FIT_RANGE = {"high_systolic_blood_pressure": (115.0, 175.0), "diet_high_in_sodium": (2.0, 6.0)}
+# The fitted RR is expressed per this many exposure units (the artifact's relative_risk_scalar).
+RR_SCALE = {"high_systolic_blood_pressure": 10.0, "diet_high_in_sodium": 1.0}
 
 
 def condense(df: pd.DataFrame) -> pd.DataFrame:
@@ -40,6 +42,7 @@ def condense_rr_curve(path: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Return (thinned mean curve, fitted log-linear RR per unit) for a curve-form RR file."""
     risk = path.stem.split(".")[1]
     lo, hi = FIT_RANGE[risk]
+    scale = RR_SCALE[risk]
     keys = ["location", "sex", "age_start", "age_end", "year_start", "year_end",
             "affected_entity", "affected_measure", "parameter"]
     parts = []
@@ -56,7 +59,7 @@ def condense_rr_curve(path: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
             slope = 0.0
         else:
             slope = np.polyfit(g["parameter"], np.log(g["value"]), 1)[0]
-        fits.append(dict(zip(group_cols, key), value=float(np.exp(slope))))
+        fits.append(dict(zip(group_cols, key), value=float(np.exp(slope * scale))))
     return thinned, pd.DataFrame(fits)
 
 

@@ -1,0 +1,55 @@
+[32m2026-10-27 22:00:33.519[0m | [32m0:00:04.036282[0m | [33m[1mWARNING [0m | [36mbau_0_1793163631176858297[0m-[36mvalues_manager[0m:[36m_warn_if_overriding_resources[0m:[36m488[0m - [33m[1mConflicting information for affected_unmodeled.cause_specific_mortality_rate. Ignoring 'required_resources' since the `source` is of type <class 'vivarium.engine.framework.lookup.table.LookupTable'> and we can infer the required resources directly.[0m
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/src/sodium_sim/run.py", line 119, in <module>
+    main()
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/src/sodium_sim/run.py", line 112, in main
+    results = run_one(scenario, seed, args.population, artifact=Path(args.artifact),
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/src/sodium_sim/run.py", line 48, in run_one
+    sim = InteractiveContext(
+          ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/interface/interactive.py", line 369, in __init__
+    self.setup()
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/interface/interactive.py", line 410, in setup
+    super().setup()
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/framework/engine.py", line 266, in setup
+    self._component_manager.setup_components(self._builder)
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/framework/components/manager.py", line 322, in setup_components
+    component.setup_component(builder)
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/component.py", line 286, in setup_component
+    self.setup(builder)
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/public_health/causal_factor/effect.py", line 188, in setup
+    self.relative_risk_table = self.build_rr_lookup_table(builder)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/public_health/risks/effect.py", line 192, in build_rr_lookup_table
+    return self.build_lookup_table(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/component.py", line 516, in build_lookup_table
+    return builder.lookup.build_table(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/framework/lookup/interface.py", line 205, in build_table
+    return self._manager.build_table(data, name, value_columns)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/framework/lifecycle/constraint_maker.py", line 78, in _wrapped
+    return method.__func__(*args, **kwargs)  # type: ignore [attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/framework/lookup/manager.py", line 97, in build_table
+    table = self._build_table(component, data, name, value_columns)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/framework/lookup/manager.py", line 125, in _build_table
+    table = LookupTable(
+            ^^^^^^^^^^^^
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/framework/lookup/table.py", line 216, in __init__
+    self._set_data(data)
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/framework/lookup/table.py", line 256, in _set_data
+    self.interpolation = Interpolation(
+                         ^^^^^^^^^^^^^^
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/framework/lookup/interpolation.py", line 134, in __init__
+    validate_parameters(
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/framework/lookup/interpolation.py", line 355, in validate_parameters
+    check_data_complete(group, continuous_parameters)
+  File "/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/framework/lookup/interpolation.py", line 436, in check_data_complete
+    raise ValueError(
+ValueError: Parameter ('high_systolic_blood_pressure_exposure_for_non_loglinear_riskeffect_start', 'high_systolic_blood_pressure_exposure_for_non_loglinear_riskeffect_end') pairs a left edge with multiple right edges; each bin start must map to one end.

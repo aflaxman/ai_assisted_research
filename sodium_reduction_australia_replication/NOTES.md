@@ -214,3 +214,13 @@ first artifact) and no other-cardiomyopathy incidence (not in the 2023 SBP
 set anyway). The five peripheral arterial disease files were missing from
 the first pull for no logged reason; re-pulling. The GBD 2019 production
 set (Slurm job 64758034, 16 cores) is running.
+
+### GBD 2023 (v2) artifact built
+
+`artifacts/australia_v2.hdf`: 12 causes from vivarium_inputs (draw means),
+HHD incidence derived, aortic aneurysm fatal-only, the paper's sodium and
+SBP distributions, log-linear slopes fitted to the GBD 2023 curves for IHD,
+the three strokes, AF and PAD, PAF-backed-out slopes for CKD and aortic
+aneurysm (capped PAF for HHD and CKD due to hypertension), and curve-form
+relative risks plus consistent PAFs for the non-log-linear sensitivity
+spec. Smoke tests of both specs running (BAU and WHO, 20k, seed 0).

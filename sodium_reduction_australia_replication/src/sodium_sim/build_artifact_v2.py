@@ -399,7 +399,9 @@ def curve_tables(risk: str, causes: list[str]) -> tuple[pd.DataFrame, pd.DataFra
                         year_start=YEAR_START, year_end=YEAR_END,
                         affected_entity=cause, affected_measure="incidence_rate")
             if g.empty or e["age_start"] < 25 or (g["value"] <= 0).all():
-                grid_x, grid_rr = np.array([0.0, 1000.0]), np.array([1.0, 1.0])
+                # One flat point: NonLogLinearRiskEffect builds the bin below it and an open
+                # bin above, both at RR 1 (two points would share a left edge of 0 and fail).
+                grid_x, grid_rr = np.array([1000.0]), np.array([1.0])
             else:
                 grid_x, grid_rr = g["parameter"].to_numpy(), g["value"].to_numpy()
             for x, rr in zip(grid_x, grid_rr):
