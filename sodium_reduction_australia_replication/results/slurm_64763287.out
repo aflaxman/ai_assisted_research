@@ -1,0 +1,53 @@
+done kcl_30pct_all_immediate 1
+done mandate_who 0
+done mandate_australia_then_uk 0
+done mandate_australia 0
+done kcl_10pct_all_10y 0
+done kcl_30pct_all_immediate 0
+done uk_salt_program 0
+done bau 0
+done mandate_who 1
+done mandate_australia_then_uk 1
+done uk_mass_media 0
+done mandate_australia 1
+done mandate_uk 1
+done mandate_uk 0
+done kcl_30pct_discretionary_3y 0
+done bau 1
+done bau 2
+done kcl_30pct_discretionary_3y 1
+done kcl_30pct_all_immediate 2
+done mandate_uk 2
+done mandate_who 2
+done mandate_australia_then_uk 2
+done uk_salt_program 1
+done kcl_30pct_discretionary_3y 2
+done kcl_10pct_all_10y 1
+done uk_mass_media 1
+done uk_mass_media 2
+done uk_salt_program 2
+done mandate_australia 2
+done kcl_10pct_all_10y 2
+                                                                        label  halys_gained  halys_gained_sd  paper_halys  paper_lower  paper_upper  deaths_averted  n_seeds
+scenario                                                                                                                                                                    
+mandate_australia                                       Mandating - Australia        14,411            2,945        11100         7530        15800           1,842        3
+mandate_uk                                                     Mandating - UK        29,606            3,671        25300        16800        37100           5,255        3
+mandate_who                                                   Mandating - WHO        47,175            4,625        40100        27200        56700           7,995        3
+mandate_australia_then_uk                             Mandating - Aus then UK        25,374            4,275        21000        14200        30500           4,716        3
+kcl_30pct_all_immediate            30% KCl substitution, all foods, immediate       122,295           10,962       103000        71100       145000          18,685        3
+kcl_10pct_all_10y              10% KCl substitution, all foods, over 10 years        17,385            3,511        15600        10500        22900           3,773        3
+kcl_30pct_discretionary_3y  30% KCl substitution, discretionary, over 3 years        18,870            3,280        13100         8970        19100           2,785        3
+uk_mass_media                                          UK mass media campaign         1,530              299         1130          560         2100             180        3
+uk_salt_program                                     UK salt reduction program         7,189            1,516         6880         4640         9820             943        3
+                            ratio_to_paper  acmr_pct_change  acmr_pct_change_sd
+scenario                                                                       
+mandate_australia                    1.298           -0.034               0.044
+mandate_uk                           1.170           -0.137               0.041
+mandate_who                          1.176           -0.205               0.059
+mandate_australia_then_uk            1.208           -0.129               0.032
+kcl_30pct_all_immediate              1.187           -0.437               0.097
+kcl_10pct_all_10y                    1.114           -0.131               0.041
+kcl_30pct_discretionary_3y           1.440           -0.066               0.056
+uk_mass_media                        1.354            0.005               0.022
+uk_salt_program                      1.045           -0.003               0.045
+wrote results/halys_comparison_gbd2023.png

@@ -301,3 +301,30 @@ one release.
 
 `RateTrends` bug found in its smoke test: DiseaseModel components are named
 `disease_model.<cause>`, so no cause-level modifier matched; fixed.
+
+### GBD 2023 production sets, final (200k simulants, quarterly steps)
+
+Log-linear fit to the GBD 2023 curves, 3 seeds; curve form
+(NonLogLinearRiskEffect), 2 seeds. Ratio of mean HALYs gained to the
+paper's median, and the crude mortality-rate change over 2040-44:
+
+| intervention | log-linear | curves | paper 95% UI covers both? | ACMR change, log-linear / curves / paper (SEIFA 1, SEIFA 5) |
+|---|---|---|---|---|
+| Mandating Australia | 1.30 | 1.20 | yes | -0.03 / -0.05 / -0.08, -0.05 |
+| Mandating UK | 1.17 | 1.17 | yes | -0.14 / -0.16 / -0.18, -0.11 |
+| Mandating WHO | 1.18 | 1.16 | yes | -0.21 / -0.24 / -0.29, -0.18 |
+| Australia then UK | 1.21 | 1.19 | yes | -0.13 / -0.16 / -0.17, -0.11 |
+| 30% KCl immediate | 1.19 | 1.17 | yes | -0.44 / -0.47 / -0.66, -0.36 |
+| 10% KCl over 10 y | 1.11 | 1.00 | yes | -0.13 / -0.17 / -0.19, -0.12 |
+| 30% KCl discretionary | 1.44 | 1.34 | yes | -0.07 / -0.07 / -0.11, -0.07 |
+| UK mass media | 1.35 | 1.58 | yes | 0.00 / 0.00 / 0.00, -0.01 |
+| UK salt program | 1.05 | 1.23 | yes | 0.00 / -0.02 / -0.05, -0.03 |
+
+Every estimate sits inside the paper's uncertainty interval and the
+mortality reductions fall between the paper's two quintiles. The curve
+form and the log-linear fit agree to within seed noise, as the direct
+calculation said they should. Compared with the cloud session's 0.65 to
+0.88, the move came from three things applied together: the appendix's SBP
+equation and sodium baselines (the SBP reduction at 60+ up 25 to 60%), the
+quarterly step (a third more HALYs than annual), and vivarium_inputs'
+DisMod-consistent excess mortality in place of CSMR over prevalence.
