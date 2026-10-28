@@ -14,3 +14,4 @@ done kcl_30pct_all_immediate 0
 done mandate_who 1
 done mandate_australia_then_uk 1
 done mandate_australia 1
+[2026-10-27T22:27:16.517] error: *** JOB 64758034 ON gen-slurm-sexec-p0010 CANCELLED AT 2026-10-27T22:27:16 DUE to SIGNAL Terminated ***

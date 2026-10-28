@@ -1,0 +1,2 @@
+scenario,halys_gained,halys_gained_sd,halys_gained_undiscounted,deaths_averted,acmr_pct_change,acmr_pct_change_sd,n_seeds,paper_halys,paper_lower,paper_upper,ratio_to_paper,label
+mandate_who,50532.23864811659,,78314.82927048206,16169.951843831688,-0.9507318377388732,,1,40100,27200,56700,1.2601555772597652,Mandating - WHO

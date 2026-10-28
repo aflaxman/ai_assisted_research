@@ -257,3 +257,47 @@ and 200k in the cloud session. Smoke tests say whether a model runs and
 roughly where it lands; the three Slurm sets (GBD 2019, GBD 2023
 log-linear, GBD 2023 curves; jobs 64758034, 64763287, 64763402) are the
 numbers to read.
+
+### GBD 2019 production set, early read (seed 0 of 3, quarterly steps, 200k)
+
+WHO targets 67,500 HALYs (paper 40,100), immediate 30% KCl 163,000
+(103,000), UK program 10,700 (6,880): ratios of 1.5 to 1.7 across the
+board, with the crude mortality change for the WHO targets at -0.34%
+(paper -0.29% most deprived, -0.18% least). So the GBD 2019 inputs
+overshoot where the GBD 2023 inputs undershoot. Two known differences
+push the GBD 2019 variant up relative to the paper: the quarterly step (a
+third more HALYs than annual in the ablation) and the absence of the
+paper's BAU trends, which carry GBD 2019's 1990 to 2019 declines in
+incidence and case fatality forward to 2034.
+
+### BAU rate trends (fourth set)
+
+`RateTrends` scales each cause's incidence and excess mortality, aortic
+aneurysm mortality and the all-cause hazard by exp(apc x (min(year, 2034)
+- 2019)), with apc the 2000 to 2019 log-linear slope of GBD 2019
+age-standardised rates for Australia (`data/gbd2019/trends_apc.csv`,
+capped at +/-4% a year; case fatality is deaths over prevalence). IHD
+case fatality falls 3.6% a year and incidence 1%, ischemic stroke 3% and
+1.8%, all-cause mortality 1.5%. By 2034 IHD excess mortality is 58% of
+its 2019 level, so this should pull the GBD 2019 variant down toward the
+paper. Spec `model_spec_gbd2019_trends.yaml`.
+
+### GBD 2019 incidence is not prevalence-consistent; artifact rebuilt
+
+Checking the DisMod identity I = (dP/da + P EMR)/(1 - P) against the
+published GBD 2019 incidence: IHD's published incidence is 1.5 to 1.8 times
+the consistent value (it counts angina and chronic entries), PAD's 1.3 to
+1.7, while ischemic stroke and AF agree within 10%. Under an SI model the
+published IHD incidence would inflate the IHD pool over 20 years and with
+it every IHD death and every death the intervention averts. The GBD 2019
+artifact now derives incidence from prevalence and EMR for every cause,
+which is the consistency step SHINE's input processing performs. The
+runs with the published incidence were stopped at 16 of 30 and kept under
+tag `gbd2019_gbdinc` for the record; the GBD 2019 and GBD 2019 plus
+trends sets were resubmitted. The baseline rise in deaths from about
+190,000 in 2024 to 330,000 in 2044 is the same in every variant, so it is
+the ageing of the 2023 population without migration, not an artefact of
+one release.
+
+`RateTrends` bug found in its smoke test: DiseaseModel components are named
+`disease_model.<cause>`, so no cause-level modifier matched; fixed.

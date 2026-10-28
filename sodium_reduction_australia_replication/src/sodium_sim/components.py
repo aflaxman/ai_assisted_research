@@ -139,29 +139,38 @@ class RateTrends(Component):
         self.clock = builder.time.clock()
         apc = pd.read_csv(ROOT / config.file)
         self.apc = {(r.cause, r.measure): float(r.apc) for r in apc.itertuples()}
-        causes = [c.name for c in builder.components.get_components_by_type(DiseaseModel)]
+        causes = [c.name.split(".")[-1] for c in builder.components.get_components_by_type(DiseaseModel)]
+        # Risk-affected pipelines (incidence, excess mortality, unmodeled CSMR) combine their
+        # modifiers multiplicatively: a modifier takes the index and returns a factor. The
+        # all-cause hazard uses the replace combiner: a modifier takes (index, value).
         for cause in causes:
             if (cause, "incidence") in self.apc:
                 builder.value.register_attribute_modifier(
-                    f"{cause}.incidence_rate", modifier=self._scaler(cause, "incidence"),
+                    f"{cause}.incidence_rate", modifier=self._factor_modifier(cause, "incidence"),
                     description="BAU incidence trend")
             if (cause, "case_fatality") in self.apc:
-                builder.value.register_value_modifier(
-                    f"{cause}.excess_mortality_rate", modifier=self._scaler(cause, "case_fatality"),
+                builder.value.register_attribute_modifier(
+                    f"{cause}.excess_mortality_rate", modifier=self._factor_modifier(cause, "case_fatality"),
                     description="BAU case fatality trend")
         if ("aortic_aneurysm", "deaths") in self.apc:
             builder.value.register_attribute_modifier(
                 "affected_unmodeled.cause_specific_mortality_rate",
-                modifier=self._scaler("aortic_aneurysm", "deaths"), description="BAU aortic aneurysm trend")
+                modifier=self._factor_modifier("aortic_aneurysm", "deaths"), description="BAU aortic aneurysm trend")
         if ("all_causes", "deaths") in self.apc:
-            builder.value.register_value_modifier(
-                "mortality_rate", modifier=self._scaler("all_causes", "deaths"), description="BAU all-cause trend")
+            builder.value.register_attribute_modifier(
+                "mortality_rate", modifier=self._value_modifier("all_causes", "deaths"), description="BAU all-cause trend")
 
     def factor(self, cause: str, measure: str) -> float:
         years = min(self.clock().year, self.end_year) - self.base_year
         return float(np.exp(self.apc[(cause, measure)] * years))
 
-    def _scaler(self, cause: str, measure: str):
+    def _factor_modifier(self, cause: str, measure: str):
+        def factor(index: pd.Index) -> pd.Series:
+            return pd.Series(self.factor(cause, measure), index=index)
+
+        return factor
+
+    def _value_modifier(self, cause: str, measure: str):
         def scale(index: pd.Index, value):
             return value * self.factor(cause, measure)
 

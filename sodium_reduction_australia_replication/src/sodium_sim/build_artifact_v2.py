@@ -145,7 +145,7 @@ def gbd2019_table(cause: str, measure: str) -> pd.DataFrame:
 
 
 def gbd2019_cause_tables(cause: str) -> dict[str, pd.DataFrame]:
-    """Prevalence, incidence per susceptible, CSMR, EMR and DW for a cause from GBD 2019 outputs."""
+    """Prevalence, prevalence-consistent incidence, CSMR, EMR and DW for a cause from GBD 2019 outputs."""
     prev = gbd2019_table(cause, "prevalence")
     csmr = gbd2019_table(cause, "deaths")
     ylds = gbd2019_table(cause, "ylds")
@@ -154,13 +154,12 @@ def gbd2019_cause_tables(cause: str) -> dict[str, pd.DataFrame]:
     emr["value"] = (csmr["value"] / safe_prev).fillna(0.0)
     dw = ylds.copy()
     dw["value"] = (ylds["value"] / safe_prev).fillna(0.0).clip(upper=1.0)
-    if cause in DERIVED_INCIDENCE_CAUSES or not (DATA_2019 / f"cause.{cause}.incidence.csv").exists():
-        inc = incidence_from_prevalence(prev, emr)
-        inc["value"] = inc["value"] * (1 - prev["value"])
-    else:
-        inc = gbd2019_table(cause, "incidence")
-    inc_sus = inc.copy()
-    inc_sus["value"] = inc["value"] / (1 - prev["value"])
+    # GBD 2019's published incidence is not consistent with its prevalence and excess
+    # mortality under an SI model (IHD's is 1.5 to 1.8 times the consistent value, since
+    # it counts angina and chronic entries), so the incidence per susceptible is derived
+    # from the prevalence age pattern and EMR for every cause, the DisMod identity
+    # I = (dP/da + P EMR) / (1 - P). This mirrors the consistency step SHINE applies.
+    inc_sus = incidence_from_prevalence(prev, emr)
     return {"prevalence": prev, "incidence_rate": inc_sus, "cause_specific_mortality_rate": csmr,
             "excess_mortality_rate": emr, "disability_weight": dw, "yld_rate": ylds}
 
