@@ -243,3 +243,17 @@ were stored per 1 mmHg while the artifact applies them per 10 mmHg, which
 made the first GBD 2023 smoke test show no effect at all; fixed before the
 numbers above. Production sets for both releases are on Slurm (quarterly
 steps, 200k, 3 seeds); the non-log-linear sensitivity follows.
+
+### Caveat on the smoke tests, and the non-log-linear smoke
+
+The non-log-linear spec's smoke test (GBD 2023 curves) gave 38,100 HALYs
+against 22,400 for the log-linear fit on the same artifact, seed and
+population, yet a direct calculation shows the two forms give the same
+IHD incidence reduction per 1.3 mmHg (0.964 versus 0.965 at age 70). The
+curves sit at RR 1.0 at 95 mmHg, 1.04 at 105, 1.25 at 115, so they add
+little below the TMREL. The difference is therefore noise: at 20,000
+simulants a single WHO run moved from 23,000 to 35,000 HALYs between 20k
+and 200k in the cloud session. Smoke tests say whether a model runs and
+roughly where it lands; the three Slurm sets (GBD 2019, GBD 2023
+log-linear, GBD 2023 curves; jobs 64758034, 64763287, 64763402) are the
+numbers to read.
