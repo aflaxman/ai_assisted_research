@@ -137,3 +137,17 @@ and for sodium on stomach cancer, with PAFs computed analytically from the
 curve under the paper's exposure distribution (keys `*.relative_risk_curve`
 and `*.population_attributable_fraction_curve`). Runs select the spec with
 `--spec`; this is a sensitivity analysis, not the headline.
+
+### The paper is GBD 2019 throughout (Abie, from Tony Blakely's group)
+
+The group did not have time to download the updated GBD results, so every
+GBD input in the paper is GBD 2019: the 18-cause list, the relative risks
+per 10 mmHg (GBD 2019 appendix 2b), the PIFs, and the disease rates
+forecast from 1990 to 2019 trends. My model is GBD 2023 (release 16).
+Candidates this opens up: GBD 2019 relative risks were larger for some
+causes than the 2023 Burden-of-Proof slopes; GBD 2023 revised Australian
+CVD mortality and has the COVID years in the series; the five causes GBD
+2023 no longer attributes to SBP. Pulling GBD 2019 (release 6) SBP relative
+risks with `get_draws` for a direct comparison, and testing whether
+`get_outputs(release_id=6)` can give the 2019 cause rates for a GBD 2019
+version of the artifact.

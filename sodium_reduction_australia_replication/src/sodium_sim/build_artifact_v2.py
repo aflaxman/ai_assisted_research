@@ -51,8 +51,31 @@ from sodium_sim.build_artifact import (
 )
 
 DATA_VI = ROOT / "data" / "gbd_vi"
+DATA_2019 = ROOT / "data" / "gbd2019"
 DATA_PAPER = ROOT / "data" / "paper"
 ARTIFACT_V2_PATH = ROOT / "artifacts" / "australia_v2.hdf"
+ARTIFACT_2019_PATH = ROOT / "artifacts" / "australia_gbd2019.hdf"
+
+# The paper's 18 sodium-related causes (Table S6); the last five are SBP outcomes in
+# GBD 2019 only. Aortic aneurysm is fatal-only in both releases.
+CAUSES_2019 = CAUSES + [
+    "ckd_due_to_diabetes_type_1",
+    "rheumatic_heart_disease",
+    "endocarditis",
+    "non_rheumatic_calcific_aortic_valve_disease",
+    "other_cardiomyopathy",
+]
+GBD2019_CAUSE_IDS = {
+    "ischemic_heart_disease": 493, "ischemic_stroke": 495, "intracerebral_hemorrhage": 496,
+    "subarachnoid_hemorrhage": 497, "hypertensive_heart_disease": 498, "atrial_fibrillation_and_flutter": 500,
+    "aortic_aneurysm": 501, "peripheral_arterial_disease": 502, "ckd_due_to_diabetes_type_1": 997,
+    "ckd_due_to_diabetes_type_2": 998, "ckd_due_to_hypertension": 591, "ckd_due_to_glomerulonephritis": 592,
+    "ckd_due_to_other_causes": 593, "stomach_cancer": 414, "rheumatic_heart_disease": 492, "endocarditis": 503,
+    "non_rheumatic_calcific_aortic_valve_disease": 968, "other_cardiomyopathy": 944,
+}
+GBD_AGE_GROUP_START = {10: 25, 11: 30, 12: 35, 13: 40, 14: 45, 15: 50, 16: 55, 17: 60, 18: 65, 19: 70,
+                       20: 75, 30: 80, 31: 85, 32: 90, 235: 95}
+SODIUM_FIT_RANGE_G = (2.0, 6.0)
 
 # vivarium_inputs cause names for the model's cause names.
 VI_CAUSE = {
@@ -91,6 +114,96 @@ def load_vi(key: str) -> pd.DataFrame:
 def vi_cause_table(cause: str, measure: str) -> pd.DataFrame:
     df = load_vi(f"cause.{vi_name(cause)}.{measure}")
     return df[["sex", "age_start", "age_end", "year_start", "year_end", "value"]]
+
+
+def gbd2019_table(cause: str, measure: str) -> pd.DataFrame:
+    """A GBD 2019 (get_outputs, release 6) rate by sex and GBD 2023 age band.
+
+    GBD 2019 uses 23 age bands; the two under-5 bands that GBD 2023 splits
+    (post-neonatal, 1 to 4) are copied onto their sub-bands. A missing file
+    (no nonfatal estimates) gives zeros.
+    """
+    f = DATA_2019 / f"cause.{cause}.{measure}.csv"
+    bins = age_bins()
+    rows = []
+    if not f.exists():
+        for sex in SEXES:
+            for _, b in bins.iterrows():
+                rows.append((sex, b["age_start"], b["age_end"], YEAR_START, YEAR_END, 0.0))
+        return pd.DataFrame(rows, columns=["sex", "age_start", "age_end", "year_start", "year_end", "value"])
+    t = pd.read_csv(f)
+    for sex in SEXES:
+        ts = t[t["sex"] == sex]
+        for _, b in bins.iterrows():
+            mid = 0.5 * (b["age_start"] + b["age_end"])
+            m = ts[(ts["age_start"] <= mid) & (mid < ts["age_end"])]
+            value = float(m["value"].iloc[0]) if len(m) else 0.0
+            rows.append((sex, b["age_start"], b["age_end"], YEAR_START, YEAR_END, value))
+    return pd.DataFrame(rows, columns=["sex", "age_start", "age_end", "year_start", "year_end", "value"])
+
+
+def gbd2019_cause_tables(cause: str) -> dict[str, pd.DataFrame]:
+    """Prevalence, incidence per susceptible, CSMR, EMR and DW for a cause from GBD 2019 outputs."""
+    from sodium_sim.build_artifact import DERIVED_INCIDENCE_CAUSES, incidence_from_prevalence
+
+    prev = gbd2019_table(cause, "prevalence")
+    csmr = gbd2019_table(cause, "deaths")
+    ylds = gbd2019_table(cause, "ylds")
+    safe_prev = prev["value"].where(prev["value"] > 0, np.nan)
+    emr = csmr.copy()
+    emr["value"] = (csmr["value"] / safe_prev).fillna(0.0)
+    dw = ylds.copy()
+    dw["value"] = (ylds["value"] / safe_prev).fillna(0.0).clip(upper=1.0)
+    if cause in DERIVED_INCIDENCE_CAUSES or not (DATA_2019 / f"cause.{cause}.incidence.csv").exists():
+        inc = incidence_from_prevalence(prev, emr)
+        inc["value"] = inc["value"] * (1 - prev["value"])
+    else:
+        inc = gbd2019_table(cause, "incidence")
+    inc_sus = inc.copy()
+    inc_sus["value"] = inc["value"] / (1 - prev["value"])
+    return {"prevalence": prev, "incidence_rate": inc_sus, "cause_specific_mortality_rate": csmr,
+            "excess_mortality_rate": emr, "disability_weight": dw, "yld_rate": ylds}
+
+
+def gbd2019_relative_risk(risk: str) -> pd.DataFrame:
+    """GBD 2019 (release 6) relative risks per unit by sex, age and cause slug.
+
+    SBP comes as one RR per 10 mmHg by age; the sodium RR is a curve over
+    exposure, to which a log-linear slope per g/day is fitted between 2 and
+    6 g/day.
+    """
+    slug = {v: k for k, v in GBD2019_CAUSE_IDS.items()}
+    if risk == SBP:
+        rr = pd.read_csv(DATA_2019 / "sbp_rr_gbd2019.csv")
+        rr = rr[rr["cause_id"].isin(slug)]
+        return pd.DataFrame({
+            "sex": rr["sex_id"].map({1: "Male", 2: "Female"}),
+            "age_start": rr["age_group_id"].map(GBD_AGE_GROUP_START).astype(float),
+            "affected_entity": rr["cause_id"].map(slug),
+            "value": rr["value"],
+        })
+    rr = pd.read_csv(DATA_2019 / "sodium_rr_gbd2019.csv")
+    lo, hi = SODIUM_FIT_RANGE_G
+    rows = []
+    for (sex_id, age_id, cause_id), g in rr.groupby(["sex_id", "age_group_id", "cause_id"]):
+        g = g[(g["exposure"] >= lo) & (g["exposure"] <= hi) & (g["value"] > 0)]
+        slope = np.polyfit(g["exposure"], np.log(g["value"]), 1)[0] if len(g) > 1 else 0.0
+        rows.append((sex_id, age_id, cause_id, float(np.exp(slope))))
+    out = pd.DataFrame(rows, columns=["sex_id", "age_group_id", "cause_id", "value"])
+    out = out[out["cause_id"].isin(slug)]
+    return pd.DataFrame({
+        "sex": out["sex_id"].map({1: "Male", 2: "Female"}),
+        "age_start": out["age_group_id"].map(GBD_AGE_GROUP_START).astype(float),
+        "affected_entity": out["cause_id"].map(slug),
+        "value": out["value"],
+    })
+
+
+def background_disability_2019(causes: list[str]) -> pd.DataFrame:
+    all_cause = gbd2019_table("all_causes", "ylds")
+    out = all_cause.copy()
+    out["value"] = (all_cause["value"] - sum(gbd2019_table(c, "ylds")["value"] for c in causes)).clip(lower=0)
+    return out
 
 
 def population_structure_vi() -> pd.DataFrame:
@@ -196,27 +309,33 @@ def risk_effect_tables_v2(risk: str, causes: list[str], targets: dict[str, tuple
     tmrel = 0.5 * (tmred["min"] + tmred["max"])
     scale, dist = SCALE[risk], DISTRIBUTION[risk]
     exposure = paper_exposure(risk)
-    rr_all = gbd_relative_risk(risk)
-    paf_all = gbd_paf(risk)
+    if source == "gbd2019":
+        rr_all = gbd2019_relative_risk(risk)
+        paf_all = pd.DataFrame(columns=["sex", "age_start", "affected_entity", "affected_measure", "value"])
+        entity_name = lambda c: c
+    else:
+        rr_all = gbd_relative_risk(risk)
+        paf_all = gbd_paf(risk)
+        entity_name = vi_name
     max_log_rr = {SBP: np.log(4.0), SODIUM: np.log(1.6)}[risk]
     rr_rows, paf_rows, diag_rows = [], [], []
     for cause in causes:
-        name = vi_name(cause)
+        name = entity_name(cause)
         rr_c = rr_all[(rr_all["affected_entity"] == name) & (rr_all["value"] > 1.0)]
         if not rr_c.empty:
-            source = "gbd_curve_fit"
+            source_label = "gbd2019_rr" if source == "gbd2019" else "gbd_curve_fit"
             d = exposure.merge(rr_c.rename(columns={"value": "rr"})[["sex", "age_start", "rr"]],
                                on=["sex", "age_start"], how="left")
             d["rr"] = d["rr"].fillna(1.0)
         else:
             # No RR curve in GBD 2023 (CKD, aortic aneurysm, the PAF-of-one causes):
             # back the per-unit RR out of GBD's PAF under the paper's exposure.
-            source = "paf_backed_out"
+            source_label = "paf_backed_out"
             measure_paf = "cause_specific_mortality_rate" if cause in MORTALITY_ONLY_CAUSES else "incidence_rate"
             p = paf_all[(paf_all["affected_entity"] == name) & (paf_all["affected_measure"] == measure_paf)]
             if p.empty:
                 # vivarium_inputs drops YLL-only causes such as aortic aneurysm; use the MCP deaths PAF.
-                source = "paf_backed_out_mcp"
+                source_label = "paf_backed_out_mcp"
                 p = paf_table_from_gbd(cause, risk).rename(columns={"value": "gbd_paf"})
             else:
                 p = p.rename(columns={"value": "gbd_paf"})
@@ -233,7 +352,7 @@ def risk_effect_tables_v2(risk: str, causes: list[str], targets: dict[str, tuple
                         affected_entity=entity, affected_measure=measure)
             rr_rows.append({**base, "value": rr_value})
             paf_rows.append({**base, "value": float(paf)})
-            diag_rows.append({**base, "cause": cause, "source": source, "rr_per_unit": rr_value,
+            diag_rows.append({**base, "cause": cause, "source": source_label, "rr_per_unit": rr_value,
                               "model_paf": float(paf), "gbd_paf": float(r.get("gbd_paf", np.nan)),
                               "exposure_mean": r["mean"], "exposure_sd": r["sd"]})
     return pd.DataFrame(rr_rows), pd.DataFrame(paf_rows), pd.DataFrame(diag_rows)
@@ -283,7 +402,12 @@ def curve_tables(risk: str, causes: list[str]) -> tuple[pd.DataFrame, pd.DataFra
     return pd.DataFrame(rr_rows), pd.DataFrame(paf_rows), with_curves
 
 
-def build(path: Path = ARTIFACT_V2_PATH) -> Artifact:
+def build(path: Path | None = None, source: str = "gbd2023") -> Artifact:
+    """Build the artifact from GBD 2023 (``vivarium_inputs``) or GBD 2019 (``get_outputs``) inputs."""
+    if source not in ("gbd2023", "gbd2019"):
+        raise ValueError(f"Unknown source {source!r}")
+    path = path or (ARTIFACT_V2_PATH if source == "gbd2023" else ARTIFACT_2019_PATH)
+    causes = CAUSES if source == "gbd2023" else CAUSES_2019
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
         path.unlink()
@@ -296,27 +420,37 @@ def build(path: Path = ARTIFACT_V2_PATH) -> Artifact:
     write(art, "population.demographic_dimensions", structure.drop(columns=["location", "value"]))
     write(art, "population.theoretical_minimum_risk_life_expectancy", theoretical_minimum_risk_life_expectancy())
     write(art, "covariate.live_births_by_sex.estimate", live_births_vi())
-    write(art, "cause.all_causes.cause_specific_mortality_rate", vi_cause_table("all_causes", "cause_specific_mortality_rate"))
-    write(art, "cause.all_causes.yld_rate", rate_table("all_causes", "ylds"))
-    write(art, "cause.background.disability_weight", background_disability()[
+    if source == "gbd2023":
+        write(art, "cause.all_causes.cause_specific_mortality_rate", vi_cause_table("all_causes", "cause_specific_mortality_rate"))
+        write(art, "cause.all_causes.yld_rate", rate_table("all_causes", "ylds"))
+        background = background_disability()
+    else:
+        write(art, "cause.all_causes.cause_specific_mortality_rate", gbd2019_table("all_causes", "deaths"))
+        write(art, "cause.all_causes.yld_rate", gbd2019_table("all_causes", "ylds"))
+        background = background_disability_2019(causes)
+    write(art, "cause.background.disability_weight", background[
         ["sex", "age_start", "age_end", "year_start", "year_end", "value"]])
 
+    measures = ["prevalence", "incidence_rate", "cause_specific_mortality_rate", "excess_mortality_rate", "disability_weight"]
     summary = []
-    for cause in CAUSES:
-        tables = {m: vi_cause_table(cause, m) for m in
-                  ["prevalence", "incidence_rate", "cause_specific_mortality_rate",
-                   "excess_mortality_rate", "disability_weight"]}
-        for m, df in tables.items():
-            write(art, f"cause.{cause}.{m}", df)
+    for cause in causes:
+        if source == "gbd2023":
+            tables = {m: vi_cause_table(cause, m) for m in measures}
+        else:
+            tables = gbd2019_cause_tables(cause)
+        for m in measures:
+            write(art, f"cause.{cause}.{m}", tables[m])
         write(art, f"cause.{cause}.restrictions", {"yld_only": False})
-        summary.append((cause, *[tables[m]["value"].max() for m in tables]))
+        summary.append((cause, *[tables[m]["value"].max() for m in measures]))
     for cause in MORTALITY_ONLY_CAUSES:
-        write(art, f"cause.{cause}.cause_specific_mortality_rate", vi_cause_table(cause, "cause_specific_mortality_rate"))
+        csmr = (vi_cause_table(cause, "cause_specific_mortality_rate") if source == "gbd2023"
+                else gbd2019_table(cause, "deaths"))
+        write(art, f"cause.{cause}.cause_specific_mortality_rate", csmr)
 
     unmodeled_targets = {c: UNMODELED_TARGET for c in MORTALITY_ONLY_CAUSES}
-    for risk, causes, tmred in [(SBP, SBP_CAUSES + MORTALITY_ONLY_CAUSES, SBP_TMRED),
-                                (SODIUM, ["stomach_cancer"], SODIUM_TMRED)]:
-        rr, paf, diag = risk_effect_tables_v2(risk, causes, unmodeled_targets)
+    sbp_causes = [c for c in causes if c != "stomach_cancer"] + MORTALITY_ONLY_CAUSES
+    for risk, risk_causes, tmred in [(SBP, sbp_causes, SBP_TMRED), (SODIUM, ["stomach_cancer"], SODIUM_TMRED)]:
+        rr, paf, diag = risk_effect_tables_v2(risk, risk_causes, unmodeled_targets, source=source)
         exposure = paper_exposure(risk)
         write(art, f"risk_factor.{risk}.distribution", DISTRIBUTION[risk])
         write(art, f"risk_factor.{risk}.exposure", exposure.drop(columns=["sd"]).rename(columns={"mean": "value"}))
@@ -325,11 +459,12 @@ def build(path: Path = ARTIFACT_V2_PATH) -> Artifact:
         write(art, f"risk_factor.{risk}.relative_risk_scalar", SCALE[risk])
         write(art, f"risk_factor.{risk}.relative_risk", rr)
         write(art, f"risk_factor.{risk}.population_attributable_fraction", paf)
-        diag.to_csv(ROOT / "results" / f"risk_effect_diagnostics_v2_{risk}.csv", index=False)
-        rr_curve, paf_curve, with_curves = curve_tables(risk, causes)
-        write(art, f"risk_factor.{risk}.relative_risk_curve", rr_curve)
-        write(art, f"risk_factor.{risk}.population_attributable_fraction_curve", paf_curve)
-        print(f"{risk}: non-log-linear curves for {with_curves}")
+        diag.to_csv(ROOT / "results" / f"risk_effect_diagnostics_{source}_{risk}.csv", index=False)
+        if source == "gbd2023":
+            rr_curve, paf_curve, with_curves = curve_tables(risk, risk_causes)
+            write(art, f"risk_factor.{risk}.relative_risk_curve", rr_curve)
+            write(art, f"risk_factor.{risk}.population_attributable_fraction_curve", paf_curve)
+            print(f"{risk}: non-log-linear curves for {with_curves}")
 
     cols = ["cause", "max_prev", "max_inc", "max_csmr", "max_emr", "max_dw"]
     print(pd.DataFrame(summary, columns=cols).to_string())
@@ -338,4 +473,10 @@ def build(path: Path = ARTIFACT_V2_PATH) -> Artifact:
 
 
 if __name__ == "__main__":
-    build(Path(sys.argv[1]) if len(sys.argv) > 1 else ARTIFACT_V2_PATH)
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source", choices=["gbd2023", "gbd2019"], default="gbd2023")
+    parser.add_argument("--path", default=None)
+    args = parser.parse_args()
+    build(Path(args.path) if args.path else None, source=args.source)
