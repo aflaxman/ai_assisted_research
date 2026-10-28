@@ -193,3 +193,15 @@ counts acute MI only). Both push the paper's deaths averted above mine.
 The GBD 2019 artifact (`artifacts/australia_gbd2019.hdf`, 18 causes, GBD
 2019 relative risks per 10 mmHg, paper exposures) is built; smoke test
 running, then the full set on the cluster at quarterly steps.
+
+### GBD 2019 smoke test (20k simulants, seed 0, annual steps, BAU vs WHO)
+
+WHO targets: 46,900 HALYs gained (paper 40,100), 9,430 deaths averted,
+crude mortality rate down 0.28% over 2040 to 2044 (the paper's Table 3
+gives 0.29% in the most deprived quintile and 0.18% in the least). One
+seed at 20k is noisy (one death is 1,350 real deaths), but the mortality
+gap is gone with GBD 2019 inputs plus the appendix's SBP equation and
+exposures. Baseline BAU deaths 198,000 in 2024 against GBD 2019's 2019
+count of about 170,000 scaled to the 2023 population, which is the
+expected shape (the 2023 population is older). Submitted the full set to
+Slurm: 10 scenarios x 3 seeds x 200k, quarterly steps, tag `gbd2019`.
