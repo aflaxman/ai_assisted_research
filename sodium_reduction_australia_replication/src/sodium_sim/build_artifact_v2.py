@@ -31,6 +31,7 @@ from sodium_sim.build_artifact import (
     ARTIFACT_PATH,
     CAUSES,
     DATA,
+    DERIVED_INCIDENCE_CAUSES,
     MAX_PAF,
     MORTALITY_ONLY_CAUSES,
     ROOT,
@@ -44,6 +45,7 @@ from sodium_sim.build_artifact import (
     age_bins,
     background_disability,
     full_grid,
+    incidence_from_prevalence,
     paf_table_from_gbd,
     rate_table,
     theoretical_minimum_risk_life_expectancy,
@@ -144,8 +146,6 @@ def gbd2019_table(cause: str, measure: str) -> pd.DataFrame:
 
 def gbd2019_cause_tables(cause: str) -> dict[str, pd.DataFrame]:
     """Prevalence, incidence per susceptible, CSMR, EMR and DW for a cause from GBD 2019 outputs."""
-    from sodium_sim.build_artifact import DERIVED_INCIDENCE_CAUSES, incidence_from_prevalence
-
     prev = gbd2019_table(cause, "prevalence")
     csmr = gbd2019_table(cause, "deaths")
     ylds = gbd2019_table(cause, "ylds")
@@ -442,7 +442,13 @@ def build(path: Path | None = None, source: str = "gbd2023") -> Artifact:
     summary = []
     for cause in causes:
         if source == "gbd2023":
-            tables = {m: vi_cause_table(cause, m) for m in measures}
+            tables = {m: vi_cause_table(cause, m) for m in measures if m != "incidence_rate"}
+            if cause in DERIVED_INCIDENCE_CAUSES:
+                # GBD publishes no HHD incidence; derive it from the prevalence age pattern and EMR.
+                inc = incidence_from_prevalence(tables["prevalence"], tables["excess_mortality_rate"])
+                tables["incidence_rate"] = inc
+            else:
+                tables["incidence_rate"] = vi_cause_table(cause, "incidence_rate")
         else:
             tables = gbd2019_cause_tables(cause)
         for m in measures:

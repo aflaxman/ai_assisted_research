@@ -205,3 +205,12 @@ exposures. Baseline BAU deaths 198,000 in 2024 against GBD 2019's 2019
 count of about 170,000 scaled to the 2023 population, which is the
 expected shape (the 2023 population is older). Submitted the full set to
 Slurm: 10 scenarios x 3 seeds x 200k, quarterly steps, tag `gbd2019`.
+
+### GBD 2023 (v2) artifact: last data gaps
+
+vivarium_inputs refuses aortic aneurysm nonfatal measures ("YLL only
+cause"), has no HHD incidence (derived from prevalence and EMR, as in the
+first artifact) and no other-cardiomyopathy incidence (not in the 2023 SBP
+set anyway). The five peripheral arterial disease files were missing from
+the first pull for no logged reason; re-pulling. The GBD 2019 production
+set (Slurm job 64758034, 16 cores) is running.
