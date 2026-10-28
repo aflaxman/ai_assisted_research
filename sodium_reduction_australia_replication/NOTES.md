@@ -328,3 +328,28 @@ calculation said they should. Compared with the cloud session's 0.65 to
 equation and sodium baselines (the SBP reduction at 60+ up 25 to 60%), the
 quarterly step (a third more HALYs than annual), and vivarium_inputs'
 DisMod-consistent excess mortality in place of CSMR over prevalence.
+
+### GBD 2019 production sets, final
+
+GBD 2019 with prevalence-consistent incidence (3 seeds): 1.3 to 1.7 times
+the paper's medians (mass media 1.4). With the paper's BAU trends (2 seeds):
+1.07 to 1.30, mass media 2.2 (two seeds of a 1,000-HALY effect; noise).
+Mortality changes for the WHO targets -0.19% and -0.22%, within the paper's
+quintile range. The trends variant is the closest of the five to the paper,
+which is what the paper's own method predicts.
+
+### Where this leaves the replication
+
+Ratios of model to paper medians, all nine interventions: cloud round 0.49
+to 0.88; GBD 2023 (appendix inputs, quarterly) 1.04 to 1.44; GBD 2023 with
+the RR curves 1.00 to 1.58; GBD 2019 1.34 to 1.68; GBD 2019 with trends
+1.07 to 1.30 (2.2 for mass media). The paper's 95% intervals contain every
+GBD 2023 estimate and all but the mass media estimate of the trends variant.
+What moved the answer, in order: the Table S3 SBP equation plus the Table
+S1 sodium baselines; the quarterly step; the GBD release (and, within GBD
+2019, the incidence consistency fix); the BAU trends. The relative risks and
+their functional form did not matter. Write-up in README.md; combined table
+in results/comparison_all.csv and figure in results/halys_comparison_all.png.
+Open: migration (every variant ages in place; the paper's population grows
+younger), trends on the GBD 2023 variant, SEIFA, costs, draw-level
+uncertainty.

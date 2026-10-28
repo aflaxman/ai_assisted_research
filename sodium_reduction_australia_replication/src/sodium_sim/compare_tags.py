@@ -20,7 +20,7 @@ import pandas as pd
 from sodium_sim.build_artifact import ROOT
 from sodium_sim.scenarios import PAPER_HALYS, SCENARIOS
 
-COLORS = ["#fdae6b", "#a1d99b", "#bcbddc", "#fc9272", "#9ecae1"]
+COLORS = ["#fdae6b", "#a1d99b", "#bcbddc", "#fc9272", "#e7ba52", "#969696"]
 
 
 def main(specs: list[str]) -> pd.DataFrame:
@@ -39,7 +39,7 @@ def main(specs: list[str]) -> pd.DataFrame:
     n = len(tags)
     height = 0.8 / (n + 1)
     y = np.arange(len(order))[::-1]
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(10, 7.5))
     paper = pd.DataFrame.from_dict(PAPER_HALYS, orient="index", columns=["med", "lo", "hi"]).loc[order]
     ax.barh(y + 0.4 - height / 2, paper["med"], height=height, color="#9ecae1", label="Dhungel et al. (2025), median and 95% UI")
     ax.errorbar(paper["med"], y + 0.4 - height / 2, xerr=[paper["med"] - paper["lo"], paper["hi"] - paper["med"]],
@@ -51,10 +51,10 @@ def main(specs: list[str]) -> pd.DataFrame:
     ax.set_yticklabels([SCENARIOS[s].label for s in order])
     ax.set_xscale("log")
     ax.set_xlabel("HALYs gained, 2024-2043, 3% discount")
-    ax.legend(loc="lower right", fontsize=8)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.08), fontsize=8, ncol=2, frameon=False)
     ax.grid(axis="x", alpha=0.3)
     fig.tight_layout()
-    fig.savefig(ROOT / "results" / "halys_comparison_all.png", dpi=150)
+    fig.savefig(ROOT / "results" / "halys_comparison_all.png", dpi=150, bbox_inches="tight")
     with pd.option_context("display.width", 250, "display.float_format", "{:,.2f}".format):
         print(table.xs("ratio_to_paper", axis=1, level=1).round(2).to_string())
     return table
