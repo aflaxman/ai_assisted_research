@@ -74,3 +74,51 @@ Transcribed tables are in `data/paper/`.
   paper's extra five are GBD 2019 (release 6) outcomes only.
 - Slurm: partitions `all.q` and `long.q`, account `proj_simscience`
   (from the MACE RCT sbatch scripts). This node has 4 CPUs.
+
+### What the appendix inputs do to the SBP reduction (no simulation yet)
+
+Mean SBP reduction under the WHO targets in 2030, by sex and age, old inputs
+(my Huang reconstruction, GBD 2023 sodium and SBP) against the appendix
+inputs (Table S3 equation with the 2 g floor, Table S1 sodium, Table S2 SBP):
+
+| | men 45 | men 60 | men 70 | men 80+ | women 50 | women 65 | women 80+ |
+|---|---|---|---|---|---|---|---|
+| old, mmHg | 0.76 | 0.84 | 0.85 | 1.0 to 1.2 | 0.57 | 0.71 | 0.9 to 1.1 |
+| new, mmHg | 0.39 | 1.05 | 1.36 | 1.6 to 1.9 | 0.32 | 0.75 | 1.1 to 1.4 |
+| ratio | 0.5 | 1.25 | 1.6 | 1.55 | 0.55 | 1.05 | 1.25 |
+
+Under 40 the appendix equation gives zero (the age and SBP terms pull the
+slope below zero, and Table S5 shows the same zeros), so the young lose
+their small effect, while men over 60 gain 25 to 60% and women over 75
+about 25%. Deaths sit at those ages, so this should close a good part of
+the mortality gap. The sodium baseline matters more than the equation for
+men over 60: with the new equation but GBD sodium the 70+ effect is 0.9 to
+1.4, with the paper's sodium 1.4 to 1.9.
+
+### GBD 2023 relative risks from vivarium_inputs
+
+`get_measure(high_systolic_blood_pressure, "relative_risk", "Australia")`
+returns a Burden-of-Proof curve on a 1,000-point grid from 90 to 200 mmHg
+for seven causes only (AF, HHD, ICH, IHD, ischemic stroke, PAD, SAH); the
+four CKD causes and aortic aneurysm are absent, and HHD is all zeros since
+GBD treats it as a PAF-of-one cause. The curves are close to log-linear
+above the TMREL: at age 65 the slope per 10 mmHg is 1.33 for IHD, 1.38 for
+the three strokes, 1.19 for AF, 1.04 for PAD. My PAF-implied log-linear RRs
+were 1.30, 1.38, 1.14 and 1.05 at that age, so the first artifact's relative
+risks were not the problem. Plan: fit a log-linear slope to each curve
+between 115 and 175 mmHg and keep the PAF-implied values for the causes
+without curves.
+
+### Experiments queued (cluster)
+
+1. **v2 artifact**: GBD 2023 cause data and fitted relative risks from
+   vivarium_inputs, the paper's sodium and SBP distributions, the Table S3
+   SBP equation. Full 10 scenarios x 3 seeds x 200k on a 16-core sbatch job
+   once the pull finishes (about 20 cause-measure pulls at 10 to 60 s each
+   still to go).
+2. **Time-step ablation** on the first artifact: BAU and WHO targets at
+   100k simulants, seed 0, annual (365.25 d) versus quarterly (91.3 d)
+   steps, to measure how much the annual cycle's one-year delay of acute
+   deaths costs. Running now on this node, tags `v1_annual`, `v1_quarterly`.
+   The raw results from the cloud session were never committed, so the
+   annual run is needed as the matching baseline.

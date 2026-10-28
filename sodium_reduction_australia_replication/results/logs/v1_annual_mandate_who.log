@@ -1,0 +1,5 @@
+/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/framework/values/post_processors.py:96: SyntaxWarning: invalid escape sequence '\p'
+  * - :math:`\prod_x(1 - p_x)`
+/mnt/share/homes/abie/projects/2026/ai_assisted_research/sodium_reduction_australia_replication/.venv/lib/python3.12/site-packages/vivarium/engine/framework/values/post_processors.py:154: SyntaxWarning: invalid escape sequence '\p'
+  * - :math:`\prod_x(1 - p_x)`
+[32m2026-10-27 21:08:28.058[0m | [32m0:00:14.378050[0m | [33m[1mWARNING [0m | [36mmandate_who_0_1793160503724641083[0m-[36mvalues_manager[0m:[36m_warn_if_overriding_resources[0m:[36m488[0m - [33m[1mConflicting information for affected_unmodeled.cause_specific_mortality_rate. Ignoring 'required_resources' since the `source` is of type <class 'vivarium.engine.framework.lookup.table.LookupTable'> and we can infer the required resources directly.[0m

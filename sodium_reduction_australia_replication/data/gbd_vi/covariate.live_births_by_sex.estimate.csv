@@ -1,0 +1,7 @@
+location,sex,year_start,year_end,parameter,value
+Australia,Female,2023,2024,lower_value,132729.6494432041
+Australia,Female,2023,2024,mean_value,148139.1901872958
+Australia,Female,2023,2024,upper_value,164420.023399531
+Australia,Male,2023,2024,lower_value,139971.92487688357
+Australia,Male,2023,2024,mean_value,156222.27352518783
+Australia,Male,2023,2024,upper_value,173391.45594129286

@@ -27,7 +27,7 @@ RAW_RESULTS = ROOT / "results" / "raw"
 
 
 def run_one(scenario: str, seed: int, population: int, artifact: Path = ARTIFACT_PATH,
-            verbose: bool = False) -> dict[str, pd.DataFrame]:
+            verbose: bool = False, step_days: float | None = None) -> dict[str, pd.DataFrame]:
     """Run a single simulation and return its results with one row per year.
 
     The model takes one step per year. After each step the cumulative observer
@@ -42,18 +42,22 @@ def run_one(scenario: str, seed: int, population: int, artifact: Path = ARTIFACT
         "population": {"population_size": population},
         "sodium_intervention": {"scenario": scenario},
     }
+    if step_days is not None:
+        config["time"] = {"step_size": step_days}
     sim = InteractiveContext(
         MODEL_SPEC, configuration=config, observe=True,
         sim_name=f"{scenario}_{seed}_{time.time_ns()}", logging_verbosity=1 if verbose else 0,
     )
     start_year = sim.configuration.time.start.year
     end_year = sim.configuration.time.end.year
+    steps_per_year = round(365.25 / sim.configuration.time.step_size)
     previous: dict[str, pd.Series] = {}
     yearly: dict[str, list[pd.DataFrame]] = {}
     # Label steps by index: the clock drifts a few hours per step, so its year is unreliable.
     for year in range(start_year, end_year + 1):
         t0 = time.time()
-        sim.step()
+        for _ in range(steps_per_year):
+            sim.step()
         for measure, df in sim.get_results().items():
             if not isinstance(df, pd.DataFrame):
                 continue
@@ -96,11 +100,14 @@ def main() -> None:
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--artifact", default=str(ARTIFACT_PATH), help="artifact HDF to simulate from")
     parser.add_argument("--tag", default="", help="results go to results/raw_<tag>/ instead of results/raw/")
+    parser.add_argument("--step-days", type=float, default=None,
+                        help="time step in days (default from the model spec: 365.25); 91.3125 for quarterly")
     args = parser.parse_args()
     for seed in args.seeds:
         for scenario in args.scenarios:
             t0 = time.time()
-            results = run_one(scenario, seed, args.population, artifact=Path(args.artifact), verbose=args.verbose)
+            results = run_one(scenario, seed, args.population, artifact=Path(args.artifact),
+                              verbose=args.verbose, step_days=args.step_days)
             out = save(results, scenario, seed, args.population, args.tag)
             print(f"{scenario} seed {seed}: {time.time() - t0:.0f}s -> {out}", flush=True)
 

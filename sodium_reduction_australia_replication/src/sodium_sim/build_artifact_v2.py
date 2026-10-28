@@ -31,6 +31,7 @@ from sodium_sim.build_artifact import (
     ARTIFACT_PATH,
     CAUSES,
     DATA,
+    MAX_PAF,
     MORTALITY_ONLY_CAUSES,
     ROOT,
     SBP,
@@ -43,6 +44,7 @@ from sodium_sim.build_artifact import (
     age_bins,
     background_disability,
     full_grid,
+    paf_table_from_gbd,
     rate_table,
     theoretical_minimum_risk_life_expectancy,
     write,
@@ -159,14 +161,32 @@ def expected_rr(log_rr_per_unit: float, dist: str, mean: float, sd: float, tmrel
 
 
 def gbd_relative_risk(risk: str) -> pd.DataFrame:
-    """GBD relative risks per unit (draw mean) by sex, age, affected entity and measure."""
-    rr = load_vi(f"risk.{risk}.relative_risk")
-    keep = ["sex", "age_start", "age_end", "year_start", "year_end", "affected_entity", "affected_measure", "value"]
-    if "parameter" in rr.columns:
-        params = rr["parameter"].unique()
-        if len(params) > 1:
-            raise ValueError(f"Expected one RR parameter for {risk}, found {params}")
-    return rr[keep]
+    """GBD relative risks per unit by sex, age and affected entity.
+
+    These are log-linear slopes fitted to the GBD 2023 Burden-of-Proof curves by
+    ``prepare_gbd_vi`` (RR per 10 mmHg for SBP, per g/day for sodium).
+    """
+    rr = pd.read_csv(DATA_VI / f"risk.{risk}.relative_risk_per_unit.csv")
+    return rr[["sex", "age_start", "age_end", "affected_entity", "affected_measure", "value"]]
+
+
+def gbd_paf(risk: str) -> pd.DataFrame:
+    """GBD 2023 population attributable fractions (draw mean) by sex, age, entity and measure."""
+    paf = pd.read_csv(DATA_VI / f"risk.{risk}.population_attributable_fraction.csv")
+    return paf[["sex", "age_start", "affected_entity", "affected_measure", "value"]]
+
+
+def solve_log_rr(paf: float, dist: str, mean: float, sd: float, tmrel: float, scale: float, max_log_rr: float) -> float:
+    """Return the per-unit log RR whose population-average RR gives this PAF, capped."""
+    from scipy.optimize import brentq
+
+    paf = min(max(paf, 0.0), MAX_PAF)
+    if paf <= 0:
+        return 0.0
+    f = lambda b: expected_rr(b, dist, mean, sd, tmrel, scale) - 1 / (1 - paf)
+    if f(max_log_rr) < 0:
+        return max_log_rr
+    return brentq(f, 0.0, max_log_rr, xtol=1e-6)
 
 
 def risk_effect_tables_v2(risk: str, causes: list[str], targets: dict[str, tuple[str, str]] | None = None):
@@ -177,15 +197,33 @@ def risk_effect_tables_v2(risk: str, causes: list[str], targets: dict[str, tuple
     scale, dist = SCALE[risk], DISTRIBUTION[risk]
     exposure = paper_exposure(risk)
     rr_all = gbd_relative_risk(risk)
+    paf_all = gbd_paf(risk)
+    max_log_rr = {SBP: np.log(4.0), SODIUM: np.log(1.6)}[risk]
     rr_rows, paf_rows, diag_rows = [], [], []
     for cause in causes:
-        rr_c = rr_all[(rr_all["affected_entity"] == vi_name(cause)) & (rr_all["affected_measure"] == "incidence_rate")]
-        if rr_c.empty:
-            available = sorted(rr_all["affected_entity"].unique())
-            raise ValueError(f"No GBD RR for {risk} on {vi_name(cause)}; available: {available}")
-        rr_c = rr_c.rename(columns={"value": "rr"})
-        d = exposure.merge(rr_c[["sex", "age_start", "rr"]], on=["sex", "age_start"], how="left")
-        d["rr"] = d["rr"].fillna(1.0)
+        name = vi_name(cause)
+        rr_c = rr_all[(rr_all["affected_entity"] == name) & (rr_all["value"] > 1.0)]
+        if not rr_c.empty:
+            source = "gbd_curve_fit"
+            d = exposure.merge(rr_c.rename(columns={"value": "rr"})[["sex", "age_start", "rr"]],
+                               on=["sex", "age_start"], how="left")
+            d["rr"] = d["rr"].fillna(1.0)
+        else:
+            # No RR curve in GBD 2023 (CKD, aortic aneurysm, the PAF-of-one causes):
+            # back the per-unit RR out of GBD's PAF under the paper's exposure.
+            source = "paf_backed_out"
+            measure_paf = "cause_specific_mortality_rate" if cause in MORTALITY_ONLY_CAUSES else "incidence_rate"
+            p = paf_all[(paf_all["affected_entity"] == name) & (paf_all["affected_measure"] == measure_paf)]
+            if p.empty:
+                # vivarium_inputs drops YLL-only causes such as aortic aneurysm; use the MCP deaths PAF.
+                source = "paf_backed_out_mcp"
+                p = paf_table_from_gbd(cause, risk).rename(columns={"value": "gbd_paf"})
+            else:
+                p = p.rename(columns={"value": "gbd_paf"})
+            d = exposure.merge(p[["sex", "age_start", "gbd_paf"]], on=["sex", "age_start"], how="left")
+            d["gbd_paf"] = d["gbd_paf"].fillna(0.0)
+            d["rr"] = [np.exp(solve_log_rr(r.gbd_paf, dist, r["mean"], r["sd"], tmrel, scale, max_log_rr))
+                       for _, r in d.iterrows()]
         entity, measure = targets.get(cause, (cause, "incidence_rate"))
         for _, r in d.iterrows():
             rr_value = float(r["rr"]) if r["age_start"] >= 25 else 1.0
@@ -195,7 +233,8 @@ def risk_effect_tables_v2(risk: str, causes: list[str], targets: dict[str, tuple
                         affected_entity=entity, affected_measure=measure)
             rr_rows.append({**base, "value": rr_value})
             paf_rows.append({**base, "value": float(paf)})
-            diag_rows.append({**base, "rr_per_unit": rr_value, "model_paf": float(paf),
+            diag_rows.append({**base, "cause": cause, "source": source, "rr_per_unit": rr_value,
+                              "model_paf": float(paf), "gbd_paf": float(r.get("gbd_paf", np.nan)),
                               "exposure_mean": r["mean"], "exposure_sd": r["sd"]})
     return pd.DataFrame(rr_rows), pd.DataFrame(paf_rows), pd.DataFrame(diag_rows)
 
