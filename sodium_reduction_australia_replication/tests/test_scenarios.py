@@ -7,12 +7,24 @@ from sodium_sim.scenarios import SCENARIOS, get_scenario
 
 
 def test_calibration_point():
-    assert sbp_link.sbp_reduction(1.0, 50, 140) == pytest.approx(2.026)
+    assert sbp_link.sbp_reduction(4.0, 3.0, 50, 140) == pytest.approx(2.026)
+
+
+def test_table_s5_cell():
+    # Table S5: a 0.377 g/day reduction in the 70+ row and SBP 140-149 column gives
+    # -1.36 mmHg, which the equation reproduces at age 75 and SBP 145.
+    assert sbp_link.sbp_reduction(4.0, 4.0 - 0.377, 75, 145) == pytest.approx(1.36, abs=0.01)
 
 
 def test_sbp_reduction_grows_with_age_and_sbp_and_is_nonnegative():
-    assert sbp_link.sbp_reduction(1.0, 70, 150) > sbp_link.sbp_reduction(1.0, 50, 140)
-    assert sbp_link.sbp_reduction(1.0, 25, 100) >= 0.0
+    assert sbp_link.sbp_reduction(4, 3, 70, 150) > sbp_link.sbp_reduction(4, 3, 50, 140)
+    assert sbp_link.sbp_reduction(4, 3, 25, 100) >= 0.0
+
+
+def test_two_gram_floor():
+    # A cut from 2.5 to 1.5 g/day counts only for the 0.5 g above the floor.
+    assert sbp_link.sbp_reduction(2.5, 1.5, 50, 140) == pytest.approx(0.5 * 2.026)
+    assert sbp_link.sbp_reduction(1.8, 1.2, 50, 140) == 0.0
 
 
 def test_reformulation_phase_in():

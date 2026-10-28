@@ -34,8 +34,8 @@ def discount_factor(year: pd.Series) -> pd.Series:
     return (1 + DISCOUNT) ** -(year.astype(int) - BASE_YEAR)
 
 
-def load_run(scenario: str, seed: int) -> dict[str, pd.DataFrame]:
-    d = RAW_RESULTS / scenario / f"seed_{seed}"
+def load_run(scenario: str, seed: int, raw: Path = RAW_RESULTS) -> dict[str, pd.DataFrame]:
+    d = raw / scenario / f"seed_{seed}"
     out = {p.stem: pd.read_csv(p) for p in d.glob("*.csv")}
     out["meta"] = json.loads((d / "meta.json").read_text())
     return out
@@ -63,8 +63,8 @@ def halys_by_year(run: dict[str, pd.DataFrame], bg: pd.DataFrame) -> pd.Series:
     return healthy.sub(modeled, fill_value=0.0)
 
 
-def summarize(scenario: str, seed: int, bg: pd.DataFrame) -> dict:
-    run = load_run(scenario, seed)
+def summarize(scenario: str, seed: int, bg: pd.DataFrame, raw: Path = RAW_RESULTS) -> dict:
+    run = load_run(scenario, seed, raw)
     scale = run["meta"]["scale"]
     halys = halys_by_year(run, bg)
     halys.index = halys.index.astype(int)
@@ -86,12 +86,14 @@ def summarize(scenario: str, seed: int, bg: pd.DataFrame) -> dict:
     }
 
 
-def main() -> pd.DataFrame:
+def main(tag: str = "") -> pd.DataFrame:
+    raw = RAW_RESULTS if not tag else ROOT / "results" / f"raw_{tag}"
+    suffix = f"_{tag}" if tag else ""
     bg = background_dw()
     rows = []
-    for scenario_dir in sorted(RAW_RESULTS.iterdir()):
+    for scenario_dir in sorted(raw.iterdir()):
         for seed_dir in sorted(scenario_dir.glob("seed_*")):
-            rows.append(summarize(scenario_dir.name, int(seed_dir.name.split("_")[1]), bg))
+            rows.append(summarize(scenario_dir.name, int(seed_dir.name.split("_")[1]), bg, raw))
     runs = pd.DataFrame(rows)
     bau = runs[runs["scenario"] == "bau"].set_index("seed")
     gains = runs[runs["scenario"] != "bau"].copy()
@@ -103,7 +105,7 @@ def main() -> pd.DataFrame:
     gains["deaths_averted"] = -gains["deaths_2024_2043"]
     # Crude all-cause mortality rate change over 2040-2044 (the paper reports 2044 alone).
     gains["acmr_pct_change"] = 100 * gains["acmr_2040_2044"] / bau.loc[gains["seed"], "acmr_2040_2044"].to_numpy()
-    gains.to_csv(ROOT / "results" / "gains_by_seed.csv", index=False)
+    gains.to_csv(ROOT / "results" / f"gains_by_seed{suffix}.csv", index=False)
 
     table = gains.groupby("scenario").agg(
         halys_gained=("halys_gained", "mean"),
@@ -121,7 +123,7 @@ def main() -> pd.DataFrame:
     table["label"] = [SCENARIOS[s].label for s in table.index]
     order = [s for s in PAPER_HALYS if s in table.index]
     table = table.loc[order]
-    table.to_csv(ROOT / "results" / "comparison.csv")
+    table.to_csv(ROOT / "results" / f"comparison{suffix}.csv")
     with pd.option_context("display.width", 200, "display.float_format", "{:,.0f}".format):
         print(table[["label", "halys_gained", "halys_gained_sd", "paper_halys", "paper_lower",
                      "paper_upper", "deaths_averted", "n_seeds"]].to_string())
@@ -130,4 +132,6 @@ def main() -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    main(sys.argv[1] if len(sys.argv) > 1 else "")

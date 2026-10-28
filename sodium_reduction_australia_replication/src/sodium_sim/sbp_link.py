@@ -1,15 +1,21 @@
-"""Sodium to systolic blood pressure link.
+"""Sodium to systolic blood pressure link, from Table S3 of the paper's appendix.
 
-Dhungel et al. refit the Huang et al. (2020) meta-regression on 48 trials as
-an interaction model with no intercept, equation (1) of the paper, and report
-one calibration point: a 1 g/day sodium reduction for a 50-year-old white
-person with SBP 140 mmHg lowers SBP by 2.026 mmHg. The supplement with the
-fitted coefficients is not available to me, so I reconstruct the age and
-baseline-SBP slopes from the published multivariable meta-regression of
-Huang et al. (BMJ 2020;368:m315, Table 1): 0.111 mmHg more reduction per
-year of age and 0.074 per mmHg of baseline SBP, at the mean sodium reduction
-of 130 mmol/day in those trials. Dividing by 130 mmol and multiplying by
-43.5 mmol per gram gives per-gram interaction slopes.
+Dhungel et al. refit the Huang et al. (2020) meta-regression on the 48 trials
+with a sodium change of at most 100 mmol/day lasting more than 14 days, as an
+interaction model with no intercept. Per gram of sodium removed, the SBP
+reduction in mmHg is
+
+    2.026 + 0.502 (age - 50)/10 + 0.659 (SBP - 140)/10 + 2.353 p_nonwhite,
+
+with p_nonwhite set to zero for Australia and the result floored at zero
+(Table S5 shows 0.00 for young people with low SBP). Following Trieu et al.,
+the appendix sets a theoretical minimum of 2 g/day for this link: only sodium
+above 2 g/day moves SBP, so a reduction that takes intake below 2 g/day counts
+only down to that floor.
+
+Before the appendix was available this module used slopes rescaled from the
+published Huang multivariable regression (0.371 per decade of age and 0.248
+per 10 mmHg); those were 1.35 and 2.7 times too small.
 """
 
 from __future__ import annotations
@@ -17,14 +23,12 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-MMOL_PER_GRAM_SODIUM = 1000 / 22.99
-HUANG_MEAN_REDUCTION_MMOL = 130.0
-
 SBP_PER_GRAM_AT_REFERENCE = 2.026
 REFERENCE_AGE = 50.0
 REFERENCE_SBP = 140.0
-AGE_SLOPE = 0.111 / HUANG_MEAN_REDUCTION_MMOL * MMOL_PER_GRAM_SODIUM
-SBP_SLOPE = 0.074 / HUANG_MEAN_REDUCTION_MMOL * MMOL_PER_GRAM_SODIUM
+AGE_SLOPE = 0.502 / 10
+SBP_SLOPE = 0.659 / 10
+SODIUM_FLOOR_G = 2.0
 
 
 def sbp_reduction_per_gram(age: pd.Series | np.ndarray, sbp: pd.Series | np.ndarray):
@@ -37,6 +41,13 @@ def sbp_reduction_per_gram(age: pd.Series | np.ndarray, sbp: pd.Series | np.ndar
     return np.clip(value, 0.0, None)
 
 
-def sbp_reduction(sodium_reduction_grams, age, sbp):
-    """Return the SBP reduction (mmHg) for an absolute sodium reduction in g/day."""
-    return np.asarray(sodium_reduction_grams, dtype=float) * sbp_reduction_per_gram(age, sbp)
+def effective_sodium_reduction(sodium_before, sodium_after):
+    """Return the part of a sodium reduction that lies above the 2 g/day floor."""
+    before = np.clip(np.asarray(sodium_before, dtype=float) - SODIUM_FLOOR_G, 0.0, None)
+    after = np.clip(np.asarray(sodium_after, dtype=float) - SODIUM_FLOOR_G, 0.0, None)
+    return before - after
+
+
+def sbp_reduction(sodium_before, sodium_after, age, sbp):
+    """Return the SBP reduction (mmHg) for a change in sodium intake in g/day."""
+    return effective_sodium_reduction(sodium_before, sodium_after) * sbp_reduction_per_gram(age, sbp)

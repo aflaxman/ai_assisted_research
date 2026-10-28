@@ -12,9 +12,10 @@ import pandas as pd
 from sodium_sim.build_artifact import ROOT
 
 
-def main() -> None:
-    table = pd.read_csv(ROOT / "results" / "comparison.csv", index_col=0)
-    gains = pd.read_csv(ROOT / "results" / "gains_by_seed.csv")
+def main(tag: str = "") -> None:
+    suffix = f"_{tag}" if tag else ""
+    table = pd.read_csv(ROOT / "results" / f"comparison{suffix}.csv", index_col=0)
+    gains = pd.read_csv(ROOT / "results" / f"gains_by_seed{suffix}.csv")
     y = np.arange(len(table))[::-1]
     fig, ax = plt.subplots(figsize=(9, 5.5))
     ax.barh(y + 0.2, table["paper_halys"], height=0.38, color="#9ecae1", label="Dhungel et al. (2025), median and 95% UI")
@@ -32,9 +33,11 @@ def main() -> None:
     ax.legend(loc="lower right", fontsize=9)
     ax.grid(axis="x", alpha=0.3)
     fig.tight_layout()
-    fig.savefig(ROOT / "results" / "halys_comparison.png", dpi=150)
-    print("wrote results/halys_comparison.png")
+    fig.savefig(ROOT / "results" / f"halys_comparison{suffix}.png", dpi=150)
+    print(f"wrote results/halys_comparison{suffix}.png")
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    main(sys.argv[1] if len(sys.argv) > 1 else "")

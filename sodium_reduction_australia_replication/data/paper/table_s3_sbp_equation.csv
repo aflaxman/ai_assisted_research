@@ -1,0 +1,5 @@
+term,coefficient,se,ci_lower,ci_upper
+delta_sodium_g,2.026,0.212,1.61,2.442
+delta_sodium_g_x_age_centred50_per10y,0.502,0.134,0.239,0.765
+delta_sodium_g_x_sbp_centred140_per10mmHg,0.659,0.195,0.277,1.041
+delta_sodium_g_x_prop_nonwhite,2.353,0.547,1.281,3.425

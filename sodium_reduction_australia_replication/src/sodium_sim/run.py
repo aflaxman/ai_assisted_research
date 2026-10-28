@@ -75,8 +75,9 @@ def real_population() -> float:
     return float(pd.read_csv(DATA / "population_by_age.csv")["value_combined"].sum())
 
 
-def save(results: dict[str, pd.DataFrame], scenario: str, seed: int, population: int) -> Path:
-    out = RAW_RESULTS / scenario / f"seed_{seed}"
+def save(results: dict[str, pd.DataFrame], scenario: str, seed: int, population: int,
+         tag: str = "") -> Path:
+    out = (RAW_RESULTS if not tag else ROOT / "results" / f"raw_{tag}") / scenario / f"seed_{seed}"
     out.mkdir(parents=True, exist_ok=True)
     for measure, df in results.items():
         if isinstance(df, pd.DataFrame):
@@ -93,12 +94,14 @@ def main() -> None:
     parser.add_argument("--seeds", nargs="+", type=int, default=[0])
     parser.add_argument("--population", type=int, default=100_000)
     parser.add_argument("--verbose", action="store_true")
+    parser.add_argument("--artifact", default=str(ARTIFACT_PATH), help="artifact HDF to simulate from")
+    parser.add_argument("--tag", default="", help="results go to results/raw_<tag>/ instead of results/raw/")
     args = parser.parse_args()
     for seed in args.seeds:
         for scenario in args.scenarios:
             t0 = time.time()
-            results = run_one(scenario, seed, args.population, verbose=args.verbose)
-            out = save(results, scenario, seed, args.population)
+            results = run_one(scenario, seed, args.population, artifact=Path(args.artifact), verbose=args.verbose)
+            out = save(results, scenario, seed, args.population, args.tag)
             print(f"{scenario} seed {seed}: {time.time() - t0:.0f}s -> {out}", flush=True)
 
 

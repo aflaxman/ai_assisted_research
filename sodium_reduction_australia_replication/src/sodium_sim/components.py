@@ -63,6 +63,7 @@ class SodiumToSBP(Component):
     (lagged 0 to 3 years, the paper's CVD lag) times the simulant's
     pre-intervention sodium intake, which is read from the exposure pipeline
     in ``source`` mode so the intervention modifier is not applied twice.
+    Only the part of the reduction above the 2 g/day floor moves SBP.
     The scenario name is read from the ``sodium_intervention`` block that
     :class:`SodiumReduction` declares.
     """
@@ -86,7 +87,7 @@ class SodiumToSBP(Component):
         year = self.clock().year
         reduction = self.scenario.reduction(pop["age"], pop["sex"], year, lag="cvd")
         sodium0 = self.population_view.get(index, SODIUM_EXPOSURE, mode="source")
-        delta = sbp_reduction(reduction * sodium0, pop["age"], sbp)
+        delta = sbp_reduction(sodium0, sodium0 * (1 - reduction), pop["age"], sbp)
         return sbp - delta
 
 
