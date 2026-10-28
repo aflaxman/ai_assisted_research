@@ -208,10 +208,17 @@ for GBD 2019 without trends, and the decomposition says the
 excess is spread across life-years and disability rather than concentrated in
 one (for the WHO targets under GBD 2023, 40,100 discounted life-years gained,
 12,900 lost to background disability, 20,000 gained from less modeled
-disability). My guess is that the remaining difference is the paper's
-migration-augmented population growing younger than mine, which ages in
-place, together with their PMSLT's handling of the first year of each case,
-but I have not tested either.
+disability). I had guessed that the paper's population was growing through
+migration while mine ages in place, but the SHINE report behind the paper
+(Blakely, Grimshaw and Wilson, October 2023, page 26) says the opposite: the
+baseline counts are ABS 2019 by sex, age and SEIFA quintile, ABS fertility
+projections add the cohorts born in 2019 to 2022, and the cohort is closed from
+2023 onwards, with an open cohort "including new births, and possible
+migrants" named as future work (page 65). So demography pushes the other way,
+and only slightly: my starting population is GBD 2023's estimate for 2023,
+about 4% larger than ABS 2019 aged forward without migration, and the
+difference sits at young ages, so it is worth about 1% of the HALYs. What
+remains untested is the PMSLT's handling of the first year of each case.
 
 ## What I did not attempt
 
@@ -220,9 +227,10 @@ input, which SHINE's heterogeneity module does and I have no data for. The costs
 need the AIHW disease expenditure by phase, New Zealand income-loss estimates and
 the Grattan intervention costings. The 95% uncertainty intervals in the paper
 come from 2,000 draws over every input; what I report is the spread over random
-seeds, which is Monte Carlo noise only. Migration is left out: the simulated
-population only ages, is born and dies, which is why baseline deaths rise from
-about 190,000 in 2024 to 330,000 in 2044 in every variant.
+seeds, which is Monte Carlo noise only. Migration is left out of both models:
+the paper's cohort is closed from 2023, and my simulated population only ages,
+is born and dies, which is why baseline deaths rise from about 190,000 in 2024
+to 330,000 in 2044 in every variant.
 
 ## Quickstart
 
@@ -272,9 +280,16 @@ so the artifacts rebuild without database access; refreshing them needs the
 ## Open directions
 
 The largest open item is the 10 to 40% by which every cluster variant exceeds
-the paper. Adding net migration to the population model and running the
-GBD 2023 variant with the trends component would separate the demographic
-explanation from the modeling one, and both are an afternoon's work. The
+the paper. Running the GBD 2023 variant with the trends component is an
+afternoon's work and would say how much of the excess the BAU trends explain
+under the release the paper did not use. Migration is not needed for the
+replication, since the paper's cohort is closed, but an open-cohort version is
+cheap: `BasePopulation` reads `age_start` and `age_end` from the simulant
+creator's user data, so a component can add arrivals at their own ages each
+step, and the GBD 2023 forecasts on the cluster give net migrants by single
+year of age, sex and year to 2100 with draws. I estimate it would add about 2%
+to the 20-year HALYs, because arrivals after 2024 contribute under 2% of the
+person-time at ages 45 and over inside the window (NOTES.md, 2026-10-28). The
 inequality analysis would need SEIFA-stratified inputs, which the appendix
 gives for sodium and SBP (Tables S1 and S2) but not for disease rates; a
 version with quintile-specific exposures and GBD rates scaled by the

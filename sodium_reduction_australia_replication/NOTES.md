@@ -350,6 +350,87 @@ S1 sodium baselines; the quarterly step; the GBD release (and, within GBD
 2019, the incidence consistency fix); the BAU trends. The relative risks and
 their functional form did not matter. Write-up in README.md; combined table
 in results/comparison_all.csv and figure in results/halys_comparison_all.png.
-Open: migration (every variant ages in place; the paper's population grows
-younger), trends on the GBD 2023 variant, SEIFA, costs, draw-level
-uncertainty.
+Open: trends on the GBD 2023 variant, SEIFA, costs, draw-level uncertainty.
+(Migration was listed here as an open item until the 2026-10-28 entry below
+showed the paper's cohort is closed.)
+
+## 2026-10-28: migration, GBD migration data, history cleanup
+
+Asked: does migration appear in the paper, what GBD data could support it, and
+how to get the 219 MB of raw results out of the branch history.
+
+**The paper's cohort is closed.** The main paper's text is not retrievable
+from the cluster (ScienceDirect refuses the fetch; no PMC copy; PMID 41093110,
+doi 10.1016/j.tjnut.2025.10.009). The appendix only says "closed cohort" in the
+title of Table S10 (lifetime HALYs). The paper condenses the SHINE report "The
+Health and Cost Impacts of Sodium Reduction Interventions in Australia"
+(Blakely, Grimshaw, Wilson, 27 October 2023, University of Melbourne figshare
+29975281, 101 pages), which is explicit. Page 26, Demographics: "The baseline
+population counts by sex, age and SEIFA quintile were sourced from Australian
+Bureau of Statistics data for 2019. Moderate scenario fertility projections
+from the Australian Bureau of Statistics were used to introduce new cohorts
+born in 2019, 2020, 2021 and 2022, effectively creating a closed cohort from
+2023 onwards." Page 65 lists an open cohort "(i.e. including new births, and
+possible migrants)" as something SHINE "will in the future pivot to". So the
+guess in the README that the paper's population grows through migration was
+wrong, and the demographic difference runs the other way: GBD 2023 puts
+Australia's 2023 population at 26.9 million, ABS 2019 aged forward with births
+and deaths but no migration is about 25.9 million, and the missing 2019 to
+2023 migrants are young (7% aged 45 and over in the forecast age pattern), so
+my population is about 1% larger at the ages where the HALYs accrue. README
+corrected in three places.
+
+**What GBD can support.** Past: GBD 2023 net migration counts by sex, all
+ages, 1950 to 2023 (via the GBD MCP `get_population` with
+`measure="migration"`); Australia 103,000 in 2000, 343,000 in 2019 and 2020,
+316,000 in 2023. The series is smoothed and does not show the 2020 to 2021
+border closure (ABS net overseas migration was negative in 2020-21), so it is a
+level, not a history. Future: the Future Health Scenarios GBD 2023 reference
+forecast, release 32, scenario 130, version `gbd_2023_migration_s130v57`
+(August 2025), at
+`/mnt/share/forecasting/data/32/future/migration/gbd_2023_migration_s130v57/`:
+`migration.nc` has net migrant counts by 96 single-year age groups, sex, year
+2023 to 2100 and 100 draws for 484 locations (4.2 GB; the Australia slice loads
+in about 20 s with xarray); `mig_counts.nc` the all-age totals;
+`migration_single_years.nc` the all-age rate per 1,000 from 1990. Australia's
+forecast totals: 143,000 in 2023, 203,000 in 2024, 213,000 in 2030, 228,000 in
+2040. The 2025 age pattern is 23% under 15, 35% aged 15 to 24, 27% aged 25 to
+34, 8% aged 35 to 44 and 7% aged 45 and over, split evenly by sex. A five-year
+sample for Australia (draw mean) is in the session scratchpad, not committed,
+since the forecast version is internal. `db_queries` has no migration
+covariate, and `vivarium_public_health` 6.8 has no migration component.
+
+**How much it would matter.** Person-years inside 2024 to 2043 contributed by
+arrivals after 2024, against the 2023 population aged forward with no
+mortality (a crude upper bound on the denominator, so these shares are
+slightly low):
+
+| Ages | Migrant person-years | Baseline person-years | Added |
+|---|---|---|---|
+| all | 41.9 M | 533 M | 7.9% |
+| 45+ | 5.3 M | 305 M | 1.7% |
+| 60+ | 1.5 M | 196 M | 0.8% |
+| 70+ | 0.7 M | 130 M | 0.5% |
+
+So an open cohort with migration would add on the order of 2% to the 20-year
+HALYs, under the seed-to-seed noise, and in any case the paper excludes it.
+If wanted: `BasePopulation.on_initialize_simulants` takes `age_start` and
+`age_end` from `pop_data.user_data` (base_population.py lines 248 to 251), so a
+component can call `simulant_creator(n, {"age_start": a, "age_end": a + 1,
+"sim_state": "time_step"})` per age and step with `n` scaled by the simulant
+to population ratio, and the risk and disease initializers then treat the
+arrivals like the initial population. Net outflows at an age would need
+untracking; the Australian forecast has none.
+
+**History cleanup, rehearsed.** The raw results were added across ten commits
+from 06e1814 to 4e7e2f8, not one, so the fix is a rewrite of the 21 branch
+commits. In a scratch clone, `git filter-branch --prune-empty --index-filter
+'git rm -r -q --cached --ignore-unmatch
+"sodium_reduction_australia_replication/results/raw*"' -- origin/main..HEAD`
+rewrote all 21 commits in about a second, left the final tree identical to the
+current HEAD (`git diff --stat` empty), left no `results/raw` path in any
+branch commit, and cut the branch-only blobs from 219 MB to 9 MB (6.4 MB of
+condensed data extracts, 2 MB of results). `git filter-repo` is not installed
+here (git 2.25.1), so the built-in command is the one path. The instructions
+went to the user; nothing was rewritten in the real repo.
+
