@@ -3,3 +3,4 @@ artifacts/*.hdf
 __pycache__/
 *.egg-info/
 results/raw/
+results/raw_*/
