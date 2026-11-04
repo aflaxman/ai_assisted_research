@@ -1,0 +1,8 @@
+param,prior_sd,posterior_sd,contraction
+a,1.5,1.5,0.0
+c,2.0,0.0438,0.9781
+self_cure,2.0,0.4056,0.7972
+tb_death,0.072,0.072,0.0006
+# hessian_eigenvalues,0.4444,6.0731,199.099,521.3305
+# condition_number,1173.0
+# neg_log_post,3134.536

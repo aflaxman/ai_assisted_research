@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Likelihood blocks</title>
+<meta name="description" content="Why the TB model-structure comparison fits classic and spectrum models to different, overlapping blocks of natural-history data.">
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1a1d21; --muted:#5b6670; --line:#e3e7eb;
+    --card:#f6f8fa; --accent:#2f6f8f; --classic:#b4532a; --spectrum:#2f6f8f;
+    --both:#5a4a86; --ok:#2e7d52; --warn:#9a6a00;
+    --maxw:860px;
+  }
+  :root:not([data-theme="light"]){ @media (prefers-color-scheme: dark){
+    --bg:#15181c; --fg:#e7ebef; --muted:#9aa4ae; --line:#2a2f36;
+    --card:#1c2126; --accent:#6fb4d4; --classic:#e0885f; --spectrum:#6fb4d4;
+    --both:#a99ad6; --ok:#6cc08a; --warn:#d6a74a;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#15181c; --fg:#e7ebef; --muted:#9aa4ae; --line:#2a2f36;
+    --card:#1c2126; --accent:#6fb4d4; --classic:#e0885f; --spectrum:#6fb4d4;
+    --both:#a99ad6; --ok:#6cc08a; --warn:#d6a74a;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--fg); margin:0;
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  main{max-width:var(--maxw); margin:0 auto; padding:40px 16px 80px;}
+  h1{font-size:1.9rem; line-height:1.2; margin:0 0 .2em;}
+  h2{font-size:1.3rem; margin:2.2em 0 .5em; padding-bottom:.2em; border-bottom:1px solid var(--line);}
+  h3{font-size:1.05rem; margin:1.6em 0 .3em;}
+  p,li{color:var(--fg);}
+  .lede{color:var(--muted); font-size:1.08rem; margin:.3em 0 1.5em;}
+  code{background:var(--card); border:1px solid var(--line); border-radius:4px;
+    padding:.08em .35em; font:0.86em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 20px; margin:1em 0;}
+  table{border-collapse:collapse; width:100%; margin:1em 0; font-size:0.95rem;}
+  th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-weight:600;}
+  .tag{display:inline-block; font-size:0.78rem; font-weight:600; padding:1px 8px; border-radius:20px; white-space:nowrap;}
+  .t-classic{color:var(--classic); border:1px solid var(--classic);}
+  .t-spectrum{color:var(--spectrum); border:1px solid var(--spectrum);}
+  .t-both{color:var(--both); border:1px solid var(--both);}
+  .yes{color:var(--ok); font-weight:600;}
+  .no{color:var(--muted);}
+  figure{margin:1.5em 0; text-align:center;}
+  figcaption{color:var(--muted); font-size:0.9rem; margin-top:.6em; text-align:left;}
+  svg{max-width:100%; height:auto;}
+  .foot{color:var(--muted); font-size:0.85rem; margin-top:3em; border-top:1px solid var(--line); padding-top:1em;}
+  a{color:var(--accent);}
+</style>
+</head>
+<body>
+<main>
+  <h1>Fitting two model families to overlapping blocks of data</h1>
+  <p class="lede">Why the classic latent models and the spectrum models in this
+  project are not fit to a single shared likelihood, and what that means for the
+  comparison.</p>
+
+  <div class="card">
+    <strong>The short version.</strong> A classic latent-TB model has one disease
+    state; a spectrum model has three (minimal, subclinical, clinical). Much of the
+    best natural-history data describes transitions <em>among those three states</em>,
+    which a one-disease-state model literally cannot speak to. So the likelihood is
+    split into blocks, and each family is scored on the blocks it can address. The
+    families are compared head-to-head only on the blocks they share.
+  </div>
+
+  <h2>The problem: the two families do not describe the same quantities</h2>
+  <p>
+    The twelve classic structures catalogued by Menzies and colleagues all end at a
+    single compartment <code>I</code> &mdash; active TB disease. They differ in how a
+    newly infected person reaches <code>I</code> (one latent stage or two, reinfection,
+    time-varying reactivation), but once there, disease is a single undifferentiated
+    state.
+  </p>
+  <p>
+    The spectrum models resolve that one state into three along a bidirectional axis:
+    <strong>minimal</strong> (pathology, not yet bacteriologically positive,
+    non-infectious), <strong>subclinical</strong> (bacteriologically positive,
+    infectious, no symptoms) and <strong>clinical</strong> (positive, infectious,
+    symptomatic). People move forward and backward along it.
+  </p>
+  <p>
+    The richest modern natural-history dataset &mdash; 22 untreated cohorts assembled
+    by Richards and colleagues &mdash; measures exactly those within-spectrum moves:
+    the fraction who go minimal&nbsp;&rarr;&nbsp;subclinical over two years, who
+    regress clinical&nbsp;&rarr;&nbsp;minimal, and so on. A classic model has no
+    subclinical and no minimal state, so it has nothing to predict for those rows.
+    Forcing it to (by declaring, say, <code>I&nbsp;=&nbsp;subclinical&nbsp;+&nbsp;clinical</code>)
+    would be an extra modelling assumption layered on top of the structure, not a
+    property of the structure itself. That would make the comparison measure the
+    assumption, not the model.
+  </p>
+
+  <h2>The design: three blocks, each family scored where it can speak</h2>
+
+  <figure>
+  <svg viewBox="0 0 820 430" role="img" aria-label="Diagram of the three data blocks and which model family each is fit to.">
+    <style>
+      .lab{font:600 13px -apple-system,Segoe UI,Roboto,sans-serif; fill:var(--fg);}
+      .sub{font:11px -apple-system,Segoe UI,Roboto,sans-serif; fill:var(--muted);}
+      .node{font:600 12px ui-monospace,Menlo,monospace; fill:var(--fg);}
+      .box{fill:var(--card); stroke:var(--line); stroke-width:1.5;}
+      .arr{stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a);}
+      .cl{stroke:var(--classic);} .sp{stroke:var(--spectrum);}
+    </style>
+    <defs>
+      <marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 z" fill="var(--muted)"/>
+      </marker>
+    </defs>
+
+    <!-- data blocks column -->
+    <text x="20" y="30" class="lab">Data blocks</text>
+
+    <rect x="20" y="45" width="250" height="78" rx="8" class="box"/>
+    <text x="34" y="66" class="lab">(i) Converter cohorts</text>
+    <text x="34" y="84" class="sub">infection &rarr; disease by time since</text>
+    <text x="34" y="99" class="sub">infection. Daniels, Madsen (minimal);</text>
+    <text x="34" y="114" class="sub">NTI Bangalore (infectious).</text>
+
+    <rect x="20" y="175" width="250" height="60" rx="8" class="box"/>
+    <text x="34" y="196" class="lab">(ii) Duration &amp; fatality</text>
+    <text x="34" y="214" class="sub">untreated infectious-disease duration;</text>
+    <text x="34" y="228" class="sub">case fatality (Tiemersma 2011).</text>
+
+    <rect x="20" y="285" width="250" height="78" rx="8" class="box"/>
+    <text x="34" y="306" class="lab">(iii) Spectrum transitions</text>
+    <text x="34" y="324" class="sub">minimal &harr; subclinical &harr; clinical,</text>
+    <text x="34" y="339" class="sub">22 untreated cohorts (Richards 2023,</text>
+    <text x="34" y="354" class="sub">5,942 people).</text>
+
+    <!-- family column -->
+    <text x="600" y="30" class="lab">Model families</text>
+
+    <rect x="560" y="55" width="240" height="120" rx="8" class="box"/>
+    <text x="574" y="78" class="lab" style="fill:var(--classic)">Classic (12 structures)</text>
+    <g class="node">
+      <rect x="580" y="100" width="34" height="26" rx="5" class="box"/><text x="590" y="117">S</text>
+      <rect x="648" y="100" width="34" height="26" rx="5" class="box"/><text x="656" y="117">L</text>
+      <rect x="716" y="100" width="34" height="26" rx="5" class="box"/><text x="726" y="117">I</text>
+      <path d="M614,113 H646" class="arr cl"/><path d="M682,113 H714" class="arr cl"/>
+    </g>
+    <text x="574" y="150" class="sub">one disease state (active TB).</text>
+    <text x="574" y="165" class="sub">A-L differ only upstream of I.</text>
+
+    <rect x="560" y="235" width="240" height="150" rx="8" class="box"/>
+    <text x="574" y="258" class="lab" style="fill:var(--spectrum)">Spectrum (3 variants)</text>
+    <g class="node">
+      <rect x="572" y="280" width="46" height="26" rx="5" class="box"/><text x="580" y="297">Inf</text>
+      <rect x="572" y="330" width="46" height="26" rx="5" class="box"/><text x="580" y="347">Min</text>
+      <rect x="648" y="330" width="46" height="26" rx="5" class="box"/><text x="654" y="347">Sub</text>
+      <rect x="724" y="330" width="52" height="26" rx="5" class="box"/><text x="730" y="347">Clin</text>
+      <path d="M595,306 V328" class="arr sp"/>
+      <path d="M618,340 H646" class="arr sp"/><path d="M694,340 H722" class="arr sp"/>
+      <path d="M646,350 H620" class="arr sp"/><path d="M722,350 H696" class="arr sp"/>
+    </g>
+    <text x="574" y="375" class="sub">minimal / subclinical / clinical,</text>
+
+    <!-- connectors -->
+    <path d="M272,84 C410,84 430,115 558,115" class="arr"/>
+    <path d="M272,100 C420,160 440,300 570,320" class="arr"/>
+    <path d="M272,205 C400,205 440,140 558,135" class="arr"/>
+    <path d="M272,215 C410,240 440,300 558,300" class="arr"/>
+    <path d="M272,324 C430,330 500,330 558,330" class="arr"/>
+    <text x="330" y="398" class="sub">(iii) reaches only the spectrum family</text>
+  </svg>
+  <figcaption>
+    Blocks (i) and (ii) feed both families; block (iii) describes moves among states
+    that exist only in the spectrum family. The cross-family comparison is run on the
+    shared blocks.
+  </figcaption>
+  </figure>
+
+  <table>
+    <thead><tr><th>Block</th><th>What it constrains</th>
+      <th><span class="tag t-classic">classic</span></th>
+      <th><span class="tag t-spectrum">spectrum</span></th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>(i) Converter cohorts</strong><br><span class="sub">infectious-band (NTI)</span></td>
+        <td>How fast infection becomes <em>infectious</em> disease, by time since infection.
+            Clean mapping both ways: classic&nbsp;<code>I</code> is infectious TB;
+            spectrum&nbsp;<code>Sub+Clin</code> is infectious TB.</td>
+        <td class="yes">fit (target&nbsp;<code>I</code>)</td>
+        <td class="yes">fit (target&nbsp;<code>Sub,Clin</code>)</td>
+      </tr>
+      <tr>
+        <td><strong>(i) Converter cohorts</strong><br><span class="sub">minimal-band (Daniels, Madsen)</span></td>
+        <td>How fast infection becomes <em>radiographic</em> (minimal-or-beyond) disease.
+            Only the spectrum family has a minimal state.</td>
+        <td class="no">not applicable</td>
+        <td class="yes">fit (target&nbsp;any disease)</td>
+      </tr>
+      <tr>
+        <td><strong>(ii) Duration &amp; fatality</strong></td>
+        <td>Untreated disease duration and case fatality. Classic needs these to pin its
+            self-cure / TB-death exit rates; spectrum pins those through block (iii) and
+            a mortality prior, so duration is reported for spectrum, not fit.</td>
+        <td class="yes">fit (duration + CF)</td>
+        <td><span class="warn">reported (derived)</span></td>
+      </tr>
+      <tr>
+        <td><strong>(iii) Spectrum transitions</strong></td>
+        <td>Minimal&nbsp;&harr;&nbsp;subclinical&nbsp;&harr;&nbsp;clinical movement. No
+            classic analogue.</td>
+        <td class="no">not applicable</td>
+        <td class="yes">fit</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>How the comparison is read</h2>
+  <p>
+    Each structure is calibrated to the blocks it can address, and the fit is scored
+    with pointwise log-likelihoods so any subset can be compared after the fact (LOO /
+    WAIC in <a href="https://python.arviz.org">ArviZ</a>). The three research questions
+    then read off different slices:
+  </p>
+  <ul>
+    <li><strong>(a) Fit to natural-history data.</strong> The head-to-head is on the
+      <em>shared</em> block: the infectious-band converter cohorts, which both families
+      map onto cleanly. Blocks (i-minimal) and (iii) show what the spectrum family buys
+      with its extra states, but they are not a classic-vs-spectrum contest because the
+      classic family cannot enter them.</li>
+    <li><strong>(b) Subclinical fraction.</strong> A quantity only the spectrum family
+      produces directly; the classic family's implied value requires the same
+      <code>I&nbsp;=&nbsp;Sub+Clin</code> assumption and is reported as such.</li>
+    <li><strong>(c) Screening impact.</strong> Here the families diverge most: active
+      screening detects bacteriologically positive disease regardless of symptoms, so a
+      spectrum model can yield asymptomatic (subclinical) cases while a classic model's
+      single symptomatic <code>I</code> cannot. That is a structural prediction, read
+      from the transmission embedding, not the cohort fit.</li>
+  </ul>
+
+  <h2>Honest asymmetries</h2>
+  <p>These are deliberate and stated wherever a result depends on them.</p>
+  <ul>
+    <li>The classic family is pinned on duration and case fatality; the spectrum family
+      is pinned on the transition data. Both are the natural choice for each family, but
+      they are not the same constraint, so a parameter like &ldquo;duration of infectious
+      disease&rdquo; is a <em>target</em> for one family and a <em>prediction</em> for
+      the other. The spectrum prediction is compared to the same target descriptively.</li>
+    <li>For the minimal-band converter cohorts, the classic family is excluded rather
+      than forced, because radiographic minimal disease precedes the active disease a
+      classic <code>I</code> represents.</li>
+    <li>The classic structures are compared to each other across all twelve; the spectrum
+      family contributes three variants (with and without the minimal state, with and
+      without self-clearance of infection) so the family boundary itself is visible.</li>
+  </ul>
+
+  <div class="foot">
+    Part of the tuberculosis model-structure comparison. Sources: Menzies et al. 2018
+    (Lancet Infect Dis 18:e228); Richards et al. 2023 (Lancet Glob Health); Horton et
+    al. 2023 (PNAS 120:e2221186120); Tiemersma et al. 2011 (PLoS ONE 6:e17601). See
+    <code>PLAN.md</code> for the full data inventory and the design rationale.
+  </div>
+</main>
+</body>
+</html>

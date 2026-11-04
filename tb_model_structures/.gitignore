@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.pytest_cache/
+# Raw downloads from third-party repositories without a stated license (see PLAN.md section 6).
+data/raw/
+.quarto/
+/_site/
+*_files/
+
+# Generated posterior draws (regenerate with scripts/calibrate_cohort.py)
+data/derived/posteriors/*/samples.npz
+data/derived/posteriors/*/pointwise_loglik.npz
+
+# DuckDB build artifact (regenerate with scripts/build_db.py)
+results/tb_model_structures.duckdb

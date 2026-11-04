@@ -1,0 +1,43 @@
+[project]
+name = "tb-model-structures"
+version = "0.1.0"
+description = "Comparison of tuberculosis natural-history model structures: classic latent models vs spectrum models"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.0",
+    "scipy>=1.14",
+    "pandas>=2.2",
+    "pyarrow>=17",
+    "duckdb>=1.1",
+    "jax>=0.4.35",
+    "numpyro>=0.16",
+    "arviz>=0.20",
+    "matplotlib>=3.9",
+    "requests>=2.32",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "nbformat>=5.10",
+    "nbclient>=0.10",
+    "ipykernel>=6.29",
+    "jupyter-client>=8",
+    "pyyaml>=6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tbmodels"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.4.0",
+    "jupyter-client>=8.10.0",
+]
