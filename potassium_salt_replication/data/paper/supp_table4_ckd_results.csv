@@ -1,0 +1,580 @@
+quantity,country,page,all_salt,all_salt_lower,all_salt_upper,discretionary,discretionary_lower,discretionary_upper,non_discretionary,non_discretionary_lower,non_discretionary_upper
+prevented_cvd_deaths_in_ckd,Afghanistan,70,231.0,128.0,363.0,188.0,109.0,297.0,125.0,71.0,196.0
+prevented_cvd_deaths_in_ckd,Albania,70,1010.0,870.0,1154.0,668.0,556.0,787.0,469.0,386.0,571.0
+prevented_cvd_deaths_in_ckd,Algeria,70,421.0,219.0,712.0,349.0,171.0,597.0,253.0,132.0,441.0
+prevented_cvd_deaths_in_ckd,American Samoa,70,4.0,3.0,5.0,2.0,2.0,3.0,2.0,2.0,3.0
+prevented_cvd_deaths_in_ckd,Andorra,70,4.0,3.0,6.0,2.0,1.0,3.0,3.0,2.0,5.0
+prevented_cvd_deaths_in_ckd,Angola,70,912.0,711.0,1140.0,669.0,518.0,832.0,422.0,326.0,525.0
+prevented_cvd_deaths_in_ckd,Antigua and Barbuda,70,7.0,5.0,8.0,4.0,3.0,5.0,4.0,3.0,4.0
+prevented_cvd_deaths_in_ckd,Argentina,70,2860.0,2440.0,3338.0,1801.0,1499.0,2163.0,1414.0,1150.0,1717.0
+prevented_cvd_deaths_in_ckd,Armenia,70,962.0,802.0,1143.0,639.0,524.0,762.0,430.0,347.0,532.0
+prevented_cvd_deaths_in_ckd,Australia,70,716.0,390.0,1134.0,264.0,139.0,439.0,676.0,362.0,1055.0
+prevented_cvd_deaths_in_ckd,Austria,70,1927.0,1594.0,2294.0,579.0,419.0,781.0,1506.0,1216.0,1851.0
+prevented_cvd_deaths_in_ckd,Azerbaijan,70,2214.0,1864.0,2615.0,1474.0,1230.0,1764.0,1007.0,833.0,1220.0
+prevented_cvd_deaths_in_ckd,Bahrain,70,8.0,5.0,12.0,5.0,3.0,8.0,6.0,4.0,9.0
+prevented_cvd_deaths_in_ckd,Bangladesh,70,13488.0,11501.0,15497.0,9320.0,7813.0,10973.0,5827.0,4778.0,6982.0
+prevented_cvd_deaths_in_ckd,Barbados,70,19.0,14.0,25.0,12.0,9.0,16.0,12.0,9.0,15.0
+prevented_cvd_deaths_in_ckd,Belarus,70,1628.0,1156.0,2239.0,1229.0,858.0,1685.0,923.0,657.0,1252.0
+prevented_cvd_deaths_in_ckd,Belgium,70,1305.0,1080.0,1522.0,408.0,299.0,537.0,1010.0,820.0,1207.0
+prevented_cvd_deaths_in_ckd,Belize,70,13.0,11.0,16.0,9.0,7.0,11.0,6.0,5.0,8.0
+prevented_cvd_deaths_in_ckd,Benin,70,339.0,285.0,392.0,238.0,199.0,280.0,144.0,117.0,173.0
+prevented_cvd_deaths_in_ckd,Bermuda,70,7.0,5.0,8.0,0.0,0.0,1.0,6.0,5.0,8.0
+prevented_cvd_deaths_in_ckd,Bhutan,70,59.0,51.0,69.0,41.0,34.0,48.0,26.0,22.0,32.0
+prevented_cvd_deaths_in_ckd,Bolivia,70,436.0,356.0,514.0,296.0,238.0,359.0,191.0,151.0,232.0
+prevented_cvd_deaths_in_ckd,Bosnia and Herzegovina,70,1265.0,1081.0,1466.0,826.0,696.0,989.0,595.0,494.0,726.0
+prevented_cvd_deaths_in_ckd,Botswana,70,61.0,43.0,82.0,47.0,33.0,62.0,35.0,25.0,46.0
+prevented_cvd_deaths_in_ckd,Brazil,70,16730.0,14625.0,19208.0,10912.0,9282.0,12646.0,7878.0,6682.0,9291.0
+prevented_cvd_deaths_in_ckd,Brunei,70,25.0,21.0,29.0,12.0,10.0,14.0,16.0,13.0,19.0
+prevented_cvd_deaths_in_ckd,Bulgaria,70,5993.0,5149.0,6868.0,3788.0,3123.0,4498.0,3119.0,2568.0,3765.0
+prevented_cvd_deaths_in_ckd,Burkina Faso,70,547.0,436.0,666.0,392.0,309.0,477.0,236.0,185.0,295.0
+prevented_cvd_deaths_in_ckd,Burundi,70,198.0,169.0,231.0,140.0,118.0,165.0,83.0,69.0,99.0
+prevented_cvd_deaths_in_ckd,Cambodia,70,1357.0,1131.0,1614.0,931.0,771.0,1125.0,578.0,467.0,707.0
+prevented_cvd_deaths_in_ckd,Cameroon,70,1087.0,875.0,1295.0,766.0,622.0,927.0,470.0,383.0,569.0
+prevented_cvd_deaths_in_ckd,Canada,71,2683.0,2124.0,3249.0,856.0,622.0,1135.0,2145.0,1666.0,2588.0
+prevented_cvd_deaths_in_ckd,Cape Verde,71,33.0,27.0,40.0,23.0,18.0,28.0,15.0,12.0,18.0
+prevented_cvd_deaths_in_ckd,Central African Republic,71,189.0,143.0,238.0,142.0,109.0,177.0,87.0,66.0,111.0
+prevented_cvd_deaths_in_ckd,Chad,71,375.0,303.0,449.0,267.0,217.0,326.0,160.0,127.0,197.0
+prevented_cvd_deaths_in_ckd,Chile,71,1165.0,965.0,1348.0,686.0,559.0,820.0,621.0,503.0,744.0
+prevented_cvd_deaths_in_ckd,China,71,249071.0,214636.0,287064.0,153483.0,129884.0,181127.0,126581.0,105090.0,150993.0
+prevented_cvd_deaths_in_ckd,Colombia,71,5460.0,4746.0,6257.0,3592.0,3092.0,4198.0,2526.0,2110.0,2946.0
+prevented_cvd_deaths_in_ckd,Comoros,71,21.0,18.0,25.0,15.0,12.0,18.0,9.0,7.0,11.0
+prevented_cvd_deaths_in_ckd,Congo,71,246.0,191.0,306.0,180.0,140.0,224.0,117.0,91.0,142.0
+prevented_cvd_deaths_in_ckd,Costa Rica,71,461.0,398.0,528.0,282.0,240.0,328.0,232.0,196.0,272.0
+prevented_cvd_deaths_in_ckd,Cote d'Ivoire,71,747.0,613.0,877.0,516.0,426.0,613.0,325.0,266.0,390.0
+prevented_cvd_deaths_in_ckd,Croatia,71,1793.0,1497.0,2075.0,1039.0,845.0,1249.0,987.0,792.0,1200.0
+prevented_cvd_deaths_in_ckd,Cuba,71,1250.0,1035.0,1459.0,803.0,651.0,953.0,608.0,494.0,728.0
+prevented_cvd_deaths_in_ckd,Cyprus,71,116.0,88.0,146.0,56.0,42.0,74.0,78.0,60.0,101.0
+prevented_cvd_deaths_in_ckd,Czech Republic,71,3426.0,2933.0,3917.0,1768.0,1451.0,2123.0,2101.0,1742.0,2493.0
+prevented_cvd_deaths_in_ckd,Democratic Republic of the Congo,71,891.0,466.0,1439.0,811.0,443.0,1302.0,603.0,344.0,924.0
+prevented_cvd_deaths_in_ckd,Denmark,71,493.0,376.0,599.0,96.0,60.0,143.0,436.0,334.0,534.0
+prevented_cvd_deaths_in_ckd,Djibouti,71,22.0,19.0,26.0,15.0,13.0,18.0,10.0,8.0,12.0
+prevented_cvd_deaths_in_ckd,Dominica,71,7.0,6.0,8.0,5.0,4.0,6.0,3.0,3.0,4.0
+prevented_cvd_deaths_in_ckd,Dominican Republic,71,699.0,584.0,822.0,456.0,379.0,542.0,336.0,273.0,410.0
+prevented_cvd_deaths_in_ckd,Ecuador,71,759.0,633.0,875.0,501.0,409.0,595.0,347.0,282.0,418.0
+prevented_cvd_deaths_in_ckd,Egypt,71,1639.0,901.0,2486.0,1319.0,770.0,1957.0,947.0,563.0,1412.0
+prevented_cvd_deaths_in_ckd,El Salvador,71,439.0,374.0,506.0,292.0,243.0,340.0,195.0,161.0,231.0
+prevented_cvd_deaths_in_ckd,Equatorial Guinea,71,41.0,32.0,50.0,28.0,22.0,35.0,20.0,16.0,25.0
+prevented_cvd_deaths_in_ckd,Eritrea,71,118.0,97.0,143.0,84.0,68.0,103.0,50.0,40.0,63.0
+prevented_cvd_deaths_in_ckd,Estonia,71,93.0,56.0,142.0,54.0,33.0,93.0,64.0,40.0,106.0
+prevented_cvd_deaths_in_ckd,Ethiopia,71,1268.0,1037.0,1508.0,896.0,717.0,1074.0,543.0,429.0,675.0
+prevented_cvd_deaths_in_ckd,Federated States of Micronesia,71,11.0,9.0,13.0,7.0,6.0,9.0,5.0,4.0,6.0
+prevented_cvd_deaths_in_ckd,Fiji,71,107.0,90.0,123.0,70.0,59.0,82.0,47.0,38.0,56.0
+prevented_cvd_deaths_in_ckd,Finland,71,813.0,601.0,1053.0,277.0,194.0,386.0,680.0,494.0,878.0
+prevented_cvd_deaths_in_ckd,France,71,5209.0,3760.0,6675.0,2067.0,1490.0,2787.0,3917.0,2881.0,5069.0
+prevented_cvd_deaths_in_ckd,Gabon,71,97.0,74.0,119.0,66.0,51.0,82.0,49.0,38.0,62.0
+prevented_cvd_deaths_in_ckd,Georgia,71,1760.0,1493.0,2046.0,1184.0,982.0,1411.0,798.0,646.0,968.0
+prevented_cvd_deaths_in_ckd,Germany,72,13658.0,10128.0,17345.0,4717.0,3321.0,6433.0,11014.0,8252.0,13919.0
+prevented_cvd_deaths_in_ckd,Ghana,72,846.0,731.0,969.0,586.0,497.0,684.0,366.0,305.0,436.0
+prevented_cvd_deaths_in_ckd,Greece,72,2033.0,1476.0,2550.0,1181.0,887.0,1493.0,1184.0,895.0,1512.0
+prevented_cvd_deaths_in_ckd,Greenland,72,3.0,2.0,3.0,1.0,1.0,1.0,2.0,2.0,3.0
+prevented_cvd_deaths_in_ckd,Grenada,72,7.0,6.0,9.0,5.0,4.0,6.0,4.0,3.0,4.0
+prevented_cvd_deaths_in_ckd,Guatemala,72,851.0,720.0,994.0,567.0,470.0,674.0,381.0,316.0,458.0
+prevented_cvd_deaths_in_ckd,Guinea,72,410.0,334.0,485.0,293.0,238.0,351.0,177.0,143.0,214.0
+prevented_cvd_deaths_in_ckd,Guinea-Bissau,72,61.0,50.0,73.0,44.0,35.0,52.0,26.0,21.0,32.0
+prevented_cvd_deaths_in_ckd,Guyana,72,57.0,47.0,66.0,37.0,30.0,44.0,28.0,23.0,34.0
+prevented_cvd_deaths_in_ckd,Haiti,72,615.0,512.0,721.0,434.0,357.0,511.0,267.0,220.0,323.0
+prevented_cvd_deaths_in_ckd,Honduras,72,1075.0,905.0,1244.0,728.0,607.0,866.0,464.0,378.0,559.0
+prevented_cvd_deaths_in_ckd,Hungary,72,4446.0,3847.0,5053.0,2579.0,2163.0,3078.0,2492.0,2092.0,2964.0
+prevented_cvd_deaths_in_ckd,Iceland,72,24.0,18.0,30.0,5.0,3.0,7.0,21.0,16.0,26.0
+prevented_cvd_deaths_in_ckd,India,72,77615.0,67600.0,86910.0,53258.0,45421.0,60779.0,33023.0,27392.0,38895.0
+prevented_cvd_deaths_in_ckd,Indonesia,72,32716.0,28413.0,37484.0,21726.0,18632.0,25473.0,14452.0,12093.0,17088.0
+prevented_cvd_deaths_in_ckd,Iran,72,1031.0,524.0,1602.0,851.0,447.0,1320.0,612.0,334.0,968.0
+prevented_cvd_deaths_in_ckd,Iraq,72,564.0,315.0,835.0,448.0,259.0,641.0,325.0,202.0,467.0
+prevented_cvd_deaths_in_ckd,Ireland,72,215.0,154.0,288.0,21.0,13.0,35.0,207.0,147.0,277.0
+prevented_cvd_deaths_in_ckd,Israel,72,416.0,327.0,516.0,135.0,101.0,182.0,333.0,261.0,414.0
+prevented_cvd_deaths_in_ckd,Italy,72,10247.0,7744.0,12997.0,4550.0,3354.0,6110.0,7075.0,5346.0,9138.0
+prevented_cvd_deaths_in_ckd,Jamaica,72,219.0,182.0,256.0,148.0,121.0,178.0,101.0,83.0,122.0
+prevented_cvd_deaths_in_ckd,Japan,72,27220.0,22847.0,32046.0,10921.0,8660.0,13646.0,18813.0,15499.0,22721.0
+prevented_cvd_deaths_in_ckd,Jordan,72,63.0,35.0,97.0,50.0,29.0,77.0,37.0,21.0,55.0
+prevented_cvd_deaths_in_ckd,Kazakhstan,72,3821.0,3207.0,4495.0,2410.0,1982.0,2846.0,1867.0,1536.0,2271.0
+prevented_cvd_deaths_in_ckd,Kenya,72,501.0,391.0,633.0,349.0,272.0,445.0,220.0,167.0,285.0
+prevented_cvd_deaths_in_ckd,Kiribati,72,8.0,6.0,9.0,5.0,4.0,6.0,3.0,3.0,4.0
+prevented_cvd_deaths_in_ckd,Kuwait,72,72.0,56.0,90.0,36.0,28.0,47.0,49.0,39.0,62.0
+prevented_cvd_deaths_in_ckd,Kyrgyzstan,72,908.0,767.0,1060.0,633.0,526.0,749.0,384.0,313.0,469.0
+prevented_cvd_deaths_in_ckd,Laos,72,691.0,597.0,793.0,472.0,394.0,547.0,298.0,248.0,349.0
+prevented_cvd_deaths_in_ckd,Latvia,72,420.0,299.0,571.0,274.0,187.0,366.0,278.0,187.0,378.0
+prevented_cvd_deaths_in_ckd,Lebanon,72,46.0,23.0,81.0,38.0,19.0,67.0,28.0,14.0,49.0
+prevented_cvd_deaths_in_ckd,Lesotho,72,78.0,54.0,106.0,63.0,44.0,84.0,41.0,29.0,53.0
+prevented_cvd_deaths_in_ckd,Liberia,72,140.0,113.0,166.0,99.0,81.0,120.0,59.0,48.0,72.0
+prevented_cvd_deaths_in_ckd,Libya,73,70.0,38.0,108.0,56.0,32.0,87.0,42.0,25.0,66.0
+prevented_cvd_deaths_in_ckd,Lithuania,73,951.0,736.0,1170.0,499.0,384.0,640.0,557.0,422.0,708.0
+prevented_cvd_deaths_in_ckd,Luxembourg,73,47.0,35.0,58.0,3.0,2.0,4.0,46.0,35.0,56.0
+prevented_cvd_deaths_in_ckd,Macedonia,73,1130.0,952.0,1317.0,743.0,608.0,885.0,527.0,428.0,652.0
+prevented_cvd_deaths_in_ckd,Madagascar,73,601.0,506.0,700.0,426.0,355.0,501.0,255.0,208.0,307.0
+prevented_cvd_deaths_in_ckd,Malawi,73,333.0,282.0,390.0,235.0,194.0,278.0,140.0,114.0,171.0
+prevented_cvd_deaths_in_ckd,Malaysia,73,3553.0,3098.0,4037.0,2175.0,1868.0,2530.0,1723.0,1461.0,2038.0
+prevented_cvd_deaths_in_ckd,Maldives,73,25.0,21.0,29.0,15.0,13.0,18.0,12.0,10.0,14.0
+prevented_cvd_deaths_in_ckd,Mali,73,404.0,317.0,489.0,288.0,226.0,353.0,174.0,135.0,212.0
+prevented_cvd_deaths_in_ckd,Malta,73,56.0,44.0,68.0,25.0,20.0,32.0,38.0,29.0,47.0
+prevented_cvd_deaths_in_ckd,Marshall Islands,73,4.0,4.0,5.0,3.0,2.0,3.0,2.0,2.0,2.0
+prevented_cvd_deaths_in_ckd,Mauritania,73,151.0,124.0,181.0,106.0,87.0,128.0,66.0,53.0,81.0
+prevented_cvd_deaths_in_ckd,Mauritius,73,205.0,179.0,236.0,131.0,112.0,153.0,99.0,82.0,116.0
+prevented_cvd_deaths_in_ckd,Mexico,73,10036.0,8399.0,11548.0,6342.0,5226.0,7465.0,4920.0,4035.0,5901.0
+prevented_cvd_deaths_in_ckd,Moldova,73,636.0,453.0,839.0,482.0,335.0,645.0,346.0,246.0,460.0
+prevented_cvd_deaths_in_ckd,Mongolia,73,382.0,326.0,444.0,257.0,215.0,302.0,171.0,141.0,204.0
+prevented_cvd_deaths_in_ckd,Montenegro,73,297.0,252.0,344.0,190.0,157.0,227.0,145.0,117.0,175.0
+prevented_cvd_deaths_in_ckd,Morocco,73,539.0,293.0,827.0,437.0,244.0,665.0,315.0,177.0,472.0
+prevented_cvd_deaths_in_ckd,Mozambique,73,616.0,514.0,737.0,436.0,357.0,527.0,261.0,211.0,323.0
+prevented_cvd_deaths_in_ckd,Myanmar,73,6917.0,5936.0,7859.0,4743.0,4035.0,5485.0,2898.0,2420.0,3396.0
+prevented_cvd_deaths_in_ckd,Namibia,73,75.0,51.0,102.0,59.0,42.0,78.0,42.0,29.0,56.0
+prevented_cvd_deaths_in_ckd,Nauru,73,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+prevented_cvd_deaths_in_ckd,Nepal,73,3044.0,2400.0,3674.0,2145.0,1693.0,2649.0,1310.0,1018.0,1643.0
+prevented_cvd_deaths_in_ckd,Netherlands,73,1337.0,1020.0,1656.0,371.0,256.0,524.0,1126.0,868.0,1405.0
+prevented_cvd_deaths_in_ckd,New Zealand,73,312.0,228.0,407.0,119.0,81.0,160.0,255.0,186.0,332.0
+prevented_cvd_deaths_in_ckd,Nicaragua,73,440.0,378.0,506.0,301.0,253.0,350.0,186.0,156.0,219.0
+prevented_cvd_deaths_in_ckd,Niger,73,394.0,316.0,473.0,281.0,227.0,342.0,168.0,134.0,206.0
+prevented_cvd_deaths_in_ckd,Nigeria,73,5984.0,4757.0,7272.0,4371.0,3475.0,5320.0,2736.0,2190.0,3322.0
+prevented_cvd_deaths_in_ckd,Norway,73,274.0,197.0,370.0,30.0,18.0,53.0,262.0,186.0,353.0
+prevented_cvd_deaths_in_ckd,Oman,73,28.0,17.0,42.0,20.0,12.0,29.0,19.0,12.0,29.0
+prevented_cvd_deaths_in_ckd,Pakistan,73,11895.0,10375.0,13619.0,8296.0,7086.0,9685.0,5099.0,4271.0,5995.0
+prevented_cvd_deaths_in_ckd,Palau,73,3.0,2.0,3.0,2.0,1.0,2.0,1.0,1.0,2.0
+prevented_cvd_deaths_in_ckd,Panama,73,346.0,301.0,399.0,203.0,172.0,241.0,181.0,153.0,213.0
+prevented_cvd_deaths_in_ckd,Papua New Guinea,74,379.0,296.0,458.0,263.0,201.0,319.0,168.0,128.0,205.0
+prevented_cvd_deaths_in_ckd,Paraguay,74,533.0,453.0,606.0,352.0,297.0,409.0,244.0,203.0,288.0
+prevented_cvd_deaths_in_ckd,Peru,74,873.0,734.0,1012.0,573.0,464.0,678.0,402.0,329.0,482.0
+prevented_cvd_deaths_in_ckd,Philippines,74,10005.0,8543.0,11432.0,6766.0,5735.0,7868.0,4403.0,3692.0,5233.0
+prevented_cvd_deaths_in_ckd,Poland,74,10866.0,8979.0,12830.0,6186.0,5028.0,7619.0,5919.0,4772.0,7203.0
+prevented_cvd_deaths_in_ckd,Portugal,74,628.0,425.0,887.0,389.0,261.0,549.0,430.0,284.0,595.0
+prevented_cvd_deaths_in_ckd,Puerto Rico,74,305.0,254.0,356.0,144.0,115.0,177.0,201.0,163.0,241.0
+prevented_cvd_deaths_in_ckd,Qatar,74,6.0,4.0,9.0,2.0,1.0,3.0,6.0,3.0,8.0
+prevented_cvd_deaths_in_ckd,Romania,74,12085.0,10402.0,13854.0,7304.0,6054.0,8709.0,6420.0,5344.0,7692.0
+prevented_cvd_deaths_in_ckd,Russia,74,29049.0,23367.0,35060.0,18041.0,14366.0,22025.0,14653.0,11782.0,18266.0
+prevented_cvd_deaths_in_ckd,Rwanda,74,239.0,198.0,288.0,168.0,138.0,205.0,102.0,80.0,126.0
+prevented_cvd_deaths_in_ckd,Saint Kitts and Nevis,74,4.0,3.0,5.0,2.0,2.0,3.0,2.0,2.0,3.0
+prevented_cvd_deaths_in_ckd,Saint Lucia,74,15.0,13.0,18.0,10.0,8.0,12.0,8.0,6.0,10.0
+prevented_cvd_deaths_in_ckd,Saint Vincent and the Grenadines,74,12.0,10.0,14.0,8.0,6.0,9.0,6.0,5.0,7.0
+prevented_cvd_deaths_in_ckd,Samoa,74,13.0,11.0,16.0,9.0,7.0,11.0,6.0,5.0,7.0
+prevented_cvd_deaths_in_ckd,Sao Tome and Principe,74,7.0,6.0,8.0,5.0,4.0,6.0,3.0,2.0,4.0
+prevented_cvd_deaths_in_ckd,Saudi Arabia,74,354.0,213.0,521.0,229.0,146.0,319.0,252.0,158.0,357.0
+prevented_cvd_deaths_in_ckd,Senegal,74,409.0,330.0,485.0,289.0,230.0,347.0,176.0,143.0,216.0
+prevented_cvd_deaths_in_ckd,Serbia,74,3599.0,3090.0,4074.0,2329.0,1936.0,2720.0,1772.0,1464.0,2074.0
+prevented_cvd_deaths_in_ckd,Seychelles,74,14.0,11.0,16.0,8.0,7.0,10.0,7.0,6.0,9.0
+prevented_cvd_deaths_in_ckd,Sierra Leone,74,268.0,215.0,321.0,191.0,154.0,229.0,113.0,91.0,138.0
+prevented_cvd_deaths_in_ckd,Singapore,74,356.0,294.0,415.0,52.0,33.0,78.0,321.0,265.0,376.0
+prevented_cvd_deaths_in_ckd,Slovakia,74,1884.0,1595.0,2151.0,1034.0,842.0,1234.0,1083.0,895.0,1302.0
+prevented_cvd_deaths_in_ckd,Slovenia,74,586.0,479.0,690.0,296.0,231.0,370.0,373.0,299.0,459.0
+prevented_cvd_deaths_in_ckd,Solomon Islands,74,48.0,40.0,57.0,33.0,27.0,40.0,21.0,17.0,25.0
+prevented_cvd_deaths_in_ckd,Somalia,74,233.0,192.0,282.0,164.0,133.0,203.0,99.0,79.0,123.0
+prevented_cvd_deaths_in_ckd,South Africa,74,1960.0,1258.0,2745.0,1579.0,1047.0,2194.0,1208.0,837.0,1626.0
+prevented_cvd_deaths_in_ckd,South Korea,74,5564.0,4476.0,6692.0,2522.0,1956.0,3231.0,3735.0,2915.0,4606.0
+prevented_cvd_deaths_in_ckd,Spain,74,788.0,307.0,1736.0,637.0,230.0,1280.0,710.0,269.0,1540.0
+prevented_cvd_deaths_in_ckd,Sri Lanka,74,2772.0,2355.0,3234.0,1845.0,1552.0,2173.0,1215.0,995.0,1466.0
+prevented_cvd_deaths_in_ckd,Sudan,74,416.0,236.0,623.0,341.0,203.0,497.0,227.0,136.0,332.0
+prevented_cvd_deaths_in_ckd,Suriname,74,37.0,30.0,43.0,25.0,20.0,29.0,17.0,14.0,20.0
+prevented_cvd_deaths_in_ckd,Swaziland,74,34.0,23.0,45.0,26.0,19.0,34.0,18.0,13.0,24.0
+prevented_cvd_deaths_in_ckd,Sweden,75,1188.0,901.0,1490.0,301.0,194.0,436.0,1011.0,773.0,1266.0
+prevented_cvd_deaths_in_ckd,Switzerland,75,993.0,726.0,1274.0,93.0,59.0,180.0,946.0,694.0,1213.0
+prevented_cvd_deaths_in_ckd,Syria,75,287.0,163.0,444.0,237.0,137.0,354.0,156.0,92.0,235.0
+prevented_cvd_deaths_in_ckd,Taiwan (Province of China),75,2283.0,1943.0,2663.0,1052.0,852.0,1269.0,1484.0,1234.0,1763.0
+prevented_cvd_deaths_in_ckd,Tajikistan,75,1002.0,849.0,1169.0,705.0,595.0,835.0,426.0,351.0,508.0
+prevented_cvd_deaths_in_ckd,Tanzania,75,1091.0,904.0,1278.0,755.0,618.0,905.0,459.0,365.0,555.0
+prevented_cvd_deaths_in_ckd,Thailand,75,8204.0,6954.0,9485.0,5303.0,4472.0,6236.0,3785.0,3117.0,4513.0
+prevented_cvd_deaths_in_ckd,The Bahamas,75,24.0,20.0,29.0,13.0,10.0,15.0,16.0,13.0,19.0
+prevented_cvd_deaths_in_ckd,The Gambia,75,80.0,64.0,97.0,57.0,45.0,70.0,34.0,27.0,42.0
+prevented_cvd_deaths_in_ckd,Timor-Leste,75,131.0,111.0,153.0,88.0,74.0,104.0,56.0,46.0,68.0
+prevented_cvd_deaths_in_ckd,Togo,75,239.0,195.0,282.0,170.0,138.0,204.0,102.0,82.0,125.0
+prevented_cvd_deaths_in_ckd,Tonga,75,8.0,7.0,10.0,6.0,5.0,7.0,4.0,3.0,4.0
+prevented_cvd_deaths_in_ckd,Trinidad and Tobago,75,113.0,95.0,133.0,69.0,57.0,82.0,62.0,51.0,74.0
+prevented_cvd_deaths_in_ckd,Tunisia,75,173.0,84.0,282.0,142.0,72.0,230.0,103.0,51.0,167.0
+prevented_cvd_deaths_in_ckd,Turkey,75,408.0,123.0,858.0,368.0,112.0,757.0,321.0,96.0,634.0
+prevented_cvd_deaths_in_ckd,Turkmenistan,75,1071.0,915.0,1230.0,699.0,588.0,818.0,510.0,425.0,598.0
+prevented_cvd_deaths_in_ckd,Tuvalu,75,2.0,2.0,2.0,1.0,1.0,1.0,1.0,1.0,1.0
+prevented_cvd_deaths_in_ckd,Uganda,75,570.0,462.0,684.0,399.0,318.0,487.0,241.0,191.0,295.0
+prevented_cvd_deaths_in_ckd,Ukraine,75,8720.0,6054.0,12085.0,6786.0,4568.0,9268.0,4832.0,3310.0,6634.0
+prevented_cvd_deaths_in_ckd,United Arab Emirates,75,36.0,21.0,51.0,17.0,10.0,25.0,30.0,18.0,43.0
+prevented_cvd_deaths_in_ckd,United Kingdom,75,5925.0,4519.0,7392.0,2199.0,1634.0,2849.0,4555.0,3500.0,5725.0
+prevented_cvd_deaths_in_ckd,United States,75,42549.0,33956.0,51370.0,8304.0,5437.0,11895.0,38079.0,30273.0,45967.0
+prevented_cvd_deaths_in_ckd,Uruguay,75,474.0,396.0,550.0,272.0,222.0,328.0,258.0,209.0,311.0
+prevented_cvd_deaths_in_ckd,Uzbekistan,75,5816.0,4834.0,6722.0,4018.0,3310.0,4748.0,2506.0,2017.0,2964.0
+prevented_cvd_deaths_in_ckd,Vanuatu,75,27.0,23.0,31.0,18.0,15.0,21.0,12.0,10.0,14.0
+prevented_cvd_deaths_in_ckd,Venezuela,75,4145.0,3569.0,4752.0,2829.0,2397.0,3302.0,1753.0,1470.0,2099.0
+prevented_cvd_deaths_in_ckd,Vietnam,75,8022.0,6864.0,9357.0,5369.0,4497.0,6340.0,3497.0,2888.0,4206.0
+prevented_cvd_deaths_in_ckd,Yemen,75,296.0,162.0,447.0,243.0,140.0,364.0,161.0,93.0,239.0
+prevented_cvd_deaths_in_ckd,Zambia,75,351.0,287.0,414.0,247.0,199.0,294.0,150.0,121.0,182.0
+prevented_cvd_deaths_in_ckd,Zimbabwe,75,635.0,509.0,762.0,452.0,364.0,545.0,280.0,220.0,340.0
+hyperkalaemia_deaths_in_ckd,Afghanistan,76,24.0,11.0,46.0,18.0,9.0,33.0,11.0,6.0,20.0
+hyperkalaemia_deaths_in_ckd,Albania,76,148.0,105.0,200.0,76.0,52.0,106.0,47.0,32.0,69.0
+hyperkalaemia_deaths_in_ckd,Algeria,76,43.0,17.0,85.0,33.0,13.0,64.0,23.0,9.0,46.0
+hyperkalaemia_deaths_in_ckd,American Samoa,76,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
+hyperkalaemia_deaths_in_ckd,Andorra,76,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,1.0
+hyperkalaemia_deaths_in_ckd,Angola,76,98.0,67.0,138.0,61.0,42.0,87.0,35.0,24.0,51.0
+hyperkalaemia_deaths_in_ckd,Antigua and Barbuda,76,1.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
+hyperkalaemia_deaths_in_ckd,Argentina,76,324.0,222.0,457.0,161.0,109.0,234.0,119.0,81.0,176.0
+hyperkalaemia_deaths_in_ckd,Armenia,76,126.0,90.0,178.0,69.0,47.0,97.0,42.0,28.0,60.0
+hyperkalaemia_deaths_in_ckd,Australia,76,93.0,41.0,174.0,29.0,13.0,55.0,84.0,39.0,153.0
+hyperkalaemia_deaths_in_ckd,Austria,76,257.0,171.0,359.0,55.0,32.0,88.0,176.0,115.0,256.0
+hyperkalaemia_deaths_in_ckd,Azerbaijan,76,269.0,189.0,387.0,147.0,103.0,219.0,92.0,61.0,136.0
+hyperkalaemia_deaths_in_ckd,Bahrain,76,1.0,0.0,2.0,0.0,0.0,1.0,1.0,0.0,1.0
+hyperkalaemia_deaths_in_ckd,Bangladesh,76,1700.0,1207.0,2316.0,957.0,666.0,1359.0,536.0,368.0,776.0
+hyperkalaemia_deaths_in_ckd,Barbados,76,2.0,2.0,4.0,1.0,1.0,2.0,1.0,1.0,2.0
+hyperkalaemia_deaths_in_ckd,Belarus,76,200.0,118.0,336.0,134.0,78.0,222.0,96.0,55.0,157.0
+hyperkalaemia_deaths_in_ckd,Belgium,76,197.0,136.0,278.0,45.0,28.0,71.0,133.0,90.0,196.0
+hyperkalaemia_deaths_in_ckd,Belize,76,2.0,1.0,2.0,1.0,1.0,1.0,1.0,0.0,1.0
+hyperkalaemia_deaths_in_ckd,Benin,76,42.0,31.0,56.0,25.0,18.0,34.0,14.0,9.0,18.0
+hyperkalaemia_deaths_in_ckd,Bermuda,76,1.0,1.0,1.0,0.0,0.0,0.0,1.0,1.0,1.0
+hyperkalaemia_deaths_in_ckd,Bhutan,76,7.0,5.0,10.0,4.0,3.0,6.0,2.0,2.0,3.0
+hyperkalaemia_deaths_in_ckd,Bolivia,76,55.0,40.0,76.0,31.0,22.0,43.0,18.0,12.0,25.0
+hyperkalaemia_deaths_in_ckd,Bosnia and Herzegovina,76,188.0,135.0,259.0,96.0,66.0,138.0,62.0,42.0,91.0
+hyperkalaemia_deaths_in_ckd,Botswana,76,6.0,4.0,10.0,5.0,3.0,7.0,3.0,2.0,5.0
+hyperkalaemia_deaths_in_ckd,Brazil,76,2127.0,1576.0,2767.0,1115.0,795.0,1500.0,754.0,521.0,1012.0
+hyperkalaemia_deaths_in_ckd,Brunei,76,3.0,2.0,4.0,1.0,1.0,1.0,1.0,1.0,2.0
+hyperkalaemia_deaths_in_ckd,Bulgaria,76,770.0,548.0,1045.0,360.0,249.0,517.0,277.0,187.0,395.0
+hyperkalaemia_deaths_in_ckd,Burkina Faso,76,65.0,46.0,90.0,40.0,28.0,56.0,22.0,15.0,31.0
+hyperkalaemia_deaths_in_ckd,Burundi,76,23.0,18.0,31.0,14.0,10.0,18.0,7.0,5.0,10.0
+hyperkalaemia_deaths_in_ckd,Cambodia,76,195.0,143.0,251.0,110.0,80.0,147.0,59.0,42.0,81.0
+hyperkalaemia_deaths_in_ckd,Cameroon,76,129.0,90.0,176.0,78.0,54.0,107.0,43.0,30.0,60.0
+hyperkalaemia_deaths_in_ckd,Canada,76,369.0,242.0,541.0,90.0,54.0,144.0,262.0,173.0,395.0
+hyperkalaemia_deaths_in_ckd,Cape Verde,76,4.0,3.0,6.0,3.0,2.0,4.0,2.0,1.0,2.0
+hyperkalaemia_deaths_in_ckd,Central African Republic,76,19.0,13.0,28.0,13.0,9.0,19.0,7.0,5.0,10.0
+hyperkalaemia_deaths_in_ckd,Chad,77,45.0,31.0,61.0,27.0,19.0,37.0,15.0,10.0,21.0
+hyperkalaemia_deaths_in_ckd,Chile,77,128.0,89.0,177.0,58.0,40.0,84.0,52.0,35.0,75.0
+hyperkalaemia_deaths_in_ckd,China,77,34898.0,25826.0,46618.0,16706.0,12073.0,23151.0,12993.0,9314.0,18291.0
+hyperkalaemia_deaths_in_ckd,Colombia,77,768.0,575.0,1011.0,407.0,292.0,557.0,254.0,179.0,348.0
+hyperkalaemia_deaths_in_ckd,Comoros,77,3.0,2.0,3.0,1.0,1.0,2.0,1.0,1.0,1.0
+hyperkalaemia_deaths_in_ckd,Congo,77,26.0,18.0,38.0,16.0,11.0,24.0,10.0,7.0,14.0
+hyperkalaemia_deaths_in_ckd,Costa Rica,77,57.0,42.0,78.0,28.0,20.0,39.0,22.0,15.0,31.0
+hyperkalaemia_deaths_in_ckd,Cote d'Ivoire,77,86.0,63.0,119.0,50.0,37.0,71.0,29.0,20.0,41.0
+hyperkalaemia_deaths_in_ckd,Croatia,77,261.0,189.0,370.0,113.0,78.0,171.0,105.0,72.0,157.0
+hyperkalaemia_deaths_in_ckd,Cuba,77,167.0,115.0,225.0,88.0,60.0,122.0,62.0,43.0,87.0
+hyperkalaemia_deaths_in_ckd,Cyprus,77,15.0,10.0,23.0,6.0,4.0,9.0,9.0,6.0,13.0
+hyperkalaemia_deaths_in_ckd,Czech Republic,77,515.0,379.0,694.0,191.0,133.0,280.0,242.0,171.0,340.0
+hyperkalaemia_deaths_in_ckd,Democratic Republic of the Congo,77,82.0,38.0,158.0,73.0,34.0,131.0,51.0,27.0,91.0
+hyperkalaemia_deaths_in_ckd,Denmark,77,73.0,48.0,105.0,11.0,5.0,18.0,61.0,40.0,88.0
+hyperkalaemia_deaths_in_ckd,Djibouti,77,3.0,2.0,3.0,1.0,1.0,2.0,1.0,1.0,1.0
+hyperkalaemia_deaths_in_ckd,Dominica,77,1.0,1.0,1.0,0.0,0.0,1.0,0.0,0.0,0.0
+hyperkalaemia_deaths_in_ckd,Dominican Republic,77,86.0,63.0,117.0,46.0,33.0,64.0,31.0,23.0,45.0
+hyperkalaemia_deaths_in_ckd,Ecuador,77,98.0,71.0,131.0,53.0,37.0,73.0,34.0,23.0,46.0
+hyperkalaemia_deaths_in_ckd,Egypt,77,163.0,74.0,317.0,119.0,57.0,216.0,80.0,39.0,145.0
+hyperkalaemia_deaths_in_ckd,El Salvador,77,61.0,45.0,78.0,34.0,24.0,44.0,20.0,15.0,28.0
+hyperkalaemia_deaths_in_ckd,Equatorial Guinea,77,4.0,3.0,6.0,3.0,2.0,4.0,2.0,1.0,3.0
+hyperkalaemia_deaths_in_ckd,Eritrea,77,14.0,10.0,19.0,8.0,6.0,11.0,4.0,3.0,6.0
+hyperkalaemia_deaths_in_ckd,Estonia,77,10.0,6.0,17.0,5.0,3.0,9.0,6.0,3.0,11.0
+hyperkalaemia_deaths_in_ckd,Ethiopia,77,161.0,119.0,214.0,93.0,66.0,125.0,50.0,36.0,70.0
+hyperkalaemia_deaths_in_ckd,Federated States of Micronesia,77,1.0,1.0,2.0,1.0,1.0,1.0,0.0,0.0,1.0
+hyperkalaemia_deaths_in_ckd,Fiji,77,14.0,10.0,18.0,7.0,5.0,10.0,4.0,3.0,6.0
+hyperkalaemia_deaths_in_ckd,Finland,77,105.0,65.0,162.0,27.0,16.0,45.0,79.0,50.0,121.0
+hyperkalaemia_deaths_in_ckd,France,77,759.0,463.0,1169.0,239.0,139.0,392.0,504.0,308.0,786.0
+hyperkalaemia_deaths_in_ckd,Gabon,77,10.0,7.0,15.0,6.0,4.0,8.0,4.0,3.0,6.0
+hyperkalaemia_deaths_in_ckd,Georgia,77,211.0,152.0,290.0,116.0,81.0,162.0,70.0,49.0,103.0
+hyperkalaemia_deaths_in_ckd,Germany,77,1767.0,1082.0,2651.0,465.0,275.0,754.0,1263.0,788.0,1909.0
+hyperkalaemia_deaths_in_ckd,Ghana,77,103.0,76.0,137.0,58.0,43.0,79.0,33.0,24.0,46.0
+hyperkalaemia_deaths_in_ckd,Greece,77,276.0,175.0,411.0,132.0,83.0,199.0,134.0,84.0,201.0
+hyperkalaemia_deaths_in_ckd,Greenland,77,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
+hyperkalaemia_deaths_in_ckd,Grenada,77,1.0,1.0,1.0,0.0,0.0,1.0,0.0,0.0,0.0
+hyperkalaemia_deaths_in_ckd,Guatemala,77,114.0,82.0,150.0,62.0,43.0,84.0,38.0,26.0,52.0
+hyperkalaemia_deaths_in_ckd,Guinea,77,50.0,35.0,69.0,31.0,22.0,42.0,17.0,12.0,24.0
+hyperkalaemia_deaths_in_ckd,Guinea-Bissau,78,7.0,5.0,9.0,4.0,3.0,6.0,2.0,2.0,3.0
+hyperkalaemia_deaths_in_ckd,Guyana,78,6.0,5.0,9.0,3.0,2.0,5.0,2.0,2.0,3.0
+hyperkalaemia_deaths_in_ckd,Haiti,78,71.0,50.0,97.0,42.0,30.0,59.0,24.0,16.0,33.0
+hyperkalaemia_deaths_in_ckd,Honduras,78,127.0,91.0,172.0,70.0,49.0,99.0,40.0,28.0,56.0
+hyperkalaemia_deaths_in_ckd,Hungary,78,616.0,455.0,831.0,264.0,185.0,378.0,251.0,178.0,358.0
+hyperkalaemia_deaths_in_ckd,Iceland,78,3.0,2.0,5.0,1.0,0.0,1.0,3.0,2.0,4.0
+hyperkalaemia_deaths_in_ckd,India,78,10112.0,7534.0,13001.0,5761.0,4258.0,7614.0,3260.0,2334.0,4413.0
+hyperkalaemia_deaths_in_ckd,Indonesia,78,4356.0,3279.0,5616.0,2380.0,1752.0,3138.0,1419.0,1011.0,1900.0
+hyperkalaemia_deaths_in_ckd,Iran,78,102.0,41.0,195.0,77.0,33.0,149.0,53.0,23.0,103.0
+hyperkalaemia_deaths_in_ckd,Iraq,78,56.0,25.0,106.0,40.0,19.0,72.0,28.0,13.0,49.0
+hyperkalaemia_deaths_in_ckd,Ireland,78,34.0,21.0,53.0,2.0,1.0,5.0,32.0,20.0,50.0
+hyperkalaemia_deaths_in_ckd,Israel,78,61.0,38.0,87.0,15.0,9.0,24.0,44.0,28.0,63.0
+hyperkalaemia_deaths_in_ckd,Italy,78,1310.0,866.0,1918.0,443.0,283.0,696.0,765.0,488.0,1157.0
+hyperkalaemia_deaths_in_ckd,Jamaica,78,27.0,19.0,36.0,15.0,10.0,21.0,9.0,7.0,13.0
+hyperkalaemia_deaths_in_ckd,Japan,78,3466.0,2192.0,5082.0,986.0,570.0,1602.0,1973.0,1208.0,2937.0
+hyperkalaemia_deaths_in_ckd,Jordan,78,6.0,3.0,11.0,5.0,2.0,8.0,3.0,2.0,6.0
+hyperkalaemia_deaths_in_ckd,Kazakhstan,78,490.0,344.0,699.0,249.0,169.0,364.0,181.0,124.0,270.0
+hyperkalaemia_deaths_in_ckd,Kenya,78,58.0,37.0,82.0,33.0,20.0,49.0,19.0,11.0,28.0
+hyperkalaemia_deaths_in_ckd,Kiribati,78,1.0,1.0,1.0,1.0,0.0,1.0,0.0,0.0,0.0
+hyperkalaemia_deaths_in_ckd,Kuwait,78,8.0,6.0,12.0,3.0,2.0,5.0,5.0,3.0,7.0
+hyperkalaemia_deaths_in_ckd,Kyrgyzstan,78,111.0,81.0,152.0,64.0,45.0,90.0,34.0,24.0,50.0
+hyperkalaemia_deaths_in_ckd,Laos,78,96.0,74.0,123.0,53.0,40.0,69.0,30.0,22.0,39.0
+hyperkalaemia_deaths_in_ckd,Latvia,78,53.0,32.0,83.0,28.0,17.0,46.0,29.0,17.0,47.0
+hyperkalaemia_deaths_in_ckd,Lebanon,78,5.0,2.0,10.0,4.0,2.0,8.0,3.0,1.0,6.0
+hyperkalaemia_deaths_in_ckd,Lesotho,78,8.0,5.0,13.0,6.0,4.0,9.0,3.0,2.0,5.0
+hyperkalaemia_deaths_in_ckd,Liberia,78,16.0,12.0,22.0,10.0,7.0,14.0,5.0,4.0,7.0
+hyperkalaemia_deaths_in_ckd,Libya,78,7.0,3.0,13.0,5.0,2.0,9.0,4.0,2.0,7.0
+hyperkalaemia_deaths_in_ckd,Lithuania,78,123.0,80.0,185.0,51.0,34.0,80.0,59.0,38.0,93.0
+hyperkalaemia_deaths_in_ckd,Luxembourg,78,7.0,4.0,10.0,0.0,0.0,1.0,6.0,4.0,9.0
+hyperkalaemia_deaths_in_ckd,Macedonia,78,156.0,106.0,223.0,79.0,52.0,121.0,51.0,32.0,78.0
+hyperkalaemia_deaths_in_ckd,Madagascar,78,68.0,51.0,89.0,39.0,29.0,53.0,21.0,15.0,28.0
+hyperkalaemia_deaths_in_ckd,Malawi,78,40.0,29.0,53.0,23.0,17.0,31.0,12.0,9.0,18.0
+hyperkalaemia_deaths_in_ckd,Malaysia,78,493.0,372.0,645.0,245.0,182.0,330.0,183.0,131.0,247.0
+hyperkalaemia_deaths_in_ckd,Maldives,78,4.0,3.0,5.0,2.0,1.0,3.0,1.0,1.0,2.0
+hyperkalaemia_deaths_in_ckd,Mali,78,48.0,33.0,67.0,29.0,20.0,41.0,16.0,11.0,23.0
+hyperkalaemia_deaths_in_ckd,Malta,78,8.0,5.0,11.0,3.0,2.0,4.0,4.0,3.0,6.0
+hyperkalaemia_deaths_in_ckd,Marshall Islands,78,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
+hyperkalaemia_deaths_in_ckd,Mauritania,79,19.0,13.0,25.0,11.0,8.0,15.0,6.0,4.0,9.0
+hyperkalaemia_deaths_in_ckd,Mauritius,79,28.0,21.0,35.0,14.0,11.0,18.0,10.0,7.0,13.0
+hyperkalaemia_deaths_in_ckd,Mexico,79,1301.0,968.0,1716.0,669.0,488.0,905.0,489.0,355.0,668.0
+hyperkalaemia_deaths_in_ckd,Moldova,79,69.0,43.0,105.0,46.0,28.0,70.0,32.0,20.0,48.0
+hyperkalaemia_deaths_in_ckd,Mongolia,79,46.0,32.0,63.0,25.0,17.0,35.0,15.0,10.0,22.0
+hyperkalaemia_deaths_in_ckd,Montenegro,79,43.0,31.0,61.0,21.0,15.0,32.0,15.0,10.0,22.0
+hyperkalaemia_deaths_in_ckd,Morocco,79,53.0,23.0,105.0,40.0,19.0,75.0,27.0,13.0,49.0
+hyperkalaemia_deaths_in_ckd,Mozambique,79,69.0,50.0,92.0,40.0,29.0,55.0,21.0,14.0,30.0
+hyperkalaemia_deaths_in_ckd,Myanmar,79,935.0,713.0,1242.0,536.0,398.0,722.0,284.0,205.0,392.0
+hyperkalaemia_deaths_in_ckd,Namibia,79,8.0,5.0,13.0,6.0,4.0,9.0,4.0,2.0,6.0
+hyperkalaemia_deaths_in_ckd,Nauru,79,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+hyperkalaemia_deaths_in_ckd,Nepal,79,401.0,285.0,545.0,228.0,162.0,318.0,123.0,83.0,174.0
+hyperkalaemia_deaths_in_ckd,Netherlands,79,207.0,131.0,310.0,44.0,25.0,74.0,160.0,102.0,243.0
+hyperkalaemia_deaths_in_ckd,New Zealand,79,43.0,27.0,65.0,13.0,8.0,21.0,32.0,19.0,49.0
+hyperkalaemia_deaths_in_ckd,Nicaragua,79,54.0,40.0,70.0,30.0,22.0,40.0,17.0,12.0,23.0
+hyperkalaemia_deaths_in_ckd,Niger,79,47.0,33.0,64.0,29.0,21.0,40.0,15.0,10.0,21.0
+hyperkalaemia_deaths_in_ckd,Nigeria,79,735.0,514.0,1028.0,463.0,323.0,637.0,270.0,184.0,378.0
+hyperkalaemia_deaths_in_ckd,Norway,79,40.0,25.0,61.0,3.0,2.0,7.0,38.0,23.0,57.0
+hyperkalaemia_deaths_in_ckd,Oman,79,3.0,1.0,5.0,2.0,1.0,3.0,2.0,1.0,3.0
+hyperkalaemia_deaths_in_ckd,Pakistan,79,1394.0,1048.0,1886.0,796.0,587.0,1098.0,434.0,313.0,606.0
+hyperkalaemia_deaths_in_ckd,Palau,79,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+hyperkalaemia_deaths_in_ckd,Panama,79,47.0,34.0,61.0,22.0,15.0,29.0,19.0,13.0,26.0
+hyperkalaemia_deaths_in_ckd,Papua New Guinea,79,58.0,43.0,77.0,32.0,24.0,44.0,18.0,13.0,25.0
+hyperkalaemia_deaths_in_ckd,Paraguay,79,64.0,46.0,86.0,34.0,24.0,47.0,22.0,15.0,31.0
+hyperkalaemia_deaths_in_ckd,Peru,79,118.0,84.0,160.0,63.0,44.0,87.0,40.0,28.0,57.0
+hyperkalaemia_deaths_in_ckd,Philippines,79,1376.0,1051.0,1746.0,764.0,578.0,1005.0,441.0,324.0,588.0
+hyperkalaemia_deaths_in_ckd,Poland,79,1572.0,1153.0,2204.0,685.0,477.0,1015.0,648.0,444.0,943.0
+hyperkalaemia_deaths_in_ckd,Portugal,79,88.0,51.0,147.0,47.0,26.0,77.0,52.0,29.0,87.0
+hyperkalaemia_deaths_in_ckd,Puerto Rico,79,38.0,28.0,53.0,14.0,10.0,20.0,21.0,15.0,29.0
+hyperkalaemia_deaths_in_ckd,Qatar,79,1.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,1.0
+hyperkalaemia_deaths_in_ckd,Romania,79,1670.0,1185.0,2276.0,753.0,502.0,1086.0,634.0,431.0,926.0
+hyperkalaemia_deaths_in_ckd,Russia,79,3683.0,2442.0,5541.0,1883.0,1223.0,2854.0,1473.0,952.0,2212.0
+hyperkalaemia_deaths_in_ckd,Rwanda,79,29.0,21.0,40.0,17.0,12.0,23.0,9.0,6.0,13.0
+hyperkalaemia_deaths_in_ckd,Saint Kitts and Nevis,79,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
+hyperkalaemia_deaths_in_ckd,Saint Lucia,79,2.0,1.0,3.0,1.0,1.0,1.0,1.0,1.0,1.0
+hyperkalaemia_deaths_in_ckd,Saint Vincent and the Grenadines,79,1.0,1.0,2.0,1.0,0.0,1.0,1.0,0.0,1.0
+hyperkalaemia_deaths_in_ckd,Samoa,79,2.0,1.0,2.0,1.0,1.0,1.0,1.0,0.0,1.0
+hyperkalaemia_deaths_in_ckd,Sao Tome and Principe,80,1.0,1.0,1.0,1.0,0.0,1.0,0.0,0.0,0.0
+hyperkalaemia_deaths_in_ckd,Saudi Arabia,80,36.0,18.0,62.0,20.0,11.0,33.0,23.0,12.0,37.0
+hyperkalaemia_deaths_in_ckd,Senegal,80,50.0,35.0,69.0,30.0,21.0,42.0,17.0,12.0,24.0
+hyperkalaemia_deaths_in_ckd,Serbia,80,546.0,399.0,743.0,270.0,190.0,390.0,185.0,126.0,273.0
+hyperkalaemia_deaths_in_ckd,Seychelles,80,2.0,1.0,2.0,1.0,1.0,1.0,1.0,0.0,1.0
+hyperkalaemia_deaths_in_ckd,Sierra Leone,80,32.0,23.0,45.0,20.0,14.0,28.0,11.0,7.0,15.0
+hyperkalaemia_deaths_in_ckd,Singapore,80,46.0,32.0,62.0,4.0,2.0,8.0,38.0,27.0,54.0
+hyperkalaemia_deaths_in_ckd,Slovakia,80,270.0,192.0,366.0,108.0,74.0,153.0,116.0,77.0,167.0
+hyperkalaemia_deaths_in_ckd,Slovenia,80,88.0,61.0,122.0,31.0,20.0,46.0,43.0,29.0,63.0
+hyperkalaemia_deaths_in_ckd,Solomon Islands,80,7.0,5.0,9.0,4.0,3.0,5.0,2.0,2.0,3.0
+hyperkalaemia_deaths_in_ckd,Somalia,80,26.0,19.0,36.0,15.0,11.0,21.0,8.0,5.0,12.0
+hyperkalaemia_deaths_in_ckd,South Africa,80,206.0,116.0,341.0,154.0,90.0,241.0,112.0,67.0,171.0
+hyperkalaemia_deaths_in_ckd,South Korea,80,789.0,532.0,1141.0,242.0,150.0,386.0,411.0,260.0,614.0
+hyperkalaemia_deaths_in_ckd,Spain,80,89.0,30.0,225.0,67.0,18.0,165.0,78.0,23.0,201.0
+hyperkalaemia_deaths_in_ckd,Sri Lanka,80,398.0,303.0,527.0,218.0,162.0,297.0,129.0,93.0,175.0
+hyperkalaemia_deaths_in_ckd,Sudan,80,40.0,18.0,79.0,31.0,14.0,56.0,19.0,9.0,35.0
+hyperkalaemia_deaths_in_ckd,Suriname,80,4.0,3.0,6.0,3.0,2.0,3.0,2.0,1.0,2.0
+hyperkalaemia_deaths_in_ckd,Swaziland,80,3.0,2.0,5.0,2.0,1.0,4.0,2.0,1.0,2.0
+hyperkalaemia_deaths_in_ckd,Sweden,80,168.0,103.0,248.0,31.0,18.0,55.0,133.0,81.0,197.0
+hyperkalaemia_deaths_in_ckd,Switzerland,80,131.0,85.0,197.0,9.0,5.0,20.0,121.0,78.0,184.0
+hyperkalaemia_deaths_in_ckd,Syria,80,30.0,13.0,58.0,23.0,10.0,41.0,14.0,7.0,25.0
+hyperkalaemia_deaths_in_ckd,Taiwan (Province of China),80,307.0,220.0,417.0,104.0,70.0,148.0,160.0,114.0,224.0
+hyperkalaemia_deaths_in_ckd,Tajikistan,80,120.0,88.0,163.0,70.0,50.0,96.0,37.0,26.0,53.0
+hyperkalaemia_deaths_in_ckd,Tanzania,80,143.0,107.0,187.0,82.0,61.0,109.0,44.0,31.0,59.0
+hyperkalaemia_deaths_in_ckd,Thailand,80,1320.0,992.0,1688.0,694.0,512.0,912.0,454.0,324.0,615.0
+hyperkalaemia_deaths_in_ckd,The Bahamas,80,3.0,2.0,3.0,1.0,1.0,1.0,1.0,1.0,2.0
+hyperkalaemia_deaths_in_ckd,The Gambia,80,10.0,7.0,13.0,6.0,4.0,8.0,3.0,2.0,5.0
+hyperkalaemia_deaths_in_ckd,Timor-Leste,80,18.0,13.0,24.0,10.0,7.0,14.0,5.0,4.0,8.0
+hyperkalaemia_deaths_in_ckd,Togo,80,28.0,20.0,38.0,17.0,12.0,23.0,9.0,7.0,13.0
+hyperkalaemia_deaths_in_ckd,Tonga,80,1.0,1.0,2.0,1.0,0.0,1.0,0.0,0.0,1.0
+hyperkalaemia_deaths_in_ckd,Trinidad and Tobago,80,14.0,10.0,19.0,7.0,5.0,10.0,6.0,4.0,9.0
+hyperkalaemia_deaths_in_ckd,Tunisia,80,18.0,8.0,37.0,14.0,6.0,27.0,9.0,4.0,19.0
+hyperkalaemia_deaths_in_ckd,Turkey,80,42.0,11.0,109.0,36.0,10.0,91.0,31.0,7.0,72.0
+hyperkalaemia_deaths_in_ckd,Turkmenistan,80,130.0,95.0,173.0,69.0,49.0,95.0,47.0,33.0,64.0
+hyperkalaemia_deaths_in_ckd,Tuvalu,80,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+hyperkalaemia_deaths_in_ckd,Uganda,80,69.0,49.0,93.0,40.0,28.0,56.0,21.0,14.0,29.0
+hyperkalaemia_deaths_in_ckd,Ukraine,80,1096.0,664.0,1756.0,761.0,448.0,1218.0,507.0,311.0,817.0
+hyperkalaemia_deaths_in_ckd,United Arab Emirates,81,4.0,2.0,6.0,1.0,1.0,3.0,3.0,1.0,5.0
+hyperkalaemia_deaths_in_ckd,United Kingdom,81,931.0,601.0,1369.0,269.0,170.0,421.0,634.0,413.0,940.0
+hyperkalaemia_deaths_in_ckd,United States,81,5621.0,3775.0,7953.0,797.0,447.0,1332.0,4669.0,3192.0,6763.0
+hyperkalaemia_deaths_in_ckd,Uruguay,81,56.0,39.0,79.0,25.0,17.0,37.0,24.0,15.0,34.0
+hyperkalaemia_deaths_in_ckd,Uzbekistan,81,714.0,527.0,975.0,412.0,293.0,573.0,227.0,162.0,320.0
+hyperkalaemia_deaths_in_ckd,Vanuatu,81,3.0,3.0,5.0,2.0,1.0,3.0,1.0,1.0,2.0
+hyperkalaemia_deaths_in_ckd,Venezuela,81,496.0,371.0,664.0,281.0,205.0,384.0,156.0,110.0,216.0
+hyperkalaemia_deaths_in_ckd,Vietnam,81,1139.0,860.0,1516.0,627.0,463.0,856.0,368.0,264.0,506.0
+hyperkalaemia_deaths_in_ckd,Yemen,81,30.0,13.0,60.0,23.0,10.0,43.0,14.0,6.0,26.0
+hyperkalaemia_deaths_in_ckd,Zambia,81,42.0,31.0,56.0,24.0,18.0,33.0,13.0,9.0,18.0
+hyperkalaemia_deaths_in_ckd,Zimbabwe,81,70.0,50.0,98.0,43.0,30.0,59.0,24.0,17.0,34.0
+net_deaths_averted_in_ckd,Afghanistan,82,204.0,111.0,324.0,171.0,95.0,267.0,114.0,64.0,180.0
+net_deaths_averted_in_ckd,Albania,82,862.0,713.0,1010.0,590.0,484.0,708.0,421.0,341.0,520.0
+net_deaths_averted_in_ckd,Algeria,82,375.0,190.0,651.0,310.0,152.0,551.0,232.0,117.0,404.0
+net_deaths_averted_in_ckd,American Samoa,82,3.0,3.0,4.0,2.0,2.0,3.0,2.0,2.0,2.0
+net_deaths_averted_in_ckd,Andorra,82,3.0,2.0,5.0,2.0,1.0,3.0,3.0,2.0,4.0
+net_deaths_averted_in_ckd,Angola,82,813.0,618.0,1029.0,607.0,464.0,768.0,388.0,294.0,484.0
+net_deaths_averted_in_ckd,Antigua and Barbuda,82,6.0,5.0,7.0,4.0,3.0,5.0,3.0,3.0,4.0
+net_deaths_averted_in_ckd,Argentina,82,2529.0,2110.0,3013.0,1636.0,1330.0,1995.0,1292.0,1026.0,1591.0
+net_deaths_averted_in_ckd,Armenia,82,835.0,675.0,1013.0,568.0,456.0,692.0,388.0,304.0,486.0
+net_deaths_averted_in_ckd,Australia,82,623.0,334.0,985.0,236.0,123.0,391.0,588.0,311.0,926.0
+net_deaths_averted_in_ckd,Austria,82,1671.0,1313.0,2018.0,522.0,369.0,713.0,1329.0,1045.0,1669.0
+net_deaths_averted_in_ckd,Azerbaijan,82,1948.0,1589.0,2316.0,1325.0,1076.0,1598.0,913.0,740.0,1118.0
+net_deaths_averted_in_ckd,Bahrain,82,7.0,4.0,11.0,5.0,3.0,7.0,5.0,3.0,8.0
+net_deaths_averted_in_ckd,Bangladesh,82,11745.0,9741.0,13842.0,8337.0,6861.0,9977.0,5284.0,4203.0,6410.0
+net_deaths_averted_in_ckd,Barbados,82,17.0,12.0,22.0,11.0,8.0,14.0,11.0,8.0,13.0
+net_deaths_averted_in_ckd,Belarus,82,1424.0,1002.0,2000.0,1087.0,761.0,1502.0,821.0,579.0,1133.0
+net_deaths_averted_in_ckd,Belgium,82,1104.0,887.0,1313.0,362.0,260.0,484.0,875.0,686.0,1075.0
+net_deaths_averted_in_ckd,Belize,82,12.0,10.0,14.0,8.0,7.0,10.0,6.0,5.0,7.0
+net_deaths_averted_in_ckd,Benin,82,296.0,248.0,349.0,212.0,174.0,253.0,130.0,106.0,159.0
+net_deaths_averted_in_ckd,Bermuda,82,6.0,5.0,7.0,0.0,0.0,1.0,6.0,4.0,7.0
+net_deaths_averted_in_ckd,Bhutan,82,52.0,43.0,62.0,37.0,30.0,44.0,24.0,19.0,29.0
+net_deaths_averted_in_ckd,Bolivia,82,379.0,303.0,455.0,265.0,211.0,327.0,173.0,135.0,213.0
+net_deaths_averted_in_ckd,Bosnia and Herzegovina,82,1072.0,889.0,1278.0,728.0,599.0,890.0,533.0,432.0,660.0
+net_deaths_averted_in_ckd,Botswana,82,55.0,37.0,74.0,42.0,30.0,56.0,32.0,23.0,42.0
+net_deaths_averted_in_ckd,Brazil,82,14583.0,12433.0,16982.0,9783.0,8132.0,11505.0,7130.0,5959.0,8514.0
+net_deaths_averted_in_ckd,Brunei,82,22.0,18.0,26.0,11.0,9.0,13.0,14.0,12.0,17.0
+net_deaths_averted_in_ckd,Bulgaria,82,5220.0,4339.0,6064.0,3419.0,2750.0,4117.0,2847.0,2304.0,3451.0
+net_deaths_averted_in_ckd,Burkina Faso,82,481.0,376.0,592.0,351.0,271.0,438.0,213.0,166.0,271.0
+net_deaths_averted_in_ckd,Burundi,82,175.0,147.0,207.0,126.0,105.0,152.0,76.0,62.0,92.0
+net_deaths_averted_in_ckd,Cambodia,82,1162.0,930.0,1413.0,821.0,660.0,1010.0,519.0,410.0,645.0
+net_deaths_averted_in_ckd,Cameroon,82,955.0,757.0,1161.0,687.0,545.0,847.0,427.0,339.0,521.0
+net_deaths_averted_in_ckd,Canada,82,2306.0,1770.0,2869.0,768.0,549.0,1031.0,1871.0,1421.0,2335.0
+net_deaths_averted_in_ckd,Cape Verde,82,29.0,23.0,35.0,20.0,16.0,25.0,13.0,10.0,17.0
+net_deaths_averted_in_ckd,Central African Republic,82,169.0,125.0,215.0,129.0,98.0,164.0,80.0,60.0,103.0
+net_deaths_averted_in_ckd,Chad,82,330.0,264.0,401.0,240.0,191.0,294.0,145.0,112.0,179.0
+net_deaths_averted_in_ckd,Chile,82,1034.0,836.0,1218.0,626.0,495.0,760.0,569.0,449.0,689.0
+net_deaths_averted_in_ckd,China,82,213108.0,180102.0,252519.0,136673.0,113362.0,164010.0,113154.0,93196.0,137394.0
+net_deaths_averted_in_ckd,Colombia,82,4676.0,3961.0,5465.0,3188.0,2691.0,3817.0,2262.0,1861.0,2720.0
+net_deaths_averted_in_ckd,Comoros,82,19.0,15.0,23.0,13.0,11.0,17.0,8.0,7.0,10.0
+net_deaths_averted_in_ckd,Congo,82,219.0,169.0,276.0,164.0,126.0,206.0,107.0,82.0,132.0
+net_deaths_averted_in_ckd,Costa Rica,83,403.0,341.0,469.0,254.0,213.0,300.0,210.0,175.0,249.0
+net_deaths_averted_in_ckd,Cote d'Ivoire,83,659.0,535.0,784.0,466.0,374.0,562.0,296.0,240.0,358.0
+net_deaths_averted_in_ckd,Croatia,83,1530.0,1234.0,1805.0,920.0,730.0,1128.0,877.0,691.0,1085.0
+net_deaths_averted_in_ckd,Cuba,83,1085.0,872.0,1293.0,712.0,567.0,865.0,546.0,435.0,663.0
+net_deaths_averted_in_ckd,Cyprus,83,99.0,75.0,130.0,49.0,37.0,68.0,69.0,51.0,91.0
+net_deaths_averted_in_ckd,Czech Republic,83,2907.0,2381.0,3413.0,1571.0,1267.0,1908.0,1854.0,1510.0,2254.0
+net_deaths_averted_in_ckd,Democratic Republic of the Congo,83,802.0,411.0,1309.0,739.0,398.0,1193.0,551.0,307.0,865.0
+net_deaths_averted_in_ckd,Denmark,83,417.0,309.0,524.0,85.0,53.0,130.0,374.0,277.0,463.0
+net_deaths_averted_in_ckd,Djibouti,83,20.0,16.0,23.0,14.0,11.0,17.0,9.0,7.0,11.0
+net_deaths_averted_in_ckd,Dominica,83,6.0,5.0,7.0,4.0,3.0,5.0,3.0,2.0,4.0
+net_deaths_averted_in_ckd,Dominican Republic,83,612.0,498.0,735.0,409.0,333.0,494.0,304.0,243.0,375.0
+net_deaths_averted_in_ckd,Ecuador,83,659.0,534.0,772.0,449.0,358.0,541.0,314.0,250.0,381.0
+net_deaths_averted_in_ckd,Egypt,83,1471.0,807.0,2254.0,1193.0,699.0,1805.0,864.0,509.0,1318.0
+net_deaths_averted_in_ckd,El Salvador,83,379.0,313.0,445.0,258.0,210.0,304.0,174.0,141.0,209.0
+net_deaths_averted_in_ckd,Equatorial Guinea,83,36.0,28.0,45.0,25.0,20.0,32.0,19.0,14.0,24.0
+net_deaths_averted_in_ckd,Eritrea,83,104.0,83.0,129.0,76.0,59.0,94.0,46.0,36.0,58.0
+net_deaths_averted_in_ckd,Estonia,83,83.0,48.0,129.0,48.0,29.0,86.0,58.0,35.0,98.0
+net_deaths_averted_in_ckd,Ethiopia,83,1106.0,872.0,1348.0,800.0,629.0,979.0,495.0,383.0,619.0
+net_deaths_averted_in_ckd,Federated States of Micronesia,83,9.0,7.0,11.0,7.0,5.0,8.0,4.0,3.0,5.0
+net_deaths_averted_in_ckd,Fiji,83,93.0,77.0,108.0,63.0,52.0,74.0,43.0,34.0,52.0
+net_deaths_averted_in_ckd,Finland,83,709.0,508.0,943.0,249.0,170.0,356.0,598.0,423.0,795.0
+net_deaths_averted_in_ckd,France,83,4439.0,3143.0,5848.0,1830.0,1279.0,2538.0,3402.0,2424.0,4516.0
+net_deaths_averted_in_ckd,Gabon,83,86.0,65.0,108.0,60.0,45.0,75.0,45.0,34.0,58.0
+net_deaths_averted_in_ckd,Georgia,83,1544.0,1289.0,1838.0,1066.0,863.0,1290.0,727.0,581.0,893.0
+net_deaths_averted_in_ckd,Germany,83,11892.0,8609.0,15414.0,4240.0,2934.0,5861.0,9749.0,7083.0,12615.0
+net_deaths_averted_in_ckd,Ghana,83,743.0,627.0,860.0,526.0,439.0,626.0,333.0,272.0,398.0
+net_deaths_averted_in_ckd,Greece,83,1739.0,1249.0,2256.0,1040.0,766.0,1367.0,1046.0,765.0,1370.0
+net_deaths_averted_in_ckd,Greenland,83,2.0,2.0,3.0,1.0,1.0,1.0,2.0,2.0,3.0
+net_deaths_averted_in_ckd,Grenada,83,6.0,5.0,8.0,4.0,3.0,5.0,3.0,2.0,4.0
+net_deaths_averted_in_ckd,Guatemala,83,737.0,607.0,874.0,504.0,412.0,613.0,344.0,279.0,417.0
+net_deaths_averted_in_ckd,Guinea,83,360.0,287.0,437.0,262.0,208.0,318.0,160.0,127.0,196.0
+net_deaths_averted_in_ckd,Guinea-Bissau,83,54.0,43.0,66.0,39.0,31.0,48.0,24.0,19.0,30.0
+net_deaths_averted_in_ckd,Guyana,83,50.0,41.0,60.0,33.0,27.0,41.0,26.0,21.0,32.0
+net_deaths_averted_in_ckd,Haiti,83,541.0,442.0,642.0,392.0,319.0,469.0,244.0,197.0,298.0
+net_deaths_averted_in_ckd,Honduras,83,946.0,781.0,1118.0,656.0,541.0,788.0,423.0,342.0,518.0
+net_deaths_averted_in_ckd,Hungary,83,3820.0,3198.0,4441.0,2308.0,1901.0,2788.0,2236.0,1833.0,2710.0
+net_deaths_averted_in_ckd,Iceland,83,20.0,15.0,26.0,4.0,3.0,7.0,18.0,14.0,23.0
+net_deaths_averted_in_ckd,India,83,67336.0,57009.0,77299.0,47260.0,39799.0,55603.0,29696.0,24279.0,35292.0
+net_deaths_averted_in_ckd,Indonesia,83,28433.0,24224.0,33075.0,19373.0,16278.0,22878.0,13031.0,10686.0,15497.0
+net_deaths_averted_in_ckd,Iran,83,925.0,454.0,1457.0,768.0,395.0,1212.0,557.0,296.0,893.0
+net_deaths_averted_in_ckd,Iraq,83,506.0,278.0,762.0,406.0,233.0,586.0,296.0,179.0,432.0
+net_deaths_averted_in_ckd,Ireland,84,180.0,122.0,243.0,18.0,11.0,32.0,174.0,119.0,239.0
+net_deaths_averted_in_ckd,Israel,84,353.0,267.0,450.0,120.0,88.0,163.0,288.0,217.0,369.0
+net_deaths_averted_in_ckd,Italy,84,8854.0,6458.0,11532.0,4107.0,2980.0,5618.0,6299.0,4602.0,8251.0
+net_deaths_averted_in_ckd,Jamaica,84,191.0,155.0,230.0,133.0,107.0,163.0,91.0,74.0,113.0
+net_deaths_averted_in_ckd,Japan,84,23743.0,19228.0,28522.0,9919.0,7710.0,12544.0,16747.0,13437.0,20682.0
+net_deaths_averted_in_ckd,Jordan,84,57.0,32.0,89.0,46.0,26.0,71.0,34.0,19.0,51.0
+net_deaths_averted_in_ckd,Kazakhstan,84,3327.0,2696.0,4039.0,2146.0,1720.0,2586.0,1681.0,1348.0,2090.0
+net_deaths_averted_in_ckd,Kenya,84,443.0,331.0,569.0,316.0,235.0,411.0,202.0,147.0,266.0
+net_deaths_averted_in_ckd,Kiribati,84,7.0,5.0,8.0,5.0,4.0,6.0,3.0,2.0,4.0
+net_deaths_averted_in_ckd,Kuwait,84,63.0,48.0,81.0,33.0,25.0,43.0,44.0,34.0,57.0
+net_deaths_averted_in_ckd,Kyrgyzstan,84,794.0,660.0,950.0,565.0,459.0,679.0,349.0,281.0,432.0
+net_deaths_averted_in_ckd,Laos,84,596.0,500.0,697.0,417.0,342.0,493.0,268.0,220.0,318.0
+net_deaths_averted_in_ckd,Latvia,84,366.0,255.0,501.0,243.0,165.0,331.0,246.0,165.0,344.0
+net_deaths_averted_in_ckd,Lebanon,84,41.0,19.0,73.0,34.0,16.0,60.0,25.0,12.0,44.0
+net_deaths_averted_in_ckd,Lesotho,84,70.0,47.0,96.0,57.0,39.0,76.0,37.0,26.0,50.0
+net_deaths_averted_in_ckd,Liberia,84,123.0,99.0,148.0,89.0,71.0,109.0,54.0,43.0,66.0
+net_deaths_averted_in_ckd,Libya,84,63.0,34.0,100.0,51.0,29.0,81.0,39.0,22.0,61.0
+net_deaths_averted_in_ckd,Lithuania,84,826.0,623.0,1045.0,447.0,329.0,589.0,497.0,365.0,644.0
+net_deaths_averted_in_ckd,Luxembourg,84,40.0,29.0,50.0,3.0,2.0,4.0,39.0,28.0,49.0
+net_deaths_averted_in_ckd,Macedonia,84,971.0,788.0,1146.0,661.0,526.0,801.0,477.0,378.0,592.0
+net_deaths_averted_in_ckd,Madagascar,84,535.0,441.0,628.0,387.0,316.0,457.0,235.0,188.0,287.0
+net_deaths_averted_in_ckd,Malawi,84,293.0,241.0,348.0,211.0,171.0,253.0,128.0,103.0,158.0
+net_deaths_averted_in_ckd,Malaysia,84,3054.0,2613.0,3518.0,1932.0,1637.0,2269.0,1540.0,1292.0,1841.0
+net_deaths_averted_in_ckd,Maldives,84,21.0,18.0,25.0,14.0,11.0,17.0,11.0,9.0,13.0
+net_deaths_averted_in_ckd,Mali,84,355.0,272.0,442.0,258.0,198.0,322.0,158.0,120.0,196.0
+net_deaths_averted_in_ckd,Malta,84,48.0,37.0,60.0,23.0,17.0,29.0,33.0,25.0,42.0
+net_deaths_averted_in_ckd,Marshall Islands,84,4.0,3.0,5.0,3.0,2.0,3.0,2.0,1.0,2.0
+net_deaths_averted_in_ckd,Mauritania,84,132.0,107.0,162.0,95.0,76.0,116.0,59.0,47.0,74.0
+net_deaths_averted_in_ckd,Mauritius,84,178.0,152.0,207.0,116.0,97.0,138.0,89.0,73.0,105.0
+net_deaths_averted_in_ckd,Mexico,84,8733.0,7071.0,10232.0,5674.0,4558.0,6757.0,4433.0,3486.0,5372.0
+net_deaths_averted_in_ckd,Moldova,84,563.0,397.0,759.0,435.0,299.0,588.0,314.0,218.0,423.0
+net_deaths_averted_in_ckd,Mongolia,84,335.0,279.0,398.0,231.0,189.0,277.0,155.0,127.0,188.0
+net_deaths_averted_in_ckd,Montenegro,84,252.0,209.0,301.0,168.0,136.0,205.0,129.0,104.0,160.0
+net_deaths_averted_in_ckd,Morocco,84,482.0,253.0,745.0,395.0,215.0,604.0,287.0,160.0,436.0
+net_deaths_averted_in_ckd,Mozambique,84,546.0,444.0,666.0,396.0,316.0,486.0,239.0,191.0,299.0
+net_deaths_averted_in_ckd,Myanmar,84,5979.0,4986.0,6897.0,4204.0,3497.0,4936.0,2616.0,2141.0,3068.0
+net_deaths_averted_in_ckd,Namibia,84,67.0,45.0,91.0,53.0,36.0,71.0,38.0,26.0,51.0
+net_deaths_averted_in_ckd,Nauru,84,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0
+net_deaths_averted_in_ckd,Nepal,84,2643.0,2026.0,3260.0,1911.0,1462.0,2416.0,1185.0,892.0,1514.0
+net_deaths_averted_in_ckd,Netherlands,84,1127.0,843.0,1439.0,325.0,220.0,474.0,962.0,718.0,1228.0
+net_deaths_averted_in_ckd,New Zealand,84,269.0,192.0,351.0,105.0,71.0,143.0,222.0,159.0,295.0
+net_deaths_averted_in_ckd,Nicaragua,85,386.0,323.0,451.0,270.0,225.0,318.0,169.0,141.0,202.0
+net_deaths_averted_in_ckd,Niger,85,348.0,273.0,424.0,252.0,199.0,311.0,152.0,120.0,190.0
+net_deaths_averted_in_ckd,Nigeria,85,5245.0,4090.0,6508.0,3892.0,3029.0,4815.0,2462.0,1939.0,3015.0
+net_deaths_averted_in_ckd,Norway,85,233.0,161.0,321.0,27.0,16.0,48.0,224.0,155.0,309.0
+net_deaths_averted_in_ckd,Oman,85,25.0,14.0,39.0,18.0,11.0,27.0,18.0,10.0,27.0
+net_deaths_averted_in_ckd,Pakistan,85,10497.0,9068.0,12208.0,7509.0,6318.0,8874.0,4653.0,3864.0,5559.0
+net_deaths_averted_in_ckd,Palau,85,2.0,2.0,3.0,1.0,1.0,2.0,1.0,1.0,1.0
+net_deaths_averted_in_ckd,Panama,85,300.0,255.0,351.0,181.0,150.0,219.0,162.0,136.0,194.0
+net_deaths_averted_in_ckd,Papua New Guinea,85,323.0,237.0,397.0,231.0,168.0,285.0,149.0,110.0,185.0
+net_deaths_averted_in_ckd,Paraguay,85,468.0,390.0,544.0,316.0,263.0,374.0,222.0,183.0,265.0
+net_deaths_averted_in_ckd,Peru,85,752.0,613.0,888.0,510.0,402.0,611.0,360.0,290.0,440.0
+net_deaths_averted_in_ckd,Philippines,85,8628.0,7192.0,10019.0,6001.0,4974.0,7125.0,3961.0,3256.0,4753.0
+net_deaths_averted_in_ckd,Poland,85,9273.0,7289.0,11317.0,5495.0,4249.0,6891.0,5244.0,4110.0,6542.0
+net_deaths_averted_in_ckd,Portugal,85,533.0,352.0,772.0,341.0,221.0,495.0,376.0,244.0,537.0
+net_deaths_averted_in_ckd,Puerto Rico,85,266.0,214.0,317.0,130.0,101.0,163.0,179.0,143.0,218.0
+net_deaths_averted_in_ckd,Qatar,85,5.0,3.0,8.0,2.0,1.0,2.0,5.0,3.0,7.0
+net_deaths_averted_in_ckd,Romania,85,10412.0,8606.0,12136.0,6560.0,5315.0,7917.0,5792.0,4680.0,7047.0
+net_deaths_averted_in_ckd,Russia,85,25329.0,19661.0,31479.0,16053.0,12476.0,20049.0,13181.0,10298.0,16674.0
+net_deaths_averted_in_ckd,Rwanda,85,210.0,169.0,259.0,151.0,121.0,187.0,93.0,72.0,117.0
+net_deaths_averted_in_ckd,Saint Kitts and Nevis,85,4.0,3.0,4.0,2.0,2.0,3.0,2.0,2.0,3.0
+net_deaths_averted_in_ckd,Saint Lucia,85,14.0,11.0,16.0,9.0,7.0,11.0,7.0,6.0,9.0
+net_deaths_averted_in_ckd,Saint Vincent and the Grenadines,85,10.0,8.0,13.0,7.0,5.0,9.0,5.0,4.0,7.0
+net_deaths_averted_in_ckd,Samoa,85,11.0,9.0,14.0,8.0,6.0,10.0,5.0,4.0,7.0
+net_deaths_averted_in_ckd,Sao Tome and Principe,85,6.0,5.0,7.0,4.0,3.0,5.0,3.0,2.0,3.0
+net_deaths_averted_in_ckd,Saudi Arabia,85,317.0,190.0,474.0,208.0,132.0,297.0,230.0,143.0,327.0
+net_deaths_averted_in_ckd,Senegal,85,357.0,282.0,430.0,257.0,201.0,313.0,159.0,127.0,199.0
+net_deaths_averted_in_ckd,Serbia,85,3048.0,2531.0,3518.0,2052.0,1673.0,2429.0,1581.0,1283.0,1879.0
+net_deaths_averted_in_ckd,Seychelles,85,12.0,10.0,14.0,8.0,6.0,9.0,6.0,5.0,8.0
+net_deaths_averted_in_ckd,Sierra Leone,85,235.0,186.0,284.0,171.0,134.0,208.0,103.0,82.0,126.0
+net_deaths_averted_in_ckd,Singapore,85,311.0,250.0,370.0,48.0,31.0,72.0,284.0,226.0,336.0
+net_deaths_averted_in_ckd,Slovakia,85,1608.0,1311.0,1890.0,922.0,733.0,1123.0,964.0,776.0,1172.0
+net_deaths_averted_in_ckd,Slovenia,85,495.0,397.0,598.0,263.0,201.0,335.0,330.0,257.0,411.0
+net_deaths_averted_in_ckd,Solomon Islands,85,42.0,33.0,50.0,29.0,23.0,36.0,19.0,15.0,23.0
+net_deaths_averted_in_ckd,Somalia,85,206.0,165.0,255.0,149.0,118.0,187.0,91.0,71.0,115.0
+net_deaths_averted_in_ckd,South Africa,85,1741.0,1114.0,2462.0,1418.0,936.0,1993.0,1096.0,746.0,1475.0
+net_deaths_averted_in_ckd,South Korea,85,4771.0,3693.0,5911.0,2281.0,1726.0,2950.0,3319.0,2524.0,4217.0
+net_deaths_averted_in_ckd,Spain,85,696.0,270.0,1579.0,561.0,203.0,1161.0,625.0,228.0,1382.0
+net_deaths_averted_in_ckd,Sri Lanka,85,2381.0,1963.0,2813.0,1631.0,1325.0,1945.0,1085.0,870.0,1323.0
+net_deaths_averted_in_ckd,Sudan,85,371.0,208.0,563.0,309.0,183.0,460.0,207.0,122.0,305.0
+net_deaths_averted_in_ckd,Suriname,85,32.0,26.0,38.0,22.0,18.0,27.0,15.0,12.0,18.0
+net_deaths_averted_in_ckd,Swaziland,85,30.0,21.0,41.0,24.0,17.0,32.0,17.0,12.0,22.0
+net_deaths_averted_in_ckd,Sweden,86,1015.0,748.0,1312.0,268.0,170.0,391.0,879.0,655.0,1115.0
+net_deaths_averted_in_ckd,Switzerland,86,859.0,606.0,1127.0,84.0,53.0,167.0,821.0,577.0,1072.0
+net_deaths_averted_in_ckd,Syria,86,256.0,140.0,397.0,212.0,122.0,323.0,142.0,84.0,213.0
+net_deaths_averted_in_ckd,Taiwan (Province of China),86,1980.0,1628.0,2344.0,945.0,750.0,1163.0,1321.0,1074.0,1598.0
+net_deaths_averted_in_ckd,Tajikistan,86,881.0,731.0,1042.0,632.0,522.0,763.0,388.0,314.0,467.0
+net_deaths_averted_in_ckd,Tanzania,86,948.0,761.0,1136.0,671.0,534.0,815.0,415.0,324.0,510.0
+net_deaths_averted_in_ckd,Thailand,86,6877.0,5624.0,8231.0,4603.0,3740.0,5543.0,3322.0,2647.0,4024.0
+net_deaths_averted_in_ckd,The Bahamas,86,22.0,18.0,26.0,12.0,9.0,14.0,14.0,11.0,18.0
+net_deaths_averted_in_ckd,The Gambia,86,71.0,56.0,86.0,51.0,40.0,64.0,31.0,24.0,39.0
+net_deaths_averted_in_ckd,Timor-Leste,86,113.0,93.0,134.0,79.0,64.0,94.0,51.0,41.0,62.0
+net_deaths_averted_in_ckd,Togo,86,211.0,168.0,253.0,153.0,122.0,186.0,93.0,74.0,116.0
+net_deaths_averted_in_ckd,Tonga,86,7.0,6.0,8.0,5.0,4.0,6.0,3.0,3.0,4.0
+net_deaths_averted_in_ckd,Trinidad and Tobago,86,99.0,81.0,119.0,62.0,50.0,75.0,56.0,45.0,68.0
+net_deaths_averted_in_ckd,Tunisia,86,155.0,74.0,255.0,127.0,63.0,212.0,93.0,46.0,153.0
+net_deaths_averted_in_ckd,Turkey,86,367.0,109.0,773.0,329.0,99.0,693.0,283.0,84.0,578.0
+net_deaths_averted_in_ckd,Turkmenistan,86,940.0,783.0,1096.0,628.0,518.0,746.0,463.0,376.0,549.0
+net_deaths_averted_in_ckd,Tuvalu,86,2.0,1.0,2.0,1.0,1.0,1.0,1.0,1.0,1.0
+net_deaths_averted_in_ckd,Uganda,86,500.0,396.0,615.0,359.0,281.0,447.0,220.0,172.0,275.0
+net_deaths_averted_in_ckd,Ukraine,86,7606.0,5155.0,10768.0,5976.0,3941.0,8506.0,4277.0,2863.0,6003.0
+net_deaths_averted_in_ckd,United Arab Emirates,86,32.0,18.0,47.0,16.0,9.0,23.0,27.0,16.0,40.0
+net_deaths_averted_in_ckd,United Kingdom,86,5002.0,3700.0,6349.0,1922.0,1398.0,2564.0,3909.0,2911.0,4974.0
+net_deaths_averted_in_ckd,United States,86,36893.0,28666.0,45238.0,7481.0,4902.0,10719.0,33354.0,25789.0,41103.0
+net_deaths_averted_in_ckd,Uruguay,86,417.0,339.0,493.0,247.0,195.0,300.0,234.0,184.0,285.0
+net_deaths_averted_in_ckd,Uzbekistan,86,5076.0,4133.0,6021.0,3606.0,2908.0,4306.0,2273.0,1805.0,2729.0
+net_deaths_averted_in_ckd,Vanuatu,86,23.0,20.0,27.0,16.0,14.0,19.0,11.0,9.0,13.0
+net_deaths_averted_in_ckd,Venezuela,86,3647.0,3099.0,4240.0,2546.0,2128.0,3011.0,1602.0,1326.0,1931.0
+net_deaths_averted_in_ckd,Vietnam,86,6888.0,5720.0,8154.0,4750.0,3876.0,5639.0,3131.0,2538.0,3823.0
+net_deaths_averted_in_ckd,Yemen,86,261.0,142.0,405.0,218.0,123.0,335.0,145.0,82.0,217.0
+net_deaths_averted_in_ckd,Zambia,86,309.0,245.0,371.0,223.0,175.0,268.0,137.0,107.0,168.0
+net_deaths_averted_in_ckd,Zimbabwe,86,563.0,442.0,686.0,409.0,321.0,504.0,255.0,198.0,314.0

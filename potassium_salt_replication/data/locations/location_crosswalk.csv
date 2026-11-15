@@ -1,0 +1,205 @@
+location_id,gbd_name,iso3,paper_name,ncdrisc_name,in_paper
+160,Afghanistan,AFG,Afghanistan,Afghanistan,True
+43,Albania,ALB,Albania,Albania,True
+139,Algeria,DZA,Algeria,Algeria,True
+298,American Samoa,ASM,American Samoa,American Samoa,True
+74,Andorra,AND,Andorra,Andorra,True
+168,Angola,AGO,Angola,Angola,True
+105,Antigua and Barbuda,ATG,Antigua and Barbuda,Antigua and Barbuda,True
+97,Argentina,ARG,Argentina,Argentina,True
+33,Armenia,ARM,Armenia,Armenia,True
+71,Australia,AUS,Australia,Australia,True
+75,Austria,AUT,Austria,Austria,True
+34,Azerbaijan,AZE,Azerbaijan,Azerbaijan,True
+106,Bahamas,BHS,The Bahamas,Bahamas,True
+140,Bahrain,BHR,Bahrain,Bahrain,True
+161,Bangladesh,BGD,Bangladesh,Bangladesh,True
+107,Barbados,BRB,Barbados,Barbados,True
+57,Belarus,BLR,Belarus,Belarus,True
+76,Belgium,BEL,Belgium,Belgium,True
+108,Belize,BLZ,Belize,Belize,True
+200,Benin,BEN,Benin,Benin,True
+305,Bermuda,BMU,Bermuda,Bermuda,True
+162,Bhutan,BTN,Bhutan,Bhutan,True
+121,Bolivia (Plurinational State of),BOL,Bolivia,Bolivia,True
+44,Bosnia and Herzegovina,BIH,Bosnia and Herzegovina,Bosnia and Herzegovina,True
+193,Botswana,BWA,Botswana,Botswana,True
+135,Brazil,BRA,Brazil,Brazil,True
+66,Brunei Darussalam,BRN,Brunei,Brunei Darussalam,True
+45,Bulgaria,BGR,Bulgaria,Bulgaria,True
+201,Burkina Faso,BFA,Burkina Faso,Burkina Faso,True
+175,Burundi,BDI,Burundi,Burundi,True
+203,Cabo Verde,CPV,Cape Verde,Cabo Verde,True
+10,Cambodia,KHM,Cambodia,Cambodia,True
+202,Cameroon,CMR,Cameroon,Cameroon,True
+101,Canada,CAN,Canada,Canada,True
+169,Central African Republic,CAF,Central African Republic,Central African Republic,True
+204,Chad,TCD,Chad,Chad,True
+98,Chile,CHL,Chile,Chile,True
+6,China,CHN,China,China,True
+125,Colombia,COL,Colombia,Colombia,True
+176,Comoros,COM,Comoros,Comoros,True
+170,Congo,COG,Congo,Congo,True
+320,Cook Islands,COK,,Cook Islands,False
+126,Costa Rica,CRI,Costa Rica,Costa Rica,True
+46,Croatia,HRV,Croatia,Croatia,True
+109,Cuba,CUB,Cuba,Cuba,True
+77,Cyprus,CYP,Cyprus,Cyprus,True
+47,Czechia,CZE,Czech Republic,Czech Republic,True
+205,Côte d'Ivoire,CIV,Cote d'Ivoire,Cote d'Ivoire,True
+7,Democratic People's Republic of Korea,PRK,,North Korea,False
+171,Democratic Republic of the Congo,COD,Democratic Republic of the Congo,DR Congo,True
+78,Denmark,DNK,Denmark,Denmark,True
+177,Djibouti,DJI,Djibouti,Djibouti,True
+110,Dominica,DMA,Dominica,Dominica,True
+111,Dominican Republic,DOM,Dominican Republic,Dominican Republic,True
+122,Ecuador,ECU,Ecuador,Ecuador,True
+141,Egypt,EGY,Egypt,Egypt,True
+127,El Salvador,SLV,El Salvador,El Salvador,True
+172,Equatorial Guinea,GNQ,Equatorial Guinea,Equatorial Guinea,True
+178,Eritrea,ERI,Eritrea,Eritrea,True
+58,Estonia,EST,Estonia,Estonia,True
+197,Eswatini,SWZ,Swaziland,Swaziland,True
+179,Ethiopia,ETH,Ethiopia,Ethiopia,True
+22,Fiji,FJI,Fiji,Fiji,True
+79,Finland,FIN,Finland,Finland,True
+80,France,FRA,France,France,True
+173,Gabon,GAB,Gabon,Gabon,True
+206,Gambia,GMB,The Gambia,Gambia,True
+35,Georgia,GEO,Georgia,Georgia,True
+81,Germany,DEU,Germany,Germany,True
+207,Ghana,GHA,Ghana,Ghana,True
+82,Greece,GRC,Greece,Greece,True
+349,Greenland,GRL,Greenland,Greenland,True
+112,Grenada,GRD,Grenada,Grenada,True
+351,Guam,GUM,,,False
+128,Guatemala,GTM,Guatemala,Guatemala,True
+208,Guinea,GIN,Guinea,Guinea,True
+209,Guinea-Bissau,GNB,Guinea-Bissau,Guinea Bissau,True
+113,Guyana,GUY,Guyana,Guyana,True
+114,Haiti,HTI,Haiti,Haiti,True
+129,Honduras,HND,Honduras,Honduras,True
+48,Hungary,HUN,Hungary,Hungary,True
+83,Iceland,ISL,Iceland,Iceland,True
+163,India,IND,India,India,True
+11,Indonesia,IDN,Indonesia,Indonesia,True
+142,Iran (Islamic Republic of),IRN,Iran,Iran,True
+143,Iraq,IRQ,Iraq,Iraq,True
+84,Ireland,IRL,Ireland,Ireland,True
+85,Israel,ISR,Israel,Israel,True
+86,Italy,ITA,Italy,Italy,True
+115,Jamaica,JAM,Jamaica,Jamaica,True
+67,Japan,JPN,Japan,Japan,True
+144,Jordan,JOR,Jordan,Jordan,True
+36,Kazakhstan,KAZ,Kazakhstan,Kazakhstan,True
+180,Kenya,KEN,Kenya,Kenya,True
+23,Kiribati,KIR,Kiribati,Kiribati,True
+145,Kuwait,KWT,Kuwait,Kuwait,True
+37,Kyrgyzstan,KGZ,Kyrgyzstan,Kyrgyzstan,True
+12,Lao People's Democratic Republic,LAO,Laos,Lao PDR,True
+59,Latvia,LVA,Latvia,Latvia,True
+146,Lebanon,LBN,Lebanon,Lebanon,True
+194,Lesotho,LSO,Lesotho,Lesotho,True
+210,Liberia,LBR,Liberia,Liberia,True
+147,Libya,LBY,Libya,Libya,True
+60,Lithuania,LTU,Lithuania,Lithuania,True
+87,Luxembourg,LUX,Luxembourg,Luxembourg,True
+181,Madagascar,MDG,Madagascar,Madagascar,True
+182,Malawi,MWI,Malawi,Malawi,True
+13,Malaysia,MYS,Malaysia,Malaysia,True
+14,Maldives,MDV,Maldives,Maldives,True
+211,Mali,MLI,Mali,Mali,True
+88,Malta,MLT,Malta,Malta,True
+24,Marshall Islands,MHL,Marshall Islands,Marshall Islands,True
+212,Mauritania,MRT,Mauritania,Mauritania,True
+183,Mauritius,MUS,Mauritius,Mauritius,True
+130,Mexico,MEX,Mexico,Mexico,True
+25,Micronesia (Federated States of),FSM,Federated States of Micronesia,Micronesia (Federated States of),True
+367,Monaco,MCO,,,False
+38,Mongolia,MNG,Mongolia,Mongolia,True
+50,Montenegro,MNE,Montenegro,Montenegro,True
+148,Morocco,MAR,Morocco,Morocco,True
+184,Mozambique,MOZ,Mozambique,Mozambique,True
+15,Myanmar,MMR,Myanmar,Myanmar,True
+195,Namibia,NAM,Namibia,Namibia,True
+369,Nauru,NRU,Nauru,Nauru,True
+164,Nepal,NPL,Nepal,Nepal,True
+89,Netherlands,NLD,Netherlands,Netherlands,True
+72,New Zealand,NZL,New Zealand,New Zealand,True
+131,Nicaragua,NIC,Nicaragua,Nicaragua,True
+213,Niger,NER,Niger,Niger,True
+214,Nigeria,NGA,Nigeria,Nigeria,True
+374,Niue,NIU,,Niue,False
+49,North Macedonia,MKD,Macedonia,Macedonia (TFYR),True
+376,Northern Mariana Islands,MNP,,,False
+90,Norway,NOR,Norway,Norway,True
+150,Oman,OMN,Oman,Oman,True
+165,Pakistan,PAK,Pakistan,Pakistan,True
+380,Palau,PLW,Palau,Palau,True
+149,Palestine,PSE,,Occupied Palestinian Territory,False
+132,Panama,PAN,Panama,Panama,True
+26,Papua New Guinea,PNG,Papua New Guinea,Papua New Guinea,True
+136,Paraguay,PRY,Paraguay,Paraguay,True
+123,Peru,PER,Peru,Peru,True
+16,Philippines,PHL,Philippines,Philippines,True
+51,Poland,POL,Poland,Poland,True
+91,Portugal,PRT,Portugal,Portugal,True
+385,Puerto Rico,PRI,Puerto Rico,Puerto Rico,True
+151,Qatar,QAT,Qatar,Qatar,True
+68,Republic of Korea,KOR,South Korea,South Korea,True
+61,Republic of Moldova,MDA,Moldova,Moldova,True
+52,Romania,ROU,Romania,Romania,True
+62,Russian Federation,RUS,Russia,Russian Federation,True
+185,Rwanda,RWA,Rwanda,Rwanda,True
+393,Saint Kitts and Nevis,KNA,Saint Kitts and Nevis,Saint Kitts and Nevis,True
+116,Saint Lucia,LCA,Saint Lucia,Saint Lucia,True
+117,Saint Vincent and the Grenadines,VCT,Saint Vincent and the Grenadines,Saint Vincent and the Grenadines,True
+27,Samoa,WSM,Samoa,Samoa,True
+396,San Marino,SMR,,,False
+215,Sao Tome and Principe,STP,Sao Tome and Principe,Sao Tome and Principe,True
+152,Saudi Arabia,SAU,Saudi Arabia,Saudi Arabia,True
+216,Senegal,SEN,Senegal,Senegal,True
+53,Serbia,SRB,Serbia,Serbia,True
+186,Seychelles,SYC,Seychelles,Seychelles,True
+217,Sierra Leone,SLE,Sierra Leone,Sierra Leone,True
+69,Singapore,SGP,Singapore,Singapore,True
+54,Slovakia,SVK,Slovakia,Slovakia,True
+55,Slovenia,SVN,Slovenia,Slovenia,True
+28,Solomon Islands,SLB,Solomon Islands,Solomon Islands,True
+187,Somalia,SOM,Somalia,Somalia,True
+196,South Africa,ZAF,South Africa,South Africa,True
+435,South Sudan,SSD,,South Sudan,False
+92,Spain,ESP,Spain,Spain,True
+17,Sri Lanka,LKA,Sri Lanka,Sri Lanka,True
+522,Sudan,SDN,Sudan,Sudan,True
+118,Suriname,SUR,Suriname,Suriname,True
+93,Sweden,SWE,Sweden,Sweden,True
+94,Switzerland,CHE,Switzerland,Switzerland,True
+153,Syrian Arab Republic,SYR,Syria,Syrian Arab Republic,True
+8,Taiwan,TWN,Taiwan (Province of China),Taiwan,True
+39,Tajikistan,TJK,Tajikistan,Tajikistan,True
+18,Thailand,THA,Thailand,Thailand,True
+19,Timor-Leste,TLS,Timor-Leste,Timor-Leste,True
+218,Togo,TGO,Togo,Togo,True
+413,Tokelau,TKL,,Tokelau,False
+29,Tonga,TON,Tonga,Tonga,True
+119,Trinidad and Tobago,TTO,Trinidad and Tobago,Trinidad and Tobago,True
+154,Tunisia,TUN,Tunisia,Tunisia,True
+40,Turkmenistan,TKM,Turkmenistan,Turkmenistan,True
+416,Tuvalu,TUV,Tuvalu,Tuvalu,True
+155,Türkiye,TUR,Turkey,Turkey,True
+190,Uganda,UGA,Uganda,Uganda,True
+63,Ukraine,UKR,Ukraine,Ukraine,True
+156,United Arab Emirates,ARE,United Arab Emirates,United Arab Emirates,True
+95,United Kingdom,GBR,United Kingdom,United Kingdom,True
+189,United Republic of Tanzania,TZA,Tanzania,Tanzania,True
+422,United States Virgin Islands,VIR,,,False
+102,United States of America,USA,United States,United States of America,True
+99,Uruguay,URY,Uruguay,Uruguay,True
+41,Uzbekistan,UZB,Uzbekistan,Uzbekistan,True
+30,Vanuatu,VUT,Vanuatu,Vanuatu,True
+133,Venezuela (Bolivarian Republic of),VEN,Venezuela,Venezuela,True
+20,Viet Nam,VNM,Vietnam,Viet Nam,True
+157,Yemen,YEM,Yemen,Yemen,True
+191,Zambia,ZMB,Zambia,Zambia,True
+198,Zimbabwe,ZWE,Zimbabwe,Zimbabwe,True

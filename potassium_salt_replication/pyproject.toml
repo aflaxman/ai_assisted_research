@@ -1,0 +1,48 @@
+[project]
+name = "vivarium-potassium-salt"
+version = "0.1.0"
+description = "Vivarium replication of Huang et al. (2026), global health outcomes from replacing dietary sodium chloride with potassium-enriched salt"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "vivarium-engine>=6.0",
+    "vivarium-public-health>=6.8",
+    "vivarium-gbd-mapping>=7.1",
+    "vivarium-interactive>=1.0",
+    "numpy",
+    "pandas",
+    "scipy",
+    "patsy",
+    "pyyaml",
+    "tables",
+    "pyarrow",
+    "matplotlib",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-vivarium",
+    "vivarium-fuzzy-checker",
+    "pdfplumber",
+    "openpyxl",
+    "jupyter",
+    "nbconvert",
+    "pytest-xdist>=3.8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vivarium_potassium_salt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore::SyntaxWarning",
+    "ignore::FutureWarning",
+    # raised inside vivarium by pandas 3
+    "ignore:The default value of 'track_times':Warning",
+    "ignore:The inplace keyword in DataFrame.rename_axis:Warning",
+]

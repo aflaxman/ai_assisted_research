@@ -1,0 +1,10 @@
+scenario,quantity,millions,lower,upper
+all_salt,people_with_ckd_stage_3_to_5,239,236,242
+all_salt,prevented_cvd_deaths_in_ckd,0.75,0.71,0.8
+all_salt,hyperkalaemia_deaths,0.1,0.09,0.11
+discretionary,people_with_ckd_stage_3_to_5,239,236,242
+discretionary,prevented_cvd_deaths_in_ckd,0.44,0.41,0.47
+discretionary,hyperkalaemia_deaths,0.05,0.04,0.05
+non_discretionary,people_with_ckd_stage_3_to_5,239,236,242
+non_discretionary,prevented_cvd_deaths_in_ckd,0.4,0.38,0.44
+non_discretionary,hyperkalaemia_deaths,0.04,0.04,0.05
