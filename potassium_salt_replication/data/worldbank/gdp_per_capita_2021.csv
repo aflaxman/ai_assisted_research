@@ -1,0 +1,205 @@
+location_id,gbd_name,iso3,in_paper,gdp_per_capita_current_usd,source,source_year
+160,Afghanistan,AFG,True,356.496214115892,world_bank,2021
+43,Albania,ALB,True,7242.45513146613,world_bank,2021
+139,Algeria,DZA,True,4160.55926736925,world_bank,2021
+298,American Samoa,ASM,True,15236.1604875571,world_bank,2021
+74,Andorra,AND,True,42425.6996761083,world_bank,2021
+168,Angola,AGO,True,2266.96834861584,world_bank,2021
+105,Antigua and Barbuda,ATG,True,17348.6006987182,world_bank,2021
+97,Argentina,ARG,True,10738.0179223384,world_bank,2021
+33,Armenia,ARM,True,4685.17997128509,world_bank,2021
+71,Australia,AUS,True,60758.9044397144,world_bank,2021
+75,Austria,AUT,True,53648.6437976214,world_bank,2021
+34,Azerbaijan,AZE,True,5408.04535175023,world_bank,2021
+106,Bahamas,BHS,True,30367.8605757708,world_bank,2021
+140,Bahrain,BHR,True,27147.8083882286,world_bank,2021
+161,Bangladesh,BGD,True,2482.84917843357,world_bank,2021
+107,Barbados,BRB,True,21084.4013935998,world_bank,2021
+57,Belarus,BLR,True,7489.71894713888,world_bank,2021
+76,Belgium,BEL,True,51658.238294958,world_bank,2021
+108,Belize,BLZ,True,6142.98930557031,world_bank,2021
+200,Benin,BEN,True,1318.65158075198,world_bank,2021
+305,Bermuda,BMU,True,112765.08167306,world_bank,2021
+162,Bhutan,BTN,True,3570.61257980872,world_bank,2021
+121,Bolivia (Plurinational State of),BOL,True,4010.76053686204,world_bank,2021
+44,Bosnia and Herzegovina,BIH,True,7295.34378682258,world_bank,2021
+193,Botswana,BWA,True,7807.88794570471,world_bank,2021
+135,Brazil,BRA,True,7972.5366498646,world_bank,2021
+66,Brunei Darussalam,BRN,True,31006.9636289785,world_bank,2021
+45,Bulgaria,BGR,True,12966.8085197381,world_bank,2021
+201,Burkina Faso,BFA,True,895.535288442991,world_bank,2021
+175,Burundi,BDI,True,264.172844085398,world_bank,2021
+203,Cabo Verde,CPV,True,3971.44409203423,world_bank,2021
+10,Cambodia,KHM,True,2167.40324198499,world_bank,2021
+202,Cameroon,CMR,True,1672.32657340872,world_bank,2021
+101,Canada,CAN,True,52886.6407813788,world_bank,2021
+169,Central African Republic,CAF,True,492.263142830507,world_bank,2021
+204,Chad,TCD,True,946.358500208374,world_bank,2021
+98,Chile,CHL,True,16216.1840860289,world_bank,2021
+6,China,CHN,True,12887.4357242941,world_bank,2021
+125,Colombia,COL,True,6222.62164397614,world_bank,2021
+176,Comoros,COM,True,1587.72988658008,world_bank,2021
+170,Congo,COG,True,2516.16255145432,world_bank,2021
+320,Cook Islands,COK,False,,imf,2021
+126,Costa Rica,CRI,True,12962.2716075659,world_bank,2021
+46,Croatia,HRV,True,17788.7601163765,world_bank,2021
+109,Cuba,CUB,True,9605.27914559614,world_bank,2020
+77,Cyprus,CYP,True,32937.8359375,world_bank,2021
+47,Czechia,CZE,True,27696.4619527544,world_bank,2021
+205,Côte d'Ivoire,CIV,True,2455.98127641148,world_bank,2021
+7,Democratic People's Republic of Korea,PRK,False,,imf,2021
+171,Democratic Republic of the Congo,COD,True,595.743074403567,world_bank,2021
+78,Denmark,DNK,True,69340.7334922138,world_bank,2021
+177,Djibouti,DJI,True,3025.91126413549,world_bank,2021
+110,Dominica,DMA,True,8376.40414141113,world_bank,2021
+111,Dominican Republic,DOM,True,8527.0754858205,world_bank,2021
+122,Ecuador,ECU,True,6061.32350181711,world_bank,2021
+141,Egypt,EGY,True,3827.35415374308,world_bank,2021
+127,El Salvador,SLV,True,4642.60743101342,world_bank,2021
+172,Equatorial Guinea,GNQ,True,6945.63069794539,world_bank,2021
+178,Eritrea,ERI,True,566.731,imf,2019
+58,Estonia,EST,True,27951.1659277744,world_bank,2021
+197,Eswatini,SWZ,True,3984.00229174306,world_bank,2021
+179,Ethiopia,ETH,True,893.009835441784,world_bank,2021
+22,Fiji,FJI,True,4536.73312110335,world_bank,2021
+79,Finland,FIN,True,53099.1351400148,world_bank,2021
+80,France,FRA,True,43725.0999521245,world_bank,2021
+173,Gabon,GAB,True,8181.40914134398,world_bank,2021
+206,Gambia,GMB,True,781.890925169531,world_bank,2021
+35,Georgia,GEO,True,5083.60695484577,world_bank,2021
+81,Germany,DEU,True,52349.2459994422,world_bank,2021
+207,Ghana,GHA,True,2445.18662529344,world_bank,2021
+82,Greece,GRC,True,20652.89659591,world_bank,2021
+349,Greenland,GRL,True,58135.9939910203,world_bank,2021
+112,Grenada,GRD,True,9617.28902905373,world_bank,2021
+351,Guam,GUM,False,38074.8793745801,world_bank,2021
+128,Guatemala,GTM,True,4912.62240414681,world_bank,2021
+208,Guinea,GIN,True,1244.96550477914,world_bank,2021
+209,Guinea-Bissau,GNB,True,926.54619187706,world_bank,2021
+113,Guyana,GUY,True,9860.87014834386,world_bank,2021
+114,Haiti,HTI,True,1824.6798742577,world_bank,2021
+129,Honduras,HND,True,2735.14751503977,world_bank,2021
+48,Hungary,HUN,True,19030.628130329,world_bank,2021
+83,Iceland,ISL,True,70425.4064277273,world_bank,2021
+163,India,IND,True,2239.61384367482,world_bank,2021
+11,Indonesia,IDN,True,4287.17313995098,world_bank,2021
+142,Iran (Islamic Republic of),IRN,True,4605.14881318992,world_bank,2021
+143,Iraq,IRQ,True,4868.49431080783,world_bank,2021
+84,Ireland,IRL,True,103783.446284479,world_bank,2021
+85,Israel,ISR,True,52258.4693499398,world_bank,2021
+86,Italy,ITA,True,36852.5425414951,world_bank,2021
+115,Jamaica,JAM,True,5625.67806271236,world_bank,2021
+67,Japan,JPN,True,41580.739040705,world_bank,2021
+144,Jordan,JOR,True,4581.71967230365,world_bank,2021
+36,Kazakhstan,KAZ,True,9983.60103576902,world_bank,2021
+180,Kenya,KEN,True,2061.35622089594,world_bank,2021
+23,Kiribati,KIR,True,2223.54147866465,world_bank,2021
+145,Kuwait,KWT,True,34018.6342592913,world_bank,2021
+37,Kyrgyzstan,KGZ,True,1349.99730650542,world_bank,2021
+12,Lao People's Democratic Republic,LAO,True,2526.05105018529,world_bank,2021
+59,Latvia,LVA,True,20261.8887788916,world_bank,2021
+146,Lebanon,LBN,True,4045.37391066234,world_bank,2021
+194,Lesotho,LSO,True,1066.58645143823,world_bank,2021
+210,Liberia,LBR,True,667.96610514319,world_bank,2021
+147,Libya,LBY,True,4935.82787349801,world_bank,2021
+60,Lithuania,LTU,True,23882.8668916753,world_bank,2021
+87,Luxembourg,LUX,True,134965.815442152,world_bank,2021
+181,Madagascar,MDG,True,483.469463351195,world_bank,2021
+182,Malawi,MWI,True,617.446994451007,world_bank,2021
+13,Malaysia,MYS,True,10903.1037480772,world_bank,2021
+14,Maldives,MDV,True,10176.143882547,world_bank,2021
+211,Mali,MLI,True,1027.27345365357,world_bank,2021
+88,Malta,MLT,True,38078.0064279067,world_bank,2021
+24,Marshall Islands,MHL,True,6315.31172190393,world_bank,2021
+212,Mauritania,MRT,True,1947.47413907209,world_bank,2021
+183,Mauritius,MUS,True,9177.71195973013,world_bank,2021
+130,Mexico,MEX,True,10314.0506733708,world_bank,2021
+25,Micronesia (Federated States of),FSM,True,3508.22314197664,world_bank,2021
+367,Monaco,MCO,False,223823.327192464,world_bank,2021
+38,Mongolia,MNG,True,4517.61578018785,world_bank,2021
+50,Montenegro,MNE,True,9315.86435643142,world_bank,2021
+148,Morocco,MAR,True,3785.93627929688,world_bank,2021
+184,Mozambique,MOZ,True,509.907829475551,world_bank,2021
+15,Myanmar,MMR,True,1242.72134419599,world_bank,2021
+195,Namibia,NAM,True,4412.8355693052,world_bank,2021
+369,Nauru,NRU,True,12748.1701249353,world_bank,2021
+164,Nepal,NPL,True,1252.75076731986,world_bank,2021
+89,Netherlands,NLD,True,60141.9880911492,world_bank,2021
+72,New Zealand,NZL,True,49902.154346032,world_bank,2021
+131,Nicaragua,NIC,True,2138.38573878237,world_bank,2021
+213,Niger,NER,True,609.585703670137,world_bank,2021
+214,Nigeria,NGA,True,2787.48779220991,world_bank,2021
+374,Niue,NIU,False,,imf,2021
+49,North Macedonia,MKD,True,7620.80296977508,world_bank,2021
+376,Northern Mariana Islands,MNP,False,19455.50139424,world_bank,2021
+90,Norway,NOR,True,96442.5552173002,world_bank,2021
+150,Oman,OMN,True,19403.4600160211,world_bank,2021
+165,Pakistan,PAK,True,1455.31922370186,world_bank,2021
+380,Palau,PLW,True,13267.4877340719,world_bank,2021
+149,Palestine,PSE,False,3678.63565662194,world_bank,2021
+132,Panama,PAN,True,15509.8069109784,world_bank,2021
+26,Papua New Guinea,PNG,True,2607.97769973161,world_bank,2021
+136,Paraguay,PRY,True,5974.9057185863,world_bank,2021
+123,Peru,PER,True,6828.53422535638,world_bank,2021
+16,Philippines,PHL,True,3484.38593882819,world_bank,2021
+51,Poland,POL,True,18635.5104895754,world_bank,2021
+91,Portugal,PRT,True,24711.4510062111,world_bank,2021
+385,Puerto Rico,PRI,True,32618.8705106244,world_bank,2021
+151,Qatar,QAT,True,71751.8831257169,world_bank,2021
+68,Republic of Korea,KOR,True,37518.4635305697,world_bank,2021
+61,Republic of Moldova,MDA,True,5274.60582195352,world_bank,2021
+52,Romania,ROU,True,14908.0412813921,world_bank,2021
+62,Russian Federation,RUS,True,12425.029296875,world_bank,2021
+185,Rwanda,RWA,True,842.581492947672,world_bank,2021
+393,Saint Kitts and Nevis,KNA,True,18361.1449697886,world_bank,2021
+116,Saint Lucia,LCA,True,10481.1233971786,world_bank,2021
+117,Saint Vincent and the Grenadines,VCT,True,8641.27904024443,world_bank,2021
+27,Samoa,WSM,True,4021.55934894283,world_bank,2021
+396,San Marino,SMR,False,54168.9744311193,world_bank,2021
+215,Sao Tome and Principe,STP,True,2362.58827248102,world_bank,2021
+152,Saudi Arabia,SAU,True,31920.7653655643,world_bank,2021
+216,Senegal,SEN,True,1598.10676952274,world_bank,2021
+53,Serbia,SRB,True,9680.52798074468,world_bank,2021
+186,Seychelles,SYC,True,14982.9111487767,world_bank,2021
+217,Sierra Leone,SLE,True,885.396401613729,world_bank,2021
+69,Singapore,SGP,True,80884.8565369236,world_bank,2021
+54,Slovakia,SVK,True,22123.3342114545,world_bank,2021
+55,Slovenia,SVN,True,29192.8401933019,world_bank,2021
+28,Solomon Islands,SLB,True,2043.44413170658,world_bank,2021
+187,Somalia,SOM,True,549.056994756254,world_bank,2021
+196,South Africa,ZAF,True,6828.75624590017,world_bank,2021
+435,South Sudan,SSD,False,546.712,imf,2021
+92,Spain,ESP,True,30799.4775937775,world_bank,2021
+17,Sri Lanka,LKA,True,3996.96240531688,world_bank,2021
+522,Sudan,SDN,True,712.122009277344,world_bank,2021
+118,Suriname,SUR,True,5029.84838543953,world_bank,2021
+93,Sweden,SWE,True,60647.5416365347,world_bank,2021
+94,Switzerland,CHE,True,96582.8687080693,world_bank,2021
+153,Syrian Arab Republic,SYR,True,688.566109726934,world_bank,2021
+8,Taiwan,TWN,True,33238.717,imf,2021
+39,Tajikistan,TJK,True,896.748053372182,world_bank,2021
+18,Thailand,THA,True,7055.18760721422,world_bank,2021
+19,Timor-Leste,TLS,True,2684.92673717299,world_bank,2021
+218,Togo,TGO,True,1076.29520076949,world_bank,2021
+413,Tokelau,TKL,False,,imf,2021
+29,Tonga,TON,True,4922.8015864044,world_bank,2021
+119,Trinidad and Tobago,TTO,True,17712.5674104655,world_bank,2021
+154,Tunisia,TUN,True,3906.93926319391,world_bank,2021
+40,Turkmenistan,TKM,True,3713.20113171765,world_bank,2021
+416,Tuvalu,TUV,True,6042.51983141155,world_bank,2021
+155,Türkiye,TUR,True,9981.76398411336,world_bank,2021
+190,Uganda,UGA,True,882.791717542504,world_bank,2021
+63,Ukraine,UKR,True,4775.94580078125,world_bank,2021
+156,United Arab Emirates,ARE,True,44118.4936214315,world_bank,2021
+95,United Kingdom,GBR,True,47695.6491523474,world_bank,2021
+189,United Republic of Tanzania,TZA,True,1159.85656738281,world_bank,2021
+422,United States Virgin Islands,VIR,False,42571.0777368471,world_bank,2021
+102,United States of America,USA,True,71441.2319805947,world_bank,2021
+99,Uruguay,URY,True,17881.8119616753,world_bank,2021
+41,Uzbekistan,UZB,True,2370.36480555669,world_bank,2021
+30,Vanuatu,VUT,True,3576.13770954363,world_bank,2021
+133,Venezuela (Bolivarian Republic of),VEN,True,2004.93572921136,world_bank,2021
+20,Viet Nam,VNM,True,3704.1935590038,world_bank,2021
+157,Yemen,YEM,True,610.503,imf,2021
+191,Zambia,ZMB,True,1127.16077872857,world_bank,2021
+198,Zimbabwe,ZWE,True,2613.6167414057,world_bank,2021

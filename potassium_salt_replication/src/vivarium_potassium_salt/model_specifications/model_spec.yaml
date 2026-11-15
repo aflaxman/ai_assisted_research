@@ -1,0 +1,74 @@
+# Potassium-enriched salt: a static, one-year comparative risk assessment.
+#
+# One simulation is one location under one scenario at one input draw.  Run the
+# baseline and a scenario with the same random seed and the two share their
+# simulants, so the ratio of their summed rates is the potential impact
+# fraction.
+#
+#   simulate run model_spec.yaml -i <artifact>.hdf -o <results directory>
+#
+# or, for every scenario and location at once, tools/run_simulation.py.
+
+components:
+    vivarium_potassium_salt.components:
+        - AdultPopulation()
+        - DietarySodium()
+        - HypertensionStatus()
+        - PotassiumEnrichedSalt()
+        - ChronicKidneyDisease()
+        # Annual death rates, one pipeline per cause.
+        - CauseBurden('ischemic_heart_disease', 'deaths')
+        - CauseBurden('ischemic_stroke', 'deaths')
+        - CauseBurden('intracerebral_hemorrhage', 'deaths')
+        - CauseBurden('subarachnoid_hemorrhage', 'deaths')
+        - CauseBurden('hypertensive_heart_disease', 'deaths')
+        - CauseBurden('rheumatic_heart_disease', 'deaths')
+        - CauseBurden('non_rheumatic_calcific_aortic_valve_disease', 'deaths')
+        - CauseBurden('other_cardiomyopathy', 'deaths')
+        - CauseBurden('atrial_fibrillation_and_flutter', 'deaths')
+        - CauseBurden('aortic_aneurysm', 'deaths')
+        - CauseBurden('lower_extremity_peripheral_arterial_disease', 'deaths')
+        - CauseBurden('endocarditis', 'deaths')
+        - CauseBurden('chronic_kidney_disease', 'deaths')
+        # A log-linear relative risk above the TMREL for each outcome: the stock
+        # RiskEffect, subclassed so that the TMREL varies by input draw.
+        - SampledTmrelRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ischemic_heart_disease.cause_specific_mortality_rate')
+        - SampledTmrelRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.ischemic_stroke.cause_specific_mortality_rate')
+        - SampledTmrelRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.intracerebral_hemorrhage.cause_specific_mortality_rate')
+        - SampledTmrelRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.subarachnoid_hemorrhage.cause_specific_mortality_rate')
+        - SampledTmrelRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.hypertensive_heart_disease.cause_specific_mortality_rate')
+        - SampledTmrelRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.rheumatic_heart_disease.cause_specific_mortality_rate')
+        - SampledTmrelRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.non_rheumatic_calcific_aortic_valve_disease.cause_specific_mortality_rate')
+        - SampledTmrelRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.other_cardiomyopathy.cause_specific_mortality_rate')
+        - SampledTmrelRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.atrial_fibrillation_and_flutter.cause_specific_mortality_rate')
+        - SampledTmrelRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.aortic_aneurysm.cause_specific_mortality_rate')
+        - SampledTmrelRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.lower_extremity_peripheral_arterial_disease.cause_specific_mortality_rate')
+        - SampledTmrelRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.endocarditis.cause_specific_mortality_rate')
+        - SampledTmrelRiskEffect('risk_factor.high_systolic_blood_pressure', 'cause.chronic_kidney_disease.cause_specific_mortality_rate')
+        - BurdenObserver('deaths')
+        - SaltPolicyObserver()
+    vivarium.public_health:
+        risks:
+            # Stock component: blood pressure drawn from the GBD distribution.
+            - Risk('risk_factor.high_systolic_blood_pressure')
+
+configuration:
+    input_data:
+        # Draw 0 holds the mean of every input; draws 1 and up are samples.
+        input_draw_number: 0
+    randomness:
+        random_seed: 0
+    time:
+        start: {year: 2021, month: 7, day: 1}
+        end: {year: 2022, month: 6, day: 30}
+        step_size: 365  # days: one step is the year
+    population:
+        population_size: 15_000  # 500 per sex and five-year age band
+    stratification:
+        default: ['age_group', 'sex']
+    potassium_enriched_salt:
+        # baseline, all_salt, discretionary, non_discretionary,
+        # discretionary_diagnosed_hypertension, discretionary_treated_hypertension
+        scenario: baseline
+    hypertension_status:
+        association_with_blood_pressure: independent

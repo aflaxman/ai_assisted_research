@@ -1,0 +1,205 @@
+location_id,location_name,super_region,source
+160,Afghanistan,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+43,Albania,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+139,Algeria,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+298,American Samoa,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+74,Andorra,High-income,IHME GBD connector
+168,Angola,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+105,Antigua and Barbuda,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+97,Argentina,High-income,IHME GBD connector
+33,Armenia,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+71,Australia,High-income,IHME GBD connector
+75,Austria,High-income,IHME GBD connector
+34,Azerbaijan,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+106,Bahamas,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+140,Bahrain,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+161,Bangladesh,South Asia,"GBD location hierarchy, entered by hand"
+107,Barbados,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+57,Belarus,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+76,Belgium,High-income,IHME GBD connector
+108,Belize,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+200,Benin,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+305,Bermuda,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+162,Bhutan,South Asia,"GBD location hierarchy, entered by hand"
+121,Bolivia (Plurinational State of),Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+44,Bosnia and Herzegovina,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+193,Botswana,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+135,Brazil,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+66,Brunei Darussalam,High-income,IHME GBD connector
+45,Bulgaria,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+201,Burkina Faso,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+175,Burundi,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+203,Cabo Verde,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+10,Cambodia,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+202,Cameroon,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+101,Canada,High-income,IHME GBD connector
+169,Central African Republic,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+204,Chad,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+98,Chile,High-income,IHME GBD connector
+6,China,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+125,Colombia,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+176,Comoros,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+170,Congo,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+320,Cook Islands,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+126,Costa Rica,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+46,Croatia,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+109,Cuba,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+77,Cyprus,High-income,IHME GBD connector
+47,Czechia,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+205,Côte d'Ivoire,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+7,Democratic People's Republic of Korea,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+171,Democratic Republic of the Congo,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+78,Denmark,High-income,IHME GBD connector
+177,Djibouti,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+110,Dominica,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+111,Dominican Republic,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+122,Ecuador,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+141,Egypt,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+127,El Salvador,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+172,Equatorial Guinea,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+178,Eritrea,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+58,Estonia,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+197,Eswatini,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+179,Ethiopia,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+22,Fiji,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+79,Finland,High-income,IHME GBD connector
+80,France,High-income,IHME GBD connector
+173,Gabon,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+206,Gambia,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+35,Georgia,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+81,Germany,High-income,IHME GBD connector
+207,Ghana,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+82,Greece,High-income,IHME GBD connector
+349,Greenland,High-income,IHME GBD connector
+112,Grenada,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+351,Guam,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+128,Guatemala,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+208,Guinea,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+209,Guinea-Bissau,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+113,Guyana,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+114,Haiti,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+129,Honduras,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+48,Hungary,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+83,Iceland,High-income,IHME GBD connector
+163,India,South Asia,"GBD location hierarchy, entered by hand"
+11,Indonesia,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+142,Iran (Islamic Republic of),North Africa and Middle East,"GBD location hierarchy, entered by hand"
+143,Iraq,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+84,Ireland,High-income,IHME GBD connector
+85,Israel,High-income,IHME GBD connector
+86,Italy,High-income,IHME GBD connector
+115,Jamaica,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+67,Japan,High-income,IHME GBD connector
+144,Jordan,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+36,Kazakhstan,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+180,Kenya,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+23,Kiribati,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+145,Kuwait,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+37,Kyrgyzstan,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+12,Lao People's Democratic Republic,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+59,Latvia,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+146,Lebanon,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+194,Lesotho,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+210,Liberia,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+147,Libya,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+60,Lithuania,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+87,Luxembourg,High-income,IHME GBD connector
+181,Madagascar,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+182,Malawi,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+13,Malaysia,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+14,Maldives,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+211,Mali,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+88,Malta,High-income,IHME GBD connector
+24,Marshall Islands,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+212,Mauritania,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+183,Mauritius,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+130,Mexico,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+25,Micronesia (Federated States of),"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+367,Monaco,High-income,IHME GBD connector
+38,Mongolia,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+50,Montenegro,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+148,Morocco,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+184,Mozambique,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+15,Myanmar,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+195,Namibia,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+369,Nauru,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+164,Nepal,South Asia,"GBD location hierarchy, entered by hand"
+89,Netherlands,High-income,IHME GBD connector
+72,New Zealand,High-income,IHME GBD connector
+131,Nicaragua,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+213,Niger,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+214,Nigeria,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+374,Niue,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+49,North Macedonia,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+376,Northern Mariana Islands,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+90,Norway,High-income,IHME GBD connector
+150,Oman,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+165,Pakistan,South Asia,"GBD location hierarchy, entered by hand"
+380,Palau,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+149,Palestine,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+132,Panama,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+26,Papua New Guinea,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+136,Paraguay,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+123,Peru,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+16,Philippines,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+51,Poland,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+91,Portugal,High-income,IHME GBD connector
+385,Puerto Rico,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+151,Qatar,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+68,Republic of Korea,High-income,IHME GBD connector
+61,Republic of Moldova,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+52,Romania,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+62,Russian Federation,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+185,Rwanda,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+393,Saint Kitts and Nevis,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+116,Saint Lucia,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+117,Saint Vincent and the Grenadines,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+27,Samoa,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+396,San Marino,High-income,IHME GBD connector
+215,Sao Tome and Principe,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+152,Saudi Arabia,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+216,Senegal,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+53,Serbia,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+186,Seychelles,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+217,Sierra Leone,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+69,Singapore,High-income,IHME GBD connector
+54,Slovakia,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+55,Slovenia,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+28,Solomon Islands,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+187,Somalia,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+196,South Africa,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+435,South Sudan,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+92,Spain,High-income,IHME GBD connector
+17,Sri Lanka,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+522,Sudan,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+118,Suriname,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+93,Sweden,High-income,IHME GBD connector
+94,Switzerland,High-income,IHME GBD connector
+153,Syrian Arab Republic,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+8,Taiwan,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+39,Tajikistan,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+18,Thailand,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+19,Timor-Leste,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+218,Togo,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+413,Tokelau,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+29,Tonga,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+119,Trinidad and Tobago,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+154,Tunisia,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+40,Turkmenistan,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+416,Tuvalu,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+155,Türkiye,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+190,Uganda,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+63,Ukraine,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+156,United Arab Emirates,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+95,United Kingdom,High-income,IHME GBD connector
+189,United Republic of Tanzania,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+422,United States Virgin Islands,Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+102,United States of America,High-income,IHME GBD connector
+99,Uruguay,High-income,IHME GBD connector
+41,Uzbekistan,"Central Europe, Eastern Europe, and Central Asia",IHME GBD connector
+30,Vanuatu,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+133,Venezuela (Bolivarian Republic of),Latin America and Caribbean,"GBD location hierarchy, entered by hand"
+20,Viet Nam,"Southeast Asia, East Asia, and Oceania","GBD location hierarchy, entered by hand"
+157,Yemen,North Africa and Middle East,"GBD location hierarchy, entered by hand"
+191,Zambia,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"
+198,Zimbabwe,Sub-Saharan Africa,"GBD location hierarchy, entered by hand"

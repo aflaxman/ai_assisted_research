@@ -1,0 +1,151 @@
+location,draw,scenario,simulation,closed_form,ratio
+Bangladesh,1,all_salt,46860,46850,1.0002
+Bangladesh,1,discretionary,31401,31397,1.0001
+Bangladesh,1,non_discretionary,19413,19413,0.99999
+Bangladesh,1,discretionary_diagnosed_hypertension,5822.9,5893.1,0.98809
+Bangladesh,1,discretionary_treated_hypertension,4838.4,4885.9,0.99027
+Bangladesh,2,all_salt,49307,49284,1.0005
+Bangladesh,2,discretionary,36080,36064,1.0004
+Bangladesh,2,non_discretionary,15393,15378,1.001
+Bangladesh,2,discretionary_diagnosed_hypertension,7315.6,7003.3,1.0446
+Bangladesh,2,discretionary_treated_hypertension,5684.8,5449.4,1.0432
+Bangladesh,3,all_salt,63104,63080,1.0004
+Bangladesh,3,discretionary,44625,44600,1.0006
+Bangladesh,3,non_discretionary,29729,29714,1.0005
+Bangladesh,3,discretionary_diagnosed_hypertension,8256.4,8306.9,0.99392
+Bangladesh,3,discretionary_treated_hypertension,6315.5,6430,0.98219
+Brazil,1,all_salt,51954,51933,1.0004
+Brazil,1,discretionary,32444,32432,1.0004
+Brazil,1,non_discretionary,23808,23798,1.0004
+Brazil,1,discretionary_diagnosed_hypertension,14906,15095,0.98748
+Brazil,1,discretionary_treated_hypertension,14000,14152,0.98925
+Brazil,2,all_salt,49486,49519,0.99934
+Brazil,2,discretionary,34230,34254,0.99929
+Brazil,2,non_discretionary,17893,17907,0.9992
+Brazil,2,discretionary_diagnosed_hypertension,16344,16379,0.9979
+Brazil,2,discretionary_treated_hypertension,15357,15450,0.99402
+Brazil,3,all_salt,70109,70227,0.99832
+Brazil,3,discretionary,46373,46444,0.99847
+Brazil,3,non_discretionary,36140,36197,0.99841
+Brazil,3,discretionary_diagnosed_hypertension,21746,21875,0.99408
+Brazil,3,discretionary_treated_hypertension,20468,20486,0.99912
+China,1,all_salt,8.6487e+05,8.6171e+05,1.0037
+China,1,discretionary,5.0497e+05,5.0337e+05,1.0032
+China,1,non_discretionary,4.3459e+05,4.3326e+05,1.0031
+China,1,discretionary_diagnosed_hypertension,1.3378e+05,1.3558e+05,0.98668
+China,1,discretionary_treated_hypertension,1.0409e+05,1.0405e+05,1.0004
+China,2,all_salt,1.0738e+06,1.0722e+06,1.0015
+China,2,discretionary,7.8192e+05,7.8099e+05,1.0012
+China,2,non_discretionary,5.0317e+05,5.0299e+05,1.0004
+China,2,discretionary_diagnosed_hypertension,1.9308e+05,1.9601e+05,0.98506
+China,2,discretionary_treated_hypertension,1.5849e+05,1.6308e+05,0.97186
+China,3,all_salt,1.1959e+06,1.1922e+06,1.0031
+China,3,discretionary,7.8427e+05,7.8228e+05,1.0025
+China,3,non_discretionary,7.0625e+05,7.0457e+05,1.0024
+China,3,discretionary_diagnosed_hypertension,2.1422e+05,2.1558e+05,0.99366
+China,3,discretionary_treated_hypertension,1.5993e+05,1.6346e+05,0.97843
+Germany,1,all_salt,30597,30566,1.001
+Germany,1,discretionary,8301.7,8295.4,1.0008
+Germany,1,non_discretionary,26410,26383,1.001
+Germany,1,discretionary_diagnosed_hypertension,4124.6,4107,1.0043
+Germany,1,discretionary_treated_hypertension,3822.3,3780.5,1.0111
+Germany,2,all_salt,34156,34125,1.0009
+Germany,2,discretionary,12123,12115,1.0007
+Germany,2,non_discretionary,26825,26802,1.0009
+Germany,2,discretionary_diagnosed_hypertension,5869.6,5923.5,0.9909
+Germany,2,discretionary_treated_hypertension,5528.8,5519.6,1.0017
+Germany,3,all_salt,38777,38685,1.0024
+Germany,3,discretionary,11365,11340,1.0022
+Germany,3,non_discretionary,33430,33353,1.0023
+Germany,3,discretionary_diagnosed_hypertension,5447.9,5415.7,1.0059
+Germany,3,discretionary_treated_hypertension,5011.2,4984.2,1.0054
+India,1,all_salt,4.1456e+05,4.1546e+05,0.99782
+India,1,discretionary,2.8565e+05,2.8615e+05,0.99828
+India,1,non_discretionary,1.7434e+05,1.7459e+05,0.99857
+India,1,discretionary_diagnosed_hypertension,49108,51315,0.95698
+India,1,discretionary_treated_hypertension,41229,43180,0.95482
+India,2,all_salt,4.4303e+05,4.4349e+05,0.99897
+India,2,discretionary,3.3095e+05,3.3107e+05,0.99962
+India,2,non_discretionary,1.4168e+05,1.4173e+05,0.99968
+India,2,discretionary_diagnosed_hypertension,56968,55823,1.0205
+India,2,discretionary_treated_hypertension,49399,47849,1.0324
+India,3,all_salt,5.8111e+05,5.8092e+05,1.0003
+India,3,discretionary,4.1304e+05,4.1343e+05,0.99906
+India,3,non_discretionary,2.7523e+05,2.7565e+05,0.99846
+India,3,discretionary_diagnosed_hypertension,74316,75270,0.98731
+India,3,discretionary_treated_hypertension,59391,59735,0.99424
+Indonesia,1,all_salt,1.558e+05,1.5571e+05,1.0006
+Indonesia,1,discretionary,1.0066e+05,1.0061e+05,1.0005
+Indonesia,1,non_discretionary,66106,66085,1.0003
+Indonesia,1,discretionary_diagnosed_hypertension,18206,18850,0.96583
+Indonesia,1,discretionary_treated_hypertension,10303,10917,0.94377
+Indonesia,2,all_salt,1.8663e+05,1.8661e+05,1.0001
+Indonesia,2,discretionary,1.3995e+05,1.3994e+05,1.0001
+Indonesia,2,non_discretionary,66340,66343,0.99996
+Indonesia,2,discretionary_diagnosed_hypertension,24992,25647,0.97444
+Indonesia,2,discretionary_treated_hypertension,14338,14618,0.98083
+Indonesia,3,all_salt,2.1381e+05,2.138e+05,1
+Indonesia,3,discretionary,1.5217e+05,1.5216e+05,1.0001
+Indonesia,3,non_discretionary,1.086e+05,1.0858e+05,1.0002
+Indonesia,3,discretionary_diagnosed_hypertension,26112,25020,1.0436
+Indonesia,3,discretionary_treated_hypertension,17138,15816,1.0836
+Japan,1,all_salt,51419,51434,0.99971
+Japan,1,discretionary,16947,16955,0.99952
+Japan,1,non_discretionary,36868,36892,0.99935
+Japan,1,discretionary_diagnosed_hypertension,7962.1,8111.9,0.98153
+Japan,1,discretionary_treated_hypertension,6732.9,6891.6,0.97698
+Japan,2,all_salt,56185,56243,0.99896
+Japan,2,discretionary,23561,23574,0.99946
+Japan,2,non_discretionary,36244,36269,0.99932
+Japan,2,discretionary_diagnosed_hypertension,11026,11137,0.98999
+Japan,2,discretionary_treated_hypertension,9891.2,10027,0.98649
+Japan,3,all_salt,73059,73156,0.99867
+Japan,3,discretionary,26907,26935,0.99898
+Japan,3,non_discretionary,54572,54639,0.99877
+Japan,3,discretionary_diagnosed_hypertension,12366,12445,0.99366
+Japan,3,discretionary_treated_hypertension,11276,11235,1.0037
+Russian Federation,1,all_salt,1.3319e+05,1.3317e+05,1.0001
+Russian Federation,1,discretionary,77413,77415,0.99997
+Russian Federation,1,non_discretionary,65304,65310,0.9999
+Russian Federation,1,discretionary_diagnosed_hypertension,36130,35815,1.0088
+Russian Federation,1,discretionary_treated_hypertension,25733,25275,1.0181
+Russian Federation,2,all_salt,1.3417e+05,1.3436e+05,0.99854
+Russian Federation,2,discretionary,91909,92053,0.99843
+Russian Federation,2,non_discretionary,56281,56364,0.99854
+Russian Federation,2,discretionary_diagnosed_hypertension,42392,41932,1.011
+Russian Federation,2,discretionary_treated_hypertension,29394,29091,1.0104
+Russian Federation,3,all_salt,1.5312e+05,1.532e+05,0.99946
+Russian Federation,3,discretionary,91986,92080,0.99897
+Russian Federation,3,non_discretionary,81060,81147,0.99893
+Russian Federation,3,discretionary_diagnosed_hypertension,39942,40111,0.99577
+Russian Federation,3,discretionary_treated_hypertension,29920,29286,1.0217
+Ukraine,1,all_salt,31036,31007,1.0009
+Ukraine,1,discretionary,23251,23225,1.0011
+Ukraine,1,non_discretionary,16229,16207,1.0013
+Ukraine,1,discretionary_diagnosed_hypertension,9946.5,9994.9,0.99516
+Ukraine,1,discretionary_treated_hypertension,8122.8,8132.7,0.99878
+Ukraine,2,all_salt,26155,26173,0.99934
+Ukraine,2,discretionary,20474,20486,0.99942
+Ukraine,2,non_discretionary,10403,10410,0.9993
+Ukraine,2,discretionary_diagnosed_hypertension,8445.8,8407.9,1.0045
+Ukraine,2,discretionary_treated_hypertension,6328.1,6229.5,1.0158
+Ukraine,3,all_salt,28379,28351,1.001
+Ukraine,3,discretionary,20292,20268,1.0012
+Ukraine,3,non_discretionary,14726,14707,1.0013
+Ukraine,3,discretionary_diagnosed_hypertension,7874.9,7719,1.0202
+Ukraine,3,discretionary_treated_hypertension,5450.8,5488.5,0.99312
+United States of America,1,all_salt,1.0119e+05,1.0132e+05,0.99865
+United States of America,1,discretionary,7512.4,7523,0.9986
+United States of America,1,non_discretionary,97073,97196,0.99874
+United States of America,1,discretionary_diagnosed_hypertension,3453.6,3492.9,0.98874
+United States of America,1,discretionary_treated_hypertension,3136.4,3177.9,0.98694
+United States of America,2,all_salt,84927,84832,1.0011
+United States of America,2,discretionary,14615,14599,1.0011
+United States of America,2,non_discretionary,76261,76178,1.0011
+United States of America,2,discretionary_diagnosed_hypertension,6765.7,6682.2,1.0125
+United States of America,2,discretionary_treated_hypertension,6309.5,6287.4,1.0035
+United States of America,3,all_salt,1.1524e+05,1.1579e+05,0.99525
+United States of America,3,discretionary,13364,13411,0.99651
+United States of America,3,non_discretionary,1.0916e+05,1.0968e+05,0.99531
+United States of America,3,discretionary_diagnosed_hypertension,5919.4,5976.3,0.99048
+United States of America,3,discretionary_treated_hypertension,5576.8,5645.9,0.98776

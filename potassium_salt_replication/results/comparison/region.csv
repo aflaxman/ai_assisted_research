@@ -1,0 +1,41 @@
+super_region,scenario,paper_baseline,paper_averted,net_averted_median,baseline,paper_percent,percent,percent_ratio,baseline_ratio
+"Central Europe, Eastern Europe, and Central Asia",all_salt,2.376e+06,3.2948e+05,3.3144e+05,2.3256e+06,13.867,14.252,1.0278,0.97879
+"Central Europe, Eastern Europe, and Central Asia",discretionary,2.376e+06,2.0842e+05,2.0349e+05,2.3256e+06,8.7718,8.75,0.99752,0.97879
+"Central Europe, Eastern Europe, and Central Asia",discretionary_diagnosed_hypertension,2.376e+06,1.0546e+05,99271,2.3256e+06,4.4386,4.2686,0.96172,0.97879
+"Central Europe, Eastern Europe, and Central Asia",discretionary_treated_hypertension,2.376e+06,85943,78846,2.3256e+06,3.6172,3.3904,0.9373,0.97879
+"Central Europe, Eastern Europe, and Central Asia",non_discretionary,2.376e+06,1.7109e+05,1.7286e+05,2.3256e+06,7.2009,7.4328,1.0322,0.97879
+High-income,all_salt,2.7748e+06,2.9117e+05,2.9613e+05,2.7179e+06,10.494,10.896,1.0383,0.9795
+High-income,discretionary,2.7748e+06,1.0047e+05,93642,2.7179e+06,3.6207,3.4454,0.95159,0.9795
+High-income,discretionary_diagnosed_hypertension,2.7748e+06,50184,45355,2.7179e+06,1.8086,1.6687,0.92269,0.9795
+High-income,discretionary_treated_hypertension,2.7748e+06,46629,41439,2.7179e+06,1.6805,1.5247,0.90729,0.9795
+High-income,non_discretionary,2.7748e+06,2.262e+05,2.342e+05,2.7179e+06,8.152,8.6169,1.057,0.9795
+Latin America and Caribbean,all_salt,9.2779e+05,1.3235e+05,1.4166e+05,9.6327e+05,14.265,14.706,1.0309,1.0382
+Latin America and Caribbean,discretionary,9.2779e+05,87434,90996,9.6327e+05,9.4239,9.4466,1.0024,1.0382
+Latin America and Caribbean,discretionary_diagnosed_hypertension,9.2779e+05,38583,38112,9.6327e+05,4.1586,3.9566,0.95142,1.0382
+Latin America and Caribbean,discretionary_treated_hypertension,9.2779e+05,35186,33979,9.6327e+05,3.7925,3.5275,0.93013,1.0382
+Latin America and Caribbean,non_discretionary,9.2779e+05,63275,67407,9.6327e+05,6.82,6.9978,1.0261,1.0382
+North Africa and Middle East,all_salt,1.2969e+06,41326,1.1364e+05,1.2665e+06,3.1864,8.9729,2.816,0.97649
+North Africa and Middle East,discretionary,1.2969e+06,32036,77117,1.2665e+06,2.4701,6.0892,2.4651,0.97649
+North Africa and Middle East,discretionary_diagnosed_hypertension,1.2969e+06,7964,26919,1.2665e+06,0.61406,2.1255,3.4614,0.97649
+North Africa and Middle East,discretionary_treated_hypertension,1.2969e+06,6501,22552,1.2665e+06,0.50125,1.7807,3.5525,0.97649
+North Africa and Middle East,non_discretionary,1.2969e+06,23745,55403,1.2665e+06,1.8308,4.3746,2.3894,0.97649
+South Asia,all_salt,3.577e+06,4.8842e+05,5.4385e+05,3.8062e+06,13.654,14.289,1.0464,1.0641
+South Asia,discretionary,3.577e+06,3.3914e+05,3.7013e+05,3.8062e+06,9.4811,9.7244,1.0257,1.0641
+South Asia,discretionary_diagnosed_hypertension,3.577e+06,68639,69531,3.8062e+06,1.9189,1.8268,0.952,1.0641
+South Asia,discretionary_treated_hypertension,3.577e+06,57799,57104,3.8062e+06,1.6158,1.5003,0.92849,1.0641
+South Asia,non_discretionary,3.577e+06,2.1186e+05,2.3848e+05,3.8062e+06,5.9227,6.2655,1.0579,1.0641
+"Southeast Asia, East Asia, and Oceania",all_salt,6.7976e+06,1.3954e+06,1.2461e+06,5.9576e+06,20.527,20.916,1.0189,0.87643
+"Southeast Asia, East Asia, and Oceania",discretionary,6.7976e+06,8.9976e+05,7.81e+05,5.9576e+06,13.236,13.109,0.9904,0.87643
+"Southeast Asia, East Asia, and Oceania",discretionary_diagnosed_hypertension,6.7976e+06,2.6128e+05,2.044e+05,5.9576e+06,3.8437,3.431,0.89262,0.87643
+"Southeast Asia, East Asia, and Oceania",discretionary_treated_hypertension,6.7976e+06,2.059e+05,1.5892e+05,5.9576e+06,3.029,2.6674,0.88063,0.87643
+"Southeast Asia, East Asia, and Oceania",non_discretionary,6.7976e+06,7.1127e+05,6.2538e+05,5.9576e+06,10.463,10.497,1.0032,0.87643
+Sub-Saharan Africa,all_salt,1.036e+06,1.1531e+05,1.1604e+05,9.949e+05,11.13,11.663,1.0479,0.96037
+Sub-Saharan Africa,discretionary,1.036e+06,83386,81774,9.949e+05,8.0492,8.2193,1.0211,0.96037
+Sub-Saharan Africa,discretionary_diagnosed_hypertension,1.036e+06,19499,17742,9.949e+05,1.8822,1.7832,0.94742,0.96037
+Sub-Saharan Africa,discretionary_treated_hypertension,1.036e+06,12680,11328,9.949e+05,1.224,1.1387,0.93029,0.96037
+Sub-Saharan Africa,non_discretionary,1.036e+06,52439,53078,9.949e+05,5.0619,5.335,1.0539,0.96037
+All 193 countries,all_salt,1.8786e+07,2.7934e+06,2.7724e+06,1.8032e+07,14.87,15.375,1.034,0.95986
+All 193 countries,discretionary,1.8786e+07,1.7506e+06,1.7115e+06,1.8032e+07,9.3188,9.4916,1.0185,0.95986
+All 193 countries,discretionary_diagnosed_hypertension,1.8786e+07,5.5161e+05,5.0326e+05,1.8032e+07,2.9363,2.7909,0.95051,0.95986
+All 193 countries,discretionary_treated_hypertension,1.8786e+07,4.5064e+05,4.0516e+05,1.8032e+07,2.3988,2.2469,0.93667,0.95986
+All 193 countries,non_discretionary,1.8786e+07,1.4599e+06,1.443e+06,1.8032e+07,7.771,8.0026,1.0298,0.95986
