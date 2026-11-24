@@ -1,0 +1,12 @@
+[project]
+name = "covid-mask-viral-load-replication"
+version = "0.1.0"
+description = "Replication of Goyal et al. (2021), masking and SARS-CoV-2 exposure viral load, with camdl"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.0",
+    "scipy>=1.13",
+    "pandas>=2.2",
+    "matplotlib>=3.9",
+    "statsmodels>=0.14",
+]
