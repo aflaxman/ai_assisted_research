@@ -206,6 +206,23 @@ routinely shifts prevalences and distribution shapes (e.g., in
   variables `SDMVPSU` and `SDMVSTRA` via Taylor linearization (or a survey
   package). Suppress/flag small cells by the *unweighted* count.
 
+## camdl
+
+**Build camdl from source.** Clone https://github.com/vsbuffalo/camdl and run
+its `./install.sh`, which installs OCaml (via opam) and uses the Rust toolchain,
+then copies `camdl` and `camdlc` to `~/.local/bin`. The build takes roughly 15
+to 20 minutes in a fresh cloud container. Make sure `~/.local/bin` is on `PATH`.
+
+- **Keep opam's sandbox.** opam sandboxes package builds with bubblewrap. On a
+  container without it, run `apt-get update && apt-get install -y bubblewrap`
+  as root before `./install.sh`, rather than using the installer's
+  `NO_SANDBOX=1` escape hatch, which turns off a supply-chain protection.
+- **Verify with `camdl --version`.** `camdl docs` prints the version-matched
+  guides offline.
+- **Record the version** a replication was run with in its README, as
+  `camdl_replication/` and `hbv_birth_dose_replication/` do (for example,
+  `camdl 0.1.0+eb20565`).
+
 ## Technical Blog Post Guidelines
 
 When writing technical blog posts for healthyalgorithms.com:

@@ -158,7 +158,7 @@ Published values map to `beta1 = 218.685636`, `beta2 = 2.09469e-4` per week.
 
 ## Reproducing
 
-Needs `camdl` (and `camdlc`) on `PATH`; see the camdl notes in the repository
+Needs `camdl` (and `camdlc`) on `PATH`; see the camdl section of the repository
 `CLAUDE.md` for building both toolchains.
 
 ```bash
