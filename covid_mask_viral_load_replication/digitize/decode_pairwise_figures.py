@@ -88,8 +88,8 @@ def main(fig2_png, supp1_png, supp2_png, out, points_out):
         fit = least_squares(lambda th: ((1 - ep)**th[0] * P(v * (1 - ep)**th[1])**2 - obs).ravel(), [0.5, 1.5])
         stated = family((0, 0, 1, 1), v, et, ee)
         rows.append({"figure": name, "points": obs.size,
-                     "fitted_power_on_risk": fit.x[0], "fitted_power_in_dose": fit.x[1],
-                     "stated_power_on_risk": 0.0, "stated_power_in_dose": 2.0 if who == "both" else 1.0,
+                     "fitted_power_on_risk": f"{round(fit.x[0], 2) + 0.0:.2f}", "fitted_power_in_dose": f"{round(fit.x[1], 2) + 0.0:.2f}",
+                     "stated_power_on_risk": "0", "stated_power_in_dose": "2" if who == "both" else "1",
                      "rms_fitted": rms((1 - ep)**fit.x[0] * P(v * (1 - ep)**fit.x[1])**2, obs),
                      "rms_stated_formula": rms(stated, obs)})
 
@@ -111,8 +111,8 @@ def main(fig2_png, supp1_png, supp2_png, out, points_out):
         e, obs = eps[ok], obs[ok]
         fit = least_squares(lambda th: (1 - e)**th[0] * P(1e9 * (1 - e)**th[1])**2 - obs, [0.5, 1.5])
         rows.append({"figure": name, "points": obs.size,
-                     "fitted_power_on_risk": fit.x[0], "fitted_power_in_dose": fit.x[1],
-                     "stated_power_on_risk": 0.0, "stated_power_in_dose": power,
+                     "fitted_power_on_risk": f"{round(fit.x[0], 2) + 0.0:.2f}", "fitted_power_in_dose": f"{round(fit.x[1], 2) + 0.0:.2f}",
+                     "stated_power_on_risk": "0", "stated_power_in_dose": f"{power:.0f}",
                      "rms_fitted": rms((1 - e)**fit.x[0] * P(1e9 * (1 - e)**fit.x[1])**2, obs),
                      "rms_stated_formula": rms(P(1e9 * (1 - e)**power)**2, obs)})
 

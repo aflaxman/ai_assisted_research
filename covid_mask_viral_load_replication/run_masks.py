@@ -120,8 +120,7 @@ def grid(V, rng, coverages, targeted: str | None = None, threshold: float = 10.0
                     # the exposed contact's mask multiplies risk by (1 - eps_E)
                     # and only the transmitter's mask lowers the viral load.
                     c = sigma * vartheta
-                    row["Re_exact_asymmetric"] = (
-                        (1 - c) * tr.expected_re(V, c, eps_t, 0.0) + c * (1 - eps_e) * tr.expected_re(V, c, eps_t, 0.0))
+                    row["Re_exact_asymmetric"] = tr.expected_re(V, c, eps_t, 0.0) * (1.0 - c * eps_e)
                 rows.append(row)
     return pd.DataFrame(rows)
 
@@ -225,7 +224,10 @@ def main():
     fig4 = pair_decomposition(V, rng)
     paper4 = pd.read_csv(DATA / "paper_fig4_digitized.tsv", sep="\t").rename(columns={"R0_contribution": "Re_paper"})
     fig4 = fig4.merge(paper4, on=["coverage", "efficacy", "pair"])
+    # Bar heights are read to about 0.01 (two pixels at 240 pixels per unit).
+    fig4["z"] = (fig4.Re_paper - fig4.Re_exact) / np.sqrt(fig4.se_3000**2 + 0.01**2)
     fig4.to_csv(RESULTS / "fig4_pairs.tsv", sep="\t", index=False, float_format="%.4f")
+    print(f"Figure 4: chi-square {(fig4.z**2).sum():.0f} on {len(fig4)} bar segments\n")
 
     fig5 = transmission_viral_loads(V, rng)
     paper5 = pd.read_csv(DATA / "paper_fig5_digitized.tsv", sep="\t")[["panel", "efficacy", "pair", "q1", "median", "q3"]]

@@ -113,8 +113,7 @@ class Draws:
 def simulate(V: np.ndarray, rng: np.random.Generator, *, compliance: float = 0.0,
              adherence: float = 0.0, eps_t: float = 0.0, eps_e: float = 0.0,
              theta: float = THETA, rho: float = RHO, always_masked_above: float | None = None,
-             always_masked_if_ever_above: float | None = None, follow_up_days: int = 31,
-             treated_v: np.ndarray | None = None, uptake: float = 0.0) -> Draws:
+             always_masked_if_ever_above: float | None = None, follow_up_days: int = 31) -> Draws:
     """The paper's procedure for one scenario, for the transmitters in ``V``.
 
     compliance (sigma)  probability a person ever wears a mask
@@ -128,15 +127,9 @@ def simulate(V: np.ndarray, rng: np.random.Generator, *, compliance: float = 0.0
                         with more than this many exposure contacts on any of
                         the ``follow_up_days`` the authors simulate is masked
                         on every day, as are that transmitter's contacts
-    treated_v, uptake   antiviral scenarios: a transmitter uses the viral load
-                        in ``treated_v`` instead of ``V`` with probability
-                        ``uptake``
     """
     n, d = V.shape
     v = V
-    if treated_v is not None and uptake > 0.0:
-        on_treatment = rng.random(n) < uptake
-        v = np.where(on_treatment[:, None], treated_v, V)
 
     compliant = rng.random(n) < compliance
     t_masked = compliant[:, None] & (rng.random((n, d)) < adherence)

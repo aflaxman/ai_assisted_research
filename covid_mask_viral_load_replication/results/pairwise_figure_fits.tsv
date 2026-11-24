@@ -1,0 +1,7 @@
+figure	points	fitted_power_on_risk	fitted_power_in_dose	stated_power_on_risk	stated_power_in_dose	rms_fitted	rms_stated_formula
+Fig 2B, transmitter masked	1200	0.00	0.96	0	1	0.009	0.011
+Fig 2C, exposed contact masked	1200	0.00	0.97	0	1	0.009	0.011
+Fig 2D, both masked, same efficacy	1200	0.98	1.98	0	2	0.006	0.221
+Supp Fig 1A, transmitter masked, V = 1e9	8	0.00	1.00	0	1	0.000	0.001
+Supp Fig 1C, both masked, V = 1e9	9	-0.01	2.00	0	2	0.003	0.006
+Supp Fig 2, both masked, efficacies varied separately	2304	(1-eps_E)^0.98 (1-eps_T)^0.01	(1-eps_T)^0.99 (1-eps_E)^0.08	none	(1-eps_T)^1 (1-eps_E)^1	0.004	0.065

@@ -99,7 +99,7 @@ def panel_pairwise(ax):
         dots(ax, g.efficacy, g.risk, color, size=34)
     end_label(ax, 0.62, tr.transmission_risk(v, 0.62, 0.0), "one mask (Fig 2B)", dx=6, dy=10)
     end_label(ax, 0.50, tr.transmission_risk(v, 0.50, 0.50), "two masks,\nas stated", dx=8, dy=12)
-    end_label(ax, 0.30, 0.70 * tr.transmission_risk(v, 0.30, 0.30), "what Fig 2D plots", dx=-8, dy=-16, ha="right")
+    end_label(ax, 0.35, 0.65 * tr.transmission_risk(v, 0.35, 0.35), "what Fig 2D plots", dx=-10, dy=-20, ha="right")
     ax.set_xlim(0, 1.0), ax.set_ylim(0, 0.8)
     ax.set_xlabel("mask efficacy"), ax.set_ylabel("transmission risk per exposure contact")
     ax.set_title("C  One heat map plots a different formula")
@@ -109,14 +109,16 @@ def panel_pairwise(ax):
 def panel_targeted(ax):
     d = pd.read_csv(RES / "suppfig5_targeted.tsv", sep="\t")
     g = d[(d.coverage == "25/25") & (d.eps_T == d.eps_E)].sort_values("eps_T")
+    plain = pd.read_csv(RES / "fig3_re_grid.tsv", sep="\t")
+    plain = plain[(plain.coverage == "25/25") & (plain.eps_T == plain.eps_E)].sort_values("eps_T")
     ax.axhline(1.0, color=AXIS, lw=1.2, zorder=1)
-    ax.plot(g.eps_T, g.Re_untargeted, color=BLUE, zorder=3, label="no targeting")
+    ax.plot(plain.eps_T, plain.Re_exact, color=BLUE, zorder=3, label="no targeting")
     ax.plot(g.eps_T, g.Re_masked_on_busy_days, color=ORANGE, zorder=3, label="masked on days with more than 10 contacts")
     ax.plot(g.eps_T, g.Re_masked_if_ever_busy, color=AQUA, zorder=3, label="masked always if ever more than 10 contacts")
     dots(ax, g.eps_T, g.Re_paper, AQUA, size=34)
-    end_label(ax, 1.0, g.Re_untargeted.iloc[-1], "no targeting")
-    end_label(ax, 1.0, g.Re_masked_on_busy_days.iloc[-1], "masked on days with\nmore than 10 contacts", dy=6)
-    end_label(ax, 1.0, g.Re_masked_if_ever_busy.iloc[-1], "masked always if any\nday has more than 10", dy=-4)
+    end_label(ax, 1.0, plain.Re_exact.iloc[-1], "no targeting")
+    end_label(ax, 1.0, g.Re_masked_on_busy_days.iloc[-1], "masked on days with\nmore than 10 contacts", dy=8)
+    end_label(ax, 1.0, g.Re_masked_if_ever_busy.iloc[-1], "masked always if any\nday has more than 10", dy=6)
     ax.set_xlim(-0.03, 1.0), ax.set_ylim(-0.05, 2.0)
     ax.set_xlabel("mask efficacy, same for transmitter and contacts"), ax.set_ylabel("effective reproductive number")
     ax.set_title("D  'Targeted' masking covers 97% of people")
@@ -162,24 +164,21 @@ def panel_king_county(ax):
     ax.set_ylim(0, 3.2), ax.set_xlim(d.date.iloc[0], d.date.iloc[-1])
     ax.xaxis.set_major_locator(mdates.MonthLocator()), ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
     ax.set_ylabel("effective reproductive number, King County 2020")
-    ax.set_title("F  The King County regression replicates, and so does a placebo")
+    ax.set_title("F  King County: masks, or a trend in time?")
     subtitle(ax, "regressions refitted to the paper's R curve and Google mobility data")
 
 
 def main():
-    fig, axes = plt.subplots(2, 3, figsize=(16.5, 10.2))
+    fig, axes = plt.subplots(2, 3, figsize=(16.5, 11.4))
     for draw, ax in zip((panel_fig3_cells, panel_fig3_diagonal, panel_pairwise,
                          panel_targeted, panel_antivirals, panel_king_county), axes.ravel()):
         draw(ax)
         ax.tick_params(length=0)
-    for ax in (axes[0, 2], axes[1, 2]):
-        ax.legend(loc="upper right" if ax is axes[0, 2] else "upper center", fontsize=8.2,
-                  labelcolor=INK2, handlelength=1.8)
-    axes[1, 0].legend(loc="lower left", fontsize=8.2, labelcolor=INK2, handlelength=1.8)
-    axes[1, 1].legend(loc="lower left", fontsize=8.2, labelcolor=INK2, handlelength=1.8)
-    axes[0, 1].legend(loc="lower left", fontsize=8.2, labelcolor=INK2, handlelength=1.8, title="masks worn by",
-                      title_fontsize=8.2)
-    fig.subplots_adjust(left=0.05, right=0.925, top=0.93, bottom=0.07, wspace=0.42, hspace=0.42)
+    # Legends sit under their panels, clear of the data; lines are also labelled directly.
+    for ax, ncol in ((axes[0, 1], 2), (axes[0, 2], 1), (axes[1, 0], 1), (axes[1, 1], 1), (axes[1, 2], 2)):
+        ax.legend(loc="upper left", bbox_to_anchor=(-0.02, -0.15), ncol=ncol, fontsize=8.4,
+                  labelcolor=INK2, handlelength=1.8, columnspacing=1.4, borderaxespad=0.0)
+    fig.subplots_adjust(left=0.05, right=0.925, top=0.935, bottom=0.115, wspace=0.42, hspace=0.66)
     fig.savefig(RES / "mask_replication.png", dpi=170)
     print("wrote", RES / "mask_replication.png")
 

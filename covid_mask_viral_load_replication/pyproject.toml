@@ -10,3 +10,6 @@ dependencies = [
     "matplotlib>=3.9",
     "statsmodels>=0.14",
 ]
+
+[dependency-groups]
+dev = ["pytest>=8"]

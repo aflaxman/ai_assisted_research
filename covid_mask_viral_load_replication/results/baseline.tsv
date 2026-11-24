@@ -1,0 +1,14 @@
+quantity	replication	sd_across_runs_of_10000	published
+mean R0, exact expectation of the unrounded sum	1.708		~1.8 (this paper, Figs 3 and 7)
+mean R0, individual values rounded	1.697	0.061	1.6 (eLife Fig 4: 15,992 infections / 10,000)
+SD of individual R0	6.084	0.282	not reported
+% of infected people who transmit	24.609	0.456	~25% (eLife); 26.7% (Fig 7B); ~30% (text)
+% of infected people with R0 >= 5	9.388	0.300	~10%
+% of transmitters with R0 >= 5	38.147	0.984	~35%
+% of infections from people with R0 >= 5	83.206	0.746	~85%
+% of infected people with R0 >= 10	5.036	0.225	~6%
+% of transmitters with R0 >= 10	20.466	0.826	~25%
+% of infections from people with R0 >= 10	66.194	1.373	~70%
+% of infected people with R0 >= 20	2.054	0.147	~2.5%
+% of transmitters with R0 >= 20	8.348	0.575	~10%
+% of infections from people with R0 >= 20	42.352	2.051	~44%
