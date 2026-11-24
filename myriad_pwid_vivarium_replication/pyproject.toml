@@ -1,0 +1,16 @@
+[project]
+name = "myriad-pwid-vivarium-replication"
+version = "0.1.0"
+description = "Replication of Chiosi et al. (2026) MYRIAD projections for US PWID, 2025-2034, in vivarium"
+requires-python = ">=3.11"
+dependencies = [
+    "vivarium>=4.1",
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "matplotlib>=3.8",
+    "pytest>=8",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["."]
