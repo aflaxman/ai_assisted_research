@@ -1,0 +1,131 @@
+# SARS-CoV-2 within-host viral dynamics, one infected person
+#
+# The viral load model behind Goyal, Reeves, Thakkar, Famulare, Cardozo-Ojeda,
+# Mayer & Schiffer (2021), "Slight reduction in SARS-CoV-2 exposure viral load
+# due to masking results in a significant reduction in transmission with
+# widespread implementation", Scientific Reports 11:11838,
+# https://doi.org/10.1038/s41598-021-91338-5 (Supplementary methods, eq. 1).
+# The model was fitted to 25 untreated people in Goyal, Cardozo-Ojeda &
+# Schiffer (2020), Science Advances 6:eabc7112.
+#
+# Susceptible cells S are infected by virus V; infected cells I make virus and
+# are killed by an innate response whose per-cell rate grows with the density
+# of infected cells (delta * I^k) and, later, by effector cells E, which arise
+# from two precursor stages M1 and M2:
+#
+#     dS/dt  = -beta V S
+#     dI/dt  =  beta V S - delta I^k I - m E^r / (E^r + phi^r) I
+#     dV/dt  =  pi I - c V
+#     dM1/dt =  omega I M1 - q M1
+#     dM2/dt =  q (M1 - M2)
+#     dE/dt  =  q M2 - delta_E E
+#
+# All six states are densities per mL, so they are real compartments with
+# their derivatives written out; there are no stochastic transitions here.
+#
+# Time is days since exposure.  The first infected cell appears tau = 0.5 days
+# after exposure, so the run starts at t = 0.5 with one infected cell, as the
+# authors' R code does (`t.out <- seq(tzero, tzero + 30, by = dT)`).
+#
+# Antiviral treatment (Supplementary methods, "Modeling antiviral treatment")
+# multiplies viral production by (1 - eps_treat) from t_treat onward.  It is
+# the intervention `start_treatment`, which sets the flag Rx to 1 at t_treat.
+# Interventions are off unless a run asks for them, so the model as written
+# is untreated; `camdl simulate ... --enable start_treatment` treats.  Because
+# the switch is a scheduled effect, the integrator stops at t_treat, applies
+# it and restarts, and never has to step across the jump in viral production.
+
+time_unit = 'days
+
+compartments {
+  S  : real,   # susceptible cells per mL
+  I  : real,   # infected cells per mL
+  V  : real,   # viral RNA copies per mL
+  M1 : real,   # first precursor stage of the effector response
+  M2 : real,   # second precursor stage
+  E  : real,   # SARS-CoV-2-specific effector cells per mL
+  Rx : real    # antiviral on board: 0 before treatment starts, 1 after
+}
+
+parameters {
+  #' infectivity, per virion per day
+  #' @symbol β
+  beta    : positive dim P^-1*T^-1 in [1.0e-10, 1.0e-4]
+  #' innate killing of infected cells, per day at one infected cell per mL
+  #' @symbol δ
+  delta   : rate in [0.1, 100.0]
+  #' density dependence of the innate response (exponent on infected cells)
+  k       : positive dim 1 in [0.0, 1.0]
+  #' viral production, copies per infected cell per day (the paper's π;
+  #' `pi` is a reserved name in camdl)
+  #' @symbol π
+  prod    : rate in [1.0, 1.0e6]
+  #' maximal killing by effector cells
+  m       : rate in [0.0, 100.0]
+  #' proliferation of precursors per infected cell per day
+  #' @symbol ω
+  omega   : positive dim P^-1*T^-1 in [1.0e-8, 1.0e-2]
+  #' effector level at which acquired killing is half maximal
+  #' @symbol ϕ
+  phi     : positive dim P in [1.0, 1.0e6]
+  #' Hill coefficient of acquired killing
+  r       : positive dim 1 in [1.0, 20.0]
+  #' differentiation rate of precursors
+  q       : rate in [1.0e-8, 1.0]
+  #' death rate of effector cells
+  #' @symbol δ_E
+  delta_E : rate in [0.01, 100.0]
+  #' clearance of free virus
+  c       : rate in [0.1, 100.0]
+
+  #' antiviral efficacy: the fraction of viral production blocked
+  eps_treat : probability in [0.0, 1.0]
+  #' start of treatment, days since exposure (used only when the
+  #' intervention `start_treatment` is enabled)
+  t_treat   : positive dim T in [0.0, 1.0e6]
+}
+
+# Densities relative to one cell per mL, so that the non-integer powers act on
+# pure numbers.
+let one_cell = 1.0 'count
+let i_rel    = max(I, 0.0 'count) / one_cell
+let e_rel    = max(E, 0.0 'count) / phi
+
+let innate   = delta * i_rel ^ k
+let acquired = m * e_rel ^ r / (e_rel ^ r + 1.0)
+let prod_now = prod * (1.0 - eps_treat * Rx / one_cell)
+
+ode {
+  S  = -beta * V * S
+  I  =  beta * V * S - innate * I - acquired * I
+  V  =  prod_now * I - c * V
+  M1 =  omega * I * M1 - q * M1
+  M2 =  q * (M1 - M2)
+  E  =  q * M2 - delta_E * E
+  Rx =  0.0 * q * Rx          # constant between interventions
+}
+
+interventions {
+  start_treatment : { Rx = 1.0  at = [t_treat] }
+}
+
+init {
+  S  = 1.0e7
+  I  = 1.0
+  V  = prod * one_cell / c
+  M1 = 1.0
+  M2 = 0.0
+  E  = 0.0
+  Rx = 0.0
+}
+
+# Adaptive Runge-Kutta with tight tolerances: viral load grows by five orders
+# of magnitude in two days and the effector response switches on sharply
+# (r = 10), so a fixed step has to be small everywhere to be accurate
+# anywhere.  At these tolerances camdl agrees with scipy's LSODA to better
+# than one part in a million (compare_integrators.py).
+simulate {
+  from = 0.5 'days
+  to   = 20.5 'days
+  integrator = rk45 { atol = 1.0e-6  rtol = 1.0e-9 }
+}

@@ -1,0 +1,22 @@
+# Values read by eye off Figure 7 of Goyal et al. (2021) at 100% uptake (right-hand end of each line),
+# and off panel G's "100" line.  Lines are 3,000-transmitter Monte Carlo runs and overlap; these are
+# good to about 0.05 in R0, 1 percentage point in "pct_transmit" and 0.5 in "pct_all_ge5".
+panel	scenario	efficacy	start	mean_R0	pct_transmit	pct_all_ge5
+A-C	untreated	0.0	none	1.80	26.7	10.0
+A-C	early symptomatic therapy	1.0	0.5-5 d after symptom onset	1.55	22.5	8.5
+D-F	post-exposure prophylaxis	0.1	0.5-5 d after exposure	1.43	24.0	8.2
+D-F	post-exposure prophylaxis	0.2	0.5-5 d after exposure	1.25	21.5	6.9
+D-F	post-exposure prophylaxis	0.3	0.5-5 d after exposure	1.15	20.0	6.9
+D-F	post-exposure prophylaxis	0.4	0.5-5 d after exposure	1.00	16.0	5.5
+D-F	post-exposure prophylaxis	0.5	0.5-5 d after exposure	0.80	13.5	4.5
+D-F	post-exposure prophylaxis	0.6	0.5-5 d after exposure	0.72	10.6	3.8
+D-F	post-exposure prophylaxis	0.7	0.5-5 d after exposure	0.70	10.2	3.7
+D-F	post-exposure prophylaxis	0.8	0.5-5 d after exposure	0.72	9.5	3.6
+D-F	post-exposure prophylaxis	0.9	0.5-5 d after exposure	0.70	9.3	3.8
+D-F	post-exposure prophylaxis	1.0	0.5-5 d after exposure	0.70	9.5	3.8
+G	PEP on a given day	1.0	0.5	0.00		
+G	PEP on a given day	1.0	1.5	0.03		
+G	PEP on a given day	1.0	2.5	0.50		
+G	PEP on a given day	1.0	3.5	1.10		
+G	PEP on a given day	1.0	4.5	1.45		
+G	PEP on a given day	1.0	5.5	1.40		

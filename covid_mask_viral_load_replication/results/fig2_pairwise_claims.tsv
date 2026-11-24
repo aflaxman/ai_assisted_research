@@ -1,0 +1,8 @@
+case	stated_model	published
+no masks, V = 10^7	0.2500	TD50 is 10^7.5 (eLife)
+no masks, V = 10^7.5	0.5116	50%
+no masks, V = 10^8	0.7451	75% (eLife)
+both masked at 0.9, V = 10^8.5	0.0811	<5% for V < 10^8.5
+both masked at 0.9, V = 10^9	0.2500	~20%
+both masked at 0.5, V = 10^8	0.4563	Fig 2D plots 0.23
+both masked at 0.5, V = 10^10	0.9763	Fig 2D plots 0.49

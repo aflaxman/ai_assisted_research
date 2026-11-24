@@ -1,0 +1,9 @@
+model	days	R2	AIC	durbin_watson	coef_ln_mobility	se_ln_mobility	coef_ln_masks	se_ln_masks	Re_fitted_Aug30	Re_no_masks_Aug30	mask_reduction_pct	mask_reduction_pct_low	mask_reduction_pct_high	coef_day	se_day
+mobility + masks (the paper's regression)	183	0.6394	-129.6953	0.0473	3.3025	0.3533	0.1591	0.0381	1.0014	1.4301	29.9758	17.2349	40.7553		
+mobility only	183	0.4580	-57.1391	0.0302	2.6763	0.6758									
+mobility + linear time trend (placebo)	183	0.6667	-144.0984	0.0508	3.2398	0.3870								-0.0025	0.0006
+mobility + masks + time trend	183	0.6893	-154.9759	0.0540	3.0074	0.3764	-0.3423	0.1983	0.8483	0.3941	-115.2545	-413.9732	9.8504	-0.0075	0.0029
+mobility + masks, survey period only (7 May on)	116	0.3662	-98.9667	0.0897	8.9463	1.7076	0.7099	0.1950	0.9570	4.6930	79.6070	51.9996	91.3360		
+mobility + time trend, survey period only	116	0.5523	-139.2850	0.1342	10.3455	1.4487								-0.0108	0.0017
+mobility + masks, 10% masked on 1 March instead of 1%	183	0.6409	-130.4486	0.0475	3.3006	0.3583	0.1716	0.0406	0.9956	1.4621	31.9070	18.6234	43.0222		
+mobility + masks, 30% masked on 1 March instead of 1%	183	0.6432	-131.6381	0.0481	3.3560	0.3600	0.1986	0.0460	0.9860	1.5384	35.9109	21.5848	47.6197		

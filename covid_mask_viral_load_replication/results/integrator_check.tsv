@@ -1,0 +1,3 @@
+case	values_compared	median_relative_difference	max_relative_difference
+untreated	11815	1.49e-09	8.92e-08
+50% antiviral, random start	12189	2.29e-09	5.67e-08
