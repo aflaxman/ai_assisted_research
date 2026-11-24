@@ -1,0 +1,16 @@
+# He et al. (2010) published London MLE
+R0 = 56.8
+alpha = 0.976
+amplitude = 0.554
+iota = 2.9
+sigma_se = 2.816
+sigma = 0.0791
+gamma = 0.0832
+mu = 5.48e-05
+cohort = 0.557
+rho = 0.488
+psi = 0.116
+N0 = 2481706
+s0 = 0.0297
+e0 = 5.17e-05
+i0 = 5.14e-05

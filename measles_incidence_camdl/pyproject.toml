@@ -1,0 +1,11 @@
+[project]
+name = "measles-incidence-camdl"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "matplotlib>=3.11.1",
+    "pandas>=3.0.5",
+    "pyreadr>=0.5.6",
+    "rdata>=1.1.0",
+    "scipy>=1.17.1",
+]
