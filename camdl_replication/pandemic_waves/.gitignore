@@ -1,0 +1,4 @@
+# raw content-addressed fit stores (large, regenerable via run_fits.sh);
+# summary TSVs and figures are committed explicitly from analyze/plot scripts
+results/fits/
+results/sims/
