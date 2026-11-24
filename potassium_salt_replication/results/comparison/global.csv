@@ -1,0 +1,36 @@
+scenario,quantity,paper,paper_lower,paper_upper,simulation_mean_inputs,closed_form_mean_inputs,shared_median,shared_lower,shared_upper,independent_median,independent_lower,independent_upper,ratio_to_paper
+all_salt,"Deaths averted, CVD and CKD (net)",2.96,2.81,3.12,3.1259,3.1266,2.9338,1.9711,3.5849,2.9013,2.7827,3.0251,0.99114
+all_salt,"Deaths averted, CVD (net)",2.79,2.65,2.95,2.9543,2.955,2.7723,1.8551,3.3839,2.7419,2.6242,2.8614,0.99367
+all_salt,"Deaths averted, CVD (before hyperkalaemia)",,,,3.0601,3.0603,2.8762,1.9948,3.5011,2.855,2.7378,2.9737,
+all_salt,"Deaths averted, CKD",0.17,0.17,0.18,0.17161,0.17164,0.16111,0.11371,0.19872,0.16026,0.15539,0.16538,0.9477
+all_salt,People using the substitute,4630,4600,4670,4638.8,4638.8,4638.8,4638.8,4638.8,4638.8,4638.8,4638.8,1.0019
+all_salt,CVD deaths prevented in people with CKD stages 3-5,0.75,0.71,0.8,1.0066,0.99469,0.93623,0.66311,1.1731,0.93186,0.88677,0.98179,1.2483
+all_salt,CVD deaths caused by hyperkalaemia,0.1,0.09,0.11,0.10573,0.10537,0.09546,0.012286,0.27875,0.11151,0.097534,0.132,0.95459
+discretionary,"Deaths averted, CVD and CKD (net)",1.85,1.74,1.97,1.8447,1.8451,1.8022,1.0926,2.4739,1.8034,1.6567,1.9373,0.97416
+discretionary,"Deaths averted, CVD (net)",1.75,1.64,1.87,1.7518,1.7522,1.7115,1.035,2.3488,1.7117,1.5708,1.8437,0.97801
+discretionary,"Deaths averted, CVD (before hyperkalaemia)",,,,1.7966,1.7966,1.7488,1.0857,2.4259,1.7585,1.613,1.8951,
+discretionary,"Deaths averted, CKD",0.1,0.1,0.11,0.092909,0.092915,0.090142,0.057992,0.12907,0.091367,0.085772,0.097242,0.90142
+discretionary,People using the substitute,4630,4600,4670,4638.8,4638.8,4638.8,4638.8,4638.8,4638.8,4638.8,4638.8,1.0019
+discretionary,CVD deaths prevented in people with CKD stages 3-5,0.44,0.41,0.47,0.57024,0.56283,0.55025,0.35504,0.77909,0.55427,0.50401,0.60541,1.2506
+discretionary,CVD deaths caused by hyperkalaemia,0.05,0.04,0.05,0.044743,0.044351,0.040702,0.0052058,0.11844,0.047085,0.039833,0.056907,0.81403
+non_discretionary,"Deaths averted, CVD and CKD (net)",1.56,1.46,1.67,1.5903,1.5904,1.5305,0.92948,2.1518,1.5522,1.4078,1.7031,0.98109
+non_discretionary,"Deaths averted, CVD (net)",1.46,1.37,1.57,1.499,1.499,1.443,0.86614,2.0348,1.4642,1.3236,1.6096,0.98838
+non_discretionary,"Deaths averted, CVD (before hyperkalaemia)",,,,1.5385,1.5384,1.4857,0.916,2.0758,1.506,1.3599,1.6587,
+non_discretionary,"Deaths averted, CKD",0.09,0.09,0.1,0.091383,0.091394,0.088136,0.055236,0.12196,0.088812,0.083109,0.094647,0.97929
+non_discretionary,People using the substitute,4630,4600,4670,4638.8,4638.8,4638.8,4638.8,4638.8,4638.8,4638.8,4638.8,1.0019
+non_discretionary,CVD deaths prevented in people with CKD stages 3-5,0.4,0.38,0.44,0.51378,0.50918,0.49289,0.31518,0.68531,0.49788,0.44955,0.5513,1.2322
+non_discretionary,CVD deaths caused by hyperkalaemia,0.04,0.04,0.05,0.039502,0.0394,0.035618,0.0048583,0.10195,0.041135,0.035166,0.05042,0.89045
+discretionary_diagnosed_hypertension,"Deaths averted, CVD and CKD (net)",0.59,0.55,0.63,0.54063,0.5377,0.53142,0.34243,0.73583,0.53693,0.49459,0.578,0.90071
+discretionary_diagnosed_hypertension,"Deaths averted, CVD (net)",0.55,0.52,0.6,0.5123,0.50947,0.50326,0.32449,0.69664,0.50856,0.46792,0.54761,0.91502
+discretionary_diagnosed_hypertension,"Deaths averted, CVD (before hyperkalaemia)",,,,0.5123,0.50947,0.50326,0.32449,0.69664,0.50856,0.46792,0.54761,
+discretionary_diagnosed_hypertension,"Deaths averted, CKD",0.03,0.03,0.03,0.02833,0.028231,0.02797,0.01814,0.040045,0.028334,0.026531,0.03055,0.93233
+discretionary_diagnosed_hypertension,People using the substitute,659,645,673,661.27,661.64,669.38,658.75,680.53,669.38,658.75,680.53,1.0157
+discretionary_diagnosed_hypertension,CVD deaths prevented in people with CKD stages 3-5,,,,0.19359,0.19016,0.18884,0.12303,0.26661,0.19063,0.17411,0.20703,
+discretionary_diagnosed_hypertension,CVD deaths caused by hyperkalaemia,,,,0,0,0,0,0,0,0,0,
+discretionary_treated_hypertension,"Deaths averted, CVD and CKD (net)",0.48,0.45,0.52,0.44017,0.43961,0.42855,0.2759,0.59577,0.43182,0.39838,0.4682,0.8928
+discretionary_treated_hypertension,"Deaths averted, CVD (net)",0.45,0.42,0.49,0.41628,0.41582,0.40516,0.26,0.56369,0.40819,0.37649,0.44337,0.90035
+discretionary_treated_hypertension,"Deaths averted, CVD (before hyperkalaemia)",,,,0.41628,0.41582,0.40516,0.26,0.56369,0.40819,0.37649,0.44337,
+discretionary_treated_hypertension,"Deaths averted, CKD",0.03,0.03,0.03,0.023883,0.023796,0.023182,0.015009,0.033442,0.023479,0.021884,0.025538,0.77272
+discretionary_treated_hypertension,People using the substitute,524,512,536,524.43,525.86,525.66,515.37,535.15,525.66,515.37,535.15,1.0032
+discretionary_treated_hypertension,CVD deaths prevented in people with CKD stages 3-5,,,,0.16395,0.15884,0.15545,0.10103,0.21979,0.15643,0.14296,0.17032,
+discretionary_treated_hypertension,CVD deaths caused by hyperkalaemia,,,,0,0,0,0,0,0,0,0,

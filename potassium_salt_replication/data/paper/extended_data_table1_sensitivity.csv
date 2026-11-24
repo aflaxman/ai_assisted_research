@@ -1,0 +1,14 @@
+analysis,scenario,description,deaths,deaths_lower,deaths_upper,new_cases,new_cases_lower,new_cases_upper,dalys,dalys_lower,dalys_upper
+1,all_salt,Replace 50% of regular salt,1.72,1.62,1.83,5.89,5.51,6.25,40.57,37.93,42.88
+2,all_salt,Replace 20% of regular salt,0.7,0.7,0.8,2.5,2.3,2.6,17.2,16.1,18.3
+3,all_salt,Sodium dose-response from Filippini et al. (2021),2.52,2.38,2.66,8.95,8.43,9.41,61.45,57.91,64.6
+4,all_salt,80% of the combined sodium and potassium effect,2.42,2.3,2.56,8.36,7.88,8.81,57.38,54.18,60.33
+5,all_salt,50% of the potassium effect,2.35,2.23,2.48,8.06,7.6,8.48,55.09,52.0,57.83
+6,all_salt,Potassium effect only in people with hypertension,2.42,2.29,2.55,8.03,7.59,8.46,54.29,51.35,57.05
+7,all_salt,Substitute is 85% NaCl and 15% KCl,2.02,1.9,2.15,6.92,6.48,7.33,47.55,44.49,50.2
+8,all_salt,No effect below 2.5 g/day of sodium,2.72,2.56,2.88,9.29,8.73,9.83,64.4,60.79,67.73
+9,all_salt,No effect below 3 g/day of sodium,2.29,2.14,2.44,7.81,7.26,8.35,55.37,51.78,58.71
+10,discretionary,Reported discretionary share in 24 countries,2.1,1.97,2.24,7.07,6.59,7.5,50.2,46.84,53.18
+11,non_discretionary,Reported discretionary share in 24 countries,1.28,1.21,1.35,4.45,4.19,4.7,29.19,27.41,30.71
+12,discretionary_diagnosed_hypertension,70% uptake in low- and middle-income countries,0.53,0.49,0.56,1.55,1.45,1.66,10.4,9.71,11.14
+13,discretionary_treated_hypertension,70% uptake in low- and middle-income countries,0.43,0.4,0.46,1.27,1.18,1.37,8.35,7.75,8.92

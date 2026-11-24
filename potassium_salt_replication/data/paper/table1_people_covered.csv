@@ -1,0 +1,6 @@
+scenario,millions,lower,upper
+all_salt,4630,4600,4670
+discretionary,4630,4600,4670
+non_discretionary,4630,4600,4670
+discretionary_diagnosed_hypertension,659,645,673
+discretionary_treated_hypertension,524,512,536

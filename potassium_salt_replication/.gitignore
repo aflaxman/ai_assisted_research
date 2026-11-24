@@ -1,0 +1,24 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Built from the inputs: one HDF artifact per country (about 1 GB in all).
+artifacts/
+
+# The cached GBD 2023 extract is not in the repository; see "Data" in the README.
+data/gbd_2023/
+# NCD-RisC states no licence for its data files; inputs/prepare_hypertension.py rebuilds this.
+data/ncdrisc/
+# Downloads that the tidy files next to them are made from.
+data/worldbank/raw/
+
+# Bulky outputs.  The summaries under results/ that the README cites are kept.
+results/simulation/*_parts/
+results/simulation/*.burden.parquet
+results/simulation/*.salt_policy.parquet
+results/simulation/*.totals.parquet
+results/closed_form/global_draws.parquet
+results/closed_form_preview/
