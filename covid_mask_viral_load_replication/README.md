@@ -22,8 +22,8 @@ not follow from that model, however, and its title deserves a number.
    caption's statement that a mask does more on the exposed contact than on the
    transmitter comes from the second of these, since the stated model is symmetric.
 2. The "targeted" scenario, in which people with more than 10 exposure contacts per
-   day always wear masks, masks 97% of everyone as the paper ran it, which is why
-   its four panels look alike.
+   day always wear masks, is reproduced only by a reading that masks 97% of
+   everyone, which is why its four panels look alike.
 3. The King County regression reproduces (I get a 30% reduction in R_e from masks,
    the paper 27%), but replacing mask wearing with a straight line in time fits the
    same data better.
@@ -55,7 +55,7 @@ one.
 | 50%, 50%, efficacy 0.5: share who transmit falls from 30% to 20%, and to ~15% at 75%, 75% | 30 to 20, then 15 | 24.5 to 20.5, then 15.9 | **Replicates** except the 30% |
 | Clusters of more than 5 carry most of R_e at every level of masking | yes | 73% to 79% | **Replicates** |
 | Among people who transmit, the share infecting 5 or more falls as masking rises | yes | 38% without masks, 33% at 75%, 75% and efficacy 0.5, 28% at 100%, 100% | **Replicates** |
-| With high-contact people always masked, efficacy ~0.5 elsewhere keeps R_e under 1 | yes | yes, 0.46 as the paper ran it, 0.66 as I read the text (finding 4) | **Replicates**, with a caveat |
+| With high-contact people always masked, efficacy ~0.5 elsewhere keeps R_e under 1 | yes | yes: 0.46 under the reading that reproduces the paper's figure, 0.66 as I read the text (finding 4) | **Replicates**, with a caveat |
 | King County, 30 August 2020: R_e 1.48 without masks, 1.08 with, a 27% reduction | 1.48, 1.08, 27% | 1.43, 1.00, 30% (95% interval 17 to 41) | **Replicates** |
 | That reduction is the effect of masks | yes | a linear time trend fits better (finding 6) | **Not identified** |
 | Early symptomatic therapy does not lower R_e | flat at ~1.7 | 1.56 with everyone treated, down 8% from 1.71 (the paper's line ends near 1.55) | **Replicates** |
