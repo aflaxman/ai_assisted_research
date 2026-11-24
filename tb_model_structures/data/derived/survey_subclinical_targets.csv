@@ -1,0 +1,5 @@
+country,year,subclinical_fraction,ci_low,ci_high,definition,source
+Viet Nam,2018,0.661,,,"subclinical (sub_neg+sub_pos)/(all bacteriologically positive), cough >2wk screen",Emery/Dodd subclinical_transmission (prevalence_survey_data.csv)
+Viet Nam,2007,0.703,,,"subclinical fraction, cough >2wk screen",Emery/Dodd subclinical_transmission (prevalence_survey_data.csv)
+South Africa,2018,0.577,,,"CXR-only among 234 confirmed cases (135 CXR-only, 16 symptom-only, 82 both) = asymptomatic on 4-symptom screen",Moyo et al. 2022 Lancet Infect Dis 22:1172 (South Africa 2017-19 survey)
+Pooled (23 surveys),,0.504,0.398,0.623,"median subclinical fraction across 23 African/Asian prevalence surveys (IQR)",Frascella et al. 2021 Clin Infect Dis 73:e830

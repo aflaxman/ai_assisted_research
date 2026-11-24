@@ -1,0 +1,10 @@
+param,prior_sd,posterior_sd,contraction
+infsub,2.0,0.0415,0.9792
+sub_rec,2.0,2.0,0.0
+sub_clin,2.0,2.0,0.0
+clin_sub,2.0,2.0,0.0
+mort,0.072,0.072,0.0
+phi,1.5,1.5,0.0
+# hessian_eigenvalues,0.25,0.25,0.25,0.4444,192.9012,580.307
+# condition_number,2321.2
+# neg_log_post,3438.044

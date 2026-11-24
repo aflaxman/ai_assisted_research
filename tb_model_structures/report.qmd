@@ -1,0 +1,236 @@
+---
+title: "Classic latent vs. spectrum model structures for tuberculosis natural history"
+subtitle: "A reproducible structural comparison"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    embed-resources: true
+    theme: cosmo
+    fig-width: 7
+    fig-height: 4.5
+execute:
+  echo: false
+  warning: false
+jupyter: python3
+---
+
+```{python}
+#| tags: [setup]
+from pathlib import Path
+import numpy as np, pandas as pd
+ROOT = Path.cwd()
+DERIVED = ROOT / "data" / "derived"
+RESULTS = ROOT / "results"
+FIG = RESULTS / "figures"
+
+def read(p):
+    p = Path(p)
+    return pd.read_csv(p) if p.exists() else None
+```
+
+## The question
+
+Dynamic models of tuberculosis differ in a structural choice that is usually
+made implicitly: how an infected person progresses to disease. Two families are
+in wide use.
+
+The **classic latent-progression** family, catalogued by @menzies2018 across 312
+published models, routes infection through one or two latent compartments to a
+single active-disease state. Its twelve variants (A–L) differ only upstream of
+disease.
+
+The **spectrum** family, developed by @richards2023 and @horton2023, resolves
+disease itself into **minimal** (pre-infectious), **subclinical**
+(bacteriologically positive, asymptomatic) and **clinical** (positive,
+symptomatic) states, with movement in both directions.
+
+This document compares the families on three questions: (a) their fit to
+natural-history cohort data, (b) the subclinical fraction they imply, and (c)
+the impact they predict for community-wide screening. The full design, data
+inventory, and the reasoning behind fitting the families to overlapping (not
+identical) blocks of data are in `PLAN.md` and `docs/likelihood_blocks.html`.
+
+## Model structures
+
+```{python}
+from tbmodels.registry import all_structures
+rows = []
+for name, s in all_structures().items():
+    rows.append(dict(structure=name, family=s.family,
+                     compartments=len(s.compartments),
+                     free_params=len(s.param_names),
+                     notes=s.notes))
+pd.DataFrame(rows)
+```
+
+All sixteen structures are implemented in one declarative engine: a structure is
+a list of compartments and transitions, and the cohort simulator, the
+differentiable likelihood, and the transmission embedding all read those lists
+generically (see the README for how to add one). The twelve classic structures
+are transcribed from Figure 1 of @menzies2018; the four spectrum variants are
+the @horton2023 main model and three ablations (without the minimal state,
+without self-clearance of infection, and without both).
+
+## Validation: reproducing the published posteriors
+
+Calibrating the full spectrum model to its own cohort data reproduces the
+@horton2023 posterior. Under NUTS, all nine parameters' 95% credible intervals
+overlap the published values, and the shared downstream rates also match the
+@richards2023 table.
+
+```{python}
+rep = read(RESULTS / "reproduction_spectrum.csv")
+rep if rep is not None else "run scripts/calibrate_cohort.py and the reproduction step"
+```
+
+The production fits use MAP estimation with a Laplace approximation, which is
+fast and yields a direct identifiability diagnostic; the SP-full MAP lands on the
+same posterior.
+
+## (a) Fit to natural-history cohort data
+
+Both families predict the cumulative incidence of **infectious** disease by time
+since infection, so they are compared head-to-head on that shared curve (the NTI
+Bangalore converter cohorts and the Ferebee 1970 reactivation curve). The table
+ranks structures by WAIC on those observations (lower is better); `duration`
+is the model-implied mean duration of infectious disease, a prediction.
+
+```{python}
+comp = read(DERIVED / "cohort_model_comparison.csv")
+comp if comp is not None else "run scripts/analyze.py"
+```
+
+```{python}
+#| fig-cap: "Cumulative incidence of infectious TB by time since infection: each structure's median fit against the Ferebee 1970 observed curve."
+from IPython.display import Image
+p = FIG / "cumulative_incidence.png"
+Image(str(p)) if p.exists() else "figure pending"
+```
+
+### Identifiability
+
+A recurring message of @menzies2018 is that many structures are over-parameterised
+relative to the data. The Laplace Hessian makes this concrete: the condition
+number of the posterior and the per-parameter prior-to-posterior contraction show
+which parameters the cohort data actually constrain.
+
+```{python}
+rows = []
+for d in sorted((DERIVED / "posteriors").glob("*")):
+    f = d / "identifiability.csv"
+    if not f.exists(): continue
+    lines = f.read_text().splitlines()
+    cond = next((l.split(",")[1] for l in lines if l.startswith("# condition_number")), "")
+    body = pd.read_csv(f, comment="#")
+    rows.append(dict(structure=d.name, n_params=len(body),
+                     condition_number=float(cond) if cond else np.nan,
+                     well_constrained=int((body["contraction"] > 0.3).sum())))
+pd.DataFrame(rows).sort_values("condition_number") if rows else "run the sweep"
+```
+
+## (b) Subclinical fraction (hold-out)
+
+Prevalence surveys find that roughly half to two-thirds of bacteriologically
+positive TB is asymptomatic (subclinical). This is a quantity only the spectrum
+family produces directly; a classic model's single active-disease state has no
+subclinical/clinical distinction.
+
+```{python}
+sub = read(DERIVED / "subclinical_holdout.csv")
+sub if sub is not None else "run scripts/analyze.py"
+```
+
+## (c) Community-wide screening: the ACT3 trial
+
+The ACT3 trial [@marks2019] screened adults in Ca Mau, Viet Nam, annually for
+three years with Xpert regardless of symptoms, and measured prevalence in year 4.
+Each annual round removes a fraction of the **bacteriologically positive**
+prevalent pool. The structural lever is the asymptomatic reservoir: a spectrum
+model has a subclinical pool that active screening reaches but passive care-seeking
+misses, while a classic model's single active-TB state is already partly found
+by passive detection, and its non-infectious minimal pool (where present) refills
+the screened compartment.
+
+```{python}
+#| fig-cap: "ACT3: predicted vs observed Xpert-positive prevalence decline over the three screening rounds and the year-4 survey (Viet Nam)."
+p = FIG / "act3_decline.png"
+Image(str(p)) if p.exists() else "figure pending"
+```
+
+```{python}
+act3 = read(DERIVED / "act3_simulation.csv")
+act3 if act3 is not None else "run scripts/simulate_act3.py"
+```
+
+## Transmission fits to GBD, and the duration tension
+
+Each structure is embedded in a transmission model, its natural-history
+parameters fixed at the cohort fit, and beta is fitted to GBD TB incidence in five
+countries spanning SDI and HIV burden. Active-TB prevalence, deaths, LTBI
+prevalence and the subclinical fraction are then **predictions**.
+
+```{python}
+fits = read(DERIVED / "transmission_fits.csv")
+if fits is not None:
+    cols = ["structure","country","inc_model","inc_gbd","prev_model","prev_gbd",
+            "prev_ratio","deaths_model","deaths_gbd","ltbi_model","ltbi_gbd","subclinical_fraction"]
+    cols = [c for c in cols if c in fits.columns]
+    fits[cols]
+else:
+    "run scripts/fit_transmission.py"
+```
+
+The prevalence-to-incidence ratio is where structure bites. The spectrum
+parameters of @horton2023 and @richards2023 imply rapid regression out of
+bacteriologically positive disease, so point prevalence of Xpert-positivity is
+low for a given incidence — the models under-predict GBD active-TB prevalence
+several-fold. This is the same tension the ACT3 simulation exposes, and it is a
+genuine, reportable property of the published spectrum natural history, not a
+fitting artefact.
+
+## Summary
+
+```{python}
+pts = []
+comp = read(DERIVED / "cohort_model_comparison.csv")
+if comp is not None:
+    best = comp.sort_values("waic_shared_converters").iloc[0]
+    pts.append(f"Best fit to the shared infectious-converter curve: **{best['structure']}** "
+               f"({best['family']}), WAIC {best['waic_shared_converters']}.")
+fits = read(DERIVED / "transmission_fits.csv")
+if fits is not None and "prev_ratio" in fits.columns:
+    pr = pd.to_numeric(fits["prev_ratio"], errors="coerce").dropna()
+    if len(pr):
+        pts.append(f"Across country fits, modelled/GBD active-TB prevalence ratio "
+                   f"ranged {pr.min():.2f}–{pr.max():.2f} (a value below 1 means the "
+                   f"structure under-predicts prevalence given matched incidence).")
+from IPython.display import Markdown
+Markdown("\n".join(f"- {p}" for p in pts) if pts else "Run the pipeline to populate the summary.")
+```
+
+- **Fit (a).** On the shared infectious-progression curve both families can fit
+  the data; the spectrum family's extra states buy a fit to the minimal-disease
+  and within-spectrum transition data that the classic family cannot address.
+- **Subclinical fraction (b).** Only the spectrum family produces one; the
+  published parameters give a high subclinical fraction, broadly consistent with
+  prevalence surveys.
+- **Screening (c).** The families predict materially different screening yields
+  and prevalence declines, because they disagree about how much disease is
+  asymptomatic and how quickly the screened pool refills.
+- **A structural tension.** The published spectrum natural history implies
+  short-duration bacteriologically positive disease and so under-predicts GBD
+  point prevalence given incidence — a discrepancy worth its own study.
+
+## Reproducibility
+
+Every input is fetched at a pinned version (`fetch_data.py`); all posteriors,
+fits and simulations regenerate from `scripts/`; and the DuckDB file
+`results/tb_model_structures.duckdb` holds every input, posterior and output.
+GBD estimates are model outputs used as fitting targets, never as validation.
+
+## References
+
+::: {#refs}
+:::
