@@ -1,0 +1,48 @@
+# Fit the policy-behavioral SIR to the synthetic daily case series.
+#
+# We estimate the four headline parameters and fix the rest at truth. The
+# behavioral parameters (endog_delta, policy_weight) are only partially
+# identifiable from a single series — the same finding as the Python
+# replication — so the point is to see how much the data DO pin down and how
+# wide the posteriors honestly are.
+
+output_dir = "results"
+
+[model]
+camdl = "policy_behavioral.camdl"
+
+[data.observations]
+daily_cases = "data/cases.tsv"
+
+[estimate]
+beta          = { bounds = [0.1, 1.5],  start = 0.4,  prior = { uniform = {} } }
+gamma         = { bounds = [0.05, 0.5], start = 0.25, prior = { uniform = {} } }
+endog_delta   = { bounds = [0.0, 1.0],  start = 0.3,  prior = { uniform = {} } }
+policy_weight = { bounds = [0.0, 1.0],  start = 0.4,  prior = { uniform = {} } }
+
+[fixed]
+endog_x0 = 1200.0
+endog_nu = 3.0
+sigma_c2 = 0.02
+i0       = 10.0
+iota     = 1.0    # the Hill floor compiles to a parameter (trivial typed let)
+
+[stages.scout]
+algorithm  = "if2"
+backend    = "chain_binomial"
+chains     = 6
+particles  = 2000
+iterations = 80
+cooling    = 0.7
+
+[stages.posterior]
+algorithm = "pgas"
+backend   = "chain_binomial"
+chains    = 4
+particles = 500
+sweeps    = 2500
+burn_in   = 800
+init_mle  = "scout"
+
+[config]
+dt = 1.0

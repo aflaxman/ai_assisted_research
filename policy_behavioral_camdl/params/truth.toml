@@ -1,0 +1,12 @@
+# Ground-truth parameters for the camdl policy-behavioral SIR.
+# Used by `camdl simulate` to generate the synthetic case series
+# that the fit then tries to recover.
+
+beta = 0.55
+gamma = 0.2
+endog_delta = 0.5
+endog_x0 = 1200.0
+endog_nu = 3.0
+policy_weight = 0.7
+sigma_c2 = 0.02
+i0 = 10.0
