@@ -129,10 +129,11 @@ however, the steepness washes out:
 | Expected transmissions multiplied by | 0.92 | 0.75 | 0.55 | 0.33 | 0.094 | 0.004 |
 
 This has a useful consequence. If each party to a contact is masked a fraction `c`
-of the time, `R_e = R_0 (1 - c eps_T)(1 - c eps_E)` reproduces every cell of Figure 3
-to within 0.09, and half of them to within 2%. The paper's result is then a matter
-of arithmetic: with 75% of people masked 75% of the time (`c = 0.56`) and efficacy
-0.5 on both sides, the formula gives a 48% cut in R_e, and the full calculation 45%.
+of the time, `R_e = R_0 (1 - c eps_T)(1 - c eps_E)` reproduces the expected value of
+every cell of Figure 3 to within 0.09, and of half of them to within 2%. The paper's
+result is then a matter of arithmetic: with 75% of people masked 75% of the time
+(`c = 0.56`) and efficacy 0.5 on both sides, the formula gives a 48% cut in R_e, and
+the full calculation 45%.
 
 ### 3. Figure 2D and Supplementary Figure 2 plot something else
 
@@ -170,10 +171,10 @@ again each morning, nearly everyone is a potential super-spreader by the end of 
 month: 97% of transmitters have at least one such day in the 31 simulated.
 
 The four panels of Supplementary Figure 5 are reproduced when anyone who ever has
-such a day is masked on every day, along with their contacts (chi-square
-370 on 484 cells, against 9,191 when masks go on only on the
-busy days). That is universal masking under another name, and it is why the panels
-do not change with the uptake assumed for everyone else.
+such a day is masked on every day, along with their contacts (chi-square 370 on
+484 cells, against 9,191 when masks go on only on the busy days). That is universal
+masking under another name, and it is why the panels do not change with the uptake
+assumed for everyone else.
 
 Read as person-days, the scenario is still worth something. Masking both parties on
 the 10% of days with more than 10 contacts, at efficacy 0.5, takes R_e from 1.61 to
@@ -236,16 +237,16 @@ paired them with Google's public mobility data (`run_king_county.py`).
 | Mobility + masks + time trend | 0.69 | -0.34 (0.20) | | |
 | Mobility + masks, survey period only (from 7 May) | 0.37 | 0.71 (0.20) | 0.96 | 4.7 |
 
-The first row is the paper's result, within the accuracy of a curve traced from a
-blurred image. The rest is why I would not lean on it. Mask wearing rose smoothly
-from an assumed 1% in March to 89% in August, and anything else that drifted over
-those months is indistinguishable from it: a straight line in time fits better,
-and with both in the model the mask coefficient changes sign. More than half of
-the rise in mask wearing predates the survey and is the authors' interpolation.
-Restricted to the months with survey data, the same regression says that without
-masks R_e would have been 4.7. The daily values are also far from independent
-(Durbin-Watson 0.05), which the standard errors above allow for; the paper does not
-say whether its interval of 1.38 to 1.58 does.
+My refit (second row) recovers the paper's result to within the accuracy of a curve
+traced from a blurred image. The remaining rows are why I would not lean on it. Mask
+wearing rose smoothly from an assumed 1% in March to 89% in August, and anything
+else that drifted over those months is indistinguishable from it: a straight line in
+time fits better, and with both in the model the mask coefficient changes sign. More
+than half of the rise in mask wearing predates the survey and is the authors'
+interpolation. Restricted to the months with survey data, the same regression says
+that without masks R_e would have been 4.7. The daily values are also far from
+independent (Durbin-Watson 0.05), which the standard errors above allow for; the
+paper does not say whether its interval of 1.38 to 1.58 does.
 
 ### 7. Small things
 
@@ -259,7 +260,7 @@ say whether its interval of 1.38 to 1.58 does.
   number of contacts when a single coin with probability `P` comes up heads, and
   nothing otherwise.
 - The paper reads viral load once a day, on the assumption that it changes little
-  within a day. It changes by an order of magnitude, but the mean does not care:
+  within a day. It can change a hundredfold, but the mean does not care:
   for the first 2,000 parameter sets R_0 is between 1.71 and 1.73 whatever time
   of day is used, and 1.72 as a continuous integral (`check_daily_sampling.py`).
 - Figure 5 depends on what counts as a "successful transmission event", which the
