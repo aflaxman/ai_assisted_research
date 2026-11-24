@@ -117,8 +117,8 @@ def panel_targeted(ax):
     ax.plot(g.eps_T, g.Re_masked_if_ever_busy, color=AQUA, zorder=3, label="masked always if ever more than 10 contacts")
     dots(ax, g.eps_T, g.Re_paper, AQUA, size=34)
     end_label(ax, 1.0, plain.Re_exact.iloc[-1], "no targeting")
-    end_label(ax, 1.0, g.Re_masked_on_busy_days.iloc[-1], "masked on days with\nmore than 10 contacts", dy=8)
-    end_label(ax, 1.0, g.Re_masked_if_ever_busy.iloc[-1], "masked always if any\nday has more than 10", dy=6)
+    end_label(ax, 1.0, g.Re_masked_on_busy_days.iloc[-1], "masked on\ndays with over\n10 contacts", dy=20)
+    end_label(ax, 1.0, g.Re_masked_if_ever_busy.iloc[-1], "masked always\nif any day\nhas over 10", dy=10)
     ax.set_xlim(-0.03, 1.0), ax.set_ylim(-0.05, 2.0)
     ax.set_xlabel("mask efficacy, same for transmitter and contacts"), ax.set_ylabel("effective reproductive number")
     ax.set_title("D  'Targeted' masking covers 97% of people")
@@ -130,20 +130,24 @@ def panel_antivirals(ax):
     paper = pd.read_csv(DATA / "paper_fig7_read_by_eye.tsv", sep="\t", comment="#")
     base = d[d.scenario == "untreated"].Re_exact.iloc[0]
     ax.axhline(1.0, color=AXIS, lw=1.2, zorder=1)
-    pep = d[d.scenario == "post-exposure prophylaxis"].sort_values("efficacy")
-    x = np.concatenate([[0.0], pep.efficacy]) * 100
-    ax.plot(x, np.concatenate([[base], pep.Re_exact]), color=BLUE, zorder=3, label="prophylaxis 0.5 to 5 days after exposure")
-    pp = paper[paper.scenario == "post-exposure prophylaxis"]
-    dots(ax, pp.efficacy * 100, pp.mean_R0, BLUE, size=34)
+    pep, pep_paper = (x[x.scenario == "post-exposure prophylaxis"].set_index("efficacy") for x in (d, paper))
     sym = d[d.scenario == "early symptomatic therapy"].Re_exact.iloc[0]
-    ax.plot([0, 100], [base, sym], color=ORANGE, zorder=3, label="therapy 0.5 to 5 days after symptom onset")
-    dots(ax, [100], paper[paper.scenario == "early symptomatic therapy"].mean_R0, ORANGE, size=34)
-    end_label(ax, 100, sym, "therapy after\nsymptom onset\n(100% efficacy\nat right)", dy=-2)
-    end_label(ax, 100, pep.Re_exact.iloc[-1], "prophylaxis\nafter exposure")
+    sym_paper = paper[paper.scenario == "early symptomatic therapy"].mean_R0.iloc[0]
+    series = [("prophylaxis after exposure, 100% efficacy", pep.loc[1.0].Re_exact, pep_paper.loc[1.0].mean_R0, BLUE,
+               "prophylaxis,\n100% efficacy", -8),
+              ("prophylaxis after exposure, 50% efficacy", pep.loc[0.5].Re_exact, pep_paper.loc[0.5].mean_R0, ORANGE,
+               "prophylaxis,\n50% efficacy", 12),
+              ("therapy after symptom onset, 100% efficacy", sym, sym_paper, AQUA,
+               "therapy after\nsymptom onset,\n100% efficacy", 0)]
+    for label, value, published, color, text, dy in series:
+        # uptake is an independent coin flip per person, so the line is exact
+        ax.plot([0, 100], [base, value], color=color, zorder=3, label=label)
+        dots(ax, [100], [published], color, size=40)
+        end_label(ax, 100, value, text, dy=dy, dx=7)
     ax.set_xlim(-3, 100), ax.set_ylim(-0.05, 2.0)
-    ax.set_xlabel("antiviral efficacy (%), everyone treated"), ax.set_ylabel("effective reproductive number")
-    ax.set_title("E  Antivirals: timing matters more than potency")
-    subtitle(ax, "lines: exact expectation; dots: read by eye off Figure 7A and 7D")
+    ax.set_xlabel("infected people treated (%)"), ax.set_ylabel("effective reproductive number")
+    ax.set_title("E  Antivirals help only if they come early")
+    subtitle(ax, "lines: exact expectation; dots: right-hand ends of the paper's Fig 7A and 7D")
 
 
 def panel_king_county(ax):
