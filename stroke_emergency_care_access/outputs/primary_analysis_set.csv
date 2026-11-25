@@ -1,0 +1,36 @@
+row_id,study_label,country,site,setting,year_start,year_end,year_mid,haq_year,haq,pct_admitted,logit_pct,fitted_pct,resid_logit,rule_pct,n_strokes,clinic_system_flag,evidence_grade,notes_file
+HIC-20,Perth Community Stroke Study (Bonita 1994),Australia,Perth,urban,1989,1990,1989.5,1989,73.3112,78,1.26567,82.1537,-0.26113,97.9734,492,0,derived,hic_europe_population_studies.md
+HIC-46,Grodno stroke study (Kulesh 2010),Belarus,Grodno,urban,2001,2003,2002,2002,57.2392,89.7,2.16433,73.8279,1.12728,78.6871,2069,0,abstract,hic_europe_population_studies.md
+LMIC-D3,Joinville stroke registry (Cabral 2009),Brazil,Joinville,urban,2005,2006,2005.5,2005,44.3385,84.2,1.67318,65.5641,1.02926,63.2062,759,0,full_text,lmic_population_studies.md
+LMIC-D4,"Matao stroke registry (Minelli 2007, as cited by Cantu-Brito 2010)",Brazil,Matao,urban,2003,2004,2003.5,2003,43.7752,97,3.4761,65.1755,2.84934,62.5302,81,0,secondary,lmic_population_studies.md
+HIC-47,Varna stroke study (Powles 2002),Bulgaria,Varna city and two rural districts,mixed,2000,2001,2000.5,2000,53.7325,46,-0.160343,71.7113,-1.09053,74.4789,351,0,abstract,hic_europe_population_studies.md
+LMIC-D1,"PISCIS, Iquique (Lavados 2005)",Chile,Iquique,urban,2000,2002,2001,2001,56.5061,71,0.895384,73.394,-0.11932,77.8073,292,0,abstract,lmic_population_studies.md
+LMIC-D2,"NANDU, Nuble (Lavados 2021)",Chile,Nuble region,mixed,2015,2016,2015.5,2015,65.0809,85.7,1.79059,78.1768,0.514595,88.0971,890,0,full_text,lmic_population_studies.md
+VA-SICHUAN,"NESS-China, Sichuan sites (Front Neurol 2020)",China,"Sichuan, eight disease surveillance points",unclear,2012,2013,2012.5,2012,61.0852,70,0.847298,76.0285,-0.306944,83.3023,40,0,,fatal_stroke_va_and_surveys.md
+LMIC-A1,Tianjin Brain Study (Han 2021),China,"Yangjinzhuang township, Tianjin",rural,1992,2000,1996,1996,40.8513,6.9,-2.60215,63.1269,-3.13982,59.0216,246,0,full_text,lmic_population_studies.md
+LMIC-A2,Tianjin Brain Study (Han 2021),China,"Yangjinzhuang township, Tianjin",rural,2001,2009,2005,2005,50.8509,16.1,-1.65081,69.8965,-2.49318,71.021,509,0,full_text,lmic_population_studies.md
+LMIC-A3,Tianjin Brain Study (Han 2021),China,"Yangjinzhuang township, Tianjin",rural,2010,2018,2014,2014,63.4214,54.2,0.168397,77.3018,-1.05703,86.1057,708,0,full_text,lmic_population_studies.md
+HIC-43a,Tartu second registry (Vibo 2007 thesis),Estonia,Tartu,urban,1991,1993,1992,1992,52.8852,72,0.944462,71.1846,0.0400963,73.4622,829,0,full_text,hic_europe_population_studies.md
+HIC-44,Tartu third registry (Vibo 2007),Estonia,Tartu,urban,2001,2003,2002,2002,59.7788,88,1.99243,75.2954,0.878,81.7345,451,0,full_text,hic_europe_population_studies.md
+HIC-28,Dijon Stroke Registry (Giroud 1989),France,Dijon,urban,1985,1988,1986.5,1986,66.9053,90,2.19722,79.1104,0.865633,90.2863,842,0,abstract,hic_europe_population_studies.md
+HIC-30,"Dijon Stroke Registry, ischaemic events (Bejot 2025)",France,Dijon,urban,2013,2020,2016.5,2016,89.2535,93.1,2.60215,88.2113,0.589557,100,1763,1,abstract,hic_europe_population_studies.md
+LMIC-B2,"Kolkata door-to-door survey (Das 2007, as reported by Jones 2022)",India,Kolkata,urban,2003,2005,2004,2004,26.5768,69,0.800119,52.5648,0.697436,41.8921,247,0,secondary,lmic_population_studies.md
+LMIC-B1,Mumbai stroke registry (Dalal 2008),India,"Mumbai, H-ward",urban,2005,2006,2005.5,2005,27.1745,67.2,0.717245,53.0188,0.596347,42.6094,456,0,abstract,lmic_population_studies.md
+HIC-32,"SEPIVAC, Umbria (Ricci 1991)",Italy,Umbria,unclear,1986,1989,1987.5,1987,71.852,85,1.7346,81.4924,0.252271,96.2224,375,0,abstract,hic_europe_population_studies.md
+HIC-34,Netherlands register linkage plus Rotterdam Study estimate (Vaartjes 2008),Netherlands,National,national,2000,2000,2000,2000,79.2174,53.6,0.14425,84.6417,-1.56252,100,38811,1,derived,hic_europe_population_studies.md
+HIC-15,"ARCOS I (Feigin 2025, pooled paper, Table 1)",New Zealand,Auckland,urban,1981,1982,1981.5,1981,63.9928,62.5,0.510826,77.6058,-0.732017,86.7914,1360,0,full_text,hic_europe_population_studies.md
+HIC-16,"ARCOS II (Feigin 2025, pooled paper, Table 1)",New Zealand,Auckland,urban,1991,1992,1991.5,1991,66.9335,72.5,0.969401,79.1246,-0.363052,90.3202,1761,0,full_text,hic_europe_population_studies.md
+HIC-17,"ARCOS III (Feigin 2025, pooled paper, Table 1)",New Zealand,Auckland,urban,2002,2003,2002.5,2002,75.8514,90.9,2.30149,83.2605,0.697282,100,1938,0,full_text,hic_europe_population_studies.md
+HIC-18,"ARCOS IV (Feigin 2025, pooled paper, Table 1)",New Zealand,Auckland,urban,2011,2012,2011.5,2011,80.6009,90.9,2.30149,85.1818,0.552554,100,2096,0,full_text,hic_europe_population_studies.md
+HIC-19,"ARCOS V (Feigin 2025, pooled paper, Table 1)",New Zealand,Auckland,urban,2021,2022,2021.5,2021,85.5297,98.9,4.4988,86.9792,2.59968,100,2515,0,full_text,hic_europe_population_studies.md
+HIC-38,Innherred stroke study (Ellekjaer 1997),Norway,Innherred,unclear,1994,1996,1995,1995,77.3952,86,1.81529,83.9059,0.164044,100,593,0,derived,hic_europe_population_studies.md
+HIC-51,Other Warsaw stroke registers cited by the MONICA Data Centre (Mahonen 1998),Poland,Warsaw,urban,1990,1991,1990.5,1990,47.3436,95,2.94444,67.6011,2.20894,66.8123,,0,derived,hic_europe_population_studies.md
+HIC-33,"ACIN2, Porto (Abreu 2021)",Portugal,"Porto, Northern Portugal",unclear,2009,2011,2010,2010,79.4641,64.3,0.588409,84.7392,-1.12588,100,720,1,full_text,hic_europe_population_studies.md
+HIC-48,Krasnodar stroke register (Kharakoz 2001),Russian Federation,Krasnodar,unclear,1998,1998,1998,1998,48.4824,39.7,-0.417981,68.3564,-1.18818,68.1789,,0,abstract,hic_europe_population_studies.md
+HIC-12,East Lancashire general-practice register (Du 1997),United Kingdom,East Lancashire,unclear,1994,1995,1994.5,1994,72.96,70,0.847298,81.9963,-0.668797,97.552,932,0,abstract,hic_europe_population_studies.md
+HIC-01,"Oxfordshire Community Stroke Project, OCSP (Bamford 1986)",United Kingdom,Oxfordshire,unclear,1981,1986,1983.5,1983,68.6825,54.6,0.184522,79.9913,-1.20123,92.4191,487,0,derived,hic_europe_population_studies.md
+HIC-02,"OXVASC, incident strokes (Li 2020)",United Kingdom,Oxfordshire,unclear,2002,2017,2009.5,2009,81.8327,63,0.532217,85.6494,-1.25425,100,2254,1,derived,hic_europe_population_studies.md
+HIC-06b,South London Stroke Register (Bhalla 2016),United Kingdom,South London,urban,1995,2000,1997.5,1997,74.2654,82,1.51635,82.576,-0.0395259,99.1185,,0,abstract,hic_europe_population_studies.md
+HIC-07,South London Stroke Register (Bhalla 2016),United Kingdom,South London,urban,2001,2006,2003.5,2003,77.5572,90,2.19722,83.9725,0.541043,100,,0,abstract,hic_europe_population_studies.md
+HIC-08a,South London Stroke Register (Bhalla 2016),United Kingdom,South London,urban,2007,2012,2009.5,2009,81.8327,94,2.75154,85.6494,0.965069,100,,0,abstract,hic_europe_population_studies.md
+HIC-11,"Two districts, southern England (Wolfe 1995)",United Kingdom,West Lambeth and Tunbridge Wells,unclear,1989,1991,1990,1990,71.1323,71,0.895384,81.1594,-0.565017,95.3588,456,0,abstract,hic_europe_population_studies.md

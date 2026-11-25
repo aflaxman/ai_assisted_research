@@ -1,0 +1,286 @@
+FIRST LOOK: HAQ INDEX AGAINST THE SHARE OF INCIDENT STROKES ADMITTED TO HOSPITAL
+A diagnostic of a candidate estimation strategy. Nothing below is a GBD estimate or a recommended input.
+HAQ values are GBD 2023 national values from the IHME GBD connector, used as a regression covariate.
+Written by analysis/first_look_haq.py from data/study_level_admitted_share.csv and
+data/haq_gbd2023_study_country_years.csv.
+
+1. ROWS
+  evidence table: 134 rows
+    direct_incident: 62
+    partial_or_proxy: 49
+    monica_nonfatal: 22
+    upper_bound_linked: 1
+  by notes file:
+    hic_europe_population_studies.md: 76
+    lmic_population_studies.md: 49
+    modelling_precedents_and_capacity.md: 6
+    hic_europe_population_studies.md; lmic_population_studies.md: 1
+    fatal_stroke_va_and_surveys.md: 1
+    admin_data_and_proxies.md; fatal_stroke_va_and_surveys.md: 1
+  by evidence grade (blank = the notes do not say):
+    full_text: 46
+    derived: 45
+    abstract: 36
+    secondary: 6
+    (blank): 1
+  HAQ file: 66 country-years. HAQ is attached at the calendar year holding the study midpoint (floor of year_mid),
+  and national values are used for every site, city studies included.
+
+  direct_incident rows and how they reach the primary set:
+    all direct_incident rows: 62
+    no pooled percentage in the notes: 1 (HIC-13)
+    no HAQ year or location: 11
+      HIC-14: Ayrshire and Arran, 78% (study years not in the notes)
+      HIC-22: Rochester, Minnesota, 86% (midpoint before 1980)
+      HIC-29: Dijon, 92.4% (study years not in the notes)
+      HIC-31/LMIC-D6: Martinique, 93.5% (not a GBD location)
+      HIC-36: Rotterdam, 71% (study years not in the notes)
+      HIC-42: Tartu, 34% (midpoint before 1980)
+      HIC-45: Uzhgorod, 66% (study years not in the notes)
+      HIC-49: Location not in abstract, 61.5% (location and years not in the notes)
+      HIC-50: Kielce, 70% (midpoint before 1980)
+      LMIC-B3: 12 villages, rural West Bengal, 26% (study years not in the notes)
+      XTR-TBILISI: Tbilisi, 66% (study years not in the notes)
+    with percentage and HAQ: 50
+    left out as overlapping another row: 11
+      HIC-03: OXVASC 2002-14, all episodes: same register and years as HIC-02 (2002-17, incident strokes)
+      HIC-05: South London 1995-98: lies inside the 1995-2000 wave (HIC-06b)
+      HIC-08b: South London 2007-09: lies inside the 2007-12 wave (HIC-08a)
+      HIC-10: three southern England districts 1989-90: overlaps HIC-11 (two of the districts, 1989-91)
+      LMIC-A4a: Tianjin 1992-2008: a second cut of the surveillance in LMIC-A1 to A3
+      LMIC-A4b: Tianjin 2009-18: a second cut of the surveillance in LMIC-A1 to A3
+      LMIC-A6: Tianjin 2010-20, 1 January to 20 April only: overlaps LMIC-A3
+      XTR-SL1: South London 1995-97 (Addo 2011): overlaps the Bhalla 2016 waves
+      XTR-SL2: South London 1998-2000 (Addo 2011): overlaps the Bhalla 2016 waves
+      XTR-SL3: South London 2001-03 (Addo 2011): overlaps the Bhalla 2016 waves
+      XTR-SL4: South London 2004-06 (Addo 2011): overlaps the Bhalla 2016 waves
+    left out as the second of two conflicting values: 4
+      HIC-06a: South London 1995-2000: 85.1% (McKevitt 2005); the primary set keeps 82% (Bhalla 2016)
+      HIC-43b: Tartu 1991-93: 82% (Korv 1999); the primary set keeps 72% (Vibo thesis)
+      XTR-AKL1: Auckland 1981-82: 64.5% (secondary citation); the primary set keeps 62.5% (Feigin 2025)
+      XTR-AKL2: Auckland 2002-03: 92.4% (secondary citation); the primary set keeps 90.9% (Feigin 2025)
+    PRIMARY SET: 35 rows, 24 sites, 17 countries
+    by setting: urban 20, unclear 9, rural 3, mixed 2, national 1; clinic_system_flag = 1: 4
+    by evidence grade: abstract 13, full_text 13, derived 6, secondary 2, (blank) 1
+    HAQ range: 26.6 to 89.3; rows below HAQ 40: 2; rows below HAQ 50: 7
+    percentage admitted: 6.9 to 98.9
+
+2. PRIMARY FIT
+  Ordinary least squares of logit(percent admitted / 100) on HAQ, unweighted, standard errors clustered by site.
+  Unweighted because sample sizes are missing for some rows and between-study spread dwarfs sampling error
+  (see the dispersion estimate under the binomial cross-check).
+  primary
+    rows / sites / countries: 35 / 24 / 17
+    slope per HAQ point: 0.0305 (95% CI -0.0098 to 0.0708; SE 0.0195, clustered by site, t with 23 df)
+    odds ratio per 10 HAQ points: 1.36 (0.91 to 2.03)
+    intercept: -0.707 (95% CI -3.580 to 2.166)
+    R-squared: 0.126; residual SD: 1.295 logit units
+
+  largest residuals on the logit scale (observed against fitted percent):
+    LMIC-A1    Yangjinzhuang township, Tianjin       1996  HAQ 40.9  observed 6.9%  fitted 63%  residual -3.14
+    LMIC-D4    Matao                               2003.5  HAQ 43.8  observed 97%  fitted 65%  residual +2.85
+    HIC-19     Auckland                            2021.5  HAQ 85.5  observed 98.9%  fitted 87%  residual +2.60
+    LMIC-A2    Yangjinzhuang township, Tianjin       2005  HAQ 50.9  observed 16.1%  fitted 70%  residual -2.49
+    HIC-51     Warsaw                              1990.5  HAQ 47.3  observed 95%  fitted 68%  residual +2.21
+    HIC-34     Netherlands (national)                2000  HAQ 79.2  observed 53.6%  fitted 85%  residual -1.56
+    HIC-02     Oxfordshire                         2009.5  HAQ 81.8  observed 63%  fitted 86%  residual -1.25
+    HIC-01     Oxfordshire                         1983.5  HAQ 68.7  observed 54.6%  fitted 80%  residual -1.20
+
+3. SENSITIVITY FITS (same model unless stated)
+  (a) excluding secondary and derived-grade rows
+    rows / sites / countries: 27 / 17 / 13
+    slope per HAQ point: 0.0613 (95% CI 0.0110 to 0.1116; SE 0.0237, clustered by site, t with 16 df)
+    odds ratio per 10 HAQ points: 1.85 (1.12 to 3.05)
+    intercept: -2.754 (95% CI -6.379 to 0.871)
+    R-squared: 0.407; residual SD: 1.110 logit units
+    dropped: HIC-01, HIC-02, HIC-20, HIC-34, HIC-38, HIC-51, LMIC-B2, LMIC-D4
+  (a2, extra) excluding secondary-grade rows only
+    rows / sites / countries: 33 / 22 / 17
+    slope per HAQ point: 0.0440 (95% CI -0.0044 to 0.0923; SE 0.0232, clustered by site, t with 21 df)
+    odds ratio per 10 HAQ points: 1.55 (0.96 to 2.52)
+    intercept: -1.701 (95% CI -5.144 to 1.742)
+    R-squared: 0.222; residual SD: 1.206 logit units
+    dropped: LMIC-B2, LMIC-D4
+  (b) excluding clinic_system_flag == 1 rows
+    rows / sites / countries: 31 / 22 / 15
+    slope per HAQ point: 0.0387 (95% CI -0.0034 to 0.0808; SE 0.0202, clustered by site, t with 21 df)
+    odds ratio per 10 HAQ points: 1.47 (0.97 to 2.24)
+    intercept: -1.104 (95% CI -4.126 to 1.918)
+    R-squared: 0.175; residual SD: 1.298 logit units
+    dropped: HIC-02, HIC-30, HIC-33, HIC-34
+  (c) adding a rural indicator and the clinic flag
+    rows / sites / countries: 35 / 24 / 17
+    slope per HAQ point: 0.0295 (95% CI -0.0005 to 0.0595; SE 0.0145, clustered by site, t with 23 df)
+    odds ratio per 10 HAQ points: 1.34 (1.00 to 1.81)
+    intercept: -0.289 (95% CI -2.314 to 1.736)
+    coefficient on rural: -2.599 (95% CI -3.165 to -2.033; SE 0.274)
+    coefficient on clinic: -1.178 (95% CI -2.161 to -0.196; SE 0.475)
+    R-squared: 0.463; residual SD: 1.047 logit units
+    rural rows: LMIC-A1, LMIC-A2, LMIC-A3. They are one site, so the rural coefficient is a
+    Tianjin effect and its clustered SE is not trustworthy. Clinic rows: HIC-02, HIC-30, HIC-33, HIC-34
+  (d) adding year_mid (centred at 2000) alongside HAQ
+    rows / sites / countries: 35 / 24 / 17
+    slope per HAQ point: 0.0279 (95% CI -0.0110 to 0.0668; SE 0.0188, clustered by site, t with 23 df)
+    odds ratio per 10 HAQ points: 1.32 (0.90 to 1.95)
+    intercept: -0.564 (95% CI -3.421 to 2.293)
+    coefficient on year_c: 0.028 (95% CI -0.015 to 0.070; SE 0.021)
+    R-squared: 0.165; residual SD: 1.285 logit units
+    correlation of HAQ with year_mid in the primary set: 0.15
+  (e) high-income and Europe rows only (hic_europe_population_studies.md)
+    rows / sites / countries: 25 / 16 / 13
+    slope per HAQ point: 0.0331 (95% CI -0.0269 to 0.0931; SE 0.0281, clustered by site, t with 15 df)
+    odds ratio per 10 HAQ points: 1.39 (0.76 to 2.54)
+    intercept: -0.835 (95% CI -5.042 to 3.373)
+    R-squared: 0.113; residual SD: 1.096 logit units
+  (e) LMIC rows only (lmic_population_studies.md, plus the Sichuan row)
+    rows / sites / countries: 10 / 8 / 4
+    slope per HAQ point: 0.0075 (95% CI -0.0309 to 0.0458; SE 0.0162, clustered by site, t with 7 df)
+    odds ratio per 10 HAQ points: 1.08 (0.73 to 1.58)
+    intercept: 0.254 (95% CI -2.814 to 3.322)
+    R-squared: 0.004; residual SD: 1.818 logit units
+  (f) leave-one-site-out slope
+    range: 0.0160 (without Yangjinzhuang township, Tianjin) to 0.0377 (without Matao)
+    all sites, lowest slope first:
+      without Yangjinzhuang township, Tianjin              0.0160
+      without Auckland                                     0.0202
+      without South London                                 0.0272
+      without Dijon                                        0.0281
+      without Krasnodar                                    0.0282
+      without Varna city and two rural districts           0.0291
+      without Innherred                                    0.0302
+      without Umbria                                       0.0302
+      without Iquique                                      0.0304
+      without Sichuan, eight disease surveillance points   0.0304
+      without Nuble region                                 0.0304
+      without Perth                                        0.0308
+      without West Lambeth and Tunbridge Wells             0.0310
+      without Tartu                                        0.0310
+      without East Lancashire                              0.0312
+      without Grodno                                       0.0314
+      without Porto, Northern Portugal                     0.0326
+      without Joinville                                    0.0330
+      without Netherlands (national)                       0.0334
+      without Mumbai, H-ward                               0.0336
+      without Oxfordshire                                  0.0341
+      without Kolkata                                      0.0342
+      without Warsaw                                       0.0350
+      without Matao                                        0.0377
+  (g, extra) the second value of each conflicting pair swapped in
+    rows / sites / countries: 35 / 24 / 17
+    slope per HAQ point: 0.0303 (95% CI -0.0103 to 0.0708; SE 0.0196, clustered by site, t with 23 df)
+    odds ratio per 10 HAQ points: 1.35 (0.90 to 2.03)
+    intercept: -0.664 (95% CI -3.553 to 2.225)
+    R-squared: 0.123; residual SD: 1.301 logit units
+  (h, extra) every direct_incident row with HAQ, overlapping and conflicting rows included
+    rows / sites / countries: 50 / 25 / 17
+    slope per HAQ point: 0.0374 (95% CI -0.0081 to 0.0830; SE 0.0221, clustered by site, t with 24 df)
+    odds ratio per 10 HAQ points: 1.45 (0.92 to 2.29)
+    intercept: -1.238 (95% CI -4.576 to 2.101)
+    R-squared: 0.171; residual SD: 1.218 logit units
+  (i, extra) primary set plus rows with no study year, placed at publication year minus 2
+    rows / sites / countries: 41 / 29 / 19
+    slope per HAQ point: 0.0325 (95% CI 0.0008 to 0.0643; SE 0.0155, clustered by site, t with 28 df)
+    odds ratio per 10 HAQ points: 1.38 (1.01 to 1.90)
+    intercept: -0.888 (95% CI -3.123 to 1.348)
+    R-squared: 0.168; residual SD: 1.228 logit units
+    added: HIC-14 Ayrshire and Arran, 78%, placed at United Kingdom 1998 (HAQ 74.7)
+    added: HIC-29 Dijon, 92.4%, placed at France 1996 (HAQ 74.5)
+    added: HIC-36 Rotterdam, 71%, placed at Netherlands 2021 (HAQ 90.4)
+    added: HIC-45 Uzhgorod, 66%, placed at Ukraine 1999 (HAQ 52.2)
+    added: LMIC-B3 12 villages, rural West Bengal, 26%, placed at India 2003 (HAQ 25.9)
+    added: XTR-TBILISI Tbilisi, 66%, placed at Georgia 2002 (HAQ 50.6)
+  Binomial GLM cross-check (logit link, weights from n_strokes; quasi-binomial SEs = binomial SEs x sqrt(dispersion))
+    rows with n_strokes: 30 of 35; total strokes 65323
+    all rows with n_strokes: 30 rows; the largest row holds 59% of all strokes
+      slope per HAQ point -0.0058 (95% CI -0.0339 to 0.0224; quasi-binomial SE 0.0137); intercept 0.991
+      dispersion (Pearson chi-square / df): 272, that is, 272 times binomial variance
+    without the Netherlands national row (HIC-34): 29 rows; the largest row holds 9% of all strokes
+      slope per HAQ point 0.0290 (95% CI 0.0036 to 0.0544; quasi-binomial SE 0.0124); intercept -0.715
+      dispersion (Pearson chi-square / df): 144, that is, 144 times binomial variance
+
+4. WITHIN-SITE TIME TRENDS
+  Within-site slope = least-squares slope of logit(percent admitted) on HAQ across a site's waves
+  (with two waves, the change in logit divided by the change in HAQ).
+  Cross-sectional slope from the primary fit: 0.0305 per HAQ point.
+  site | waves and periods | percent admitted by wave | HAQ at first and last wave (country, year) |
+  within-site slope per HAQ point | ratio to cross-sectional slope | within-site slope per calendar year
+    Auckland
+      5 waves, 1981-1982 to 2021-2022; admitted 62.5 > 72.5 > 90.9 > 90.9 > 98.9%; HAQ 64.0 (New Zealand 1981) and 85.5 (2021); slope 0.1621 per HAQ point; ratio 5.3; 0.093 logit units per calendar year
+    South London
+      3 waves, 1995-2000 to 2007-2012; admitted 82 > 90 > 94%; HAQ 74.3 (United Kingdom 1997) and 81.8 (2009); slope 0.1616 per HAQ point; ratio 5.3; 0.103 logit units per calendar year
+    Tartu
+      2 waves, 1991-1993 to 2001-2003; admitted 72 > 88%; HAQ 52.9 (Estonia 1992) and 59.8 (2002); slope 0.1520 per HAQ point; ratio 5.0; 0.105 logit units per calendar year
+    Yangjinzhuang township, Tianjin
+      3 waves, 1992-2000 to 2010-2018; admitted 6.9 > 16.1 > 54.2%; HAQ 40.9 (China 1996) and 63.4 (2014); slope 0.1237 per HAQ point; ratio 4.1; 0.154 logit units per calendar year
+    Oxfordshire
+      2 waves, 1981-1986 to 2002-2017; admitted 54.6 > 63%; HAQ 68.7 (United Kingdom 1983) and 81.8 (2009); slope 0.0264 per HAQ point; ratio 0.9; 0.013 logit units per calendar year
+    Dijon
+      2 waves, 1985-1988 to 2013-2020; admitted 90 > 93.1%; HAQ 66.9 (France 1986) and 89.3 (2016); slope 0.0181 per HAQ point; ratio 0.6; 0.013 logit units per calendar year
+    South London (Addo 2011, 3-year periods; alternative series)
+      5 waves, 1995-1997 to 2007-2009; admitted 82.1 > 85.6 > 85.5 > 93.2 > 94.7%; HAQ 73.9 (United Kingdom 1996) and 81.2 (2008); slope 0.1931 per HAQ point; ratio 6.3; 0.119 logit units per calendar year
+    Tartu (82% in 1991-93, Korv 1999; alternative value)
+      2 waves, 1991-1993 to 2001-2003; admitted 82 > 88%; HAQ 52.9 (Estonia 1992) and 59.8 (2002); slope 0.0691 per HAQ point; ratio 2.3; 0.048 logit units per calendar year
+  across the 6 multi-wave sites in the primary set: within-site slopes run from 0.0181 to 0.1621; median 0.1378
+  per calendar year the same sites run from 0.013 to 0.154 logit units; the cross-sectional year coefficient in sensitivity (d) is 0.028
+  pooled within-site slope (site fixed effects; 17 rows, 6 sites): 0.1027 (95% CI -0.0073 to 0.2127; clustered by site with 5 df, so the interval is rough)
+  between-site slope (site means, 24 sites, classical SE): 0.0047 (95% CI -0.0256 to 0.0350)
+  ratio of pooled within-site slope to between-site slope: 22
+
+5. COMPARISON WITH THE IHME INJURIES RULE
+  Rule as quoted in gbd_pipeline_evidence.md (GBD 2023 nonfatal appendix, injuries, p.724): 100% treated at HAQ 75 and above;
+  other location-years 'scaled ... between 10% and 100% treated based on their HAQ Index value'.
+  The form between the anchors is not published. ASSUMED HERE: a straight line from 10% at HAQ 0 to 100% at HAQ 75.
+  primary rows above the rule / below the rule: 7 / 28 of 35
+  rows above the rule: Kolkata 69% (rule 42%); Mumbai, H-ward 67.2% (rule 43%); Matao 97% (rule 63%); Joinville 84.2% (rule 63%); Warsaw 95% (rule 67%); Grodno 89.7% (rule 79%); Tartu 88% (rule 82%)
+  mean (observed minus rule): -12.1 percentage points; median -11.2
+  root mean square difference from the rule: 25.3 points; from the fitted curve: 20.5 points
+  HAQ 75 and above (rule says 100%): 10 rows, observed 53.6% to 98.9%, median 90.5%; rows under 90%: 4 (Oxfordshire 63%, Porto, Northern Portugal 64.3%, Netherlands (national) 53.6%, Innherred 86%)
+  below HAQ 75: 25 rows; observed minus rule runs from -54.9 to +34.5 points, mean -9.9
+  Where the 10% anchor sits is not stated. Three hypothetical positions (not GBD values) show how much it matters below HAQ 75:
+    10% anchor at HAQ | rule at HAQ 30 / 50 / 70 | primary rows below the rule | mean (observed minus rule), rows under HAQ 75
+      0 | 46 / 70 / 94 | 28 of 35 | -9.9
+     10 | 38 / 65 / 93 | 26 of 35 | -6.6
+     20 | 26 / 59 / 92 | 24 of 35 | -2.1
+  rule (10% anchor at HAQ 0) against the fitted curve, percent:
+    HAQ 20: rule 34, fitted 48
+    HAQ 30: rule 46, fitted 55
+    HAQ 40: rule 58, fitted 63
+    HAQ 50: rule 70, fitted 69
+    HAQ 60: rule 82, fitted 75
+    HAQ 70: rule 94, fitted 81
+    HAQ 80: rule 100, fitted 85
+    HAQ 90: rule 100, fitted 88
+
+6. ILLUSTRATIVE PREDICTIONS FROM THE PRIMARY FIT (not estimates, not for use as inputs)
+  Prediction interval for a new study-period: fitted logit +/- t(23) x sqrt(residual SD^2 + SE of fit^2), back-transformed.
+  HAQ | fitted % admitted | 95% CI of the fitted mean | 95% prediction interval
+     20 |  47.6 |  10.1 to  87.9 |   3.0 to  96.4  (outside the HAQ range of the data)
+     30 |  55.2 |  18.4 to  87.0 |   4.9 to  96.7
+     40 |  62.5 |  30.8 to  86.2 |   7.8 to  97.1
+     50 |  69.3 |  46.4 to  85.5 |  11.6 to  97.5
+     60 |  75.4 |  61.4 to  85.6 |  16.3 to  98.0
+     70 |  80.6 |  71.3 to  87.4 |  21.4 to  98.5
+     80 |  84.9 |  74.6 to  91.5 |  26.4 to  98.9
+     90 |  88.4 |  74.7 to  95.2 |  30.9 to  99.2  (outside the HAQ range of the data)
+
+7. WHO MONICA ROWS (non-fatal events at ages 25-64 managed in hospital; not pooled with the primary set)
+  logit scale (shares above 99.5% set to 99.5%)
+    rows / sites / countries: 22 / 22 / 11
+    slope per HAQ point: 0.0134 (95% CI -0.0438 to 0.0706; SE 0.0275, clustered by site, t with 21 df)
+    odds ratio per 10 HAQ points: 1.14 (0.65 to 2.03)
+    intercept: 2.372 (95% CI -1.123 to 5.866)
+    R-squared: 0.012; residual SD: 1.435 logit units
+    populations at the 99.5% limit: 4
+  percentage-point scale (no transformation)
+    rows / sites / countries: 22 / 22 / 11
+    slope per HAQ point: 0.1156 (95% CI -0.1434 to 0.3746; SE 0.1245, clustered by site, t with 21 df)
+    intercept: 85.706 (95% CI 69.358 to 102.054)
+    R-squared: 0.034; residual SD: 7.341 percentage points
+    HAQ range 34.4 to 75.6; percent in hospital 76.7 to 100
+
+8. LINKED-DATA UPPER BOUND (shown in the figure, not in any fit)
+  ADM-NORWAY: Norway 2001-2021, 92.4% of registered incident strokes hospitalised; HAQ 88.3 (2011); primary fit at that HAQ 88%
+
+9. FILES
+  outputs/primary_analysis_set.csv: the rows behind the primary fit
+  figures/admitted_share_vs_haq.png, figures/within_site_trajectories.png
