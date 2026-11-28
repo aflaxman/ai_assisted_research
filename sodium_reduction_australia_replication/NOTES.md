@@ -456,7 +456,7 @@ outcomes that holds IHD, HF and stroke.
 wrote down. The model should give the health gain from GLP-1s, from sodium
 reduction and from potassium-enriched salt, and compare each with scaling up
 hypertension treatment. Sodium reduction is the replication on this branch.
-Potassium-enriched salt is the replication of Huang et al. (2026) in
+Potassium-enriched salt is the replication of Huang and colleagues (2026) in
 `potassium_salt_replication/` on main. That model is static, counts deaths
 only, and covers 193 countries.
 
@@ -513,11 +513,11 @@ only, and covers 193 countries.
 4. **A direct GLP-1 effect on outcomes.** According to PubMed, SELECT found a
    hazard ratio of 0.80 (0.72 to 0.90) for major cardiovascular events over a
    mean of 39.8 months
-   ([Lincoff et al. 2023](https://doi.org/10.1056/NEJMoa2307563)). A
+   ([Lincoff and colleagues 2023](https://doi.org/10.1056/NEJMoa2307563)). A
    prespecified analysis found no linear trend that links weight loss at week
    20 with later risk, and estimated that waist circumference reduction
    mediated 33% of the benefit
-   ([Deanfield et al. 2025](https://doi.org/10.1016/S0140-6736(25)01375-3)).
+   ([Deanfield and colleagues 2025](https://doi.org/10.1016/S0140-6736(25)01375-3)).
    A model that sends the whole effect through BMI and its mediators therefore
    needs one more arrow, from GLP-1s to the outcomes, calibrated to the trial.
    SELECT enrolled people with existing cardiovascular disease. Calibration
@@ -559,7 +559,7 @@ only, and covers 193 countries.
    eligibility, uptake, discontinuation and weight regain. According to
    PubMed, participants in the STEP 1 extension regained two thirds of their
    weight loss in the year after withdrawal, and the cardiometabolic changes
-   reverted ([Wilding et al. 2022](https://doi.org/10.1111/dom.14725)). Drug
+   reverted ([Wilding and colleagues 2022](https://doi.org/10.1111/dom.14725)). Drug
    treatment needs adherence and discontinuation. Each intervention needs a
    stated baseline. GBD 2023 exposures describe 2023. `RateTrends` on this
    branch moves disease rates and nothing moves exposures.
@@ -620,10 +620,10 @@ hold.
 
 | Nutrient | Slope, mmHg per gram | Source in the repository |
 |---|---|---|
-| Sodium, age 50, no hypertension | 1.6 | Mozaffarian et al., in the potassium replication |
+| Sodium, age 50, no hypertension | 1.6 | Mozaffarian and colleagues, in the potassium replication |
 | Sodium, age 65, hypertension | 3.1 | same |
 | Sodium, age 65, SBP 140 | 2.8 | appendix Table S3, this branch |
-| Potassium, sodium below 3 g/day | 1.8 | Filippini et al. (2020), in the potassium replication |
+| Potassium, sodium below 3 g/day | 1.8 | Filippini and colleagues (2020), in the potassium replication |
 | Potassium, sodium at or above 3 g/day | 2.8 | same |
 
 If nutrient density stays constant, a cut of a fraction f in energy lowers
@@ -639,15 +639,15 @@ use for a fall in intake is an extrapolation.
 
 According to PubMed:
 
-- [Kontis et al. 2019](https://doi.org/10.1161/CIRCULATIONAHA.118.038160)
+- [Kontis and colleagues 2019](https://doi.org/10.1161/CIRCULATIONAHA.118.038160)
   compare treatment of high blood pressure at 70% coverage, a 30% reduction in
   sodium, and elimination of trans fat. Treatment delays 39.4 million deaths in
   25 years and sodium reduction delays 40.0 million. Both act through blood
   pressure in a generalized population attributable fraction.
-- [Pickersgill et al. 2022](https://doi.org/10.1038/s41591-022-01890-4) model
+- [Pickersgill and colleagues 2022](https://doi.org/10.1038/s41591-022-01890-4) model
   the 80-80-80 targets for hypertension by country and report 76 to 130 million
   deaths averted from 2022 to 2050.
-- [Pandey et al. 2024](https://doi.org/10.1073/pnas.2412872121) estimate that
+- [Pandey and colleagues 2024](https://doi.org/10.1073/pnas.2412872121) estimate that
   expanded access to weight-loss drugs in the United States averts more than
   42,000 deaths a year. The model uses mortality hazard ratios by BMI
   category. As I read the abstract, it has no direct drug effect.
