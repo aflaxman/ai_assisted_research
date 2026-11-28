@@ -19,7 +19,7 @@ order, including the dead ends.
 Session moved to the IHME cluster. New inputs available: the paper's
 supplementary appendix (uploaded by Abie), `vivarium_inputs` and `gbd_mapping`
 against the GBD databases, the old `ihmeuw/vivarium_sodium_reduction` repo,
-and the recent `vivarium_csu_mace_rct` project for data access patterns.
+and a recent private simulation project for data access patterns.
 
 Question to answer: why are deaths averted smaller in my replication?
 
@@ -73,7 +73,7 @@ Transcribed tables are in `data/paper/`.
 - GBD 2023 attributes high SBP to 12 causes (same set as GBD 2021); the
   paper's extra five are GBD 2019 (release 6) outcomes only.
 - Slurm: partitions `all.q` and `long.q`, account `proj_simscience`
-  (from the MACE RCT sbatch scripts). This node has 4 CPUs.
+  (from that private project's sbatch scripts). This node has 4 CPUs.
 
 ### What the appendix inputs do to the SBP reduction (no simulation yet)
 
@@ -126,7 +126,7 @@ without curves.
 ### Log-linear or the GBD curves?
 
 Abie pointed out that `vivarium_public_health` has `NonLogLinearRiskEffect`
-for curve-form relative risks (the MACE RCT project stores the GBD curve
+for curve-form relative risks (the private project stores the GBD curve
 under the standard `relative_risk` key with a numeric `parameter` column and
 computes PAFs in a separate PAF-calculation spec). The paper used GBD 2019
 incidence rate ratios per 10 mmHg, which are log-linear, so the log-linear
@@ -434,3 +434,243 @@ condensed data extracts, 2 MB of results). `git filter-repo` is not installed
 here (git 2.25.1), so the built-in command is the one path. The instructions
 went to the user; nothing was rewritten in the real repo.
 
+## 2026-11-27: what a concept model for GLP-1s, sodium and potassium needs
+
+Asked: review a hand-drawn concept model. Say what else it needs to support the
+modeling questions, and to compare them with scaling up access to hypertension
+treatment.
+
+![The sketch redrawn, with suggested additions in dashed orange](figures/concept_model_markup.png)
+
+The figure redraws the sketch in solid blue and marks suggested additions in
+dashed orange. `figures/concept_model_markup.py` draws it. The numbers on the
+figure match the numbered list below.
+
+**The sketch as I read it.** GLP-1s point to caloric intake, BMI and FPG.
+Caloric intake points to BMI, sodium intake and potassium intake. Physical
+activity points to BMI. BMI points to FPG, SBP and LDL-C. Sodium intake and
+potassium intake point to SBP. BMI, FPG, SBP and LDL-C point to one box of
+outcomes that holds IHD, HF and stroke.
+
+**The questions as I read them.** This is my reading, not something the user
+wrote down. The model should give the health gain from GLP-1s, from sodium
+reduction and from potassium-enriched salt, and compare each with scaling up
+hypertension treatment. Sodium reduction is the replication on this branch.
+Potassium-enriched salt is the replication of Huang et al. (2026) in
+`potassium_salt_replication/` on main. That model is static, counts deaths
+only, and covers 193 countries.
+
+### What the sketch needs
+
+1. **The comparator.** The sketch has no node for hypertension treatment. It
+   needs hypertension care (contact with care, diagnosis), drug treatment
+   (intensity, adherence), and an arrow from drug treatment to SBP. It also
+   needs a baseline. The documentation of the public US cardiovascular model
+   (`ihmeuw/vivarium_nih_us_cvd`) states that the GBD exposure for SBP includes
+   the benefit of current medication. The model must therefore know who is
+   treated now, by SBP, age and sex, and must add the drug effect back to get
+   untreated SBP. The public US model does this. It adds 5.1% to SBP for
+   adherent people on one drug and 12% for two drugs. It also has visits, measurement error (SD 2.9 mmHg), therapeutic
+   inertia, six treatment levels with efficacy that depends on starting SBP,
+   three adherence categories, discontinuation, and baseline coverage from a
+   regression on NHANES. All of it is fitted to the United States. For other
+   countries NCD-RisC gives the shares diagnosed, treated and controlled by
+   sex and age. NCD-RisC does not say how treatment lines up with SBP inside
+   an age group. The potassium replication met this gap. Its scenario for 80%
+   of people with diagnosed hypertension averts 0.54 million deaths a year when
+   status is independent of SBP, and 0.69 million when the people with the
+   highest SBP are the ones with hypertension.
+   "Access" must also name what moves: the contact rate, diagnosis, the start
+   of treatment, intensification, or adherence.
+
+2. **A rule for how effects combine at SBP.** Four arrows meet at SBP: BMI,
+   sodium, potassium and drug treatment. None of the effects is constant. The
+   appendix equation on this branch gives 2.026 + 0.0502 (age - 50) + 0.0659
+   (SBP - 140) mmHg per gram of sodium. The potassium replication adds 1.874
+   mmHg per 100 mmol of sodium for people with hypertension. Its potassium
+   slope depends on sodium intake. Drug efficacy depends on starting SBP. The
+   order of application therefore changes the answer, and treatment status
+   changes the diet effects. The model needs a stated order. Each intervention
+   needs a run alone and a run in combination. The documentation of the public
+   US model lists concurrent interventions as a limitation.
+
+3. **Trial effects as inputs, with calories derived.** GLP-1 trials report the
+   change in weight, SBP, glucose and lipids. Each reported change already
+   includes every path in the sketch, through weight, sodium and potassium. A
+   model that applies the trial change in SBP and also sends caloric intake
+   through sodium and potassium to SBP counts the effect twice. My
+   recommendation is a judgment: the arrows from GLP-1s to BMI, FPG, SBP and
+   LDL-C take trial values, and caloric intake is derived from the weight
+   change with an energy balance model. The sodium and potassium changes then
+   serve three purposes. They carry the stomach cancer effect of sodium. They
+   interact with sodium policy. They give a consistency check on the trial SBP
+   value. The sketch also has a direct arrow from GLP-1s to BMI next to the
+   path through caloric intake. One of the two is redundant. GBD has no
+   potassium exposure and no energy intake per person. Covariate 977 is named
+   "energy unadjusted(kcal)". I take it to be a national figure, and I did not
+   pull it. A dietary survey with individual records is the source for both.
+
+4. **A direct GLP-1 effect on outcomes.** According to PubMed, SELECT found a
+   hazard ratio of 0.80 (0.72 to 0.90) for major cardiovascular events over a
+   mean of 39.8 months
+   ([Lincoff et al. 2023](https://doi.org/10.1056/NEJMoa2307563)). A
+   prespecified analysis found no linear trend that links weight loss at week
+   20 with later risk, and estimated that waist circumference reduction
+   mediated 33% of the benefit
+   ([Deanfield et al. 2025](https://doi.org/10.1016/S0140-6736(25)01375-3)).
+   A model that sends the whole effect through BMI and its mediators therefore
+   needs one more arrow, from GLP-1s to the outcomes, calibrated to the trial.
+   SELECT enrolled people with existing cardiovascular disease. Calibration
+   needs disease models with repeat events. The `SI` models on this branch
+   have none.
+
+5. **Mediation for BMI.** The sketch has BMI act directly and through FPG, SBP
+   and LDL-C. GBD relative risks for BMI are total effects, so the direct
+   arrow must hold only the share that does not go through the mediators. The
+   table below has the GBD 2023 mediation factors. Most of the effect of BMI
+   on stroke is already in the mediators. The public US model implements this
+   as `MediatedRiskEffect`. A mediation factor splits a relative risk. It does
+   not say how many mmHg SBP falls when BMI falls by one unit. Item 3 avoids
+   the need for that slope.
+
+6. **Correlated exposures.** Eligibility for GLP-1s depends on BMI and
+   diabetes. Eligibility for drug treatment depends on SBP. The benefit
+   depends on how BMI, SBP, FPG and LDL-C line up within a person. The public
+   US model has `RiskCorrelation` with correlations from NHANES. Another
+   country needs a survey with individual measurements. The same holds for
+   diet: energy, sodium and potassium intake rise together.
+
+7. **Outcomes that match the arrows.** Stroke needs a split by subtype. In
+   GBD 2023, LDL-C has a pair with ischemic stroke only, and FPG has none with
+   subarachnoid hemorrhage. HF is an impairment in GBD and has no risk pairs.
+   The public US model builds HF as a cause, with a literature relative risk
+   of 1.14 per unit of BMI, an effect of categorical SBP, and no effect of
+   LDL-C or FPG. HF is also partly a consequence of IHD. A fair comparison
+   needs the outcomes that only some interventions change: type 2 diabetes and
+   CKD (GLP-1s, drug treatment, and the safety of potassium), stomach cancer
+   (sodium), HHD, AF, PAD and aortic aneurysm (SBP, already on this branch),
+   osteoarthritis, low back pain and cancers (BMI only). It also needs harms:
+   hyperkalaemia in CKD, and adverse events of the drugs. In SELECT 16.6% of
+   the semaglutide group and 8.2% of the placebo group stopped permanently for
+   adverse events. The common unit should be HALYs or DALYs. The potassium
+   replication counts deaths only.
+
+8. **Uptake, persistence and a business-as-usual trend.** GLP-1s need
+   eligibility, uptake, discontinuation and weight regain. According to
+   PubMed, participants in the STEP 1 extension regained two thirds of their
+   weight loss in the year after withdrawal, and the cardiometabolic changes
+   reverted ([Wilding et al. 2022](https://doi.org/10.1111/dom.14725)). Drug
+   treatment needs adherence and discontinuation. Each intervention needs a
+   stated baseline. GBD 2023 exposures describe 2023. `RateTrends` on this
+   branch moves disease rates and nothing moves exposures.
+
+9. **Physical activity.** The node has no intervention and one arrow, to BMI.
+   GBD 2023 has pairs for low physical activity with IHD, ischemic stroke,
+   type 2 diabetes, PAD, CKD, and colon and breast cancer. Its mediation
+   matrix sends part of that effect through FPG and none through BMI. The one
+   arrow in the sketch is therefore an arrow that GBD does not have. The node
+   needs direct arrows, or it can go. I would drop it unless one of the
+   questions is a physical activity intervention. That is a judgment.
+
+### What GBD 2023 supports
+
+Risk-outcome pairs for the outcomes in the sketch, from the GBD 2023 cause-risk
+hierarchy:
+
+| Risk | IHD | Ischemic stroke | Intracerebral hemorrhage | Subarachnoid hemorrhage | HF |
+|---|---|---|---|---|---|
+| High SBP | yes | yes | yes | yes | no pair |
+| High LDL-C | yes | yes | no | no | no pair |
+| High FPG | yes | yes | yes | no | no pair |
+| High BMI | yes | yes | yes | yes | no pair |
+| Low physical activity | yes | yes | no | no | no pair |
+| Diet high in sodium | through SBP | through SBP | through SBP | through SBP | no pair |
+
+Mean mediation factors for BMI in adults (rei 370), from
+`ihme_cc_risk_utils.get_risk_mediation_matrix(rei_id=370, release_id=16)`:
+
+| Outcome | through SBP | through FPG | through LDL-C |
+|---|---|---|---|
+| IHD | 0.31 | 0.15 | 0.10 |
+| Ischemic stroke | 0.65 | 0.22 | 0.03 |
+| Intracerebral hemorrhage | 0.65 | 0.22 | none |
+| Subarachnoid hemorrhage | 0.65 | none | none |
+| Atrial fibrillation | 0.31 | none | none |
+| CKD | 0.50 | 0.50 | none |
+| HHD | 1.00 | none | none |
+| Type 2 diabetes, PAD | none | 1.00 | none |
+
+The same call for low physical activity (rei 125) returns FPG as the only
+mediator: 0.14 for IHD, 0.08 for ischemic stroke, and 1.00 for type 2 diabetes,
+CKD and PAD. For diet high in sodium (rei 124) the factor through SBP is 1.00
+for every cardiovascular and kidney outcome, which agrees with the sketch.
+
+GBD has exposures for SBP, LDL-C, FPG, BMI, sodium and physical activity. It
+has no potassium risk, no energy intake per person, no risk pairs for HF, and
+no covariate for hypertension treatment coverage. I searched the covariate
+names for treatment, hypertension and drug terms and found none. The GBD risk
+table also lists entities whose names suggest internal scenario work on some
+of these interventions. I reported them to the user and do not record them
+here.
+
+### The sodium and potassium paths roughly cancel
+
+This is rough arithmetic with the slopes that the two replications already
+hold.
+
+| Nutrient | Slope, mmHg per gram | Source in the repository |
+|---|---|---|
+| Sodium, age 50, no hypertension | 1.6 | Mozaffarian et al., in the potassium replication |
+| Sodium, age 65, hypertension | 3.1 | same |
+| Sodium, age 65, SBP 140 | 2.8 | appendix Table S3, this branch |
+| Potassium, sodium below 3 g/day | 1.8 | Filippini et al. (2020), in the potassium replication |
+| Potassium, sodium at or above 3 g/day | 2.8 | same |
+
+If nutrient density stays constant, a cut of a fraction f in energy lowers
+sodium by f times sodium intake and potassium by f times potassium intake. The
+fall in sodium lowers SBP and the fall in potassium raises it. Mean sodium
+intake in the appendix is 3.4 g/day. I did not look up potassium intake for
+Australia. If the two intakes are similar in grams, the two effects are similar
+in size and the net effect on SBP is near zero. The sign depends on age and
+hypertension. The potassium slope comes from supplementation trials, so its
+use for a fall in intake is an extrapolation.
+
+### Published comparisons that a replication could start from
+
+According to PubMed:
+
+- [Kontis et al. 2019](https://doi.org/10.1161/CIRCULATIONAHA.118.038160)
+  compare treatment of high blood pressure at 70% coverage, a 30% reduction in
+  sodium, and elimination of trans fat. Treatment delays 39.4 million deaths in
+  25 years and sodium reduction delays 40.0 million. Both act through blood
+  pressure in a generalized population attributable fraction.
+- [Pickersgill et al. 2022](https://doi.org/10.1038/s41591-022-01890-4) model
+  the 80-80-80 targets for hypertension by country and report 76 to 130 million
+  deaths averted from 2022 to 2050.
+- [Pandey et al. 2024](https://doi.org/10.1073/pnas.2412872121) estimate that
+  expanded access to weight-loss drugs in the United States averts more than
+  42,000 deaths a year. The model uses mortality hazard ratios by BMI
+  category. As I read the abstract, it has no direct drug effect.
+
+### What exists already
+
+| Need | Where | Limit |
+|---|---|---|
+| Sodium to SBP to twelve causes, HALYs, quarterly steps | this branch | Australia, `SI` disease models |
+| Sodium and potassium dose-response, hypertension care status, hyperkalaemia in CKD | `potassium_salt_replication/` on main | static, deaths only |
+| Visits, treatment levels, adherence, untreated SBP, correlation, mediation, HF as a cause | `ihmeuw/vivarium_nih_us_cvd` | United States only |
+| GLP-1 component, energy intake, a rule for combining effects at SBP, costs | nowhere yet | |
+
+Sodium reduction, potassium-enriched salt and drug treatment all act through
+SBP alone. The comparison among those three needs one new component on this
+branch, for drug treatment. GLP-1s need the rest: BMI, FPG and LDL-C exposures
+with correlation and mediation, type 2 diabetes, and HF. This is a judgment
+about the order of work.
+
+### Not settled
+
+- The location. The United States has NHANES for every input and the public US
+  model. Australia has the sodium inputs on this branch and needs the treatment
+  baseline and a dietary survey.
+- What the physical activity node is for.
+- What "access" moves in hypertension care.
