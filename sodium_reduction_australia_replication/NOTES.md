@@ -674,3 +674,8 @@ about the order of work.
   baseline and a dietary survey.
 - What the physical activity node is for.
 - What "access" moves in hypertension care.
+
+One check did not finish. I started a pull of the GBD 2023 relative risks for
+BMI in adults for Australia through `vivarium_inputs`, to see that they arrive
+in a usable form. The pull reached 28 GB of memory in 12 minutes inside a job
+with a 64 GB limit, and I stopped it. The check needs a job with more memory.
